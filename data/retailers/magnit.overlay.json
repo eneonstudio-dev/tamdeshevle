@@ -1,0 +1,33 @@
+{
+  "schema": "tamdeshevle.retailer-price-overlay.v1",
+  "retailer": "magnit",
+  "store_id": "magnit",
+  "city": "msk",
+  "checked_at": "2026-09-10T02:00:00+03:00",
+  "prices": {
+    "eggs_c1": 70.79
+  },
+  "matched": [
+    {
+      "sku": "eggs_c1",
+      "name": "Куриное яйцо C1 10шт в ассортименте",
+      "retailer_product_id": "3454700001",
+      "price_rub": 70.79,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20?shopCode=770105&shopType=1",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    }
+  ],
+  "unmatched": [],
+  "channel": "delivery_catalog",
+  "source_url": "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20?shopCode=770105&shopType=1",
+  "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "store_context": {
+    "shop_code": "770105",
+    "shop_type": "1",
+    "address": "г Москва, ул Чертановская, д 47 к 2"
+  },
+  "normalized_count": 1
+}
