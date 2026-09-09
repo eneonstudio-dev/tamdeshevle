@@ -117,12 +117,18 @@ export function matchRetailerProduct(product, options = {}) {
   return { matched: true, sku: rule.sku, confidence: 0.9, method: "conservative_rule" };
 }
 
+function betterCandidate(next, current) {
+  if (!current) return true;
+  if (next.confidence !== current.confidence) return next.confidence > current.confidence;
+  if (next.price_rub !== current.price_rub) return next.price_rub < current.price_rub;
+  return String(next.name).localeCompare(String(current.name), "ru") < 0;
+}
+
 export function buildPriceOverlay(products, options = {}) {
   const retailer = options.retailer || null;
   const city = options.city || "msk";
   const storeId = options.storeId || retailer;
-  const prices = {};
-  const matched = [];
+  const selected = new Map();
   const unmatched = [];
 
   for (const product of products || []) {
@@ -132,9 +138,23 @@ export function buildPriceOverlay(products, options = {}) {
       continue;
     }
     if (!Number.isFinite(product.price_rub) || product.availability === "out_of_stock") continue;
-    prices[result.sku] = product.price_rub;
-    matched.push({ sku: result.sku, name: product.name, price_rub: product.price_rub, confidence: result.confidence, method: result.method });
+
+    const candidate = {
+      sku: result.sku,
+      name: product.name,
+      retailer_product_id: product.retailer_product_id || null,
+      price_rub: product.price_rub,
+      old_price_rub: Number.isFinite(product.old_price_rub) ? product.old_price_rub : null,
+      promo: Boolean(product.promo),
+      source_url: product.source_url || null,
+      confidence: result.confidence,
+      method: result.method
+    };
+    if (betterCandidate(candidate, selected.get(result.sku))) selected.set(result.sku, candidate);
   }
+
+  const matched = [...selected.values()].sort((a, b) => a.sku.localeCompare(b.sku));
+  const prices = Object.fromEntries(matched.map(item => [item.sku, item.price_rub]));
 
   return {
     schema: "tamdeshevle.retailer-price-overlay.v1",
