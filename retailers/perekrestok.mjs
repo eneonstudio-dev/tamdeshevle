@@ -1,9 +1,9 @@
 const PACK_PATTERNS = [
-  { unit: "g", re: /(\d+(?:[.,]\d+)?)\s*(?:г|гр|g)\b/i, factor: 1 },
-  { unit: "kg", re: /(\d+(?:[.,]\d+)?)\s*(?:кг|kg)\b/i, factor: 1000 },
-  { unit: "ml", re: /(\d+(?:[.,]\d+)?)\s*(?:мл|ml)\b/i, factor: 1 },
-  { unit: "l", re: /(\d+(?:[.,]\d+)?)\s*(?:л|l)\b/i, factor: 1000 },
-  { unit: "pcs", re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)\b/i, factor: 1 }
+  { unit: "g", re: /(\d+(?:[.,]\d+)?)\s*(?:гр|г|g)(?![a-zа-яё])/i, factor: 1 },
+  { unit: "kg", re: /(\d+(?:[.,]\d+)?)\s*(?:кг|kg)(?![a-zа-яё])/i, factor: 1000 },
+  { unit: "ml", re: /(\d+(?:[.,]\d+)?)\s*(?:мл|ml)(?![a-zа-яё])/i, factor: 1 },
+  { unit: "l", re: /(\d+(?:[.,]\d+)?)\s*(?:л|l)(?![a-zа-яё])/i, factor: 1000 },
+  { unit: "pcs", re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)(?![a-zа-яё])/i, factor: 1 }
 ];
 
 function number(value) {
