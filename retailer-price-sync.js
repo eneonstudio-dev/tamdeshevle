@@ -1,7 +1,10 @@
 (function () {
   "use strict";
 
-  const OVERLAYS = ["data/retailers/perekrestok.overlay.json?v=20260910a"];
+  const OVERLAYS = [
+    "data/retailers/perekrestok.overlay.json?v=20260910a",
+    "data/retailers/magnit.overlay.json?v=20260910a"
+  ];
   let books = [];
   let appliedSignature = "";
 
@@ -61,6 +64,7 @@
         sourceUrl: match.source_url || book.source_url || null,
         retailerProductId: match.retailer_product_id || null,
         retailerName: match.name || null,
+        storeContext: book.store_context || null,
         confidence: Number.isFinite(match.confidence) ? match.confidence : null,
         method: match.method || null,
         price: value
@@ -83,6 +87,7 @@
       city: book.city,
       channel: book.channel || "delivery_catalog",
       checkedAt: book.checked_at || null,
+      storeContext: book.store_context || null,
       count: applyOverlay(book)
     }));
 
