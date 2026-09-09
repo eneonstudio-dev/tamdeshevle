@@ -1,0 +1,13 @@
+{
+  "schema": "tamdeshevle.stores.v1",
+  "as_of": "2026-09-10",
+  "stores": [
+    {"id":"pyat","name":"Пятёрочка","short":"Пятёрочка","kind":"shop","city":["msk","spb"],"time":"сходить","walk":12,"color":"#e31e24","type":"Продукты","has_bring":true},
+    {"id":"magnit","name":"Магнит","short":"Магнит","kind":"shop","city":["msk","spb"],"time":"сходить","walk":18,"color":"#c81e1e","type":"Продукты","has_bring":true},
+    {"id":"perek","name":"Перекрёсток","short":"Перекрёсток","kind":"shop","city":["msk","spb"],"time":"сходить","walk":9,"color":"#0b5c3b","type":"Продукты","has_bring":true},
+    {"id":"lenta","name":"Лента","short":"Гипер Лента","kind":"hyper","city":["msk","spb"],"time":"гипер, сходить","walk":28,"color":"#0033a0","type":"Гипер","has_bring":true},
+    {"id":"dixy","name":"Дикси","short":"Дикси","kind":"shop","city":["msk","spb"],"time":"сходить","walk":16,"color":"#f36f21","type":"Продукты","has_bring":true},
+    {"id":"lavka","name":"Лавка","short":"Доставка Лавка","kind":"delivery","city":["msk","spb"],"time":"20–40 мин","walk":0,"color":"#2f6bff","type":"Продукты","delivery":199,"has_bring":true},
+    {"id":"vprok","name":"Впрок","short":"Перекрёсток Впрок","kind":"delivery","city":["msk","spb"],"time":"слот 2–4 ч","walk":0,"color":"#12805a","type":"Продукты","delivery":99,"has_bring":true}
+  ]
+}
