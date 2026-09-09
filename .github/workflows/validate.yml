@@ -9,6 +9,7 @@ on:
       - chatgpt/sku-matcher
       - chatgpt/retailer-price-overlay
       - chatgpt/price-provenance
+      - chatgpt/retailer-adapter-magnit
 
 permissions:
   contents: read
@@ -25,8 +26,10 @@ jobs:
         run: node scripts/validate-data.mjs
       - name: Test comparison engine
         run: node scripts/test-comparison.mjs
-      - name: Test retailer adapter
+      - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
+      - name: Test Magnit adapter
+        run: node scripts/test-magnit-adapter.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
@@ -47,9 +50,11 @@ jobs:
           node --check comparison-engine.js
           node --check runtime-bridge.js
           node --check retailers/perekrestok.mjs
+          node --check retailers/magnit.mjs
           node --check retailers/sku-matcher.mjs
           node --check retailers/overlay-builder.mjs
           node --check scripts/build-retailer-overlay.mjs
+          node --check scripts/test-magnit-adapter.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
