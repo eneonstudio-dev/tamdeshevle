@@ -1,0 +1,91 @@
+(function () {
+  "use strict";
+
+  const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[ch]));
+  const rub = value => Number.isFinite(value) ? `${new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(value)} ₽` : "";
+
+  function style() {
+    if (document.getElementById("td-product-ui-style")) return;
+    const node = document.createElement("style");
+    node.id = "td-product-ui-style";
+    node.textContent = `
+      .item{position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.item:has(.td-product-trust.real){border-color:#cce7d6;box-shadow:0 12px 28px rgba(15,123,74,.09)}
+      .td-product-trust{grid-column:2/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:-5px;padding-top:8px;border-top:1px solid #eee8de;font-size:10px;font-weight:800;color:#756d61}
+      .td-product-trust.real{color:#116c45}.td-product-trust .verified{display:inline-flex;align-items:center;gap:5px;background:#e7f6ec;border-radius:999px;padding:5px 8px;color:#0f7b4a}.td-product-trust .estimated{background:#f1ede6;border-radius:999px;padding:5px 8px}
+      .td-product-trust .promo{background:#fff0b8;color:#765700;border-radius:999px;padding:5px 8px}.td-product-trust a{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;opacity:.9}
+      .td-retailer-name{grid-column:2/-1;margin-top:-6px;color:#4e493f;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.td-retailer-name strong{color:#161410}
+      .td-old-price{text-decoration:line-through;color:#8a8277;font-size:12px;font-weight:700;margin-left:6px}.td-match-note{grid-column:2/-1;font-size:10px;color:#777064;font-weight:700;margin-top:-5px}
+      @media (hover:hover){.item:has(.td-product-trust.real):hover{transform:translateY(-1px)}}
+    `;
+    document.head.appendChild(node);
+  }
+
+  function channel(storeId) {
+    if (typeof STORES === "undefined") return "shelf";
+    const store = STORES.find(item => item.id === storeId);
+    return window.TDCompare ? TDCompare.defaultChannel(store) : (store && store.kind === "delivery" ? "bring" : "shelf");
+  }
+
+  function product(card) {
+    const title = card.querySelector(".title");
+    if (!title || typeof PRODUCTS === "undefined") return null;
+    return PRODUCTS.find(item => item.name === title.textContent.trim()) || null;
+  }
+
+  function date(value) {
+    if (!value) return "";
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "";
+    return parsed.toLocaleDateString("ru-RU", { day:"numeric", month:"short" }).replace(".", "");
+  }
+
+  function decorateCard(card) {
+    if (card.dataset.productUi === "1" || !window.state) return;
+    const item = product(card);
+    if (!item) return;
+    card.dataset.productUi = "1";
+    const storeId = state.storeId;
+    const slot = channel(storeId);
+    const meta = window.TDPriceMeta && TDPriceMeta.get(item.id, storeId, slot);
+    const price = card.querySelector(".price");
+
+    const name = document.createElement("div");
+    name.className = "td-retailer-name";
+    if (meta && meta.retailerName) name.innerHTML = `В каталоге: <strong>${esc(meta.retailerName)}</strong>`;
+    else name.textContent = "Базовый товар для сравнения";
+    card.appendChild(name);
+
+    const trust = document.createElement("div");
+    trust.className = `td-product-trust${meta ? " real" : ""}`;
+    if (meta) {
+      const checked = date(meta.checkedAt);
+      trust.innerHTML = `<span class="verified">✓ подтверждено${checked ? ` · ${esc(checked)}` : ""}</span>${meta.promo ? `<span class="promo">акция</span>` : ""}${meta.sourceUrl ? `<a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener noreferrer">карточка магазина ↗</a>` : ""}`;
+      if (price && Number.isFinite(meta.oldPrice) && meta.oldPrice > meta.price) {
+        price.insertAdjacentHTML("beforeend", `<span class="td-old-price">${esc(rub(meta.oldPrice))}</span>`);
+      }
+    } else {
+      trust.innerHTML = `<span class="estimated">≈ учебная оценка</span><span>не влияет на статус подтверждённой цены</span>`;
+    }
+    card.appendChild(trust);
+
+    if (meta && meta.method && meta.method !== "exact_retailer_id") {
+      const note = document.createElement("div");
+      note.className = "td-match-note";
+      note.textContent = meta.confidence != null ? `Подобрано как совместимый товар · уверенность ${Math.round(meta.confidence * 100)}%` : "Подобрано как совместимый товар";
+      card.appendChild(note);
+    }
+  }
+
+  function decorate() {
+    style();
+    document.querySelectorAll(".item").forEach(decorateCard);
+  }
+
+  const observer = new MutationObserver(() => requestAnimationFrame(decorate));
+  const start = () => {
+    if (document.body) observer.observe(document.body, { childList:true, subtree:true });
+    requestAnimationFrame(decorate);
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once:true }); else start();
+  window.addEventListener("td:retailer-prices-applied", () => requestAnimationFrame(decorate));
+})();
