@@ -19,7 +19,7 @@
       }
     }
     books = loaded;
-    applyOverlays();
+    applyOverlays(true);
   }
 
   function applyOverlay(book) {
@@ -42,13 +42,13 @@
     return count;
   }
 
-  function applyOverlays() {
+  function applyOverlays(force) {
     if (!books.length) return false;
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS) || PRODUCTS.length < 10) return false;
     if (typeof state === "undefined" || !state) return false;
 
     const signature = books.map(book => [book.retailer, book.city, book.checked_at, Object.keys(book.prices || {}).length].join(":" )).join("|") + ":" + state.city + ":" + PRODUCTS.length;
-    if (signature === appliedSignature) return true;
+    if (!force && signature === appliedSignature) return true;
 
     const applied = books.map(book => ({
       retailer: book.retailer,
@@ -70,14 +70,14 @@
     return true;
   }
 
-  window.TDApplyRetailerPrices = applyOverlays;
-  window.addEventListener("td:prices-applied", applyOverlays);
-  window.addEventListener("td:stores-loaded", applyOverlays);
+  window.TDApplyRetailerPrices = function () { return applyOverlays(true); };
+  window.addEventListener("td:prices-applied", function () { applyOverlays(true); });
+  window.addEventListener("td:stores-loaded", function () { applyOverlays(true); });
 
   let attempts = 0;
   const timer = setInterval(() => {
     attempts += 1;
-    if (applyOverlays() || attempts >= 50) clearInterval(timer);
+    if (applyOverlays(false) || attempts >= 50) clearInterval(timer);
   }, 100);
 
   loadOverlays();
