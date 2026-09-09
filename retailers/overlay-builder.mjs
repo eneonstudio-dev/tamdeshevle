@@ -1,8 +1,10 @@
 import { adaptPerekrestokCatalog } from "./perekrestok.mjs";
+import { adaptMagnitCatalog } from "./magnit.mjs";
 import { buildPriceOverlay } from "./sku-matcher.mjs";
 
 const ADAPTERS = {
-  perek: adaptPerekrestokCatalog
+  perek: adaptPerekrestokCatalog,
+  magnit: adaptMagnitCatalog
 };
 
 export function buildOverlayFromSnapshot(snapshot) {
@@ -25,6 +27,7 @@ export function buildOverlayFromSnapshot(snapshot) {
     channel: snapshot.channel || normalized[0]?.channel || "delivery_catalog",
     source_url: snapshot.source_url || null,
     source_schema: snapshot.schema || null,
+    store_context: snapshot.store_context || null,
     normalized_count: normalized.length
   };
 }
