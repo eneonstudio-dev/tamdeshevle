@@ -71,6 +71,26 @@ export function discoverMagnitProductUrls(html, baseUrl, storeContext) {
   return [...urls].sort();
 }
 
+function keywordScore(url, keywords) {
+  const value = decodeURIComponent(String(url || "")).toLowerCase().replace(/[^a-zа-яё0-9]+/g, " ");
+  return (keywords || []).reduce((score, keyword, index) => {
+    const needle = String(keyword || "").toLowerCase().trim();
+    if (!needle || !value.includes(needle)) return score;
+    return score + Math.max(1, (keywords.length - index) * 10);
+  }, 0);
+}
+
+export function rankMagnitProductUrls(urls, keywords = [], pinned = []) {
+  const pinnedSet = new Set((pinned || []).map(String));
+  return [...new Set(urls || [])].sort((a, b) => {
+    const ap = pinnedSet.has(String(a)) ? 1 : 0;
+    const bp = pinnedSet.has(String(b)) ? 1 : 0;
+    if (ap !== bp) return bp - ap;
+    const scoreDiff = keywordScore(b, keywords) - keywordScore(a, keywords);
+    return scoreDiff || String(a).localeCompare(String(b), "ru");
+  });
+}
+
 function pageTitle(html) {
   const h1 = String(html || "").match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
   if (h1) return stripTags(h1[1]);
@@ -165,7 +185,8 @@ export async function collectMagnitSnapshot(config, options = {}) {
   if (!config.store_context || config.store_context.shop_code == null) throw new Error("Collector config requires store_context.shop_code");
   const delay = Math.max(0, Number(config.delay_ms ?? 500));
   const maxProducts = Math.max(1, Number(config.max_products ?? 40));
-  const productUrls = new Set((config.product_urls || []).map(url => withMagnitStore(url, config.store_context)));
+  const pinned = (config.product_urls || []).map(url => withMagnitStore(url, config.store_context));
+  const productUrls = new Set(pinned);
 
   for (const raw of config.catalog_urls || []) {
     const url = withMagnitStore(raw, config.store_context);
@@ -174,9 +195,10 @@ export async function collectMagnitSnapshot(config, options = {}) {
     if (delay) await sleep(delay);
   }
 
+  const rankedUrls = rankMagnitProductUrls([...productUrls], config.priority_keywords || [], pinned);
   const rows = [];
   const errors = [];
-  for (const url of [...productUrls].slice(0, maxProducts)) {
+  for (const url of rankedUrls.slice(0, maxProducts)) {
     try {
       const html = await getText(url, options);
       rows.push(parseMagnitProductPage(html, url, config));
@@ -197,7 +219,7 @@ export async function collectMagnitSnapshot(config, options = {}) {
     source_url: config.source_url || "https://magnit.ru/",
     method: "public_catalog_collector",
     store_context: config.store_context,
-    collector: { discovered: productUrls.size, accepted: rows.length, errors },
+    collector: { discovered: productUrls.size, attempted: Math.min(rankedUrls.length, maxProducts), accepted: rows.length, errors },
     rows
   };
 }
