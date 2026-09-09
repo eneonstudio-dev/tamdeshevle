@@ -14,6 +14,7 @@ on:
       - chatgpt/magnit-live-overlay
       - chatgpt/collector-magnit
       - chatgpt/retailer-adapter-pyat
+      - chatgpt/pyat-store-scoped-collector
 
 permissions:
   contents: read
@@ -38,6 +39,8 @@ jobs:
         run: node scripts/test-magnit-collector.mjs
       - name: Test Pyaterochka adapter
         run: node scripts/test-pyat-adapter.mjs
+      - name: Test Pyaterochka collector
+        run: node scripts/test-pyat-collector.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
@@ -65,13 +68,16 @@ jobs:
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
           node --check retailers/pyat.mjs
+          node --check retailers/pyat-collector.mjs
           node --check retailers/sku-matcher.mjs
           node --check retailers/overlay-builder.mjs
           node --check scripts/build-retailer-overlay.mjs
           node --check scripts/collect-magnit.mjs
+          node --check scripts/collect-pyat.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
+          node --check scripts/test-pyat-collector.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
