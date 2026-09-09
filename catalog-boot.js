@@ -1,22 +1,22 @@
 (function () {
   const IDS = ["pyat", "magnit", "perek", "lenta", "dixy", "lavka", "vprok"];
   const LEGACY = { bread: "bread_dark", chicken: "chicken_fil", oil: "oil_sunflower", eggs: "eggs_c1", buck: "buckwheat", sour: "smetana" };
-  const TONE = {
-    "Молочное и яйца": "#d7eee2",
-    "Мясо и птица": "#f3d9d4",
-    "Колбасы": "#f6e2cf",
-    "Овощи и зелень": "#dcecc8",
-    "Фрукты": "#f7e4c4",
-    "Бакалея": "#e7e0d2",
-    "Хлеб": "#efe0c8",
-    "Напитки": "#d5e6f2"
-  };
   const MSK = { lat: 55.7558, lon: 37.6173 };
   const SPB = { lat: 59.9343, lon: 30.3351 };
   const rub = n => Math.max(9, Math.round(n));
   let POINTS = [];
   let BOOK = null;
 
+  function packClass(p) {
+    const c = (p && p.category) || "";
+    if (c.indexOf("Молоч") === 0) return "packaging-dairy";
+    if (c.indexOf("Мясо") === 0 || c.indexOf("Колб") === 0) return "packaging-meat";
+    if (c.indexOf("Овощ") === 0) return "packaging-veggie";
+    if (c.indexOf("Фрук") === 0) return "packaging-fruit";
+    if (c.indexOf("Хлеб") === 0) return "packaging-bakery";
+    if (c.indexOf("Напи") === 0) return "packaging-drink";
+    return "packaging-grocery";
+  }
   function hav(a, b) {
     const R = 6371, dLat = (b.lat - a.lat) * Math.PI / 180, dLon = (b.lon - a.lon) * Math.PI / 180;
     const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
@@ -61,6 +61,23 @@
       const fee = s.kind === "delivery" ? (s.delivery || 0) : 0;
       return { s: s, total: goods + fee };
     }).sort((a, b) => a.total - b.total)[0];
+  }
+  function dressItems() {
+    document.querySelectorAll(".item").forEach(el => {
+      const title = el.querySelector(".title");
+      const thumb = el.querySelector(".thumb");
+      if (!title) return;
+      const p = PRODUCTS.find(x => x.name === title.textContent);
+      if (state.screen === "catalog") {
+        el.style.display = (state.category === "Все" || (p && p.category === state.category)) ? "" : "none";
+      }
+      if (thumb && p) {
+        thumb.className = "thumb product-packaging " + packClass(p);
+        thumb.textContent = p.name.split(" ")[0];
+        thumb.style.background = "";
+      }
+      el.classList.add("product-card");
+    });
   }
 
   window.setRadius = function (r) {
@@ -107,12 +124,11 @@
       : state.geoStatus === "denied" ? "Гео запрещено"
       : "Без места — сети города";
     const tiles = (cart.length ? cart : PRODUCTS).slice(0, 6).map(p => {
-      const bg = TONE[p.category] || "#e3f4ea";
-      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate" style="background:${bg}">${p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
+      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}">${p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
     }).join("");
     const nets = (typeof STORES === "undefined" ? [] : STORES.filter(s => s.city.includes(state.city))).slice(0, 4).map(s => {
       const total = n ? sumStore(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
-      return `<button class="net" onclick="state.storeId='${s.id}';go('catalog')"><i style="background:${s.color}"></i><b>${s.short}</b><span>${total != null ? total + " ₽" : s.type}</span></button>`;
+      return `<button class="net" onclick="state.storeId='${s.id}';go('catalog')"><i style="background:${s.color}">${s.short.charAt(0)}</i><b>${s.short}</b><span>${total != null ? total + " ₽" : s.type}</span></button>`;
     }).join("");
     wrap.innerHTML = `
       <div class="hero">
@@ -144,7 +160,6 @@
     const sub = header.querySelector(".sub");
     if (state.screen === "home" && sub) sub.textContent = "Сравни сети по одной корзине";
     if (state.screen === "home") paintHome(wrap);
-
     if (state.screen === "stores") {
       if (!document.querySelector(".extra-chips")) header.after(chipRow(["5 км", "10 км", "15 км"], state.radius + " км", "setRadiusLabel"));
       document.querySelectorAll(".store").forEach(card => {
@@ -158,22 +173,8 @@
         card.style.opacity = ok ? "1" : ".55";
       });
     }
-
-    if (state.screen === "catalog") {
-      if (!document.querySelector(".extra-chips")) header.after(chipRow(cats(), state.category, "setCat"));
-      document.querySelectorAll(".item").forEach(el => {
-        const title = el.querySelector(".title");
-        const thumb = el.querySelector(".thumb");
-        if (!title) return;
-        const p = PRODUCTS.find(x => x.name === title.textContent);
-        el.style.display = (state.category === "Все" || (p && p.category === state.category)) ? "" : "none";
-        if (thumb && p) {
-          thumb.style.background = TONE[p.category] || "#e3f4ea";
-          thumb.textContent = p.name.split(" ")[0];
-          thumb.classList.add("word-thumb");
-        }
-      });
-    }
+    if (state.screen === "catalog" && !document.querySelector(".extra-chips")) header.after(chipRow(cats(), state.category, "setCat"));
+    if (state.screen === "catalog" || state.screen === "cart") dressItems();
   }
 
   const prev = window.render;
