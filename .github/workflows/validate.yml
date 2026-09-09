@@ -6,6 +6,7 @@ on:
     branches:
       - chatgpt/architecture-cleanup
       - chatgpt/retailer-adapter-perekrestok
+      - chatgpt/sku-matcher
 
 permissions:
   contents: read
@@ -24,6 +25,8 @@ jobs:
         run: node scripts/test-comparison.mjs
       - name: Test retailer adapter
         run: node scripts/test-retailer-adapter.mjs
+      - name: Test SKU matcher
+        run: node scripts/test-sku-matcher.mjs
       - name: Check JavaScript syntax
         run: |
           node --check app.js
@@ -34,6 +37,7 @@ jobs:
           node --check comparison-engine.js
           node --check runtime-bridge.js
           node --check retailers/perekrestok.mjs
+          node --check retailers/sku-matcher.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
