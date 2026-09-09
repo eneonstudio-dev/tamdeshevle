@@ -1,5 +1,5 @@
 (function () {
-  window.YM_ID = 0;
+  window.YM_ID = 112427683;
 
   window.tdHit = function (screen) {
     try {
