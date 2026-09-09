@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { discoverMagnitProductUrls, pageUnitPrice, parseMagnitProductPage, withMagnitStore } from "../retailers/magnit-collector.mjs";
+import { discoverMagnitProductUrls, pageUnitPrice, parseMagnitProductPage, rankMagnitProductUrls, withMagnitStore } from "../retailers/magnit-collector.mjs";
 
 const store_context = { shop_code: "770105", shop_type: "1", address: "г Москва, ул Чертановская, д 47 к 2" };
 const context = { store_context, expected_address_tokens: ["Чертановская", "47"] };
@@ -32,6 +32,15 @@ assert.equal(urls.length, 2);
 assert.ok(urls.every(url => new URL(url).searchParams.get("shopCode") === "770105"));
 assert.ok(urls.every(url => new URL(url).searchParams.get("shopType") === "1"));
 
+const ranked = rankMagnitProductUrls([
+  "https://magnit.ru/product/3-zhevatelnaya_rezinka?shopCode=770105",
+  "https://magnit.ru/product/2-moloko_2_5_900g?shopCode=770105",
+  "https://magnit.ru/product/1-yaytso_s1_10sht?shopCode=770105"
+], ["yaytso", "moloko"], ["https://magnit.ru/product/1-yaytso_s1_10sht?shopCode=770105"]);
+assert.match(ranked[0], /yaytso/);
+assert.match(ranked[1], /moloko/);
+assert.match(ranked[2], /zhevatelnaya/);
+
 assert.match(withMagnitStore("https://magnit.ru/product/1-test?shopCode=123", store_context), /shopCode=770105/);
 assert.throws(() => withMagnitStore("https://example.com/product/1", store_context), /Unsupported Magnit host/);
 assert.throws(() => parseMagnitProductPage(productHtml.replace(/Чертановская/g, "Дубнинская"), row.url, context), /expected store address/);
@@ -41,4 +50,4 @@ const fallback = parseMagnitProductPage(fallbackHtml, "https://magnit.ru/product
 assert.equal(fallback.price, 74.99);
 assert.equal(fallback.name, "Макароны Makfa Рожки гладкие 450г");
 
-console.log("Magnit collector tests passed: store scoping, JSON-LD, unit-price parsing, fallback parsing and URL discovery.");
+console.log("Magnit collector tests passed: store scoping, basket prioritization, JSON-LD, unit-price parsing, fallback parsing and URL discovery.");
