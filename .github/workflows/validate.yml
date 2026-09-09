@@ -7,6 +7,7 @@ on:
       - chatgpt/architecture-cleanup
       - chatgpt/retailer-adapter-perekrestok
       - chatgpt/sku-matcher
+      - chatgpt/retailer-price-overlay
 
 permissions:
   contents: read
@@ -27,17 +28,26 @@ jobs:
         run: node scripts/test-retailer-adapter.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
+      - name: Test retailer overlay pipeline
+        run: node scripts/test-retailer-overlay.mjs
+      - name: Regenerate sample overlay
+        run: |
+          node scripts/build-retailer-overlay.mjs data/retailers/perekrestok.sample.json /tmp/perekrestok.overlay.json
+          diff -u data/retailers/perekrestok.overlay.json /tmp/perekrestok.overlay.json
       - name: Check JavaScript syntax
         run: |
           node --check app.js
           node --check catalog-boot.js
           node --check store-boot.js
           node --check price-sync.js
+          node --check retailer-price-sync.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
           node --check retailers/perekrestok.mjs
           node --check retailers/sku-matcher.mjs
+          node --check retailers/overlay-builder.mjs
+          node --check scripts/build-retailer-overlay.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
