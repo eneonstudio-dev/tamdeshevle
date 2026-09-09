@@ -7,11 +7,31 @@
   "prices": {},
   "matched": [],
   "unmatched": [
-    { "name": "Мюсли Ого с орехом запечённые, 350г", "retailer_product_id": null, "reason": "no_rule_match" },
-    { "name": "Хлопья Любятово кукурузные 300г", "retailer_product_id": null, "reason": "no_rule_match" },
-    { "name": "Готовый шоколадный завтрак Chocozavr Шоксики, 195г", "retailer_product_id": null, "reason": "no_rule_match" },
-    { "name": "Хлопья Любятово кукурузные, 600г", "retailer_product_id": null, "reason": "no_rule_match" },
-    { "name": "Подушечки Любятово с шоколадной начинкой, 220г", "retailer_product_id": null, "reason": "no_rule_match" }
+    {
+      "name": "Мюсли Ого с орехом запечённые, 350г",
+      "retailer_product_id": null,
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлопья Любятово кукурузные 300г",
+      "retailer_product_id": null,
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Готовый шоколадный завтрак Chocozavr Шоксики, 195г",
+      "retailer_product_id": null,
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлопья Любятово кукурузные, 600г",
+      "retailer_product_id": null,
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Подушечки Любятово с шоколадной начинкой, 220г",
+      "retailer_product_id": null,
+      "reason": "no_rule_match"
+    }
   ],
   "channel": "delivery_catalog",
   "source_url": "https://www.perekrestok.ru/cat/mc/224/suhie-zavtraki-musli",
