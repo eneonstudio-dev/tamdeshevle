@@ -1,21 +1,21 @@
 const SKU_RULES = [
-  { sku: "milk", any: ["молоко"], none: ["кефир", "коктейл", "топлен", "сгущ"], percent: 2.5, pack: { value: 1000, unit: "ml", tolerance: 0.15 } },
-  { sku: "kefir", any: ["кефир"], none: ["коктейл"], percent: 2.5, pack: { value: 930, unit: "ml", tolerance: 0.12 } },
-  { sku: "smetana", any: ["сметан"], percent: 20, pack: { value: 300, unit: "g", tolerance: 0.08 } },
-  { sku: "tvorog", any: ["творог"], none: ["запеканк", "сырок"], percent: 5, pack: { value: 200, unit: "g", tolerance: 0.12 } },
-  { sku: "eggs_c1", any: ["яйц"], all: ["с1"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
-  { sku: "eggs_c0", any: ["яйц"], all: ["с0"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
-  { sku: "chicken_fil", any: ["филе курин", "филе грудки цыплен", "филе цыпленка-бройлера"], none: ["маринад", "стейк", "кусоч", "бедр", "индей", "наггет", "котлет", "фарш"], pack: { value: 1000, unit: "g", tolerance: 0.25 } },
-  { sku: "potato", any: ["картоф"], none: ["батат", "фри", "чипс", "пюре", "готов", "салат"] },
-  { sku: "onion", any: ["лук репчат"], none: ["зелён", "зелен", "марин", "жарен", "сушен"] },
-  { sku: "carrot", any: ["морков"], none: ["по-корей", "готов", "салат", "сок", "пюре"] },
+  { sku: "milk", any: ["молоко"], none: ["кефир", "коктейл", "топлен", "сгущ", "сливк"], percent: 2.5, percentRequired: true, pack: { value: 1000, unit: "ml", tolerance: 0.15 } },
+  { sku: "kefir", any: ["кефир"], none: ["коктейл"], percent: 2.5, percentRequired: true, pack: { value: 930, unit: "ml", tolerance: 0.12 } },
+  { sku: "smetana", any: ["сметан"], percent: 20, percentRequired: true, pack: { value: 300, unit: "g", tolerance: 0.08 } },
+  { sku: "tvorog", any: ["творог"], none: ["запеканк", "сырок"], percent: 5, percentRequired: true, pack: { value: 200, unit: "g", tolerance: 0.12 } },
+  { sku: "eggs_c1", any: ["яйц"], all: ["с1"], none: ["с0", "с2"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
+  { sku: "eggs_c0", any: ["яйц"], all: ["с0"], none: ["с1", "с2"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
+  { sku: "chicken_fil", any: ["филе курин", "филе грудки цыплен", "филе цыпленка-бройлера"], none: ["маринад", "стейк", "кусоч", "бедр", "индей", "наггет", "котлет", "фарш", "копчен", "варен"], pack: { value: 1000, unit: "g", tolerance: 0.25 } },
+  { sku: "potato", any: ["картоф"], none: ["батат", "фри", "чипс", "пюре", "готов", "салат", "дольк"] },
+  { sku: "onion", any: ["лук репчат"], none: ["зелён", "зелен", "марин", "жарен", "сушен", "порей"] },
+  { sku: "carrot", any: ["морков"], none: ["по-корей", "готов", "салат", "сок", "пюре", "сушен"] },
   { sku: "buckwheat", any: ["гречк", "гречнев"], none: ["готов", "каша", "хлоп", "котлет", "куриц"], pack: { value: 800, unit: "g", tolerance: 0.25 } },
-  { sku: "pasta", any: ["макарон", "спагет", "вермиш"], none: ["по-флотски", "готов"], pack: { value: 450, unit: "g", tolerance: 0.25 } },
-  { sku: "oil_sunflower", any: ["масло подсолнеч"], none: ["оливк"], pack: { value: 1000, unit: "ml", tolerance: 0.2 } },
-  { sku: "sugar", any: ["сахар"], none: ["заменител", "пудр"], pack: { value: 1000, unit: "g", tolerance: 0.2 } },
-  { sku: "bread_dark", any: ["хлеб"], all: ["дарниц"], pack: { value: 650, unit: "g", tolerance: 0.3 } },
-  { sku: "banana", any: ["банан"], none: ["суш", "чипс", "пюре"] },
-  { sku: "tea_black", any: ["чай черн"], none: ["листов", "листовой", "зелён", "зелен", "травян"], pack: { value: 100, unit: "pcs", tolerance: 0 } }
+  { sku: "pasta", any: ["макарон", "спагет", "вермиш"], none: ["по-флотски", "готов", "лапша быстр", "доширак"], pack: { value: 450, unit: "g", tolerance: 0.25 } },
+  { sku: "oil_sunflower", any: ["масло подсолнеч"], none: ["оливк", "кукуруз", "рапс", "смесь масел"], pack: { value: 1000, unit: "ml", tolerance: 0.2 } },
+  { sku: "sugar", any: ["сахар"], none: ["заменител", "пудр", "тростников", "кокосов"], pack: { value: 1000, unit: "g", tolerance: 0.2 } },
+  { sku: "bread_dark", any: ["хлеб"], all: ["дарниц"], none: ["сухар", "гренк"], pack: { value: 650, unit: "g", tolerance: 0.3 } },
+  { sku: "banana", any: ["банан"], none: ["суш", "чипс", "пюре", "нектар", "йогурт"] },
+  { sku: "tea_black", any: ["чай черн", "черный чай"], none: ["листов", "листовой", "зелён", "зелен", "травян", "холодн", "напиток"], pack: { value: 100, unit: "pcs", tolerance: 0 } }
 ];
 
 export const PEREKRESTOK_EXACT_SKU = Object.freeze({
@@ -61,10 +61,9 @@ export function parsePack(text) {
 
 function parsePercent(text) {
   const source = normalizeText(text);
-  const matches = [...source.matchAll(/(\d+(?:[.,]\d+)?)\s*%/g)]
+  return [...source.matchAll(/(\d+(?:[.,]\d+)?)\s*%/g)]
     .map(match => number(match[1]))
     .filter(value => value != null);
-  return matches;
 }
 
 function includesAll(text, needles) {
@@ -75,21 +74,65 @@ function includesAny(text, needles) {
   return !(needles || []).length || needles.some(needle => text.includes(normalizeText(needle)));
 }
 
-function includesNone(text, needles) {
-  return !(needles || []).some(needle => text.includes(normalizeText(needle)));
+function firstForbidden(text, needles) {
+  return (needles || []).find(needle => text.includes(normalizeText(needle))) || null;
 }
 
-function packMatches(actual, expected) {
-  if (!expected) return true;
-  if (!actual || actual.unit !== expected.unit) return false;
-  const tolerance = expected.tolerance ?? 0;
-  return Math.abs(actual.value - expected.value) <= expected.value * tolerance;
+function packDistance(actual, expected) {
+  if (!expected) return { ok: true, ratio: 0 };
+  if (!actual) return { ok: false, reason: "pack_missing" };
+  if (actual.unit !== expected.unit) return { ok: false, reason: "pack_unit_mismatch", actual, expected };
+  const ratio = Math.abs(actual.value - expected.value) / expected.value;
+  return ratio <= (expected.tolerance ?? 0)
+    ? { ok: true, ratio }
+    : { ok: false, reason: "pack_size_mismatch", ratio, actual, expected };
 }
 
-function percentMatches(actual, expected) {
-  if (expected == null) return true;
-  if (!actual.length) return false;
-  return actual.some(value => Math.abs(value - expected) <= 0.11);
+function percentDistance(actual, expected, required) {
+  if (expected == null) return { ok: true, delta: 0 };
+  if (!actual.length) return required ? { ok: false, reason: "percent_missing" } : { ok: true, delta: 0.2 };
+  const delta = Math.min(...actual.map(value => Math.abs(value - expected)));
+  return delta <= 0.11
+    ? { ok: true, delta }
+    : { ok: false, reason: "percent_mismatch", delta, actual, expected };
+}
+
+function brandEvidence(product) {
+  const brand = normalizeText(product && product.brand);
+  return brand ? { brand: product.brand, normalized: brand } : null;
+}
+
+function evaluateRule(product, rule) {
+  const text = normalizeText(product.name);
+  if (!includesAny(text, rule.any)) return { ok: false, reason: "name_mismatch" };
+  if (!includesAll(text, rule.all)) return { ok: false, reason: "required_term_missing" };
+  const forbidden = firstForbidden(text, rule.none);
+  if (forbidden) return { ok: false, reason: "forbidden_term", detail: forbidden };
+
+  const actualPack = product.pack && Number.isFinite(product.pack.value)
+    ? { value: Number(product.pack.value), unit: product.pack.unit }
+    : parsePack(product.name);
+  const pack = packDistance(actualPack, rule.pack);
+  if (!pack.ok) return pack;
+
+  const percent = percentDistance(parsePercent(product.name), rule.percent, rule.percentRequired);
+  if (!percent.ok) return percent;
+
+  let score = 1;
+  if (rule.pack) score -= Math.min(0.25, (pack.ratio || 0) * 0.6);
+  if (rule.percent != null) score -= Math.min(0.15, (percent.delta || 0) * 0.2);
+  if (!brandEvidence(product)) score -= 0.02;
+
+  return {
+    ok: true,
+    score: Math.max(0.7, Number(score.toFixed(4))),
+    evidence: {
+      pack: actualPack,
+      pack_distance_ratio: Number((pack.ratio || 0).toFixed(4)),
+      percent_delta: Number((percent.delta || 0).toFixed(4)),
+      brand: brandEvidence(product)
+    }
+  };
 }
 
 export function matchRetailerProduct(product, options = {}) {
@@ -98,29 +141,40 @@ export function matchRetailerProduct(product, options = {}) {
   const retailer = product.retailer || options.retailer || null;
   const retailerId = product.retailer_product_id != null ? String(product.retailer_product_id) : null;
   if (retailer === "perek" && retailerId && PEREKRESTOK_EXACT_SKU[retailerId]) {
-    return { matched: true, sku: PEREKRESTOK_EXACT_SKU[retailerId], confidence: 1, method: "exact_retailer_id" };
+    return {
+      matched: true,
+      sku: PEREKRESTOK_EXACT_SKU[retailerId],
+      confidence: 1,
+      method: "exact_retailer_id",
+      evidence: { retailer_product_id: retailerId }
+    };
   }
 
-  const text = normalizeText(product.name);
-  const pack = product.pack && Number.isFinite(product.pack.value)
-    ? { value: Number(product.pack.value), unit: product.pack.unit }
-    : parsePack(product.name);
-  const percents = parsePercent(product.name);
-
-  const candidates = SKU_RULES.filter(rule =>
-    includesAny(text, rule.any) &&
-    includesAll(text, rule.all) &&
-    includesNone(text, rule.none) &&
-    percentMatches(percents, rule.percent) &&
-    packMatches(pack, rule.pack)
-  );
-
-  if (candidates.length !== 1) {
-    return { matched: false, reason: candidates.length ? "ambiguous" : "no_rule_match", candidates: candidates.map(c => c.sku) };
+  const passed = [];
+  const rejected = [];
+  for (const rule of SKU_RULES) {
+    const result = evaluateRule(product, rule);
+    if (result.ok) passed.push({ rule, result });
+    else if (result.reason !== "name_mismatch") rejected.push({ sku: rule.sku, reason: result.reason, detail: result.detail || null });
   }
 
-  const rule = candidates[0];
-  return { matched: true, sku: rule.sku, confidence: 0.9, method: "conservative_rule" };
+  if (passed.length !== 1) {
+    return {
+      matched: false,
+      reason: passed.length ? "ambiguous" : "no_rule_match",
+      candidates: passed.map(item => item.rule.sku),
+      rejected
+    };
+  }
+
+  const { rule, result } = passed[0];
+  return {
+    matched: true,
+    sku: rule.sku,
+    confidence: Math.min(0.96, Math.max(0.8, result.score * 0.94)),
+    method: "structured_rule",
+    evidence: result.evidence
+  };
 }
 
 function betterCandidate(next, current) {
@@ -140,7 +194,12 @@ export function buildPriceOverlay(products, options = {}) {
   for (const product of products || []) {
     const result = matchRetailerProduct(product, { retailer });
     if (!result.matched) {
-      unmatched.push({ name: product.name, retailer_product_id: product.retailer_product_id || null, reason: result.reason });
+      unmatched.push({
+        name: product.name,
+        retailer_product_id: product.retailer_product_id || null,
+        reason: result.reason,
+        ...(result.rejected && result.rejected.length ? { rejected: result.rejected } : {})
+      });
       continue;
     }
     if (!Number.isFinite(product.price_rub) || product.availability === "out_of_stock") continue;
