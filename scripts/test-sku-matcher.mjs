@@ -32,7 +32,6 @@ const falsePositives = [
   { retailer: "perek", name: "Мюсли Ого с орехом запечённые, 350г", price_rub: 128.49 },
   { retailer: "pyat", name: "Молоко ультрапастеризованное 3,2% 1л", price_rub: 109 },
   { retailer: "pyat", name: "Молоко пастеризованное 2,5% 700мл", price_rub: 79 },
-  { retailer: "pyat", name: "Яйца куриные С0 10шт", price_rub: 119 },
   { retailer: "pyat", name: "Яйца куриные С1 20шт", price_rub: 189 },
   { retailer: "pyat", name: "Чай зелёный 100 пакетиков", price_rub: 199 },
   { retailer: "pyat", name: "Чай чёрный листовой 100г", price_rub: 239 },
@@ -45,6 +44,11 @@ for (const product of falsePositives) {
   const result = matchRetailerProduct(product);
   assert.equal(result.matched, false, `False positive: ${product.name} -> ${result.sku}`);
 }
+
+const c0Eggs = matchRetailerProduct({ retailer: "pyat", name: "Яйца куриные С0 10шт", price_rub: 119 });
+assert.equal(c0Eggs.matched, true);
+assert.equal(c0Eggs.sku, "eggs_c0");
+assert.notEqual(c0Eggs.sku, "eggs_c1");
 
 const compatibleMilk = matchRetailerProduct({
   retailer: "magnit",
