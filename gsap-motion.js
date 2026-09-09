@@ -9,11 +9,19 @@
     const fresh = screen !== lastScreen;
     lastScreen = screen;
     if (!fresh) return;
-    const hero = wrap.querySelector(".hero");
-    const cards = wrap.querySelectorAll(".store, .sku, .item, .net, .plan");
-    const rest = wrap.querySelectorAll(".btn, .ghost, .note, .geo-box, .toggle");
+
+    const hero = wrap.querySelector(".hero, .home-hero");
+    const cards = wrap.querySelectorAll(".store, .sku, .item, .net, .plan, .home-net, .home-proof > div");
+    const rest = wrap.querySelectorAll(".btn, .ghost, .note, .geo-box, .toggle, .home-actions, .home-address, .home-section-title");
+
     if (hero) {
-      gsap.fromTo(hero, { y: 16, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out" });
+      gsap.fromTo(hero, { y: 18, opacity: 0, scale: 0.985 }, { y: 0, opacity: 1, scale: 1, duration: 0.58, ease: "power3.out" });
+      const title = hero.querySelector(".home-title");
+      const copy = hero.querySelector(".home-copy");
+      const prices = hero.querySelectorAll(".home-price");
+      if (title) gsap.fromTo(title, { y: 12, opacity: 0 }, { y: 0, opacity: 1, duration: 0.48, ease: "power3.out", delay: 0.1 });
+      if (copy) gsap.fromTo(copy, { y: 10, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power2.out", delay: 0.18 });
+      if (prices.length) gsap.fromTo(prices, { scale: 0.78, opacity: 0, rotation: -8 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.5, stagger: 0.08, ease: "back.out(1.7)", delay: 0.22 });
     }
     if (cards.length) {
       gsap.fromTo(cards, { y: 18, opacity: 0, scale: 0.97 }, {

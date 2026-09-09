@@ -5,12 +5,17 @@ const SKU_RULES = [
   { sku: "tvorog", any: ["творог"], none: ["запеканк", "сырок"], percent: 5, pack: { value: 200, unit: "g", tolerance: 0.12 } },
   { sku: "eggs_c1", any: ["яйц"], all: ["с1"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
   { sku: "eggs_c0", any: ["яйц"], all: ["с0"], pack: { value: 10, unit: "pcs", tolerance: 0 } },
+  { sku: "chicken_fil", any: ["филе курин", "филе грудки цыплен", "филе цыпленка-бройлера"], none: ["маринад", "стейк", "кусоч", "бедр", "индей", "наггет", "котлет", "фарш"], pack: { value: 1000, unit: "g", tolerance: 0.25 } },
+  { sku: "potato", any: ["картоф"], none: ["батат", "фри", "чипс", "пюре", "готов", "салат"] },
+  { sku: "onion", any: ["лук репчат"], none: ["зелён", "зелен", "марин", "жарен", "сушен"] },
+  { sku: "carrot", any: ["морков"], none: ["по-корей", "готов", "салат", "сок", "пюре"] },
   { sku: "buckwheat", any: ["гречк", "гречнев"], none: ["готов", "каша", "хлоп", "котлет", "куриц"], pack: { value: 800, unit: "g", tolerance: 0.25 } },
   { sku: "pasta", any: ["макарон", "спагет", "вермиш"], none: ["по-флотски", "готов"], pack: { value: 450, unit: "g", tolerance: 0.25 } },
   { sku: "oil_sunflower", any: ["масло подсолнеч"], none: ["оливк"], pack: { value: 1000, unit: "ml", tolerance: 0.2 } },
   { sku: "sugar", any: ["сахар"], none: ["заменител", "пудр"], pack: { value: 1000, unit: "g", tolerance: 0.2 } },
   { sku: "bread_dark", any: ["хлеб"], all: ["дарниц"], pack: { value: 650, unit: "g", tolerance: 0.3 } },
-  { sku: "banana", any: ["банан"], none: ["суш", "чипс", "пюре"] }
+  { sku: "banana", any: ["банан"], none: ["суш", "чипс", "пюре"] },
+  { sku: "tea_black", any: ["чай черн"], none: ["листов", "листовой", "зелён", "зелен", "травян"], pack: { value: 100, unit: "pcs", tolerance: 0 } }
 ];
 
 export const PEREKRESTOK_EXACT_SKU = Object.freeze({
@@ -41,7 +46,7 @@ export function parsePack(text) {
     { re: /(\d+(?:[.,]\d+)?)\s*(?:гр|г|g)(?![a-zа-я])/i, unit: "g", factor: 1 },
     { re: /(\d+(?:[.,]\d+)?)\s*(?:мл|ml)(?![a-zа-я])/i, unit: "ml", factor: 1 },
     { re: /(\d+(?:[.,]\d+)?)\s*(?:л|l)(?![a-zа-я])/i, unit: "ml", factor: 1000 },
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)(?![a-zа-я])/i, unit: "pcs", factor: 1 }
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs|пак(?:ет(?:ик)?(?:ов|а)?)?)(?![a-zа-я])/i, unit: "pcs", factor: 1 }
   ];
   for (const pattern of patterns) {
     const match = source.match(pattern.re);
