@@ -3,38 +3,62 @@
   "retailer": "perek",
   "store_id": "perek",
   "city": "msk",
-  "checked_at": "2026-09-10T00:00:00+03:00",
-  "prices": {},
-  "matched": [],
-  "unmatched": [
+  "checked_at": "2026-09-10T01:00:00+03:00",
+  "prices": {
+    "eggs_c1": 114.99,
+    "milk": 71.99,
+    "oil_sunflower": 161.99,
+    "pasta": 109.99
+  },
+  "matched": [
     {
-      "name": "Мюсли Ого с орехом запечённые, 350г",
+      "sku": "eggs_c1",
+      "name": "Яйца куриные Лабинское С1, 10шт",
       "retailer_product_id": null,
-      "reason": "no_rule_match"
+      "price_rub": 114.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0",
+      "confidence": 0.9,
+      "method": "conservative_rule"
     },
     {
-      "name": "Хлопья Любятово кукурузные 300г",
+      "sku": "milk",
+      "name": "Молоко Для Всей Семьи пастеризованное 2.5%, 900мл",
       "retailer_product_id": null,
-      "reason": "no_rule_match"
+      "price_rub": 71.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://promo.perekrestok.ru/cat/c/114/moloko?filter.proizvoditel=izmoloko",
+      "confidence": 0.9,
+      "method": "conservative_rule"
     },
     {
-      "name": "Готовый шоколадный завтрак Chocozavr Шоксики, 195г",
-      "retailer_product_id": null,
-      "reason": "no_rule_match"
+      "sku": "oil_sunflower",
+      "name": "Масло подсолнечное Я люблю готовить рафинированное дезодорированное, 1л",
+      "retailer_product_id": "4269568",
+      "price_rub": 161.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://promo.perekrestok.ru/cat/104/p/maslo-podsolnecnoe-a-lublu-gotovit-rafinirovannoe-dezodorirovannoe-1l-4269568",
+      "confidence": 0.9,
+      "method": "conservative_rule"
     },
     {
-      "name": "Хлопья Любятово кукурузные, 600г",
+      "sku": "pasta",
+      "name": "Макароны Barilla Spaghettoni n.7 из твёрдых сортов пшеницы, 450г",
       "retailer_product_id": null,
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Подушечки Любятово с шоколадной начинкой, 220г",
-      "retailer_product_id": null,
-      "reason": "no_rule_match"
+      "price_rub": 109.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0",
+      "confidence": 0.9,
+      "method": "conservative_rule"
     }
   ],
+  "unmatched": [],
   "channel": "delivery_catalog",
-  "source_url": "https://www.perekrestok.ru/cat/mc/224/suhie-zavtraki-musli",
+  "source_url": "https://promo.perekrestok.ru/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",
-  "normalized_count": 5
+  "normalized_count": 4
 }
