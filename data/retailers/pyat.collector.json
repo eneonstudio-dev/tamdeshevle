@@ -1,0 +1,29 @@
+{
+  "schema": "tamdeshevle.retailer-collector-config.v1",
+  "retailer": "pyat",
+  "store_id": "pyat",
+  "city": "msk",
+  "channel": "delivery_catalog",
+  "store_context": {
+    "sap_code": "S105",
+    "address_hint": "Москва, Кировоградская улица, 17"
+  },
+  "expected_address_tokens": ["Кировоградская", "17"],
+  "limit_per_query": 30,
+  "queries": [
+    "молоко 2.5",
+    "яйца С1 10",
+    "макароны 450",
+    "масло подсолнечное 1л",
+    "гречка 800",
+    "сахар 1кг",
+    "хлеб дарницкий",
+    "сметана 20 300",
+    "филе куриное",
+    "бананы",
+    "картофель",
+    "лук репчатый",
+    "морковь",
+    "чай черный"
+  ]
+}
