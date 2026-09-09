@@ -23,7 +23,8 @@
     .back,.city { border:0; background:#fff; border-radius:12px; cursor:pointer; font-family:inherit; }
     .back { width:36px; height:36px; font-size:18px; }
     .city { padding:8px 10px; font-weight:800; font-size:12px; }
-    .chips { display:flex; gap:8px; overflow:auto; padding:8px 16px 2px; }
+    .chips { display:flex; gap:8px; overflow:auto; padding:8px 16px 2px; scrollbar-width:none; }
+    .chips::-webkit-scrollbar { display:none; }
     .chip { border:0; background:#fff; border-radius:999px; padding:8px 12px; font:700 13px Manrope; cursor:pointer; white-space:nowrap; }
     .chip.on { background:var(--green); color:#fff; }
     .wrap { padding:10px 16px 128px; }
