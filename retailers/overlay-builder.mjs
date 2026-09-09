@@ -27,7 +27,7 @@ export function buildOverlayFromSnapshot(snapshot) {
     channel: snapshot.channel || normalized[0]?.channel || "delivery_catalog",
     source_url: snapshot.source_url || null,
     source_schema: snapshot.schema || null,
-    store_context: snapshot.store_context || null,
+    ...(snapshot.store_context ? { store_context: snapshot.store_context } : {}),
     normalized_count: normalized.length
   };
 }
