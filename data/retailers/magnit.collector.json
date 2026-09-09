@@ -1,0 +1,23 @@
+{
+  "schema": "tamdeshevle.retailer-collector-config.v1",
+  "retailer": "magnit",
+  "city": "msk",
+  "store_id": "magnit",
+  "channel": "delivery_catalog",
+  "source_url": "https://magnit.ru/",
+  "delay_ms": 750,
+  "max_products": 60,
+  "expected_address_tokens": ["Чертановская", "47"],
+  "store_context": {
+    "shop_code": "770105",
+    "shop_type": "1",
+    "address": "г Москва, ул Чертановская, д 47 к 2"
+  },
+  "product_urls": [
+    "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20"
+  ],
+  "catalog_urls": [
+    "https://magnit.ru/catalog/63983-testmmmoloko_maslo_yaytsa",
+    "https://magnit.ru/catalog/115056-makarony_krupy_muka"
+  ]
+}
