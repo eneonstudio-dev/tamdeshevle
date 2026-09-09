@@ -57,9 +57,9 @@ function comparisonPrice(raw) {
   }
   return {
     value: packagePrice,
-    basis: "package",
-    source_package_price_rub: packagePrice,
-    source_unit_price_rub: unitPrice
+    basis: null,
+    source_package_price_rub: null,
+    source_unit_price_rub: null
   };
 }
 
@@ -76,6 +76,7 @@ export function adaptMagnitProduct(raw, context = {}) {
   if (price == null || price < 0) throw new Error(`Invalid price for ${raw.name}`);
   const oldPrice = number(raw.old_price ?? raw.oldPrice);
   const checkedAt = context.checked_at || context.checkedAt || new Date().toISOString();
+  const isUnitNormalized = normalizedPrice.basis === "per_kg";
 
   return {
     schema: "tamdeshevle.retailer-product.v1",
@@ -88,8 +89,8 @@ export function adaptMagnitProduct(raw, context = {}) {
     source_package_price_rub: normalizedPrice.source_package_price_rub,
     source_unit_price_rub: normalizedPrice.source_unit_price_rub,
     comparison_price_basis: normalizedPrice.basis,
-    old_price_rub: normalizedPrice.basis === "package" && oldPrice != null && oldPrice >= price ? oldPrice : null,
-    promo: normalizedPrice.basis === "package" && oldPrice != null && oldPrice > price,
+    old_price_rub: !isUnitNormalized && oldPrice != null && oldPrice >= price ? oldPrice : null,
+    promo: !isUnitNormalized && oldPrice != null && oldPrice > price,
     availability: normalizeMagnitAvailability(raw.availability),
     source_url: raw.url || context.source_url || null,
     city: context.city || "msk",
