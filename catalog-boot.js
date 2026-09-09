@@ -1,12 +1,37 @@
 (function () {
   const IDS = ["pyat", "magnit", "perek", "lenta", "dixy", "lavka", "vprok"];
   const LEGACY = { bread: "bread_dark", chicken: "chicken_fil", oil: "oil_sunflower", eggs: "eggs_c1", buck: "buckwheat", sour: "smetana" };
+  const ORDER = ["Молочное и яйца", "Мясо и птица", "Колбасы", "Овощи и зелень", "Фрукты", "Бакалея", "Хлеб", "Напитки"];
+  const U = "https://images.unsplash.com/";
+  const Q = "?auto=format&fit=crop&w=240&h=240&q=60";
+  const CAT_IMG = {
+    "Молочное и яйца": U + "photo-1563636619-e9143da7973b" + Q,
+    "Мясо и птица": U + "photo-1604503468506-a8da13d82791" + Q,
+    "Колбасы": U + "photo-1528607929212-2636ec44253e" + Q,
+    "Овощи и зелень": U + "photo-1540420773420-3366772f4999" + Q,
+    "Фрукты": U + "photo-1619566636858-adf3ef464368" + Q,
+    "Бакалея": U + "photo-1551462147-ff29893d2640" + Q,
+    "Хлеб": U + "photo-1509440159596-0249088772ff" + Q,
+    "Напитки": U + "photo-1548839140-29a749e1cf4d" + Q
+  };
+  const SKU_IMG = {
+    milk: U + "photo-1563636619-e9143da7973b" + Q,
+    banana: U + "photo-1571771894821-ce9b6c11b08e" + Q,
+    apple: U + "photo-1560806887-1e4cd0b6cbd6" + Q,
+    orange: U + "photo-1547514701-4278210176e7" + Q,
+    potato: U + "photo-1518977676601-b53f82aba655" + Q,
+    tomato: U + "photo-1546470427-e5ac89c8ba37" + Q,
+    bread_dark: U + "photo-1509440159596-0249088772ff" + Q,
+    eggs_c1: U + "photo-1582722872445-44dc5f7e3c8f" + Q,
+    chicken_fil: U + "photo-1604503468506-a8da13d82791" + Q,
+    pasta: U + "photo-1551462147-ff29893d2640" + Q
+  };
   const MSK = { lat: 55.7558, lon: 37.6173 };
   const SPB = { lat: 59.9343, lon: 30.3351 };
   const rub = n => Math.max(9, Math.round(n));
   let POINTS = [];
   let BOOK = null;
-
+  function pic(p) { return (p && (SKU_IMG[p.id] || CAT_IMG[p.category])) || ""; }
   function packClass(p) {
     const c = (p && p.category) || "";
     if (c.indexOf("Молоч") === 0) return "packaging-dairy";
@@ -42,7 +67,7 @@
   function cats() {
     const o = [];
     PRODUCTS.forEach(p => { if (p.category && o.indexOf(p.category) < 0) o.push(p.category); });
-    return ["Все"].concat(o);
+    return ["Все"].concat(ORDER.filter(c => o.indexOf(c) >= 0));
   }
   function chipRow(items, current, fnName) {
     const d = document.createElement("div");
@@ -63,20 +88,31 @@
     }).sort((a, b) => a.total - b.total)[0];
   }
   function dressItems() {
+    let last = "";
     document.querySelectorAll(".item").forEach(el => {
       const title = el.querySelector(".title");
       const thumb = el.querySelector(".thumb");
       if (!title) return;
       const p = PRODUCTS.find(x => x.name === title.textContent);
-      if (state.screen === "catalog") {
-        el.style.display = (state.category === "Все" || (p && p.category === state.category)) ? "" : "none";
-      }
+      const show = state.screen !== "catalog" || state.category === "Все" || (p && p.category === state.category);
+      el.style.display = show ? "" : "none";
       if (thumb && p) {
+        const src = pic(p);
         thumb.className = "thumb product-packaging " + packClass(p);
-        thumb.textContent = p.emoji || p.name.split(" ")[0];
-        thumb.style.background = "";
-        thumb.style.fontSize = "32px";
-        thumb.style.alignItems = "center";
+        thumb.style.padding = "0";
+        if (src) {
+          thumb.innerHTML = `<img alt="${p.name}" src="${src}" onerror="this.parentNode.textContent='${p.emoji || ""}'">`;
+        } else {
+          thumb.textContent = p.emoji || "";
+          thumb.style.fontSize = "32px";
+        }
+      }
+      if (show && p && state.screen === "catalog" && p.category !== last) {
+        const h = document.createElement("div");
+        h.className = "shelf-head";
+        h.textContent = p.category;
+        el.parentNode.insertBefore(h, el);
+        last = p.category;
       }
       el.classList.add("product-card");
     });
@@ -126,7 +162,9 @@
       : state.geoStatus === "denied" ? "Гео запрещено"
       : "Без места — сети города";
     const tiles = (cart.length ? cart : PRODUCTS).slice(0, 6).map(p => {
-      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}" style="font-size:36px;align-items:center;justify-content:center">${p.emoji || p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
+      const src = pic(p);
+      const plate = src ? `<img alt="" src="${src}">` : (p.emoji || "");
+      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}">${plate}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
     }).join("");
     const nets = (typeof STORES === "undefined" ? [] : STORES.filter(s => s.city.includes(state.city))).slice(0, 4).map(s => {
       const total = n ? sumStore(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
@@ -193,7 +231,10 @@
     if (!book || !book.products || typeof PRODUCTS === "undefined") return;
     const base = book.base || {}, mult = book.mult || {}, bm = book.bring_mult || 1.14;
     PRODUCTS.length = 0;
-    book.products.forEach(m => {
+    book.products.slice().sort((a, b) => {
+      const ia = ORDER.indexOf(a.category), ib = ORDER.indexOf(b.category);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    }).forEach(m => {
       const b = base[m.id] || 99, prices = {}, bring = {};
       IDS.forEach(sid => {
         prices[sid] = rub(b * (mult[sid] || 1));
