@@ -28,18 +28,25 @@ for (const product of falsePositives) {
   assert.equal(result.matched, false, `False positive: ${product.name} -> ${result.sku}`);
 }
 
-const overlay = buildPriceOverlay(cases.map(([product]) => product), {
+const overlayInput = cases.map(([product]) => product).concat([
+  { retailer: "perek", name: "Молоко другая марка 2,5%, 950мл", price_rub: 79.99, availability: "in_stock" },
+  { retailer: "perek", name: "Макароны спирали, 450г", price_rub: 69.99, availability: "in_stock" }
+]);
+const overlay = buildPriceOverlay(overlayInput, {
   retailer: "perek",
   storeId: "perek",
   city: "msk",
   checked_at: "2026-09-10T00:00:00+03:00"
 });
 
+// Exact retailer ID wins over a cheaper rule-based milk candidate.
 assert.equal(overlay.prices.milk, 99.99);
+// When confidence is equal, choose the cheaper qualifying candidate.
+assert.equal(overlay.prices.pasta, 69.99);
 assert.equal(overlay.prices.smetana, 129.99);
 assert.equal(overlay.prices.eggs_c1, 109.99);
 assert.equal(overlay.prices.buckwheat, 89.99);
-assert.equal(overlay.prices.pasta, 79.99);
 assert.equal(overlay.matched.length, 5);
+assert.equal(overlay.matched.find(item => item.sku === "milk").method, "exact_retailer_id");
 
-console.log("SKU matcher tests passed: exact IDs, conservative rules and false-positive guards.");
+console.log("SKU matcher tests passed: exact IDs, conservative rules, deterministic selection and false-positive guards.");
