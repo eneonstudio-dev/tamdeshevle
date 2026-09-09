@@ -4,12 +4,14 @@ on:
   pull_request:
   push:
     branches:
+      - main
       - chatgpt/architecture-cleanup
       - chatgpt/retailer-adapter-perekrestok
       - chatgpt/sku-matcher
       - chatgpt/retailer-price-overlay
       - chatgpt/price-provenance
       - chatgpt/retailer-adapter-magnit
+      - chatgpt/magnit-live-overlay
 
 permissions:
   contents: read
@@ -34,10 +36,12 @@ jobs:
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
         run: node scripts/test-retailer-overlay.mjs
-      - name: Regenerate sample overlay
+      - name: Regenerate retailer overlays
         run: |
           node scripts/build-retailer-overlay.mjs data/retailers/perekrestok.sample.json /tmp/perekrestok.overlay.json
           diff -u data/retailers/perekrestok.overlay.json /tmp/perekrestok.overlay.json
+          node scripts/build-retailer-overlay.mjs data/retailers/magnit.sample.json /tmp/magnit.overlay.json
+          diff -u data/retailers/magnit.overlay.json /tmp/magnit.overlay.json
       - name: Check JavaScript syntax
         run: |
           node --check app.js
