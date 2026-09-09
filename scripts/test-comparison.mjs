@@ -27,6 +27,7 @@ function assert(condition, message) {
 
 assert(TDCompare.unitPrice(products[0], "shop", "shelf") === 100, "shelf unit price failed");
 assert(TDCompare.unitPrice(products[0], "shop", "bring") === 115, "bring unit price failed");
+assert(TDCompare.unitPrice({ id: "x", prices: { shop: 25 } }, "shop", "bring") === null, "bring must not fall back to shelf");
 assert(TDCompare.goodsTotal(products, cart, "shop", "shelf") === 240, "goods total failed");
 
 const any = TDCompare.compare({ stores, products, cart, city: "msk", mode: "any", originStoreId: "shop" });
@@ -42,7 +43,24 @@ const delivery = TDCompare.compare({ stores, products, cart, city: "msk", mode: 
 assert(delivery.length === 3, "delivery mode should include bring-capable stores");
 assert(delivery.every(row => row.channel === "bring"), "delivery mode channel failed");
 assert(delivery.find(row => row.id === "delivery").delivery === 50, "known delivery fee failed");
-assert(delivery.find(row => row.id === "shop").delivery === 0, "shop bring mode must not invent a delivery fee");
+assert(delivery.find(row => row.id === "shop").feeKnown === false, "shop bring mode must mark unknown delivery fee");
+assert(delivery.find(row => row.id === "shop").total === null, "unknown delivery fee must not produce a total");
+assert(delivery[0].id === "delivery", "known complete delivery scenario must rank before unknown-fee scenarios");
+
+const incompleteProducts = [
+  { id: "a", prices: { shop: 100, hyper: 1 } },
+  { id: "b", prices: { shop: 40 } }
+];
+const incomplete = TDCompare.compare({ stores: stores.slice(0, 2), products: incompleteProducts, cart: { a: 1, b: 1 }, city: "msk", mode: "walk", originStoreId: "shop" });
+const incompleteHyper = incomplete.find(row => row.id === "hyper");
+assert(incomplete[0].id === "shop", "incomplete cheap basket must not outrank a complete basket");
+assert(incompleteHyper.complete === false && incompleteHyper.rankable === false, "incomplete basket must be unrankable");
+assert(incompleteHyper.total === null, "incomplete basket must not have a fake total");
+assert(incompleteHyper.partialGoods === 1, "partial subtotal should remain available for diagnostics");
+assert(incompleteHyper.coveredItems === 1 && incompleteHyper.totalItems === 2, "coverage counters failed");
+assert(incompleteHyper.coverage === 0.5, "coverage ratio failed");
+assert(incompleteHyper.missingProductIds.length === 1 && incompleteHyper.missingProductIds[0] === "b", "missing product ids failed");
+assert(incompleteHyper.save === null, "incomplete basket must not claim savings");
 
 const spb = TDCompare.compare({ stores, products, cart, city: "spb", mode: "any", originStoreId: "shop" });
 assert(spb.length === 2 && !spb.some(row => row.id === "hyper"), "city filtering failed");
@@ -50,4 +68,4 @@ assert(spb.length === 2 && !spb.some(row => row.id === "hyper"), "city filtering
 const empty = TDCompare.compare({ stores: [], products, cart, city: "msk", mode: "any", originStoreId: "shop" });
 assert(Array.isArray(empty) && empty.length === 0, "empty stores case failed");
 
-console.log("Comparison engine tests passed.");
+console.log("Comparison engine tests passed: coverage-safe ranking, strict channels and unknown-fee handling.");
