@@ -1,6 +1,16 @@
 (function () {
   const IDS = ["pyat", "magnit", "perek", "lenta", "dixy", "lavka", "vprok"];
   const LEGACY = { bread: "bread_dark", chicken: "chicken_fil", oil: "oil_sunflower", eggs: "eggs_c1", buck: "buckwheat", sour: "smetana" };
+  const TONE = {
+    "Молочное и яйца": "#d7eee2",
+    "Мясо и птица": "#f3d9d4",
+    "Колбасы": "#f6e2cf",
+    "Овощи и зелень": "#dcecc8",
+    "Фрукты": "#f7e4c4",
+    "Бакалея": "#e7e0d2",
+    "Хлеб": "#efe0c8",
+    "Напитки": "#d5e6f2"
+  };
   const MSK = { lat: 55.7558, lon: 37.6173 };
   const SPB = { lat: 59.9343, lon: 30.3351 };
   const rub = n => Math.max(9, Math.round(n));
@@ -40,6 +50,18 @@
     d.innerHTML = items.map(x => `<button class="chip ${x === current ? "on" : ""}" onclick="${fnName}('${x}')">${x}</button>`).join("");
     return d;
   }
+  function sumStore(id) {
+    return PRODUCTS.reduce((a, p) => a + ((p.prices[id] || 0) * ((window.state && state.cart[p.id]) || 0)), 0);
+  }
+  function bestStore() {
+    if (typeof STORES === "undefined") return null;
+    const city = window.state ? state.city : "msk";
+    return STORES.filter(s => s.city.includes(city)).map(s => {
+      const goods = sumStore(s.id);
+      const fee = s.kind === "delivery" ? (s.delivery || 0) : 0;
+      return { s: s, total: goods + fee };
+    }).sort((a, b) => a.total - b.total)[0];
+  }
 
   window.setRadius = function (r) {
     if (!window.state) return;
@@ -68,6 +90,49 @@
       save(); if (typeof render === "function") render();
     }, () => { state.geoStatus = "denied"; save(); if (typeof render === "function") render(); }, { timeout: 8000, maximumAge: 600000 });
   };
+  window.setRadiusLabel = function (label) {
+    const n = parseInt(label, 10);
+    if (n) window.setRadius(n);
+  };
+
+  function paintHome(wrap) {
+    const sid = (window.state && state.storeId) || "pyat";
+    const cart = PRODUCTS.filter(p => state.cart[p.id] > 0);
+    const n = cart.reduce((a, p) => a + state.cart[p.id], 0);
+    const best = bestStore();
+    const here = sumStore(sid);
+    const hint = state.geoStatus === "ok" ? "Место есть · кольцо " + state.radius + " км"
+      : state.geoStatus === "far" ? "Не Москва и не Питер — без км"
+      : state.geoStatus === "wait" ? "Спрашиваю место…"
+      : state.geoStatus === "denied" ? "Гео запрещено"
+      : "Без места — сети города";
+    const tiles = (cart.length ? cart : PRODUCTS).slice(0, 6).map(p => {
+      const bg = TONE[p.category] || "#e3f4ea";
+      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate" style="background:${bg}">${p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
+    }).join("");
+    const nets = (typeof STORES === "undefined" ? [] : STORES.filter(s => s.city.includes(state.city))).slice(0, 4).map(s => {
+      const total = n ? sumStore(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
+      return `<button class="net" onclick="state.storeId='${s.id}';go('catalog')"><i style="background:${s.color}"></i><b>${s.short}</b><span>${total != null ? total + " ₽" : s.type}</span></button>`;
+    }).join("");
+    wrap.innerHTML = `
+      <div class="hero">
+        <div class="kicker">Сравнение покупки</div>
+        <div class="hero-title">Где эта корзина дешевле</div>
+        <div class="hero-sum">${best ? "от " + best.total + " ₽ · " + best.s.name : here + " ₽"}${n ? " · " + n + " поз." : ""}</div>
+      </div>
+      <div class="sec">Корзина на входе</div>
+      <div class="shelf">${tiles}</div>
+      <button class="btn dark" onclick="go('compare')">Где выгоднее</button>
+      <button class="ghost" onclick="go('stores')">Все сети</button>
+      <div class="sec">Сети города</div>
+      <div class="nets">${nets}</div>
+      <div class="geo-box">
+        <button class="ghost" onclick="askGeo()">${state.geo ? "Обновить место" : "Определить место"}</button>
+        <div class="chips" style="padding:10px 0 0">${[5,10,15].map(r => `<button class="chip ${state.radius===r?"on":""}" onclick="setRadius(${r})">${r} км</button>`).join("")}</div>
+        <p class="hint" style="margin:8px 0 12px">${hint}</p>
+      </div>
+      <p class="note">Не магазин, не доставка и не заказ. Цены учебные — витрина, не полка.</p>`;
+  }
 
   function paint() {
     if (!window.state) return;
@@ -76,25 +141,12 @@
     const header = document.querySelector("header.app");
     const wrap = document.querySelector(".wrap");
     if (!header || !wrap) return;
-
-    if (state.screen === "home" && !document.querySelector(".geo-box")) {
-      const box = document.createElement("div");
-      box.className = "geo-box";
-      const hint = state.geoStatus === "ok" ? "Место есть · учебные точки в " + state.radius + " км"
-        : state.geoStatus === "far" ? "Не Москва и не Питер — кольцо выключено"
-        : state.geoStatus === "wait" ? "Спрашиваю место…"
-        : state.geoStatus === "denied" ? "Гео запрещено"
-        : "Без места — сети города без км";
-      box.innerHTML = `<button class="btn green" onclick="askGeo()">${state.geo ? "Обновить место" : "Определить место"}</button>
-        <div class="chips" style="padding:10px 0 0">${[5,10,15].map(r => `<button class="chip ${state.radius===r?"on":""}" onclick="setRadius(${r})">${r} км</button>`).join("")}</div>
-        <p class="hint" style="margin:8px 0 12px">${hint}</p>`;
-      wrap.insertBefore(box, wrap.querySelector(".addr") || wrap.querySelector(".btn"));
-    }
+    const sub = header.querySelector(".sub");
+    if (state.screen === "home" && sub) sub.textContent = "Сравни сети по одной корзине";
+    if (state.screen === "home") paintHome(wrap);
 
     if (state.screen === "stores") {
-      if (!document.querySelector(".extra-chips")) {
-        header.after(chipRow(["5 км", "10 км", "15 км"], state.radius + " км", "setRadiusLabel"));
-      }
+      if (!document.querySelector(".extra-chips")) header.after(chipRow(["5 км", "10 км", "15 км"], state.radius + " км", "setRadiusLabel"));
       document.querySelectorAll(".store").forEach(card => {
         const name = card.querySelector(".name");
         const time = card.querySelector(".time");
@@ -111,17 +163,18 @@
       if (!document.querySelector(".extra-chips")) header.after(chipRow(cats(), state.category, "setCat"));
       document.querySelectorAll(".item").forEach(el => {
         const title = el.querySelector(".title");
+        const thumb = el.querySelector(".thumb");
         if (!title) return;
         const p = PRODUCTS.find(x => x.name === title.textContent);
         el.style.display = (state.category === "Все" || (p && p.category === state.category)) ? "" : "none";
+        if (thumb && p) {
+          thumb.style.background = TONE[p.category] || "#e3f4ea";
+          thumb.textContent = p.name.split(" ")[0];
+          thumb.classList.add("word-thumb");
+        }
       });
     }
   }
-
-  window.setRadiusLabel = function (label) {
-    const n = parseInt(label, 10);
-    if (n) window.setRadius(n);
-  };
 
   const prev = window.render;
   window.render = function () {
