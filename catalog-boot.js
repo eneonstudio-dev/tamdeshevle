@@ -129,7 +129,7 @@
     paint();
   };
 
-  fetch("catalog.json?v=20260909f").then(r => {
+  fetch("catalog.json?v=20260909g").then(r => {
     if (!r.ok) throw new Error(String(r.status));
     return r.json();
   }).then(book => {
