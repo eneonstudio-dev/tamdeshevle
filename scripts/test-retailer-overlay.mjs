@@ -3,13 +3,19 @@ import assert from "node:assert/strict";
 import { buildOverlayFromSnapshot } from "../retailers/overlay-builder.mjs";
 
 const snapshot = JSON.parse(fs.readFileSync("data/retailers/perekrestok.sample.json", "utf8"));
-const emptyOverlay = buildOverlayFromSnapshot(snapshot);
-assert.equal(emptyOverlay.retailer, "perek");
-assert.equal(emptyOverlay.city, "msk");
-assert.equal(emptyOverlay.channel, "delivery_catalog");
-assert.equal(emptyOverlay.normalized_count, snapshot.rows.length);
-assert.equal(emptyOverlay.matched.length, 0);
-assert.equal(Object.keys(emptyOverlay.prices).length, 0);
+const basketOverlay = buildOverlayFromSnapshot(snapshot);
+assert.equal(basketOverlay.retailer, "perek");
+assert.equal(basketOverlay.city, "msk");
+assert.equal(basketOverlay.channel, "delivery_catalog");
+assert.equal(basketOverlay.normalized_count, snapshot.rows.length);
+assert.equal(basketOverlay.matched.length, 4);
+assert.deepEqual(basketOverlay.prices, {
+  eggs_c1: 114.99,
+  milk: 71.99,
+  oil_sunflower: 161.99,
+  pasta: 109.99
+});
+assert.equal(basketOverlay.unmatched.length, 0);
 
 const matchingSnapshot = {
   schema: "tamdeshevle.retailer-snapshot.v1",
@@ -29,4 +35,4 @@ assert.equal(overlay.matched.length, 2);
 assert.equal(overlay.store_id, "perek");
 assert.equal(overlay.channel, "delivery_catalog");
 
-console.log("Retailer overlay builder tests passed.");
+console.log("Retailer overlay builder tests passed with live basket matches.");
