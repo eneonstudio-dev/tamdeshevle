@@ -18,7 +18,6 @@
       const src = STORE_IMG[name.textContent.trim()];
       if (!src) return;
       cover.style.backgroundImage = "linear-gradient(180deg,transparent 25%,rgba(0,0,0,.52)),url('" + src + "')";
-      cover.style.backgroundSize = "cover";
       cover.style.backgroundPosition = "center";
     });
   }
