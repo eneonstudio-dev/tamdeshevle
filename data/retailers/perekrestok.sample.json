@@ -2,36 +2,34 @@
   "schema": "tamdeshevle.retailer-snapshot.v1",
   "retailer": "perek",
   "city": "msk",
-  "source_url": "https://www.perekrestok.ru/cat/mc/224/suhie-zavtraki-musli",
-  "checked_at": "2026-09-10T00:00:00+03:00",
+  "source_url": "https://promo.perekrestok.ru/",
+  "checked_at": "2026-09-10T01:00:00+03:00",
   "method": "public_catalog_snapshot",
   "rows": [
     {
-      "name": "Мюсли Ого с орехом запечённые, 350г",
-      "price": 128.49,
-      "availability": "В наличии много"
+      "name": "Молоко Для Всей Семьи пастеризованное 2.5%, 900мл",
+      "price": 71.99,
+      "availability": "В наличии много",
+      "url": "https://promo.perekrestok.ru/cat/c/114/moloko?filter.proizvoditel=izmoloko"
     },
     {
-      "name": "Хлопья Любятово кукурузные 300г",
-      "price": 130.99,
-      "old_price": 156.99,
-      "availability": "В наличии много"
+      "name": "Яйца куриные Лабинское С1, 10шт",
+      "price": 114.99,
+      "availability": "В наличии много",
+      "url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0"
     },
     {
-      "name": "Готовый шоколадный завтрак Chocozavr Шоксики, 195г",
-      "price": 169.99,
-      "old_price": 219.99,
-      "availability": "В наличии много"
+      "name": "Макароны Barilla Spaghettoni n.7 из твёрдых сортов пшеницы, 450г",
+      "price": 109.99,
+      "availability": "В наличии много",
+      "url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0"
     },
     {
-      "name": "Хлопья Любятово кукурузные, 600г",
-      "price": 200.99,
-      "availability": "В наличии много"
-    },
-    {
-      "name": "Подушечки Любятово с шоколадной начинкой, 220г",
-      "price": 96.99,
-      "availability": "В наличии много"
+      "id": "4269568",
+      "name": "Масло подсолнечное Я люблю готовить рафинированное дезодорированное, 1л",
+      "price": 161.99,
+      "availability": "В наличии много",
+      "url": "https://promo.perekrestok.ru/cat/104/p/maslo-podsolnecnoe-a-lublu-gotovit-rafinirovannoe-dezodorirovannoe-1l-4269568"
     }
   ]
 }
