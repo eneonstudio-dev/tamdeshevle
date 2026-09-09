@@ -98,8 +98,8 @@ function percentDistance(actual, expected, required) {
 }
 
 function brandEvidence(product) {
-  const brand = normalizeText(product && product.brand);
-  return brand ? { brand: product.brand, normalized: brand } : null;
+  const normalized = normalizeText(product && product.brand);
+  return normalized ? { brand: product.brand, normalized } : null;
 }
 
 function evaluateRule(product, rule) {
@@ -118,14 +118,8 @@ function evaluateRule(product, rule) {
   const percent = percentDistance(parsePercent(product.name), rule.percent, rule.percentRequired);
   if (!percent.ok) return percent;
 
-  let score = 1;
-  if (rule.pack) score -= Math.min(0.25, (pack.ratio || 0) * 0.6);
-  if (rule.percent != null) score -= Math.min(0.15, (percent.delta || 0) * 0.2);
-  if (!brandEvidence(product)) score -= 0.02;
-
   return {
     ok: true,
-    score: Math.max(0.7, Number(score.toFixed(4))),
     evidence: {
       pack: actualPack,
       pack_distance_ratio: Number((pack.ratio || 0).toFixed(4)),
@@ -141,13 +135,7 @@ export function matchRetailerProduct(product, options = {}) {
   const retailer = product.retailer || options.retailer || null;
   const retailerId = product.retailer_product_id != null ? String(product.retailer_product_id) : null;
   if (retailer === "perek" && retailerId && PEREKRESTOK_EXACT_SKU[retailerId]) {
-    return {
-      matched: true,
-      sku: PEREKRESTOK_EXACT_SKU[retailerId],
-      confidence: 1,
-      method: "exact_retailer_id",
-      evidence: { retailer_product_id: retailerId }
-    };
+    return { matched: true, sku: PEREKRESTOK_EXACT_SKU[retailerId], confidence: 1, method: "exact_retailer_id", evidence: { retailer_product_id: retailerId } };
   }
 
   const passed = [];
@@ -159,22 +147,11 @@ export function matchRetailerProduct(product, options = {}) {
   }
 
   if (passed.length !== 1) {
-    return {
-      matched: false,
-      reason: passed.length ? "ambiguous" : "no_rule_match",
-      candidates: passed.map(item => item.rule.sku),
-      rejected
-    };
+    return { matched: false, reason: passed.length ? "ambiguous" : "no_rule_match", candidates: passed.map(item => item.rule.sku), rejected };
   }
 
   const { rule, result } = passed[0];
-  return {
-    matched: true,
-    sku: rule.sku,
-    confidence: Math.min(0.96, Math.max(0.8, result.score * 0.94)),
-    method: "structured_rule",
-    evidence: result.evidence
-  };
+  return { matched: true, sku: rule.sku, confidence: 0.9, method: "conservative_rule", evidence: result.evidence };
 }
 
 function betterCandidate(next, current) {
@@ -194,12 +171,7 @@ export function buildPriceOverlay(products, options = {}) {
   for (const product of products || []) {
     const result = matchRetailerProduct(product, { retailer });
     if (!result.matched) {
-      unmatched.push({
-        name: product.name,
-        retailer_product_id: product.retailer_product_id || null,
-        reason: result.reason,
-        ...(result.rejected && result.rejected.length ? { rejected: result.rejected } : {})
-      });
+      unmatched.push({ name: product.name, retailer_product_id: product.retailer_product_id || null, reason: result.reason });
       continue;
     }
     if (!Number.isFinite(product.price_rub) || product.availability === "out_of_stock") continue;
