@@ -1,0 +1,72 @@
+{
+  "schema": "tamdeshevle.prices.v1",
+  "as_of": "2026-09-09",
+  "city_default": "msk",
+  "currency": "RUB",
+  "disclaimer": "Цены учебные, калиброваны по открытым средним (Росстат Москва июнь 2026, витрина Analogичного уровня). Это не ценник конкретной полки и не парсинг сайтов сетей. Без адреса точки kind никогда не бывает polka.",
+  "kinds": {
+    "uchebnaya": "учебная цифра для сравнения корзин, не обещание живого ценника",
+    "vitrina": "цена уровня витрины / каталога сети без привязки к адресу точки",
+    "polka": "цена полки конкретной точки — ставить только когда есть адрес магазина"
+  },
+  "channels": {
+    "shelf": "сходить, полка / витрина офлайн-точки",
+    "bring": "привезти: цена товара в доставке сети. Доставку как услугу Тамдешевле не запускает, это колонка сравнения"
+  },
+  "howto_connect": "Чат сайта: fetch('prices.json') → взять flat[city] и подставить p.prices = flat[city][p.id]. Магазины и товары — массивы stores/products с теми же id, что в текущем app.js. Не менять вёрстку из этого файла.",
+  "cities": [
+    { "id": "msk", "name": "Москва", "status": "основной" },
+    { "id": "spb", "name": "Санкт-Петербург", "status": "второй, те же сети, чуть другие учебные цифры" }
+  ],
+  "stores": [
+    { "id": "pyat", "name": "Пятёрочка", "kind": "shop", "city": ["msk", "spb"], "has_shelf": true, "has_bring": true },
+    { "id": "magnit", "name": "Магнит", "kind": "shop", "city": ["msk", "spb"], "has_shelf": true, "has_bring": true },
+    { "id": "perek", "name": "Перекрёсток", "kind": "shop", "city": ["msk", "spb"], "has_shelf": true, "has_bring": true },
+    { "id": "lenta", "name": "Лента", "kind": "hyper", "city": ["msk", "spb"], "has_shelf": true, "has_bring": true },
+    { "id": "dixy", "name": "Дикси", "kind": "shop", "city": ["msk", "spb"], "has_shelf": true, "has_bring": true },
+    { "id": "lavka", "name": "Лавка", "kind": "delivery", "city": ["msk", "spb"], "has_shelf": false, "has_bring": true, "delivery_fee": 199 },
+    { "id": "vprok", "name": "Впрок", "kind": "delivery", "city": ["msk", "spb"], "has_shelf": false, "has_bring": true, "delivery_fee": 99 }
+  ],
+  "products": [
+    { "id": "milk", "emoji": "🥛", "name": "Молоко 2,5%", "pack": "1 л", "unit": "шт" },
+    { "id": "bread", "emoji": "🍞", "name": "Хлеб дарницкий", "pack": "650 г", "unit": "шт" },
+    { "id": "chicken", "emoji": "🍗", "name": "Филе куриное", "pack": "1 кг", "unit": "кг" },
+    { "id": "banana", "emoji": "🍌", "name": "Бананы", "pack": "1 кг", "unit": "кг" },
+    { "id": "oil", "emoji": "🫙", "name": "Масло подсолнечное", "pack": "1 л", "unit": "шт" },
+    { "id": "eggs", "emoji": "🥚", "name": "Яйца С1", "pack": "10 шт", "unit": "уп" },
+    { "id": "buck", "emoji": "🌾", "name": "Гречка", "pack": "800 г", "unit": "шт" },
+    { "id": "sour", "emoji": "🥛", "name": "Сметана 20%", "pack": "300 г", "unit": "шт" },
+    { "id": "sugar", "emoji": "🧊", "name": "Сахар", "pack": "1 кг", "unit": "шт" },
+    { "id": "pasta", "emoji": "🍝", "name": "Макароны", "pack": "450 г", "unit": "шт" }
+  ],
+  "rows": [],
+  "flat": {
+    "msk": {
+      "milk":    { "pyat": 104, "magnit": 95,  "perek": 109, "lenta": 99,  "dixy": 101, "lavka": 129, "vprok": 112 },
+      "bread":   { "pyat": 69,  "magnit": 59,  "perek": 75,  "lenta": 64,  "dixy": 62,  "lavka": 89,  "vprok": 72  },
+      "chicken": { "pyat": 379, "magnit": 349, "perek": 399, "lenta": 359, "dixy": 369, "lavka": 449, "vprok": 389 },
+      "banana":  { "pyat": 135, "magnit": 119, "perek": 145, "lenta": 125, "dixy": 129, "lavka": 169, "vprok": 139 },
+      "oil":     { "pyat": 155, "magnit": 139, "perek": 165, "lenta": 145, "dixy": 149, "lavka": 189, "vprok": 159 },
+      "eggs":    { "pyat": 115, "magnit": 99,  "perek": 125, "lenta": 105, "dixy": 109, "lavka": 139, "vprok": 119 },
+      "buck":    { "pyat": 95,  "magnit": 79,  "perek": 105, "lenta": 85,  "dixy": 89,  "lavka": 119, "vprok": 99  },
+      "sour":    { "pyat": 105, "magnit": 89,  "perek": 115, "lenta": 95,  "dixy": 99,  "lavka": 129, "vprok": 109 },
+      "sugar":   { "pyat": 82,  "magnit": 72,  "perek": 89,  "lenta": 76,  "dixy": 79,  "lavka": 99,  "vprok": 84  },
+      "pasta":   { "pyat": 75,  "magnit": 62,  "perek": 82,  "lenta": 68,  "dixy": 71,  "lavka": 95,  "vprok": 78  }
+    },
+    "spb": {
+      "milk":    { "pyat": 107, "magnit": 97,  "perek": 112, "lenta": 102, "dixy": 104, "lavka": 132, "vprok": 115 },
+      "bread":   { "pyat": 72,  "magnit": 61,  "perek": 78,  "lenta": 66,  "dixy": 64,  "lavka": 92,  "vprok": 75  },
+      "chicken": { "pyat": 385, "magnit": 355, "perek": 409, "lenta": 365, "dixy": 375, "lavka": 459, "vprok": 399 },
+      "banana":  { "pyat": 139, "magnit": 122, "perek": 149, "lenta": 129, "dixy": 132, "lavka": 175, "vprok": 142 },
+      "oil":     { "pyat": 159, "magnit": 142, "perek": 169, "lenta": 149, "dixy": 152, "lavka": 195, "vprok": 162 },
+      "eggs":    { "pyat": 119, "magnit": 102, "perek": 129, "lenta": 109, "dixy": 112, "lavka": 145, "vprok": 122 },
+      "buck":    { "pyat": 99,  "magnit": 82,  "perek": 109, "lenta": 89,  "dixy": 92,  "lavka": 125, "vprok": 102 },
+      "sour":    { "pyat": 109, "magnit": 92,  "perek": 119, "lenta": 99,  "dixy": 102, "lavka": 135, "vprok": 112 },
+      "sugar":   { "pyat": 85,  "magnit": 74,  "perek": 92,  "lenta": 79,  "dixy": 82,  "lavka": 105, "vprok": 86  },
+      "pasta":   { "pyat": 78,  "magnit": 65,  "perek": 85,  "lenta": 71,  "dixy": 74,  "lavka": 99,  "vprok": 81  }
+    }
+  },
+  "flat_note": "flat[city][productId][storeId] = цена для текущего app.js. У shop/hyper это shelf, у lavka/vprok это bring.",
+  "delivery_fee": { "lavka": 199, "vprok": 99 },
+  "polka_count": 0
+}
