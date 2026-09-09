@@ -156,6 +156,11 @@ export function buildPriceOverlay(products, options = {}) {
       confidence: result.confidence,
       method: result.method
     };
+    if (product.comparison_price_basis) {
+      candidate.comparison_price_basis = product.comparison_price_basis;
+      candidate.source_package_price_rub = product.source_package_price_rub;
+      candidate.source_unit_price_rub = product.source_unit_price_rub;
+    }
     if (betterCandidate(candidate, selected.get(result.sku))) selected.set(result.sku, candidate);
   }
 

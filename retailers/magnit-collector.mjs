@@ -98,6 +98,20 @@ function pagePrice(html) {
   return null;
 }
 
+export function pageUnitPrice(html) {
+  const text = stripTags(html);
+  const patterns = [
+    { re: /(\d+(?:[.,]\d+)?)\s*₽?\s*\/\s*1\s*(?:кг|kg)(?![a-zа-яё])/i, unit: "kg" },
+    { re: /(\d+(?:[.,]\d+)?)\s*₽?\s*\/\s*1\s*(?:л|l)(?![a-zа-яё])/i, unit: "l" }
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern.re);
+    const value = match ? number(match[1]) : null;
+    if (value != null) return { price: value, unit: pattern.unit };
+  }
+  return null;
+}
+
 function expectedAddressPresent(html, tokens) {
   const wanted = (tokens || []).map(x => String(x).toLowerCase().trim()).filter(Boolean);
   if (!wanted.length) return true;
@@ -112,6 +126,7 @@ export function parseMagnitProductPage(html, url, context) {
   const product = jsonLdProducts(html)[0] || null;
   const name = (product && product.name ? stripTags(product.name) : null) || pageTitle(html);
   const price = (product ? offerPrice(product.offers) : null) ?? pagePrice(html);
+  const unitPrice = pageUnitPrice(html);
   if (!name) throw new Error("Magnit product name not found");
   if (price == null) throw new Error(`Magnit price not found: ${name}`);
   const sourceUrl = withMagnitStore(url, context.store_context);
@@ -120,6 +135,8 @@ export function parseMagnitProductPage(html, url, context) {
     name,
     brand: product && product.brand ? stripTags(typeof product.brand === "object" ? product.brand.name : product.brand) : null,
     price,
+    unit_price: unitPrice ? unitPrice.price : null,
+    unit_price_unit: unitPrice ? unitPrice.unit : null,
     old_price: null,
     availability: /(?:В корзину|Добавить в корзину)/i.test(stripTags(html)) ? "В наличии" : "unknown",
     shop_code: String(context.store_context.shop_code),

@@ -6,6 +6,8 @@ const PACK_PATTERNS = [
   { unit: "pcs", re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)(?![a-zа-яё])/i, factor: 1 }
 ];
 
+const KG_COMPARISON_PRODUCTS = /(?:картоф|лук\s+репчат|морков|банан)/i;
+
 function number(value) {
   if (value == null || value === "") return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
@@ -41,6 +43,26 @@ function contextShopCode(context) {
     : null;
 }
 
+function comparisonPrice(raw) {
+  const packagePrice = number(raw.price);
+  const unitPrice = number(raw.unit_price ?? raw.unitPrice);
+  const unit = String(raw.unit_price_unit ?? raw.unitPriceUnit ?? "").toLowerCase();
+  if (KG_COMPARISON_PRODUCTS.test(String(raw.name || "")) && unit === "kg" && unitPrice != null && unitPrice >= 0) {
+    return {
+      value: unitPrice,
+      basis: "per_kg",
+      source_package_price_rub: packagePrice,
+      source_unit_price_rub: unitPrice
+    };
+  }
+  return {
+    value: packagePrice,
+    basis: null,
+    source_package_price_rub: null,
+    source_unit_price_rub: null
+  };
+}
+
 export function adaptMagnitProduct(raw, context = {}) {
   if (!raw || !raw.name) throw new Error("Magnit product requires name");
   const shopCode = contextShopCode(context);
@@ -49,10 +71,12 @@ export function adaptMagnitProduct(raw, context = {}) {
     throw new Error(`Magnit row shop_code mismatch: ${raw.shop_code} != ${shopCode}`);
   }
 
-  const price = number(raw.price);
+  const normalizedPrice = comparisonPrice(raw);
+  const price = normalizedPrice.value;
   if (price == null || price < 0) throw new Error(`Invalid price for ${raw.name}`);
   const oldPrice = number(raw.old_price ?? raw.oldPrice);
   const checkedAt = context.checked_at || context.checkedAt || new Date().toISOString();
+  const isUnitNormalized = normalizedPrice.basis === "per_kg";
 
   return {
     schema: "tamdeshevle.retailer-product.v1",
@@ -62,8 +86,11 @@ export function adaptMagnitProduct(raw, context = {}) {
     brand: raw.brand ? String(raw.brand).trim() : null,
     pack: raw.pack || parseMagnitPack(raw.name),
     price_rub: price,
-    old_price_rub: oldPrice != null && oldPrice >= price ? oldPrice : null,
-    promo: oldPrice != null && oldPrice > price,
+    source_package_price_rub: normalizedPrice.source_package_price_rub,
+    source_unit_price_rub: normalizedPrice.source_unit_price_rub,
+    comparison_price_basis: normalizedPrice.basis,
+    old_price_rub: !isUnitNormalized && oldPrice != null && oldPrice >= price ? oldPrice : null,
+    promo: !isUnitNormalized && oldPrice != null && oldPrice > price,
     availability: normalizeMagnitAvailability(raw.availability),
     source_url: raw.url || context.source_url || null,
     city: context.city || "msk",
