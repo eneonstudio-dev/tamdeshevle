@@ -28,6 +28,7 @@ function normalizeText(value) {
   return String(value || "")
     .toLowerCase()
     .replace(/ё/g, "е")
+    .replace(/\bc([012])\b/g, "с$1")
     .replace(/[^a-zа-я0-9%.,-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
