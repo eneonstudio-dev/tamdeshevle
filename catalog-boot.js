@@ -73,8 +73,10 @@
       }
       if (thumb && p) {
         thumb.className = "thumb product-packaging " + packClass(p);
-        thumb.textContent = p.name.split(" ")[0];
+        thumb.textContent = p.emoji || p.name.split(" ")[0];
         thumb.style.background = "";
+        thumb.style.fontSize = "32px";
+        thumb.style.alignItems = "center";
       }
       el.classList.add("product-card");
     });
@@ -124,7 +126,7 @@
       : state.geoStatus === "denied" ? "Гео запрещено"
       : "Без места — сети города";
     const tiles = (cart.length ? cart : PRODUCTS).slice(0, 6).map(p => {
-      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}">${p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
+      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}" style="font-size:36px;align-items:center;justify-content:center">${p.emoji || p.name.split(" ")[0]}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
     }).join("");
     const nets = (typeof STORES === "undefined" ? [] : STORES.filter(s => s.city.includes(state.city))).slice(0, 4).map(s => {
       const total = n ? sumStore(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
@@ -183,7 +185,7 @@
     paint();
   };
 
-  fetch("catalog.json?v=20260909g").then(r => {
+  fetch("catalog.json?v=20260909h").then(r => {
     if (!r.ok) throw new Error(String(r.status));
     return r.json();
   }).then(book => {
