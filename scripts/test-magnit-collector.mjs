@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { discoverMagnitProductUrls, parseMagnitProductPage, withMagnitStore } from "../retailers/magnit-collector.mjs";
+import { discoverMagnitProductUrls, pageUnitPrice, parseMagnitProductPage, withMagnitStore } from "../retailers/magnit-collector.mjs";
 
 const store_context = { shop_code: "770105", shop_type: "1", address: "г Москва, ул Чертановская, д 47 к 2" };
 const context = { store_context, expected_address_tokens: ["Чертановская", "47"] };
@@ -13,9 +13,17 @@ const row = parseMagnitProductPage(productHtml, "https://magnit.ru/product/34547
 assert.equal(row.id, "3454700001");
 assert.equal(row.name, "Куриное яйцо C1 10шт в ассортименте");
 assert.equal(row.price, 70.79);
+assert.equal(row.unit_price, null);
 assert.equal(row.shop_code, "770105");
 assert.equal(row.availability, "В наличии");
 assert.match(row.url, /shopCode=770105/);
+
+const produceHtml = `<html><head><title>Лук репчатый 700г – купить | г Москва, ул Чертановская, д 47 к 2</title></head><body><h1>Лук репчатый 700г</h1><div>41.99 ₽</div><div>59.99 ₽/1кг</div><button>Добавить в корзину</button><div>Чертановская 47</div></body></html>`;
+const produce = parseMagnitProductPage(produceHtml, "https://magnit.ru/product/9072651204-luk_repchatyy", context);
+assert.equal(produce.price, 41.99);
+assert.equal(produce.unit_price, 59.99);
+assert.equal(produce.unit_price_unit, "kg");
+assert.deepEqual(pageUnitPrice(produceHtml), { price: 59.99, unit: "kg" });
 
 const catalogHtml = `<a href="/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20">Яйца</a>
 <a href="https://magnit.ru/product/1000166930-magnit_makarony_lapsha_450g_p_up_24?shopCode=999999">Макароны</a>`;
@@ -33,4 +41,4 @@ const fallback = parseMagnitProductPage(fallbackHtml, "https://magnit.ru/product
 assert.equal(fallback.price, 74.99);
 assert.equal(fallback.name, "Макароны Makfa Рожки гладкие 450г");
 
-console.log("Magnit collector tests passed: store scoping, JSON-LD, fallback parsing and URL discovery.");
+console.log("Magnit collector tests passed: store scoping, JSON-LD, unit-price parsing, fallback parsing and URL discovery.");
