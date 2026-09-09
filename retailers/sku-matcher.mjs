@@ -154,11 +154,13 @@ export function buildPriceOverlay(products, options = {}) {
       promo: Boolean(product.promo),
       source_url: product.source_url || null,
       confidence: result.confidence,
-      method: result.method,
-      comparison_price_basis: product.comparison_price_basis || null,
-      source_package_price_rub: Number.isFinite(product.source_package_price_rub) ? product.source_package_price_rub : null,
-      source_unit_price_rub: Number.isFinite(product.source_unit_price_rub) ? product.source_unit_price_rub : null
+      method: result.method
     };
+    if (product.comparison_price_basis) {
+      candidate.comparison_price_basis = product.comparison_price_basis;
+      candidate.source_package_price_rub = product.source_package_price_rub;
+      candidate.source_unit_price_rub = product.source_unit_price_rub;
+    }
     if (betterCandidate(candidate, selected.get(result.sku))) selected.set(result.sku, candidate);
   }
 
