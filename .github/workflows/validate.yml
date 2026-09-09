@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - chatgpt/architecture-cleanup
+      - chatgpt/retailer-adapter-perekrestok
 
 permissions:
   contents: read
@@ -21,6 +22,8 @@ jobs:
         run: node scripts/validate-data.mjs
       - name: Test comparison engine
         run: node scripts/test-comparison.mjs
+      - name: Test retailer adapter
+        run: node scripts/test-retailer-adapter.mjs
       - name: Check JavaScript syntax
         run: |
           node --check app.js
@@ -30,6 +33,7 @@ jobs:
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
+          node --check retailers/perekrestok.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js

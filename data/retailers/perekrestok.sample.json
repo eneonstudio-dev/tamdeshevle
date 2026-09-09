@@ -1,0 +1,37 @@
+{
+  "schema": "tamdeshevle.retailer-snapshot.v1",
+  "retailer": "perek",
+  "city": "msk",
+  "source_url": "https://www.perekrestok.ru/cat/mc/224/suhie-zavtraki-musli",
+  "checked_at": "2026-09-10T00:00:00+03:00",
+  "method": "public_catalog_snapshot",
+  "rows": [
+    {
+      "name": "Мюсли Ого с орехом запечённые, 350г",
+      "price": 128.49,
+      "availability": "В наличии много"
+    },
+    {
+      "name": "Хлопья Любятово кукурузные 300г",
+      "price": 130.99,
+      "old_price": 156.99,
+      "availability": "В наличии много"
+    },
+    {
+      "name": "Готовый шоколадный завтрак Chocozavr Шоксики, 195г",
+      "price": 169.99,
+      "old_price": 219.99,
+      "availability": "В наличии много"
+    },
+    {
+      "name": "Хлопья Любятово кукурузные, 600г",
+      "price": 200.99,
+      "availability": "В наличии много"
+    },
+    {
+      "name": "Подушечки Любятово с шоколадной начинкой, 220г",
+      "price": 96.99,
+      "availability": "В наличии много"
+    }
+  ]
+}
