@@ -6,19 +6,41 @@
   "channel": "delivery_catalog",
   "source_url": "https://magnit.ru/",
   "delay_ms": 750,
-  "max_products": 60,
+  "max_products": 120,
   "expected_address_tokens": ["Чертановская", "47"],
   "store_context": {
     "shop_code": "770105",
     "shop_type": "1",
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
+  "priority_keywords": [
+    "yaytso",
+    "moloko",
+    "smetana",
+    "makaron",
+    "grech",
+    "maslo_podsol",
+    "sahar",
+    "khleb",
+    "banan",
+    "kartof",
+    "luk_repchat",
+    "morkov",
+    "chay_chern",
+    "file_grudki",
+    "file_tsypl"
+  ],
   "product_urls": [
     "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20"
   ],
   "catalog_urls": [
     "https://magnit.ru/catalog/63983-testmmmoloko_maslo_yaytsa",
+    "https://magnit.ru/catalog/105488-molochnye_produkty",
     "https://magnit.ru/catalog/115056-makarony_krupy_muka",
-    "https://magnit.ru/catalog/63905-testmmovoshchi_i_frukty"
+    "https://magnit.ru/catalog/64153-testmmsakhar",
+    "https://magnit.ru/catalog/65001-testmmkhleb_i_vypechka",
+    "https://magnit.ru/catalog/63905-testmmovoshchi_i_frukty",
+    "https://magnit.ru/catalog/63881-testmmchernyy",
+    "https://magnit.ru/promo-catalog/25-myaso-ptitsa-kolbasyi"
   ]
 }
