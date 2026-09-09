@@ -13,6 +13,7 @@ on:
       - chatgpt/retailer-adapter-magnit
       - chatgpt/magnit-live-overlay
       - chatgpt/collector-magnit
+      - chatgpt/retailer-adapter-pyat
 
 permissions:
   contents: read
@@ -35,6 +36,8 @@ jobs:
         run: node scripts/test-magnit-adapter.mjs
       - name: Test Magnit collector
         run: node scripts/test-magnit-collector.mjs
+      - name: Test Pyaterochka adapter
+        run: node scripts/test-pyat-adapter.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
@@ -45,6 +48,8 @@ jobs:
           diff -u data/retailers/perekrestok.overlay.json /tmp/perekrestok.overlay.json
           node scripts/build-retailer-overlay.mjs data/retailers/magnit.sample.json /tmp/magnit.overlay.json
           diff -u data/retailers/magnit.overlay.json /tmp/magnit.overlay.json
+          node scripts/build-retailer-overlay.mjs data/retailers/pyat.sample.json /tmp/pyat.overlay.json
+          diff -u data/retailers/pyat.overlay.json /tmp/pyat.overlay.json
       - name: Check JavaScript syntax
         run: |
           node --check app.js
@@ -59,12 +64,14 @@ jobs:
           node --check retailers/perekrestok.mjs
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
+          node --check retailers/pyat.mjs
           node --check retailers/sku-matcher.mjs
           node --check retailers/overlay-builder.mjs
           node --check scripts/build-retailer-overlay.mjs
           node --check scripts/collect-magnit.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
+          node --check scripts/test-pyat-adapter.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js

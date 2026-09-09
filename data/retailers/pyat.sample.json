@@ -1,0 +1,37 @@
+{
+  "schema": "tamdeshevle.retailer-snapshot.v1",
+  "retailer": "pyat",
+  "store_id": "pyat",
+  "city": "msk",
+  "channel": "delivery_catalog",
+  "source_url": "https://5ka.ru/",
+  "checked_at": "2026-09-10T02:30:00+03:00",
+  "method": "public_catalog_snapshot_via_index",
+  "scope_verified": false,
+  "catalog_context": {
+    "type": "public_delivery_catalog",
+    "location_verified": false,
+    "note": "Public 5ka.ru product pages expose current catalog prices but the store/city scope was not verifiable from the public indexed page context. Runtime must not rank these prices until scope_verified=true."
+  },
+  "rows": [
+    {
+      "id": "4192464",
+      "name": "Молоко Эконива ультрапастеризованное 3.2% БЗМЖ",
+      "brand": "ЭкоНива",
+      "pack_text": "1 л",
+      "price": 207.99,
+      "availability": "В корзину",
+      "url": "https://5ka.ru/product/moloko-ekoniva-ultrapasterizovannoe-3-2-bzmzh--4192464/"
+    },
+    {
+      "id": "4002375",
+      "name": "Манка Селяночка",
+      "brand": "Селяночка",
+      "pack_text": "800 г",
+      "price": 62.99,
+      "old_price": 69.99,
+      "availability": "В корзину",
+      "url": "https://5ka.ru/product/manka-selyanochka--4002375/"
+    }
+  ]
+}

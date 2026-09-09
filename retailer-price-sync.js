@@ -3,7 +3,8 @@
 
   const OVERLAYS = [
     "data/retailers/perekrestok.overlay.json?v=20260910a",
-    "data/retailers/magnit.overlay.json?v=20260910a"
+    "data/retailers/magnit.overlay.json?v=20260910a",
+    "data/retailers/pyat.overlay.json?v=20260910a"
   ];
   let books = [];
   let appliedSignature = "";
@@ -36,6 +37,7 @@
   }
 
   function applyOverlay(book) {
+    if (book.scope_verified === false) return 0;
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return 0;
     if (typeof state === "undefined" || !state || book.city !== state.city) return 0;
     const storeId = book.store_id || book.retailer;
@@ -65,6 +67,7 @@
         retailerProductId: match.retailer_product_id || null,
         retailerName: match.name || null,
         storeContext: book.store_context || null,
+        catalogContext: book.catalog_context || null,
         confidence: Number.isFinite(match.confidence) ? match.confidence : null,
         method: match.method || null,
         price: value
@@ -79,7 +82,7 @@
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS) || PRODUCTS.length < 10) return false;
     if (typeof state === "undefined" || !state) return false;
 
-    const signature = books.map(book => [book.retailer, book.city, book.checked_at, Object.keys(book.prices || {}).length].join(":" )).join("|") + ":" + state.city + ":" + PRODUCTS.length;
+    const signature = books.map(book => [book.retailer, book.city, book.checked_at, book.scope_verified, Object.keys(book.prices || {}).length].join(":" )).join("|") + ":" + state.city + ":" + PRODUCTS.length;
     if (!force && signature === appliedSignature) return true;
 
     const applied = books.map(book => ({
@@ -88,6 +91,8 @@
       channel: book.channel || "delivery_catalog",
       checkedAt: book.checked_at || null,
       storeContext: book.store_context || null,
+      catalogContext: book.catalog_context || null,
+      scopeVerified: book.scope_verified !== false,
       count: applyOverlay(book)
     }));
 
