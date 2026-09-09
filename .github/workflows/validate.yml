@@ -15,6 +15,7 @@ on:
       - chatgpt/collector-magnit
       - chatgpt/retailer-adapter-pyat
       - chatgpt/pyat-store-scoped-collector
+      - chatgpt/retailer-product-images
 
 permissions:
   contents: read
@@ -61,6 +62,7 @@ jobs:
           node --check price-sync.js
           node --check retailer-price-sync.js
           node --check price-provenance-ui.js
+          node --check product-ui.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
