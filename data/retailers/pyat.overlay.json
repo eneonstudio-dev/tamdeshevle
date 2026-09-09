@@ -1,0 +1,31 @@
+{
+  "schema": "tamdeshevle.retailer-price-overlay.v1",
+  "retailer": "pyat",
+  "store_id": "pyat",
+  "city": "msk",
+  "checked_at": "2026-09-10T02:30:00+03:00",
+  "prices": {},
+  "matched": [],
+  "unmatched": [
+    {
+      "name": "Молоко Эконива ультрапастеризованное 3.2% БЗМЖ",
+      "retailer_product_id": "4192464",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Манка Селяночка",
+      "retailer_product_id": "4002375",
+      "reason": "no_rule_match"
+    }
+  ],
+  "channel": "delivery_catalog",
+  "source_url": "https://5ka.ru/",
+  "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "catalog_context": {
+    "type": "public_delivery_catalog",
+    "location_verified": false,
+    "note": "Public 5ka.ru product pages expose current catalog prices but the store/city scope was not verifiable from the public indexed page context. Runtime must not rank these prices until scope_verified=true."
+  },
+  "scope_verified": false,
+  "normalized_count": 2
+}
