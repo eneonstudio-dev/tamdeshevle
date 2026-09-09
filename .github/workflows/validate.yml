@@ -19,6 +19,8 @@ jobs:
           node-version: 22
       - name: Validate JSON data contracts
         run: node scripts/validate-data.mjs
+      - name: Test comparison engine
+        run: node scripts/test-comparison.mjs
       - name: Check JavaScript syntax
         run: |
           node --check app.js
