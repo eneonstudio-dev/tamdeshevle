@@ -1,0 +1,35 @@
+name: Validate data and scripts
+
+on:
+  pull_request:
+  push:
+    branches:
+      - chatgpt/architecture-cleanup
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate JSON data contracts
+        run: node scripts/validate-data.mjs
+      - name: Test comparison engine
+        run: node scripts/test-comparison.mjs
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check catalog-boot.js
+          node --check store-boot.js
+          node --check price-sync.js
+          node --check data-layer.js
+          node --check comparison-engine.js
+          node --check runtime-bridge.js
+          node --check metrics.js
+          node --check store-covers.js
+          node --check gsap-motion.js

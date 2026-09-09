@@ -63,31 +63,15 @@ async function loadPrices() {
 }
 const cityName = () => state.city === "msk" ? "Москва" : "Санкт-Петербург";
 const storeBy = id => STORES.find(s => s.id === id);
-const cartEntries = () => PRODUCTS.filter(p => state.cart[p.id] > 0);
-const cartCount = () => cartEntries().reduce((a, p) => a + state.cart[p.id], 0);
-const defaultChannel = id => {
-  const s = storeBy(id);
-  return s && s.kind === "delivery" ? "bring" : "shelf";
-};
+const cartEntries = () => TDCompare.cartEntries(PRODUCTS, state.cart || {});
+const cartCount = () => cartEntries().reduce((a, p) => a + Number(state.cart[p.id] || 0), 0);
+const defaultChannel = id => TDCompare.defaultChannel(storeBy(id));
 function priceOf(p, storeId, channel) {
-  if (channel === "bring") return (p.bring && p.bring[storeId]) || p.prices[storeId] || 0;
-  return p.prices[storeId] || 0;
+  return TDCompare.unitPrice(p, storeId, channel || defaultChannel(storeId));
 }
-const sumIn = (id, channel) => cartEntries().reduce((a, p) => a + priceOf(p, id, channel || defaultChannel(id)) * state.cart[p.id], 0);
+const sumIn = (id, channel) => TDCompare.goodsTotal(PRODUCTS, state.cart || {}, id, channel || defaultChannel(id));
 function scenarios() {
-  const originCh = defaultChannel(state.storeId);
-  const originSum = sumIn(state.storeId, originCh);
-  let list = STORES.filter(s => s.city.includes(state.city));
-  if (state.mode === "walk") list = list.filter(s => s.kind !== "delivery");
-  if (state.mode === "delivery") list = list.filter(s => s.has_bring);
-  return list.map(s => {
-    const channel = state.mode === "delivery" ? "bring" : state.mode === "walk" ? "shelf" : defaultChannel(s.id);
-    const goods = sumIn(s.id, channel);
-    const feeKnown = channel === "bring" && s.kind === "delivery";
-    const delivery = feeKnown ? (s.delivery || 0) : 0;
-    const total = goods + delivery;
-    return { ...s, channel, goods, delivery, feeKnown, total, save: originSum - total, same: s.id === state.storeId && channel === originCh };
-  }).sort((a, b) => a.total - b.total);
+  return TDCompare.compare({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city, mode: state.mode, originStoreId: state.storeId });
 }
 function setQty(id, d) {
   const n = Math.max(0, (state.cart[id] || 0) + d);
