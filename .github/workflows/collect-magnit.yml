@@ -1,0 +1,45 @@
+name: Collect Magnit prices
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: collect-magnit-main
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    if: github.repository == 'eneonstudio-dev/tamdeshevle'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Collect one-store Magnit public catalog
+        run: node scripts/collect-magnit.mjs
+      - name: Validate collected overlay
+        run: |
+          node scripts/test-magnit-collector.mjs
+          node scripts/test-magnit-adapter.mjs
+          node scripts/test-sku-matcher.mjs
+          node scripts/test-retailer-overlay.mjs
+          node scripts/validate-data.mjs
+      - name: Commit refreshed snapshot and overlay
+        run: |
+          if git diff --quiet -- data/retailers/magnit.sample.json data/retailers/magnit.overlay.json; then
+            echo "No Magnit changes"
+            exit 0
+          fi
+          git config user.name "tamdeshevle-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/retailers/magnit.sample.json data/retailers/magnit.overlay.json
+          git commit -m "Refresh Magnit public prices"
+          git push origin HEAD:main
