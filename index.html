@@ -51,14 +51,21 @@
     .time { color:var(--muted); font-size:12px; margin-top:3px; }
     .badge { display:inline-block; background:var(--green-2); color:#fff; font-size:11px; font-weight:800; border-radius:999px; padding:3px 7px; }
     .search,.addr { width:100%; border:0; background:#fff; border-radius:16px; padding:13px 14px; font:600 14px Manrope; margin-bottom:10px; }
-    .item { background:#fff; border-radius:18px; padding:10px; display:grid; grid-template-columns:76px 1fr auto; gap:10px; align-items:center; margin-bottom:8px; }
-    .thumb { width:76px; height:64px; border-radius:14px; display:grid; place-items:center; font-size:22px; background:var(--soft); }
-    .thumb.word-thumb { font-size:12px; font-weight:800; text-align:center; padding:8px; line-height:1.15; letter-spacing:-.03em; }
-    .title { font-weight:800; font-size:14px; }
-    .pack { color:var(--muted); font-size:12px; margin:2px 0 4px; }
-    .price { font-weight:800; }
-    .step { display:flex; align-items:center; gap:8px; }
-    .step button { width:28px; height:28px; border:0; border-radius:9px; background:#efe8dc; font-weight:800; cursor:pointer; }
+    .item, .product-card { background:#fff; border:1px solid #ece6db; border-radius:16px; padding:12px; display:grid; grid-template-columns:64px 1fr auto; gap:12px; align-items:center; margin-bottom:10px; box-shadow:0 2px 0 rgba(22,20,16,.03); }
+    .thumb, .product-packaging { width:64px; height:84px; border-radius:10px; display:flex; align-items:flex-end; justify-content:center; font-size:12px; font-weight:800; text-align:center; padding:8px 6px; line-height:1.15; letter-spacing:-.03em; }
+    .packaging-dairy { background:linear-gradient(165deg,#e3f2fd 0%,#bbdefb 100%); }
+    .packaging-meat { background:linear-gradient(165deg,#ffebee 0%,#ffcdd2 100%); }
+    .packaging-veggie { background:linear-gradient(165deg,#e8f5e9 0%,#c8e6c9 100%); }
+    .packaging-fruit { background:linear-gradient(165deg,#fff8e1 0%,#ffe0b2 100%); }
+    .packaging-bakery { background:linear-gradient(165deg,#fff3e0 0%,#ffcc80 100%); }
+    .packaging-drink { background:linear-gradient(165deg,#e3f2fd 0%,#90caf9 100%); }
+    .packaging-grocery { background:linear-gradient(165deg,#f3e5f5 0%,#e1bee7 100%); }
+    .title, .product-name { font-weight:800; font-size:15px; }
+    .pack, .product-pack { color:var(--muted); font-size:13px; margin:3px 0 6px; }
+    .price, .product-price { font-weight:800; font-size:16px; color:#0f7b4a; }
+    .step, .product-controls { display:flex; align-items:center; gap:8px; }
+    .step button, .qty-btn { width:32px; height:32px; border:1px solid #e8e0d4; background:#fff; border-radius:50%; font-weight:800; cursor:pointer; }
+    .step button:last-child, .qty-btn.plus { background:#161410; border-color:#161410; color:#fff; }
     .dock { position:fixed; left:50%; transform:translateX(-50%); width:min(430px,100%); bottom:0; padding:10px 16px calc(16px + env(safe-area-inset-bottom)); background:linear-gradient(transparent,var(--bg) 28%); }
     .btn { width:100%; border:0; border-radius:16px; padding:14px 16px; font:800 15px Manrope; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
     .btn.yellow { background:var(--yellow); }
@@ -77,6 +84,7 @@
     .note { background:#fff; border-radius:16px; padding:12px 14px; font-size:13px; color:var(--muted); font-weight:600; margin-bottom:12px; }
     .why-line { display:flex; justify-content:space-between; font-size:13px; padding:6px 0; border-top:1px solid var(--line); }
     .geo-box { margin:8px 0 4px; }
+    .sku-plate.packaging-dairy, .sku-plate.packaging-meat, .sku-plate.packaging-veggie, .sku-plate.packaging-fruit, .sku-plate.packaging-bakery, .sku-plate.packaging-drink, .sku-plate.packaging-grocery { background-image:none; }
   </style>
 </head>
 <body>
