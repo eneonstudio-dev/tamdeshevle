@@ -8,6 +8,7 @@ on:
       - chatgpt/retailer-adapter-perekrestok
       - chatgpt/sku-matcher
       - chatgpt/retailer-price-overlay
+      - chatgpt/price-provenance
 
 permissions:
   contents: read
@@ -41,6 +42,7 @@ jobs:
           node --check store-boot.js
           node --check price-sync.js
           node --check retailer-price-sync.js
+          node --check price-provenance-ui.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
