@@ -29,6 +29,7 @@ jobs:
         run: |
           set -e
           node scripts/collect-magnit.mjs
+          node -e "const s=require('./data/retailers/magnit.sample.json'); if(s.scope_verified!==true) process.exit(2)"
           node scripts/test-magnit-collector.mjs
           node scripts/test-magnit-adapter.mjs
           node scripts/test-sku-matcher.mjs

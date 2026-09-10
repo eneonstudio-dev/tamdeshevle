@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
-import { discoverMagnitProductUrls, pageImage, pageUnitPrice, parseMagnitProductPage, rankMagnitProductUrls, withMagnitStore } from "../retailers/magnit-collector.mjs";
+import { discoverMagnitProductUrls, pageImage, pageUnitPrice, parseMagnitProductPage, rankMagnitProductUrls, verifyMagnitScopeConfig, withMagnitStore } from "../retailers/magnit-collector.mjs";
 
 const store_context = { shop_code: "770105", shop_type: "1", address: "г Москва, ул Чертановская, д 47 к 2" };
 const context = { store_context, expected_address_tokens: ["Чертановская", "47"] };
+assert.deepEqual(verifyMagnitScopeConfig(context), store_context);
+assert.throws(()=>verifyMagnitScopeConfig({store_context:{shop_code:"770105",address:"Москва"},expected_address_tokens:[]}),/expected_address_tokens/);
+assert.throws(()=>verifyMagnitScopeConfig({store_context:{shop_code:"770105",address:"Москва"},expected_address_tokens:["Чертановская"]}),/does not match/);
 const imageUrl = "https://images-foodtech.magnit.ru/example/egg.webp";
 const productHtml = `<!doctype html><html><head>
 <title>Куриное яйцо C1 10шт в ассортименте – купить с доставкой | г Москва, ул Чертановская, д 47 к 2</title>
