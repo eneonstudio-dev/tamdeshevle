@@ -48,6 +48,12 @@ jobs:
         run: node scripts/test-comparison.mjs
       - name: Test trust labels and ranking gates
         run: node scripts/test-trust-ui.mjs
+      - name: Test receipt observation contract
+        run: node scripts/test-receipt-observations.mjs
+      - name: Test receipt verification gates
+        run: node scripts/test-receipt-verification.mjs
+      - name: Test receipt price adapter
+        run: node scripts/test-receipt-price-adapter.mjs
       - name: Test store ID basket bridge
         run: node scripts/test-store-id-bridge.mjs
       - name: Test geo point details wiring
@@ -118,6 +124,9 @@ jobs:
           node --check on-the-way.js
           node --check smart-substitutions.js
           node --check price-history.js
+          node --check receipt-observations.js
+          node --check receipt-verification.js
+          node --check receipt-price-adapter.js
           node --check profile-basket.js
           node --check account-hub.js
           node --check auth-client.js
@@ -143,6 +152,9 @@ jobs:
           node --check scripts/update-collector-health.mjs
           node --check scripts/test-data-quality.mjs
           node --check scripts/test-trust-ui.mjs
+          node --check scripts/test-receipt-observations.mjs
+          node --check scripts/test-receipt-verification.mjs
+          node --check scripts/test-receipt-price-adapter.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
