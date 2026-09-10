@@ -37,7 +37,11 @@ const falsePositives = [
   { retailer: "pyat", name: "Чай чёрный листовой 100г", price_rub: 239 },
   { retailer: "pyat", name: "Масло кукурузное 1л", price_rub: 179 },
   { retailer: "pyat", name: "Сахар тростниковый 1кг", price_rub: 199 },
-  { retailer: "pyat", name: "Лук порей 1кг", price_rub: 399 }
+  { retailer: "pyat", name: "Лук порей 1кг", price_rub: 399 },
+  { retailer: "pyat", name: "Семена Удачные семена Морковь Королева осени, 2г", price_rub: 11.99 },
+  { retailer: "pyat", name: "Семенной картофель ранний, 1кг", price_rub: 129.99 },
+  { retailer: "pyat", name: "Семена Лук репчатый Штутгартер, 1г", price_rub: 39.99 },
+  { retailer: "pyat", name: "Шоколад Miskets Capybara молочный с банановой начинкой 60г", price_rub: 109.99 }
 ];
 
 for (const product of falsePositives) {
