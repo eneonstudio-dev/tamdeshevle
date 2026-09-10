@@ -51,9 +51,14 @@
       .td-themed-marker{filter:drop-shadow(0 4px 6px rgba(22,20,16,.20));transition:transform .16s ease,filter .16s ease;transform-origin:50% 100%}
       .td-themed-marker[data-active="true"]{transform:scale(1.16);filter:drop-shadow(0 7px 11px rgba(22,20,16,.30))}
       .td-themed-marker[data-point-selected="true"]{transform:scale(1.22);filter:drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 7px 12px rgba(15,123,74,.38))}
-      @media(max-width:430px){.td-map{height:44vh;min-height:285px}.td-map-list{padding-left:12px;padding-right:12px}.td-map-store{min-height:92px}}
+      .td-map-quick-controls{position:absolute;right:12px;top:76px;z-index:520;display:grid;gap:8px}
+      .td-map-quick-controls button{width:44px;height:44px;border:0;border-radius:13px;background:rgba(255,255,255,.96);color:#161410;box-shadow:0 8px 22px rgba(22,20,16,.18);font:900 20px/1 Manrope,system-ui,sans-serif;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+      .td-map-quick-controls button:active{transform:scale(.96)}
+      .td-map-quick-controls button:focus-visible{outline:3px solid rgba(15,123,74,.28);outline-offset:2px}
+      .td-map-quick-controls button[data-busy="true"]{opacity:.66;cursor:wait}
+      @media(max-width:430px){.td-map{height:44vh;min-height:285px}.td-map-list{padding-left:12px;padding-right:12px}.td-map-store{min-height:92px}.td-map-quick-controls{top:72px;right:10px}}
       @media (min-width:700px){.td-map-sheet{left:50%;right:auto;width:min(680px,100%);transform:translateX(-50%);box-shadow:0 0 70px rgba(22,20,16,.22)}}
-      @media (prefers-reduced-motion:reduce){.td-map-store,.td-themed-marker{transition:none}}
+      @media (prefers-reduced-motion:reduce){.td-map-store,.td-themed-marker,.td-map-quick-controls button{transition:none}}
     `;
     document.head.appendChild(s);
   }
@@ -92,6 +97,31 @@
       const isSelected=Boolean(selected&&list[index]&&String(list[index].id)===String(selected.id));
       if(isSelected)marker.dataset.pointSelected="true";else marker.removeAttribute("data-point-selected");
     });
+  }
+
+  function refreshLocation(){
+    const btn=document.querySelector("[data-td-map-locate]");
+    if(btn){btn.disabled=true;btn.dataset.busy="true";btn.textContent="…";}
+    if(window.TDGeo&&typeof TDGeo.locate==="function"){TDGeo.locate();return true;}
+    if(btn){btn.disabled=false;btn.removeAttribute("data-busy");btn.textContent="◎";}
+    return false;
+  }
+
+  function fitAll(){
+    if(window.TDGeo&&typeof TDGeo.openMap==="function"){TDGeo.openMap();return true;}
+    return false;
+  }
+
+  function injectMapControls(root=document){
+    const sheet=root.querySelector?.(".td-map-sheet")||document.querySelector(".td-map-sheet");
+    if(!sheet||sheet.querySelector("[data-td-map-controls]"))return;
+    const controls=document.createElement("div");
+    controls.className="td-map-quick-controls";
+    controls.dataset.tdMapControls="1";
+    controls.innerHTML='<button type="button" data-td-map-locate aria-label="Обновить моё местоположение" title="Моё местоположение">◎</button><button type="button" data-td-map-fit aria-label="Показать меня и все найденные магазины" title="Показать всё">⌗</button>';
+    sheet.appendChild(controls);
+    controls.querySelector("[data-td-map-locate]")?.addEventListener("click",refreshLocation);
+    controls.querySelector("[data-td-map-fit]")?.addEventListener("click",fitAll);
   }
 
   function openCardDetails(index){
@@ -180,6 +210,7 @@
 
   function enhance(){
     injectStyles();
+    injectMapControls();
     themeMarkers();
     decorateCards();
     syncSelected();
@@ -194,6 +225,6 @@
     window.addEventListener("td:selected-store-point-current",enhance);
     window.addEventListener("td:selected-store-point-cleared",enhance);
   }
-  window.TDMapTheme={refresh:enhance,syncSelected,setActive};
+  window.TDMapTheme={refresh:enhance,syncSelected,setActive,refreshLocation,fitAll};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
