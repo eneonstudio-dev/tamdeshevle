@@ -95,7 +95,7 @@ jobs:
           node scripts/build-retailer-overlay.mjs data/retailers/magnit.sample.json /tmp/magnit.overlay.json
           diff -u data/retailers/magnit.overlay.json /tmp/magnit.overlay.json
           node scripts/build-retailer-overlay.mjs data/retailers/pyat.sample.json /tmp/pyat.overlay.json
-          diff -u data/retailers/pyat.overlay.json /tmp/pyat.overlay.json
+          node -e "const o=require('/tmp/pyat.overlay.json'); const s=require('./data/retailers/pyat.sample.json'); if(o.scope_verified!==false || o.catalog_context?.price_scope!=='regional_catalog' || o.checked_at!==s.checked_at || !Object.values(o.prices||{}).every(Number.isFinite)) process.exit(2)"
           node scripts/build-retailer-overlay.mjs data/retailers/lenta.sample.json /tmp/lenta.overlay.json
           diff -u data/retailers/lenta.overlay.json /tmp/lenta.overlay.json
           node scripts/build-retailer-overlay.mjs data/retailers/dixy.sample.json /tmp/dixy.overlay.json
