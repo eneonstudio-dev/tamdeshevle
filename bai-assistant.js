@@ -1,96 +1,17 @@
 (() => {
-  if (document.getElementById('bai-assistant')) return;
-
-  const POSES = {
-    idle:'assets/bai/bai-idle.webp',
-    greeting:'assets/bai/bai-happy.webp',
-    happy:'assets/bai/bai-happy.webp',
-    checking:'assets/bai/bai-checking.webp',
-    suspicious:'assets/bai/bai-grumpy.webp',
-    grumpy:'assets/bai/bai-grumpy.webp',
-    thinking:'assets/bai/bai-peek.webp',
-    curious:'assets/bai/bai-peek.webp',
-    peek:'assets/bai/bai-peek.webp',
-    sleep:'assets/bai/bai-sleep.webp',
-    goodbye:'assets/bai/bai-tail-peek.webp'
-  };
-  [...new Set(Object.values(POSES))].forEach(src=>{const i=new Image();i.src=src;});
-
-  const bai=document.createElement('button');
-  bai.id='bai-assistant'; bai.className='bai-assistant'; bai.type='button';
-  bai.setAttribute('aria-label','Бай — помощник Тамдешевле');
-  bai.innerHTML=`<span class="bai-bubble" aria-hidden="true"></span><img class="bai-image" src="${POSES.idle}" alt="" draggable="false">`;
-  document.body.appendChild(bai);
-
-  let hideTimer,idleTimer,settleTimer,scrollTimer,lastHint='',stateToken=0;
-  const bubble=bai.querySelector('.bai-bubble');
-  const image=bai.querySelector('.bai-image');
-
-  const setState=(state,text='',ms=3200,settle=true)=>{
-    const token=++stateToken;
-    clearTimeout(hideTimer); clearTimeout(settleTimer);
-    bai.dataset.state=state;
-    image.src=POSES[state]||POSES.idle;
-    bubble.textContent=text;
-    bai.classList.toggle('is-talking',Boolean(text));
-    if(text) hideTimer=setTimeout(()=>{if(token===stateToken)bai.classList.remove('is-talking');},ms);
-    if(settle&&!['idle','sleep'].includes(state)) settleTimer=setTimeout(()=>{
-      if(token===stateToken)setState('idle','',0,false);
-    },Math.max(ms+220,1800));
-  };
-
-  const place=()=>{
-    const dock=document.querySelector('.dock');
-    let bottom=6;
-    if(dock){
-      const r=dock.getBoundingClientRect();
-      if(r.height>20&&r.bottom>innerHeight-8&&r.top<innerHeight) bottom=Math.min(150,Math.ceil(innerHeight-r.top+2));
-    }
-    bai.style.setProperty('--bai-bottom',`${bottom}px`);
-  };
-
-  const wake=()=>{
-    clearTimeout(idleTimer);
-    if(bai.dataset.state==='sleep')setState('idle','О, ты вернулся 🐾',1500);
-    idleTimer=setTimeout(()=>setState('sleep','Я тут подремлю… 😴',2200,false),45000);
-  };
-
-  const onScroll=()=>{
-    wake(); place();
-    bai.classList.add('is-scrolling'); bai.classList.remove('is-talking');
-    clearTimeout(scrollTimer);
-    scrollTimer=setTimeout(()=>{bai.classList.remove('is-scrolling');place();},420);
-  };
-
-  const contextHint=()=>{
-    const text=document.body.innerText;
-    let state='thinking',hint='Добавляй товары — покажу, где корзина дешевле 🐾';
-    if(text.includes('≈ каталог')){state='suspicious';hint='≈ — цена из каталога, не подтверждённая цена конкретной точки 🐾';}
-    else if(/корзин/i.test(text)&&/пуст/i.test(text)){state='curious';hint='Корзина пустая. Добавь товар — и погнали 🛒';}
-    else if(/сравн/i.test(text)){state='checking';hint='Сверяю варианты. Смотри на итог корзины и путь 👀';}
-    if(hint===lastHint&&bai.classList.contains('is-talking'))return;
-    lastHint=hint; setState(state,hint,3500);
-  };
-
-  bai.addEventListener('click',()=>{wake();contextHint();});
-  ['pointerdown','keydown'].forEach(type=>window.addEventListener(type,wake,{passive:true}));
-  window.addEventListener('scroll',onScroll,{passive:true});
-  window.addEventListener('resize',place,{passive:true});
-  document.addEventListener('click',event=>{
-    if(event.target.closest('.step button:last-child'))setState('happy','Есть! Ещё товар в корзине 🐾');
-    if(event.target.closest('.btn.yellow,.btn.green'))setState('checking','Проверяю цены 🔎',2600);
-  });
-  window.addEventListener('bai:checking',()=>setState('checking','Проверяю цены 🔎'));
-  window.addEventListener('bai:happy',()=>setState('happy','Нашёл вариант дешевле! 🎉'));
-  window.addEventListener('bai:grumpy',()=>setState('suspicious','Хм. Тут цена пока не подтверждена 🤨'));
-  window.addEventListener('bai:thinking',()=>setState('thinking','Считаю… 🐾'));
-  window.addEventListener('bai:peek',contextHint);
-  window.addEventListener('bai:goodbye',()=>setState('goodbye','Увидимся 🐾',1800));
-  window.addEventListener('bai:hint',e=>e.detail?.text&&setState(e.detail.state||'thinking',e.detail.text,e.detail.ms||3000));
-
-  bai.dataset.state='idle'; place();
-  setTimeout(()=>bai.classList.add('is-ready'),250);
-  setTimeout(()=>setState('greeting','Сәлам! Я Бай 🐾',2200),650);
-  new MutationObserver(place).observe(document.body,{childList:true,subtree:true});
-  wake();
+  "use strict";
+  if (document.getElementById("bai-assistant")) return;
+  const POSES={idle:"assets/bai/bai-idle.webp",greeting:"assets/bai/bai-happy.webp",peek:"assets/bai/bai-peek.webp",curious:"assets/bai/bai-peek.webp",checking:"assets/bai/bai-checking.webp",thinking:"assets/bai/bai-peek.webp",suspicious:"assets/bai/bai-grumpy.webp",happy:"assets/bai/bai-happy.webp",excited:"assets/bai/bai-happy.webp","big-saving":"assets/bai/bai-happy.webp",confused:"assets/bai/bai-grumpy.webp",scared:"assets/bai/bai-grumpy.webp",playful:"assets/bai/bai-happy.webp",sleepy:"assets/bai/bai-sleep.webp",sleeping:"assets/bai/bai-sleep.webp",hidden:"assets/bai/bai-tail-peek.webp",goodbye:"assets/bai/bai-tail-peek.webp"};
+  [...new Set(Object.values(POSES))].forEach(src=>{const image=new Image();image.src=src;});
+  const bai=document.createElement("div");bai.id="bai-assistant";bai.className="bai-assistant";bai.dataset.state="idle";bai.innerHTML=`<button class="bai-character" type="button" aria-label="Открыть Бая"><span class="bai-bubble" aria-hidden="true"></span><img class="bai-image" src="${POSES.idle}" alt="" draggable="false"></button>`;document.body.appendChild(bai);
+  let talkTimer,settleTimer,sleepyTimer,sleepingTimer,stateToken=0;const image=bai.querySelector(".bai-image"),bubble=bai.querySelector(".bai-bubble"),character=bai.querySelector(".bai-character");
+  function setState(next,text="",ms=2800,settle=true){const state=POSES[next]?next:"idle",token=++stateToken;clearTimeout(talkTimer);clearTimeout(settleTimer);bai.dataset.state=state;image.src=POSES[state];bubble.textContent=text;bai.classList.toggle("is-talking",Boolean(text));if(text)talkTimer=setTimeout(()=>{if(token===stateToken)bai.classList.remove("is-talking");},ms);if(settle&&!["idle","sleepy","sleeping","hidden"].includes(state))settleTimer=setTimeout(()=>{if(token===stateToken)setState("idle","",0,false);},Math.max(1800,ms+180));window.dispatchEvent(new CustomEvent("td:bai-state",{detail:{state}}));}
+  function resetIdle(){clearTimeout(sleepyTimer);clearTimeout(sleepingTimer);if(["sleepy","sleeping"].includes(bai.dataset.state))setState("peek","Я здесь. Что ищем?",1500);if(bai.dataset.state==="hidden")return;sleepyTimer=setTimeout(()=>setState("sleepy","Что-то тихо…",1800,false),45000);sleepingTimer=setTimeout(()=>setState("sleeping","",0,false),65000);}
+  function closePanel(){bai.querySelector(".bai-panel")?.remove();bai.classList.remove("panel-open");}
+  function action(label){closePanel();resetIdle();if(label==="compare"){setState("thinking","Считаю корзину целиком…",1800);go("compare");}if(label==="discount"){setState("suspicious","Проверю, настоящая ли скидка",2200);go("catalog");}if(label==="search"){setState("curious","Пиши товар — я посмотрю",1800);go("home");requestAnimationFrame(()=>document.querySelector(".v2-search input")?.focus());}if(label==="basket"){setState("playful","Соберём без лишнего",1800);go("cart");}if(label==="sleep"){setState("goodbye","Ладно, свернусь клубком",1500,false);setTimeout(()=>setState("hidden","",0,false),1300);}}
+  function openPanel(){if(bai.dataset.state==="hidden"){setState("peek","Снова в деле",1400);resetIdle();return;}if(bai.querySelector(".bai-panel")){closePanel();return;}const panel=document.createElement("section");panel.className="bai-panel";panel.setAttribute("aria-label","Быстрые действия Бая");panel.innerHTML=`<div class="bai-panel-head"><div><span>БАЙ</span><b>Чем помочь?</b></div><button type="button" data-close aria-label="Закрыть">×</button></div><div class="bai-actions"><button data-action="compare"><i>↘</i><span><b>Где корзина дешевле?</b><small>Сравнить весь список</small></span></button><button data-action="discount"><i>✓</i><span><b>Проверить скидку</b><small>Сверить с историей цены</small></span></button><button data-action="search"><i>⌕</i><span><b>Найти товар</b><small>Начать новый поиск</small></span></button><button data-action="basket"><i>＋</i><span><b>Собрать корзину</b><small>Изменить список</small></span></button></div><button class="bai-sleep-action" data-action="sleep">Уложить Бая спать</button>`;bai.appendChild(panel);bai.classList.add("panel-open");setState("curious","",0,false);panel.querySelector("[data-close]").onclick=closePanel;panel.querySelectorAll("[data-action]").forEach(button=>button.onclick=()=>action(button.dataset.action));}
+  function contextualHint(){const screen=window.state&&state.screen;if(screen==="compare")setState("checking","Смотри сначала на победителя и доверие к цене",3300);else if(screen==="cart")setState("thinking","Корзина — главное. Сравню именно её",2600);else if(screen==="catalog")setState("curious","Добавляй нужное, не охоться за каждой скидкой",3000);else setState("greeting","Сәлам. Найдём, где дешевле?",2500);}
+  character.onclick=openPanel;window.addEventListener("pointerdown",event=>{if(!event.target.closest("#bai-assistant"))resetIdle();},{passive:true});window.addEventListener("keydown",resetIdle,{passive:true});window.addEventListener("td:v2-rendered",()=>{closePanel();resetIdle();});document.addEventListener("click",event=>{if(event.target.closest(".v2-add,.step button:last-child"))setState("happy","Добавил. Корзина становится умнее",1900);if(event.target.closest(".v2-compare,.btn.dark"))setState("thinking","Считаю весь список…",2100);});
+  window.addEventListener("bai:checking",()=>setState("checking","Проверяю цены…",2200));window.addEventListener("bai:happy",()=>setState("happy","Нашёл вариант дешевле",2200));window.addEventListener("bai:grumpy",()=>setState("suspicious","Этой цене пока не доверяю",2400));window.addEventListener("bai:thinking",()=>setState("thinking","Считаю…",1800));window.addEventListener("bai:peek",contextualHint);window.addEventListener("bai:goodbye",()=>action("sleep"));window.addEventListener("bai:hint",event=>event.detail?.text&&setState(event.detail.state||"thinking",event.detail.text,event.detail.ms||2800));
+  window.TDBai={states:Object.keys(POSES),setState,openPanel,closePanel,sleep:()=>action("sleep"),wake:()=>{setState("peek","Я здесь",1400);resetIdle();}};requestAnimationFrame(()=>bai.classList.add("is-ready"));setTimeout(contextualHint,700);resetIdle();
 })();

@@ -68,6 +68,8 @@ jobs:
         run: node scripts/test-geo-store-map-source.mjs
       - name: Test mobile store flow smoke checks
         run: node scripts/test-mobile-smoke-flow.mjs
+      - name: Test V2 responsive UI contract
+        run: node scripts/test-v2-ui.mjs
       - name: Test worth-it recommendations
         run: node scripts/test-worth-it.mjs
       - name: Test on-the-way recommendations
@@ -136,6 +138,7 @@ jobs:
           node --check map-one-tap.js
           node --check ui-layer-coordinator.js
           node --check bai-assistant.js
+          node --check v2-shell.js
           node --check worth-it.js
           node --check on-the-way.js
           node --check smart-substitutions.js
@@ -191,6 +194,7 @@ jobs:
           node --check scripts/test-store-id-bridge.mjs
           node --check scripts/test-geo-store-map-source.mjs
           node --check scripts/test-mobile-smoke-flow.mjs
+          node --check scripts/test-v2-ui.mjs
           node --check scripts/test-worth-it.mjs
           node --check scripts/test-on-the-way.mjs
           node --check scripts/test-smart-substitutions.mjs
