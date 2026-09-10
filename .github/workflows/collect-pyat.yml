@@ -30,9 +30,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Camoufox runtime
+      - name: Install Pyaterochka browser runtime
         run: |
-          pip install "camoufox[geoip]"
+          pip install pyaterochka_api "camoufox[geoip]"
           python -m camoufox fetch
       - name: Collect and validate one-store Pyaterochka catalog
         id: refresh
@@ -41,7 +41,7 @@ jobs:
           PYAT_CAMOUFOX: "1"
         run: |
           set -e
-          node scripts/collect-pyat.mjs
+          xvfb-run -a node scripts/collect-pyat.mjs
           node -e "const s=require('./data/retailers/pyat.sample.json'); if(s.scope_verified!==true) process.exit(2)"
           node scripts/test-pyat-collector.mjs
           node scripts/test-pyat-adapter.mjs
