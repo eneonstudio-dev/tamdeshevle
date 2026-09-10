@@ -25,6 +25,7 @@ on:
       - chatgpt/on-the-way-final2
       - chatgpt/smart-substitutions
       - chatgpt/price-history
+      - chatgpt/profile-basket-today
 
 permissions:
   contents: read
@@ -55,6 +56,8 @@ jobs:
         run: node scripts/test-smart-substitutions.mjs
       - name: Test price history and anti-fake discounts
         run: node scripts/test-price-history.mjs
+      - name: Test profile and daily basket
+        run: node scripts/test-profile-basket.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
       - name: Test Magnit adapter
@@ -99,6 +102,7 @@ jobs:
           node --check on-the-way.js
           node --check smart-substitutions.js
           node --check price-history.js
+          node --check profile-basket.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
@@ -126,6 +130,7 @@ jobs:
           node --check scripts/test-on-the-way.mjs
           node --check scripts/test-smart-substitutions.mjs
           node --check scripts/test-price-history.mjs
+          node --check scripts/test-profile-basket.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
