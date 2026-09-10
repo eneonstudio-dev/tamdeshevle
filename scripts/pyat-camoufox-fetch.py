@@ -6,22 +6,18 @@ from camoufox.sync_api import Camoufox
 
 API = "https://5d.5ka.ru/api"
 SITE = "https://5ka.ru/"
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
-    "Accept": "application/json, text/plain, */*",
-    "Accept-Language": "ru-RU,ru;q=0.9",
-    "X-APP-VERSION": "8.45.0",
-    "X-PLATFORM": "web",
-    "X-CAN-RECEIVE-PUSH": "true",
-    "X-DEVICE-ID": str(uuid.uuid4()),
-    "format": "json",
-    "Origin": "https://5ka.ru",
-    "Referer": "https://5ka.ru/",
-}
 
-def warm_cookies():
+def warm_session():
+    observed = {}
     with Camoufox(headless=True, locale="ru-RU", block_images=False) as browser:
         page = browser.new_page()
+        def sniff(request):
+            if "5d.5ka.ru" not in request.url:
+                return
+            h = request.headers or {}
+            for key in ("x-app-version", "x-device-id", "x-platform", "x-can-receive-push"):
+                if h.get(key): observed[key] = h[key]
+        page.on("request", sniff)
         try:
             page.goto(SITE, wait_until="domcontentloaded", timeout=45000)
         except Exception:
@@ -29,10 +25,14 @@ def warm_cookies():
         try:
             page.wait_for_selector("#app", timeout=20000)
         except Exception:
-            page.wait_for_timeout(2500)
-        return page.context.cookies()
+            page.wait_for_timeout(3000)
+        try:
+            ua = page.evaluate("navigator.userAgent")
+        except Exception:
+            ua = "Mozilla/5.0"
+        return page.context.cookies(), ua, observed
 
-async def collect(config, cookies):
+async def collect(config, cookies, user_agent, observed):
     jar = aiohttp.CookieJar(unsafe=True)
     for item in cookies:
         cookie = SimpleCookie()
@@ -42,8 +42,20 @@ async def collect(config, cookies):
         cookie[str(item["name"])]["path"] = str(item.get("path") or "/")
         domain = str(item.get("domain") or "5ka.ru").lstrip(".")
         jar.update_cookies(cookie, response_url=URL(f"https://{domain}/"))
+    headers = {
+        "User-Agent": user_agent,
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "ru-RU,ru;q=0.9",
+        "X-APP-VERSION": observed.get("x-app-version", "8.45.0"),
+        "X-PLATFORM": observed.get("x-platform", "web"),
+        "X-CAN-RECEIVE-PUSH": observed.get("x-can-receive-push", "true"),
+        "X-DEVICE-ID": observed.get("x-device-id", str(uuid.uuid4())),
+        "format": "json",
+        "Origin": "https://5ka.ru",
+        "Referer": "https://5ka.ru/",
+    }
     timeout = aiohttp.ClientTimeout(total=30)
-    async with aiohttp.ClientSession(cookie_jar=jar, headers=HEADERS, timeout=timeout) as session:
+    async with aiohttp.ClientSession(cookie_jar=jar, headers=headers, timeout=timeout) as session:
         async def get(path, params=None):
             url = URL(API + path).with_query(params or {})
             async with session.get(url, allow_redirects=False) as response:
@@ -55,20 +67,15 @@ async def collect(config, cookies):
         out = {"store": await get(f"/cita/v1/stores/{urllib.parse.quote(sap)}"), "searches": []}
         for query in config.get("queries", []):
             try:
-                payload = await get(f"/catalog/v3/stores/{urllib.parse.quote(sap)}/search", {
-                    "q": query, "mode": "store", "offset": 0,
-                    "limit": config.get("limit_per_query", 30), "include_restrict": "true"
-                })
-                out["searches"].append({"query": query, "payload": payload})
+                payload = await get(f"/catalog/v3/stores/{urllib.parse.quote(sap)}/search", {"q":query,"mode":"store","offset":0,"limit":config.get("limit_per_query",30),"include_restrict":"true"})
+                out["searches"].append({"query":query,"payload":payload})
             except Exception as exc:
-                out["searches"].append({"query": query, "error": str(exc)})
+                out["searches"].append({"query":query,"error":str(exc)})
         return out
 
 def main():
-    config = json.load(sys.stdin)
-    cookies = warm_cookies()
-    out = asyncio.run(collect(config, cookies))
-    json.dump(out, sys.stdout, ensure_ascii=False)
-
-if __name__ == "__main__":
-    main()
+    config=json.load(sys.stdin)
+    cookies,ua,observed=warm_session()
+    out=asyncio.run(collect(config,cookies,ua,observed))
+    json.dump(out,sys.stdout,ensure_ascii=False)
+if __name__=="__main__": main()
