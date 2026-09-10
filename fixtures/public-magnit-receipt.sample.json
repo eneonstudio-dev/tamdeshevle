@@ -1,0 +1,39 @@
+{
+  "fixture_only": true,
+  "source_url": "https://www.city-n.ru/view/474189.html",
+  "source_note": "Public news photo, manually transcribed only for receipt-pipeline safety testing.",
+  "observation": {
+    "schema": "td.receipt_observation",
+    "version": 1,
+    "source": "manual_receipt",
+    "receipt_id": "fixture-city-n-magnit-2024-09-21",
+    "observed_at": "2024-09-21T17:34:00+07:00",
+    "store": {
+      "chain_id": "magnit",
+      "store_id": "public-example",
+      "external_store_id": null,
+      "address": "Новокузнецк, ул. Кутузова, 80а",
+      "scope_source": "public_fixture",
+      "scope_method": null,
+      "scope_confidence": null
+    },
+    "proof": {
+      "kind": "receipt",
+      "image_ref": null,
+      "fiscal_sign": null,
+      "raw_text_ref": "https://www.city-n.ru/view/474189.html"
+    },
+    "items": [
+      { "line_index": 0, "receipt_name": "Филе грудки индейки", "barcode": null, "product_id": null, "match_method": "unmatched", "price": 329.99, "quantity": 1, "unit_price": 329.99, "currency": "RUB", "matched": false },
+      { "line_index": 1, "receipt_name": "Молоко", "barcode": null, "product_id": "milk", "match_method": "name", "price": 89.99, "quantity": 1, "unit_price": 89.99, "currency": "RUB", "matched": true },
+      { "line_index": 2, "receipt_name": "Капуста", "barcode": null, "product_id": null, "match_method": "unmatched", "price": 29.99, "quantity": 1, "unit_price": 29.99, "currency": "RUB", "matched": false }
+    ],
+    "totals": { "line_count": 3, "matched_count": 1, "observed_total": 449.97 },
+    "verification": {
+      "store_scope_verified": false,
+      "price_scope": "receipt_unscoped",
+      "rankable": false,
+      "reason": "Public fixture is not linked to a verified store point."
+    }
+  }
+}

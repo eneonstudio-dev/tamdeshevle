@@ -108,6 +108,7 @@
     button.type = "button"; button.className = "receipt-local-open";
     button.innerHTML = '<span>Мои чеки на устройстве</span><b>↔</b>';
     button.addEventListener("click", openPanel); cta.insertAdjacentElement("afterend", button);
+    window.dispatchEvent(new CustomEvent("td:receipt-local-mounted"));
   }
 
   function loadReview() {

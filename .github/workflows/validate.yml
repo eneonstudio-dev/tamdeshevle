@@ -52,6 +52,8 @@ jobs:
         run: node scripts/test-receipt-observations.mjs
       - name: Test receipt verification gates
         run: node scripts/test-receipt-verification.mjs
+      - name: Test public receipt fixture safety
+        run: node scripts/test-public-receipt-fixture.mjs
       - name: Test receipt price adapter
         run: node scripts/test-receipt-price-adapter.mjs
       - name: Test local receipt backup tools
@@ -143,6 +145,7 @@ jobs:
           node --check receipt-local-tools.js
           node --check receipt-local-panel.js
           node --check receipt-local-review.js
+          node --check receipt-review-console.js
           node --check profile-basket.js
           node --check account-hub.js
           node --check auth-client.js
@@ -170,6 +173,7 @@ jobs:
           node --check scripts/test-trust-ui.mjs
           node --check scripts/test-receipt-observations.mjs
           node --check scripts/test-receipt-verification.mjs
+          node --check scripts/test-public-receipt-fixture.mjs
           node --check scripts/test-receipt-price-adapter.mjs
           node --check scripts/test-receipt-local-tools.mjs
           node --check scripts/test-receipt-local-review.mjs
