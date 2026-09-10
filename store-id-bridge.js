@@ -11,7 +11,22 @@
     if(best&&best.score>=.66&&(best.km==null||best.km<=MAX_ADDRESS_DISTANCE_KM))return{verified:true,method:"address_match",storeId:String(best.c.storeId),overlay:best.c.overlay,confidence:Number(Math.min(.99,.75+best.score*.2).toFixed(2))};
     return{verified:false,method:null,storeId:null,overlay:null,confidence:0};
   }
+  function channelFor(overlay){return overlay&&overlay.channel==="delivery_catalog"?"bring":"shelf";}
   function quote(point){const match=resolve(point);if(!match.verified)return{verified:false,text:"цена точки пока не подтверждена",match};const o=match.overlay;if(!o.usable)return{verified:false,text:"точка привязана, но цены сейчас недоступны",match};const count=Number(o.count||0);return{verified:count>0,text:count>0?`точка привязана · ${count} подтвержд. цен`:`точка привязана · ждём цены`,match};}
-  window.TDStoreIdBridge={resolve,quote,addressScore};
+  function basket(point,options){
+    const opts=options||{},match=resolve(point),products=opts.products||window.PRODUCTS||[],cart=opts.cart||(window.state&&window.state.cart)||{};
+    const result={verified:false,match,channel:null,quote:null,total:null,partialTotal:null,coveredItems:0,totalItems:0,coverage:0,savings:null,referenceTotal:null};
+    if(!match.verified||!match.overlay||!match.overlay.usable||!window.TDCompare||typeof window.TDCompare.basketQuote!=="function")return result;
+    const channel=channelFor(match.overlay),q=window.TDCompare.basketQuote(products,cart,match.storeId,channel);
+    Object.assign(result,{verified:q.verifiedComplete,channel,quote:q,total:q.verifiedComplete?q.goods:null,partialTotal:q.partialGoods,coveredItems:q.verifiedItems,totalItems:q.totalItems,coverage:q.verifiedCoverage});
+    const referenceStoreId=opts.referenceStoreId||(window.state&&window.state.storeId);
+    if(referenceStoreId&&q.verifiedComplete){
+      const stores=opts.stores||window.STORES||[],referenceStore=stores.find(s=>s.id===referenceStoreId),referenceChannel=referenceStore&&window.TDCompare.defaultChannel?window.TDCompare.defaultChannel(referenceStore):"shelf";
+      const rq=window.TDCompare.basketQuote(products,cart,referenceStoreId,referenceChannel);
+      if(rq.verifiedComplete){result.referenceTotal=rq.goods;result.savings=rq.goods-q.goods;}
+    }
+    return result;
+  }
+  window.TDStoreIdBridge={resolve,quote,basket,addressScore};
   window.dispatchEvent(new CustomEvent("td:store-id-bridge-ready"));
 })();
