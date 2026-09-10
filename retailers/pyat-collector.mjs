@@ -1,4 +1,9 @@
 const API_BASE = "https://5d.5ka.ru/api";
+const WEB_BASE = "https://5ka.ru/";
+const DEFAULT_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36";
+
+let sessionCookie = "";
+let sessionPrimed = false;
 
 function number(value) {
   if (value == null || value === "") return null;
@@ -96,19 +101,52 @@ function productsFromSearch(payload) {
   return [];
 }
 
-async function getJson(path, params = {}, options = {}) {
-  const url = new URL(API_BASE + path);
-  for (const [key, value] of Object.entries(params)) if (value != null) url.searchParams.set(key, String(value));
-  const response = await fetch(url, {
+function collectCookies(headers) {
+  const values = typeof headers.getSetCookie === "function"
+    ? headers.getSetCookie()
+    : [headers.get("set-cookie")].filter(Boolean);
+  return values.map(value => String(value).split(";", 1)[0]).filter(Boolean).join("; ");
+}
+
+async function primeSession(options = {}) {
+  if (sessionPrimed) return;
+  sessionPrimed = true;
+  const response = await fetch(WEB_BASE, {
     redirect: "follow",
     signal: AbortSignal.timeout(options.timeout_ms || 15000),
     headers: {
-      accept: "application/json, text/plain, */*",
-      "accept-language": "ru-RU,ru;q=0.9",
-      "user-agent": options.user_agent || "TamdeshevlePublicCatalogCollector/1.0",
-      origin: "https://5ka.ru",
-      referer: "https://5ka.ru/"
+      accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+      "accept-language": "ru-RU,ru;q=0.9,en;q=0.8",
+      "cache-control": "no-cache",
+      pragma: "no-cache",
+      "upgrade-insecure-requests": "1",
+      "user-agent": options.user_agent || DEFAULT_UA
     }
+  });
+  sessionCookie = collectCookies(response.headers);
+}
+
+async function getJson(path, params = {}, options = {}) {
+  await primeSession(options);
+  const url = new URL(API_BASE + path);
+  for (const [key, value] of Object.entries(params)) if (value != null) url.searchParams.set(key, String(value));
+  const headers = {
+    accept: "application/json, text/plain, */*",
+    "accept-language": "ru-RU,ru;q=0.9,en;q=0.8",
+    "cache-control": "no-cache",
+    pragma: "no-cache",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
+    "user-agent": options.user_agent || DEFAULT_UA,
+    origin: "https://5ka.ru",
+    referer: "https://5ka.ru/"
+  };
+  if (sessionCookie) headers.cookie = sessionCookie;
+  const response = await fetch(url, {
+    redirect: "follow",
+    signal: AbortSignal.timeout(options.timeout_ms || 15000),
+    headers
   });
   if (!response.ok) throw new Error(`Pyaterochka public API HTTP ${response.status}: ${path}`);
   return await response.json();
