@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { adaptLentaCatalog, parseLentaPack } from "../retailers/lenta.mjs";
+import { buildOverlayFromSnapshot } from "../retailers/overlay-builder.mjs";
+
+const snapshot=JSON.parse(fs.readFileSync("data/retailers/lenta.sample.json","utf8"));
+const products=adaptLentaCatalog(snapshot.rows,snapshot);
+assert.equal(products.length,2);
+assert.ok(products.every(p=>p.retailer==="lenta"));
+assert.ok(products.every(p=>p.store_context.store_code==="0293"));
+assert.ok(products.every(p=>p.scope_verified===false));
+assert.deepEqual(parseLentaPack("Молоко 900мл"),{value:900,unit:"ml",source:"900мл"});
+assert.deepEqual(parseLentaPack("Сметана 300г"),{value:300,unit:"g",source:"300г"});
+const overlay=buildOverlayFromSnapshot(snapshot);
+assert.equal(overlay.scope_verified,false);
+assert.equal(overlay.prices.milk,75.99);
+assert.equal(overlay.prices.smetana,89.99);
+assert.equal(overlay.matched.length,2);
+assert.throws(()=>adaptLentaCatalog(snapshot.rows,{...snapshot,store_context:null}),/store_context\.store_code/);
+console.log("Lenta adapter tests passed: store code required and public city/session prices stay scope-gated.");

@@ -1,12 +1,14 @@
 import { adaptPerekrestokCatalog } from "./perekrestok.mjs";
 import { adaptMagnitCatalog } from "./magnit.mjs";
 import { adaptPyatCatalog } from "./pyat.mjs";
+import { adaptLentaCatalog } from "./lenta.mjs";
 import { buildPriceOverlay } from "./sku-matcher.mjs";
 
 const ADAPTERS = {
   perek: adaptPerekrestokCatalog,
   magnit: adaptMagnitCatalog,
-  pyat: adaptPyatCatalog
+  pyat: adaptPyatCatalog,
+  lenta: adaptLentaCatalog
 };
 
 export function buildOverlayFromSnapshot(snapshot) {
