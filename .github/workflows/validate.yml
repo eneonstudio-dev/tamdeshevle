@@ -18,6 +18,7 @@ on:
       - chatgpt/retailer-product-images
       - chatgpt/data-freshness-health
       - chatgpt/geo-lenta
+      - chatgpt/store-id-bridge
 
 permissions:
   contents: read
@@ -74,6 +75,7 @@ jobs:
           node --check data-health-ui.js
           node --check price-provenance-ui.js
           node --check product-ui.js
+          node --check store-id-bridge.js
           node --check geo-store-map.js
           node --check data-layer.js
           node --check comparison-engine.js
