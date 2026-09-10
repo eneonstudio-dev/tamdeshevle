@@ -23,9 +23,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install browser runtime
+        run: |
+          npm install --no-save playwright@1.55.0
+          npx playwright install --with-deps chromium
       - name: Collect and validate one-store Pyaterochka catalog
         id: refresh
         continue-on-error: true
+        env:
+          PYAT_BROWSER_SESSION: "1"
         run: |
           set -e
           node scripts/collect-pyat.mjs
