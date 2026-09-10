@@ -89,10 +89,9 @@ function setQty(id, d) {
 }
 function logoSvg(size = 36) {
   return `<svg class="logo" width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true">
-    <rect width="64" height="64" rx="16" fill="#0F7B4A"/>
-    <path d="M18 28h28l-3 14H21L18 28z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M22 28V22h8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-    <path d="M32 48v6M28 52h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <rect width="64" height="64" rx="18" fill="#102018"/>
+    <path d="M15 20h25M27.5 20v25M37 25h8c6 0 9 3 9 9s-3 10-9 10h-8V25z" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M49 14v10m0 0-5-5m5 5 5-5" fill="none" stroke="#35D981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>`;
 }
 function header(title, sub, back) {
