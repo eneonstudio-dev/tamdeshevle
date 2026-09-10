@@ -21,6 +21,10 @@ for (const [product, sku, method] of cases) {
   assert.equal(result.method, method, product.name);
 }
 
+const freshBanana = matchRetailerProduct({ retailer: "pyat", name: "Бананы", price_rub: 129.99, availability: "in_stock" });
+assert.equal(freshBanana.matched, true);
+assert.equal(freshBanana.sku, "banana");
+
 const falsePositives = [
   { retailer: "perek", name: "Кефирный коктейль клубника 2,5%, 930мл", price_rub: 99 },
   { retailer: "perek", name: "Курица с гречкой готовая, 250г", price_rub: 299 },
@@ -41,7 +45,8 @@ const falsePositives = [
   { retailer: "pyat", name: "Семена Удачные семена Морковь Королева осени, 2г", price_rub: 11.99 },
   { retailer: "pyat", name: "Семенной картофель ранний, 1кг", price_rub: 129.99 },
   { retailer: "pyat", name: "Семена Лук репчатый Штутгартер, 1г", price_rub: 39.99 },
-  { retailer: "pyat", name: "Шоколад Miskets Capybara молочный с банановой начинкой 60г", price_rub: 109.99 }
+  { retailer: "pyat", name: "Шоколад Miskets Capybara молочный с банановой начинкой 60г", price_rub: 109.99 },
+  { retailer: "pyat", name: "Каша ФрутоНяня молочная с овсяной мукой, бананом и яблоком с 6 мес. 200г", price_rub: 134.99 }
 ];
 
 for (const product of falsePositives) {
