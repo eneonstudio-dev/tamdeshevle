@@ -8,6 +8,7 @@
     "Лента":{short:"Л",tone:"#2563eb"},
     "Дикси":{short:"Д",tone:"#f59e0b"}
   };
+  const SELECTED_KEY="td:selected-store-point";
 
   function injectStyles(){
     if(document.getElementById("td-map-theme-style"))return;
@@ -25,6 +26,8 @@
       .td-map-store:active{transform:scale(.992)}
       .td-map-store:focus-visible{box-shadow:0 0 0 3px rgba(15,123,74,.20),0 10px 24px rgba(22,20,16,.06)}
       .td-map-store[data-active="true"]{border-color:#0f7b4a;background:#f4fbf6;box-shadow:0 14px 30px rgba(15,123,74,.14)}
+      .td-map-store[data-point-selected="true"]{border-color:#0f7b4a;background:#eef8f1;box-shadow:0 14px 32px rgba(15,123,74,.16)}
+      .td-map-store[data-point-selected="true"]:after{content:"выбрана";position:absolute;right:10px;bottom:9px;border-radius:999px;background:#0f7b4a;color:#fff;padding:4px 7px;font-size:8px;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
       .td-map-store[data-best="true"]{border-color:rgba(15,123,74,.28);box-shadow:0 12px 28px rgba(15,123,74,.10)}
       .td-map-store[data-active="true"][data-best="true"]{border-color:#0f7b4a;box-shadow:0 14px 30px rgba(15,123,74,.16)}
       .td-map-store-icon{position:absolute;left:13px;top:13px;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;box-shadow:0 5px 14px rgba(22,20,16,.12)}
@@ -42,21 +45,32 @@
       .td-map-detail-btn{padding-top:9px}
       .leaflet-control-zoom{border:0!important;box-shadow:0 8px 20px rgba(22,20,16,.16)!important}
       .leaflet-control-zoom a{border:0!important;color:#161410!important;font-weight:900!important}
+      .leaflet-control-attribution{font-size:8px!important;background:rgba(255,255,255,.78)!important;backdrop-filter:blur(6px)}
       .leaflet-popup-content-wrapper{border-radius:16px;box-shadow:0 12px 30px rgba(22,20,16,.16)}
       .leaflet-popup-content{font-family:Manrope,system-ui,sans-serif;font-size:12px;line-height:1.45;margin:12px 14px}
-      .td-themed-marker{filter:drop-shadow(0 4px 6px rgba(15,123,74,.22));transition:transform .16s ease,filter .16s ease}
-      .td-themed-marker[data-active="true"]{transform:scale(1.18);filter:drop-shadow(0 6px 10px rgba(15,123,74,.36))}
+      .td-themed-marker{filter:drop-shadow(0 4px 6px rgba(22,20,16,.20));transition:transform .16s ease,filter .16s ease;transform-origin:50% 100%}
+      .td-themed-marker[data-active="true"]{transform:scale(1.16);filter:drop-shadow(0 7px 11px rgba(22,20,16,.30))}
+      .td-themed-marker[data-point-selected="true"]{transform:scale(1.22);filter:drop-shadow(0 0 0 rgba(0,0,0,0)) drop-shadow(0 7px 12px rgba(15,123,74,.38))}
+      @media(max-width:430px){.td-map{height:44vh;min-height:285px}.td-map-list{padding-left:12px;padding-right:12px}.td-map-store{min-height:92px}}
       @media (min-width:700px){.td-map-sheet{left:50%;right:auto;width:min(680px,100%);transform:translateX(-50%);box-shadow:0 0 70px rgba(22,20,16,.22)}}
       @media (prefers-reduced-motion:reduce){.td-map-store,.td-themed-marker{transition:none}}
     `;
     document.head.appendChild(s);
   }
 
-  function svgMarker(){
-    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44"><path fill="#0f7b4a" d="M16 1C7.7 1 1 7.7 1 16c0 10.9 15 27 15 27s15-16.1 15-27C31 7.7 24.3 1 16 1z"/><circle cx="16" cy="16" r="9" fill="#fff"/><path fill="#0f7b4a" d="M12 11h8v3h-2.4c1.8.8 2.9 2.3 2.9 4.4 0 3-2.2 5-5.7 5H12v-3h2.7c1.7 0 2.6-.7 2.6-2s-.9-2-2.6-2H12V11z"/></svg>`;
+  function metaForPoint(point){return CHAIN_META[point&&point.chainLabel]||{short:"₽",tone:"#0f7b4a"};}
+
+  function svgMarker(meta){
+    const short=String(meta.short||"₽").replace(/[&<>"']/g,"");
+    const tone=/^#[0-9a-f]{6}$/i.test(meta.tone||"")?meta.tone:"#0f7b4a";
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="34" height="46" viewBox="0 0 34 46"><path fill="${tone}" stroke="#fff" stroke-width="1.5" d="M17 1.5C8.4 1.5 1.5 8.4 1.5 17c0 11.2 15.5 27.5 15.5 27.5S32.5 28.2 32.5 17C32.5 8.4 25.6 1.5 17 1.5z"/><circle cx="17" cy="17" r="10" fill="#fff"/><text x="17" y="21" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="${tone}">${short}</text></svg>`;
     return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
   }
 
+  function readSelected(){
+    try{const p=JSON.parse(localStorage.getItem(SELECTED_KEY)||"null");return p&&p.id?p:null;}catch{return null;}
+  }
+  function points(){return window.TDGeo&&Array.isArray(window.TDGeo.nearby)?window.TDGeo.nearby:[];}
   function storeMarkers(root=document){return [...root.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
   function storeCards(root=document){return [...root.querySelectorAll(".td-map-store")];}
 
@@ -67,20 +81,38 @@
     if(scroll&&cards[index])cards[index].scrollIntoView({behavior:"smooth",block:"nearest"});
   }
 
+  function syncSelected(root=document){
+    const selected=readSelected(),list=points();
+    const cards=storeCards(root),markers=storeMarkers(root);
+    cards.forEach((card,index)=>{
+      const isSelected=Boolean(selected&&list[index]&&String(list[index].id)===String(selected.id));
+      if(isSelected)card.dataset.pointSelected="true";else card.removeAttribute("data-point-selected");
+    });
+    markers.forEach((marker,index)=>{
+      const isSelected=Boolean(selected&&list[index]&&String(list[index].id)===String(selected.id));
+      if(isSelected)marker.dataset.pointSelected="true";else marker.removeAttribute("data-point-selected");
+    });
+  }
+
   function openCardDetails(index){
-    const point=window.TDGeo&&Array.isArray(TDGeo.nearby)?TDGeo.nearby[index]:window.TDGeo?.nearby?.[index];
+    const point=points()[index];
     if(point&&window.TDGeo&&typeof TDGeo.openPointDetails==="function")TDGeo.openPointDetails(point);
   }
 
   function themeMarkers(root=document){
-    root.querySelectorAll("img.leaflet-marker-icon:not([data-td-themed])").forEach(img=>{
+    const raw=[...root.querySelectorAll("img.leaflet-marker-icon:not([data-td-themed])")];
+    const list=points();
+    raw.forEach((img,index)=>{
+      const point=list[index],meta=metaForPoint(point);
       img.dataset.tdThemed="1";
-      img.src=svgMarker();
+      img.src=svgMarker(meta);
       img.classList.add("td-themed-marker");
-      img.style.width="32px";
-      img.style.height="44px";
-      img.style.marginLeft="-16px";
-      img.style.marginTop="-44px";
+      img.style.width="34px";
+      img.style.height="46px";
+      img.style.marginLeft="-17px";
+      img.style.marginTop="-46px";
+      img.alt="";
+      if(point)img.title=`${point.chainLabel||point.name||"Магазин"}${Number.isFinite(Number(point.distanceKm))?` · ${Number(point.distanceKm)<1?Math.round(Number(point.distanceKm)*1000)+" м":Number(point.distanceKm).toFixed(1)+" км"}`:""}`;
     });
     storeMarkers(root).forEach((marker,index)=>{
       if(marker.dataset.tdLinked)return;
@@ -150,12 +182,18 @@
     injectStyles();
     themeMarkers();
     decorateCards();
+    syncSelected();
   }
 
-  const obs=new MutationObserver(()=>requestAnimationFrame(enhance));
+  let raf=0;
+  const obs=new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(enhance);});
   function start(){
     enhance();
     obs.observe(document.body,{childList:true,subtree:true});
+    window.addEventListener("storage",e=>{if(e.key===SELECTED_KEY)enhance();});
+    window.addEventListener("td:selected-store-point-current",enhance);
+    window.addEventListener("td:selected-store-point-cleared",enhance);
   }
+  window.TDMapTheme={refresh:enhance,syncSelected,setActive};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
