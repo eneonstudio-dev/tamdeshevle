@@ -61,6 +61,11 @@ assert(popup.includes("b?.verified&&Number.isFinite(b.total)"), "popup may show 
 assert(popup.includes("Подтверждена только часть корзины — полный итог не показываем"), "popup must not invent a full total for partial basket coverage");
 assert(popup.includes("data-popup-compare") && popup.includes("TDMapOneTap?.choosePoint") && popup.includes("TDMapOneTap?.compare"), "popup compare action must route through the existing verified one-tap flow");
 assert(popup.includes("disabled aria-disabled=") && popup.includes("Недоступно"), "unverified popup comparison must stay disabled");
+assert(popup.includes("SWIPE_THRESHOLD") && popup.includes("touchstart") && popup.includes("touchend"), "popup must support deliberate horizontal swipe navigation");
+assert(popup.includes("data-popup-prev") && popup.includes("data-popup-next") && popup.includes("td-map-popup-counter"), "popup must expose accessible previous/next controls and a visible position counter");
+assert(popup.includes("visibleIndexes()") && popup.includes('marker.style.pointerEvents!=="none"') && popup.includes('marker.style.opacity!=="0"'), "popup navigation must skip filtered or clustered-away markers");
+assert(popup.includes("TDMapClusterPriority?.focus") && popup.includes("TDMapMarkerCardSync?.center"), "popup navigation must keep the map point and store list synchronized");
+assert(popup.includes("Math.abs(dx)<=Math.abs(dy)*1.15"), "vertical scrolling must not be mistaken for a horizontal popup swipe");
 
 assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
@@ -77,4 +82,4 @@ assert(layers.includes("data-ui-parked"), "Bay must be parked while map overlays
 assert(layers.includes("app.inert=blocked"), "underlying app must be inert while an overlay is active when supported");
 assert(bai.includes("bai-assistant"), "Bay assistant must remain independently mountable");
 
-console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, two-way card/marker sync, branded trusted popup, compare routing, overlay cleanup and Bay coordination are wired.");
+console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, two-way card/marker sync, branded trusted popup with swipe navigation, compare routing, overlay cleanup and Bay coordination are wired.");
