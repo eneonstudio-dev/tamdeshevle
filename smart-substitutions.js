@@ -15,7 +15,7 @@
     return true;
   }
   function store(){return typeof STORES!=="undefined"&&window.state?STORES.find(s=>s.id===state.storeId):null;}
-  function channel(){const s=store();return s&&window.TDCompare?TDCompare.defaultChannel(s):"shelf";}
+  function channel(){const s=store();return s&&window.TDCompare?window.TDCompare.defaultChannel(s):"shelf";}
   function unitPrice(product){if(!product||!window.state)return null;const ch=channel();const source=ch==="bring"?product.bring:product.prices;const v=source&&source[state.storeId];return Number.isFinite(v)?v:null;}
   function suggestions(){
     if(!installCatalog()||!window.state)return[];
