@@ -27,7 +27,7 @@
   function channelForStore(storeId) {
     if (typeof STORES === "undefined") return "shelf";
     const store = STORES.find(item => item.id === storeId);
-    return window.TDCompare ? TDCompare.defaultChannel(store) : (store && store.kind === "delivery" ? "bring" : "shelf");
+    return window.TDCompare ? (window.state && window.state.mode === "delivery" && store && store.has_bring ? "bring" : TDCompare.defaultChannel(store)) : (store && store.kind === "delivery" ? "bring" : "shelf");
   }
 
   function getMeta(product, storeId, channel) {

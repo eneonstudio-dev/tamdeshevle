@@ -8,13 +8,12 @@ assert.equal(basketOverlay.retailer, "perek");
 assert.equal(basketOverlay.city, "msk");
 assert.equal(basketOverlay.channel, "regional_catalog");
 assert.equal(basketOverlay.normalized_count, snapshot.rows.length);
-assert.equal(basketOverlay.matched.length, 4);
+assert.equal(basketOverlay.matched.length, 3);
 assert.equal(basketOverlay.scope_verified, false);
 assert.equal(basketOverlay.catalog_context.price_scope, "regional_catalog");
 assert.equal(basketOverlay.catalog_context.store_verified, false);
 assert.deepEqual(basketOverlay.prices, {
   eggs_c1: 114.99,
-  milk: 71.99,
   oil_sunflower: 161.99,
   pasta: 109.99
 });
@@ -32,9 +31,10 @@ const matchingSnapshot = {
   ]
 };
 const overlay = buildOverlayFromSnapshot(matchingSnapshot);
-assert.equal(overlay.prices.milk, 101.99);
+assert.equal(overlay.prices.milk, undefined);
+assert.equal(overlay.alternatives[0].reason, "different_pack");
 assert.equal(overlay.prices.pasta, 74.99);
-assert.equal(overlay.matched.length, 2);
+assert.equal(overlay.matched.length, 1);
 assert.equal(overlay.store_id, "perek");
 assert.equal(overlay.channel, "delivery_catalog");
 

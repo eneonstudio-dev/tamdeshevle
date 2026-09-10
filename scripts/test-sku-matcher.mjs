@@ -92,17 +92,34 @@ const overlay = buildPriceOverlay(overlayInput, {
   checked_at: "2026-09-10T00:00:00+03:00"
 });
 
-assert.equal(overlay.prices.milk, 99.99);
+assert.equal(overlay.prices.milk, undefined);
+assert.ok(overlay.alternatives.some(item => item.sku === "milk" && item.reason === "different_pack"));
 assert.equal(overlay.prices.pasta, 69.99);
 assert.equal(overlay.prices.smetana, 129.99);
 assert.equal(overlay.prices.eggs_c1, 109.99);
-assert.equal(overlay.prices.buckwheat, 89.99);
+assert.equal(overlay.prices.buckwheat, undefined);
 assert.equal(overlay.prices.chicken_fil, 399.99);
 assert.equal(overlay.prices.potato, 79.99);
 assert.equal(overlay.prices.onion, 69.99);
 assert.equal(overlay.prices.carrot, 99.99);
 assert.equal(overlay.prices.tea_black, 299.99);
-assert.equal(overlay.matched.length, 10);
-assert.equal(overlay.matched.find(item => item.sku === "milk").method, "exact_retailer_id");
+assert.equal(overlay.matched.length, 8);
+assert.ok(overlay.matched.every(item => item.comparison_eligible && item.availability === "in_stock"));
 
 console.log("SKU matcher tests passed: exact IDs, structured compatibility evidence, pack/fat/category guards and deterministic selection.");
+
+// A recognized retailer ID cannot override changed fat percentage or category.
+assert.equal(matchRetailerProduct({retailer:"perek", retailer_product_id:"2093081", name:"Молоко 3,2% 930мл"}).matched, false);
+for (const name of ["Макароны гречневые 500г", "Макароны гречневые 800г", "Спагетти рисовые 450г"]) {
+  assert.equal(matchRetailerProduct({name}).matched, false, name);
+}
+const quantityCases = buildPriceOverlay([
+  {name:"Молоко 2,5% 900мл", price_rub:73.99, availability:"in_stock"},
+  {name:"Молоко 2,5% 1л", price_rub:90, availability:"unknown"},
+  {name:"Макароны рожки 500г", price_rub:70, availability:"in_stock"},
+  {name:"Яйца С1 10шт", price_rub:80, availability:"in_stock"}
+]);
+assert.deepEqual(quantityCases.prices, {eggs_c1:80});
+assert.equal(quantityCases.alternatives.length,3);
+assert.ok(quantityCases.alternatives.some(x=>x.reason==="availability_unconfirmed"));
+assert.deepEqual(buildPriceOverlay([{name:'Молоко 2,5% 2 x 1л',price_rub:100,availability:'in_stock'}]).prices,{});

@@ -57,21 +57,27 @@ export function discoverMagnitProductUrls(html, baseUrl, storeContext) {
   return [...urls].sort();
 }
 
-function keywordScore(url, keywords) {
-  const value = decodeURIComponent(String(url || "")).toLowerCase().replace(/[^a-zа-яё0-9]+/g, " ");
-  return (keywords || []).reduce((score, keyword, index) => {
-    const needle = String(keyword || "").toLowerCase().trim();
-    return !needle || !value.includes(needle) ? score : score + Math.max(1, (keywords.length - index) * 10);
-  }, 0);
+function normalizedKeyword(value) {
+  return decodeURIComponent(String(value || "")).toLowerCase().replace(/[^a-zа-яё0-9]+/g, " ").trim();
 }
 
 export function rankMagnitProductUrls(urls, keywords = [], pinned = []) {
-  const pinnedSet = new Set((pinned || []).map(String));
-  return [...new Set(urls || [])].sort((a, b) => {
-    const ap = pinnedSet.has(String(a)) ? 1 : 0; const bp = pinnedSet.has(String(b)) ? 1 : 0;
-    if (ap !== bp) return bp - ap;
-    return keywordScore(b, keywords) - keywordScore(a, keywords) || String(a).localeCompare(String(b), "ru");
+  const remaining = new Set(urls || []);
+  const result = [];
+  for (const url of pinned || []) if (remaining.delete(url)) result.push(url);
+  const groups = keywords.map(keyword => {
+    const needle = normalizedKeyword(keyword);
+    return needle ? [...remaining].filter(url => normalizedKeyword(url).includes(needle)).sort() : [];
   });
+  // Round-robin keeps a small request budget spread across basket categories.
+  while (groups.some(group => group.length)) {
+    for (const group of groups) {
+      while (group.length && !remaining.has(group[0])) group.shift();
+      const url = group.shift();
+      if (url && remaining.delete(url)) result.push(url);
+    }
+  }
+  return result.concat([...remaining].sort());
 }
 
 function pageTitle(html) {

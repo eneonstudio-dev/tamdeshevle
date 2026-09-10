@@ -7,7 +7,7 @@ vm.createContext(context);
 vm.runInContext(fs.readFileSync(new URL('../comparison-engine.js', import.meta.url), 'utf8'), context);
 vm.runInContext(fs.readFileSync(new URL('../basket-split.js', import.meta.url), 'utf8'), context);
 
-const meta = () => ({ kind: 'retailer', freshness: 'fresh' });
+const meta = () => ({ kind: 'retailer', scopeVerified: true, comparisonEligible: true, availability: 'in_stock', freshness: 'fresh' });
 const product = (id, a, b, verifiedA = true, verifiedB = true) => ({
   id,
   prices: { a, b },

@@ -19,8 +19,8 @@ window.TDRetailerPriceState = {
 vm.runInContext(bridge, context, { filename: "store-id-bridge.js" });
 
 const products = [
-  { id: "milk", name: "Молоко", pack: "1 л", bring: { lenta: 80, origin: 100 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z", sourceUrl: "https://example.test/milk", retailerName: "Молоко Лента" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } },
-  { id: "bread", name: "Хлеб", pack: "650 г", bring: { lenta: 50 }, prices: { origin: 70 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } }
+  { id: "milk", name: "Молоко", pack: "1 л", bring: { lenta: 80, origin: 100 }, priceMeta: { lenta: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z", sourceUrl: "https://example.test/milk", retailerName: "Молоко Лента" } }, origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } } } },
+  { id: "bread", name: "Хлеб", pack: "650 г", bring: { lenta: 50 }, prices: { origin: 70 }, priceMeta: { lenta: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z" } }, origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } } } }
 ];
 products[0].prices = { origin: 100 };
 const cart = { milk: 1, bread: 2 };

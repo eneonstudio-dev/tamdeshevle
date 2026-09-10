@@ -23,3 +23,10 @@ const ranked=rankMagnitProductUrls(["https://magnit.ru/product/3-zhevatelnaya_re
 assert.match(withMagnitStore("https://magnit.ru/product/1-test?shopCode=123",store_context),/shopCode=770105/);assert.throws(()=>withMagnitStore("https://example.com/product/1",store_context),/Unsupported Magnit host/);assert.throws(()=>parseMagnitProductPage(productHtml.replace(/Чертановская/g,"Дубнинская"),row.url,context),/expected store address/);
 const fallbackHtml=`<html><head><title>Макароны Makfa Рожки гладкие 450г – купить | г Москва, ул Чертановская, д 47 к 2</title></head><body><h1>Макароны Makfa Рожки гладкие 450г</h1><div>74.99 ₽</div><div>В корзину</div><div>Чертановская 47</div></body></html>`;const fallback=parseMagnitProductPage(fallbackHtml,"https://magnit.ru/product/1234567890-makarony",context);assert.equal(fallback.price,74.99);assert.equal(fallback.name,"Макароны Makfa Рожки гладкие 450г");
 console.log("Magnit collector tests passed: store scoping, prioritization, product images, JSON-LD, unit-price parsing and fallback parsing.");
+const diversified = rankMagnitProductUrls([
+  'https://magnit.ru/product/1-yaytso_a', 'https://magnit.ru/product/2-yaytso_b',
+  'https://magnit.ru/product/3-yaytso_c', 'https://magnit.ru/product/4-moloko',
+  'https://magnit.ru/product/5-maslo_podsolnechnoe'
+], ['yaytso', 'moloko', 'maslo_podsol']);
+assert.deepEqual(diversified.slice(0,3).map(x=>x.split('/').pop()),['1-yaytso_a','4-moloko','5-maslo_podsolnechnoe']);
+assert.equal(new Set(diversified).size,5);

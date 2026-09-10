@@ -5,8 +5,7 @@
   "city": "msk",
   "checked_at": "2026-09-10T10:10:00+03:00",
   "prices": {
-    "chicken_fil": 549.9,
-    "milk": 94.99
+    "chicken_fil": 549.9
   },
   "matched": [
     {
@@ -18,18 +17,17 @@
       "promo": false,
       "source_url": "https://mos.proshoper.ru/actions/diksi/",
       "confidence": 0.9,
-      "method": "conservative_rule"
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко ПРОСТОКВАШИНО пастеризованное 2,5%, 930 мл",
-      "retailer_product_id": "proshoper-dixy-prostokvashino-milk-25-930",
-      "price_rub": 94.99,
-      "old_price_rub": null,
-      "promo": false,
-      "source_url": "https://mos.proshoper.ru/actions/diksi/",
-      "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [
@@ -37,6 +35,25 @@
       "name": "Яйцо куриное ДЕРЕВЕНСКИЕ НАПЕВЫ 1 категория, 10 шт",
       "retailer_product_id": "proshoper-dixy-derevenskie-napevy-eggs-cat1-10",
       "reason": "no_rule_match"
+    }
+  ],
+  "alternatives": [
+    {
+      "sku": "milk",
+      "name": "Молоко ПРОСТОКВАШИНО пастеризованное 2,5%, 930 мл",
+      "retailer_product_id": "proshoper-dixy-prostokvashino-milk-25-930",
+      "source_url": "https://mos.proshoper.ru/actions/diksi/",
+      "price_rub": 94.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 930,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
     }
   ],
   "channel": "regional_catalog",

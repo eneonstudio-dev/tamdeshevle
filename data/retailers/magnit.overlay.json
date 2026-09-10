@@ -5,9 +5,7 @@
   "city": "msk",
   "checked_at": "2026-09-10T07:19:22.379Z",
   "prices": {
-    "eggs_c1": 75.89,
-    "milk": 73.99,
-    "pasta": 69.99
+    "eggs_c1": 75.89
   },
   "matched": [
     {
@@ -20,34 +18,25 @@
       "source_url": "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20?shopCode=770105&shopType=1",
       "image_url": "https://images-foodtech.magnit.ru/36yPg9_8zNzV0hEKQS-oIVci-rZKpLYuPYR9J3D0fHE/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/3454700001/image/1b60422a778ebb953412c9ebe3fd513b.jpeg@webp",
       "confidence": 0.9,
-      "method": "conservative_rule"
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000109163",
-      "price_rub": 73.99,
-      "old_price_rub": null,
-      "promo": false,
-      "source_url": "https://magnit.ru/product/1000109163-moloko_past_2_5_0_9l_f_p_agrokompleks_10?shopCode=770105&shopType=1",
-      "image_url": "https://images-foodtech.magnit.ru/N-yOSOq1hoZ-6nvv8ZDPyxRRuuu4W349wSv0N1eJ9eE/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/5a3/5a3285945d2d9b32e65b6d9db68e73b8/799008ffdfb9e954e9f9a3bb94fc365f.jpeg@webp",
-      "confidence": 0.9,
-      "method": "conservative_rule"
-    },
-    {
-      "sku": "pasta",
-      "name": "Макароны Makfa Спагетти гречневые 500г",
-      "retailer_product_id": "1000167333",
-      "price_rub": 69.99,
-      "old_price_rub": null,
-      "promo": false,
-      "source_url": "https://magnit.ru/product/1000167333-makarony_makfa_spagetti_grechnevye_500g?shopCode=770105&shopType=1",
-      "image_url": "https://images-foodtech.magnit.ru/qa66olDwmJT9K2QRIBDOxmGzzYFTKT3Q2mvU1ivQdYM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/fce/fcedab8df6bea63cd5d5326d4a4a6ce8/f5d177f6b1da2b0466ded3e121ab7447.jpeg@webp",
-      "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [
+    {
+      "name": "Макароны Makfa Спагетти гречневые 500г",
+      "retailer_product_id": "1000167333",
+      "reason": "no_rule_match"
+    },
     {
       "name": "Куриное яйцо С2 10шт в ассортименте",
       "retailer_product_id": "2047000007",
@@ -137,6 +126,76 @@
       "name": "Сметана Ключевское 20% 180г",
       "retailer_product_id": "1000544222",
       "reason": "no_rule_match"
+    }
+  ],
+  "alternatives": [
+    {
+      "sku": "milk",
+      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000109163",
+      "source_url": "https://magnit.ru/product/1000109163-moloko_past_2_5_0_9l_f_p_agrokompleks_10?shopCode=770105&shopType=1",
+      "price_rub": 73.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000166913",
+      "source_url": "https://magnit.ru/product/1000166913-zdorove_iz_predgorya_moloko_past_2_5_900ml_pl_but_abinsk_6?shopCode=770105&shopType=1",
+      "price_rub": 89.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
+      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Простоквашино пастеризованное 2.5% 930мл",
+      "retailer_product_id": "1899800733",
+      "source_url": "https://magnit.ru/product/1899800733-moloko_prostokvashino_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1",
+      "price_rub": 83.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 930,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
     }
   ],
   "channel": "delivery_catalog",

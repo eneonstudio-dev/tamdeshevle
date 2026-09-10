@@ -34,7 +34,7 @@ assert.equal(overlay.scope_verified, false);
 assert.equal(overlay.channel, "regional_catalog");
 assert.equal(overlay.catalog_context.store_verified, false);
 assert.equal(overlay.catalog_context.price_scope, "regional_catalog");
-assert.equal(Object.keys(overlay.prices).length, 4);
+assert.equal(Object.keys(overlay.prices).length, 3);
 
 assert.deepEqual(parsePack("Молоко 2,5%, 930 мл"), { value: 930, unit: "ml", source: "930 мл" });
 assert.deepEqual(parsePack("Крупа, 1 кг"), { value: 1000, unit: "g", source: "1 кг" });

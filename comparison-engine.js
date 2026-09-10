@@ -16,8 +16,8 @@
 
   function isVerifiedPrice(product, storeId, channel) {
     const meta = priceMeta(product, storeId, channel);
-    if (!meta || meta.freshness === "expired" || meta.freshness === "invalid") return false;
-    if (meta.kind === "retailer") return true;
+    if (!meta || !["fresh", "stale"].includes(meta.freshness)) return false;
+    if (meta.kind === "retailer") return meta.scopeVerified === true && meta.comparisonEligible === true && meta.availability === "in_stock";
     if (meta.kind !== "receipt") return false;
     return Boolean(
       meta.trust === "verified_receipt" &&
@@ -31,10 +31,10 @@
     if (!product) return null;
     if (channel === "bring") {
       const bring = product.bring && product.bring[storeId];
-      return Number.isFinite(bring) ? bring : null;
+      return Number.isFinite(bring) && bring > 0 ? bring : null;
     }
     const shelf = product.prices && product.prices[storeId];
-    return Number.isFinite(shelf) ? shelf : null;
+    return Number.isFinite(shelf) && shelf > 0 ? shelf : null;
   }
 
   function cartEntries(products, cart) {
@@ -50,20 +50,26 @@
     let verifiedItems = 0;
 
     for (const product of entries) {
+      const quantity = Number(cart[product.id]);
+      if (!Number.isFinite(quantity) || !Number.isInteger(quantity)) { missingProductIds.push(product.id); continue; }
       const price = unitPrice(product, storeId, channel);
       if (!Number.isFinite(price)) {
         missingProductIds.push(product.id);
         continue;
       }
-      partialGoods += price * Number(cart[product.id] || 0);
+      partialGoods += Math.round(price * 100) * quantity;
       coveredItems += 1;
       if (isVerifiedPrice(product, storeId, channel)) verifiedItems += 1;
       else estimatedProductIds.push(product.id);
     }
 
-    const totalItems = entries.length;
+    for (const [id, qty] of Object.entries(cart || {})) {
+      if (Number(qty) > 0 && !entries.some(product => product.id === id)) missingProductIds.push(id);
+    }
+    partialGoods /= 100;
+    const totalItems = coveredItems + missingProductIds.length;
     const complete = missingProductIds.length === 0;
-    const verifiedComplete = complete && verifiedItems === totalItems;
+    const verifiedComplete = complete && totalItems > 0 && verifiedItems === totalItems;
     return {
       goods: complete ? partialGoods : null,
       partialGoods,
@@ -86,8 +92,9 @@
 
   function feeQuote(store, channel) {
     if (channel !== "bring") return { known: true, value: 0 };
-    const value = Number(store && store.delivery);
-    return Number.isFinite(value) ? { known: true, value } : { known: false, value: null };
+    const raw = store && store.delivery;
+    const value = typeof raw === "number" ? raw : NaN;
+    return Number.isFinite(value) && value >= 0 ? { known: true, value } : { known: false, value: null };
   }
 
   function compare(options) {
@@ -101,7 +108,7 @@
     const origin = stores.find(store => store.id === originStoreId) || stores[0] || null;
     if (!origin) return [];
 
-    const originChannel = defaultChannel(origin);
+    const originChannel = mode === "delivery" ? "bring" : mode === "walk" ? "shelf" : defaultChannel(origin);
     const originQuote = basketQuote(products, cart, origin.id, originChannel);
     const originFee = feeQuote(origin, originChannel);
     const originComplete = originQuote.complete && originFee.known;

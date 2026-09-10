@@ -11,7 +11,7 @@
     @media (hover:hover){.item:has(.td-product-trust.real):hover{transform:translateY(-1px)}}`;
     document.head.appendChild(node);
   }
-  function channel(storeId){if(typeof STORES==="undefined")return"shelf";const store=STORES.find(item=>item.id===storeId);return window.TDCompare?TDCompare.defaultChannel(store):(store&&store.kind==="delivery"?"bring":"shelf");}
+  function channel(storeId){if(typeof STORES==="undefined")return"shelf";const store=STORES.find(item=>item.id===storeId);return window.TDCompare?(window.state && window.state.mode === "delivery" && store && store.has_bring ? "bring" : TDCompare.defaultChannel(store)):(store&&store.kind==="delivery"?"bring":"shelf");}
   function product(card){const title=card.querySelector(".title");if(!title||typeof PRODUCTS==="undefined")return null;return PRODUCTS.find(item=>item.name===title.textContent.trim())||null;}
   function date(value){if(!value)return"";const parsed=new Date(value);if(Number.isNaN(parsed.getTime()))return"";return parsed.toLocaleDateString("ru-RU",{day:"numeric",month:"short"}).replace(".","");}
   function safeImage(value){if(!value)return null;try{const url=new URL(String(value),location.href);return url.protocol==="https:"?url.toString():null;}catch{return null;}}
