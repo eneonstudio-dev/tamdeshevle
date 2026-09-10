@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/collect-pyat.yml"
+      - "retailers/pyat-collector.mjs"
+      - "scripts/collect-pyat.mjs"
+      - "scripts/pyat-camoufox-fetch.py"
+      - "data/retailers/pyat.collector.json"
   schedule:
     - cron: "47 2 * * *"
 
