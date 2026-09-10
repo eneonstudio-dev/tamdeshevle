@@ -1,55 +1,40 @@
-import json, sys, time, urllib.parse
+import asyncio,json,sys,urllib.parse,uuid
+from http.cookies import SimpleCookie
+import aiohttp
+from yarl import URL
 from camoufox.sync_api import Camoufox
-
-API="https://5d.5ka.ru/api"; SITE="https://5ka.ru/"
-HEADERS={"Accept":"application/json, text/plain, */*","X-APP-VERSION":"8.45.0","X-PLATFORM":"web","X-CAN-RECEIVE-PUSH":"true","format":"json"}
-
-def solve(page):
-    page.goto(SITE,wait_until="domcontentloaded",timeout=45000)
-    for _ in range(5):
-        page.wait_for_timeout(1500)
-        label=page.locator('input[type="checkbox"] + label')
-        try:
-            if label.count() and label.first.is_visible():
-                label.first.click(timeout=5000)
-                page.wait_for_timeout(4000)
-                continue
-        except Exception:
-            pass
-        if "xpvnsulc" not in page.url:
-            break
-    page.wait_for_timeout(2500)
-
-def get_json(page,path,params=None):
-    url=API+path
-    if params:url+="?"+urllib.parse.urlencode(params)
-    last=None
-    for _ in range(3):
-        try:
-            result=page.evaluate("""async p=>{const r=await fetch(p.url,{headers:p.headers,credentials:'include'});return {status:r.status,text:await r.text()}}""",{"url":url,"headers":HEADERS})
-            if result["status"]!=200:raise RuntimeError(f"HTTP {result['status']}: {result['text'][:160]}")
-            return json.loads(result["text"])
-        except Exception as exc:
-            last=exc;page.wait_for_timeout(2000)
-    raise last
-
-def walk(v):
-    if isinstance(v,dict):
-        yield v
-        for x in v.values():yield from walk(x)
-    elif isinstance(v,list):
-        for x in v:yield from walk(x)
-
-def main():
-    config=json.load(sys.stdin);sap=str(config["store_context"]["sap_code"])
+API="https://5d.5ka.ru/api";SITE="https://5ka.ru/"
+def warm():
     with Camoufox(headless=False,locale="ru-RU",block_images=False) as browser:
-        page=browser.new_page();solve(page)
-        store=get_json(page,f"/cita/v1/stores/{urllib.parse.quote(sap)}")
-        searches=[]
-        for query in config.get("queries",[]):
+        page=browser.new_page();page.goto(SITE,wait_until="domcontentloaded",timeout=45000)
+        for _ in range(5):
+            page.wait_for_timeout(1500);label=page.locator('input[type="checkbox"] + label')
             try:
-                payload=get_json(page,f"/catalog/v3/stores/{urllib.parse.quote(sap)}/search",{"q":query,"mode":"store","offset":0,"limit":config.get("limit_per_query",30),"include_restrict":"true"})
-                searches.append({"query":query,"payload":payload})
-            except Exception as exc:searches.append({"query":query,"error":str(exc)})
-    json.dump({"store":store,"searches":searches},sys.stdout,ensure_ascii=False)
+                if label.count() and label.first.is_visible():label.first.click(timeout=5000);page.wait_for_timeout(4000);continue
+            except Exception:pass
+            if "xpvnsulc" not in page.url:break
+        page.wait_for_timeout(2500)
+        try:ua=page.evaluate("navigator.userAgent")
+        except Exception:ua="Mozilla/5.0"
+        return page.context.cookies(),ua
+async def collect(config,cookies,ua):
+    jar=aiohttp.CookieJar(unsafe=True)
+    for item in cookies:
+        c=SimpleCookie();c[item["name"]]=item["value"]
+        if item.get("domain"):c[item["name"]]["domain"]=item["domain"]
+        c[item["name"]]["path"]=item.get("path") or "/";domain=(item.get("domain") or "5ka.ru").lstrip(".");jar.update_cookies(c,response_url=URL(f"https://{domain}/"))
+    headers={"User-Agent":ua,"Accept":"application/json, text/plain, */*","Accept-Language":"ru-RU,ru;q=0.9","X-APP-VERSION":"8.45.0","X-PLATFORM":"web","X-CAN-RECEIVE-PUSH":"true","X-DEVICE-ID":str(uuid.uuid4()),"format":"json","Origin":"https://5ka.ru","Referer":"https://5ka.ru/"}
+    async with aiohttp.ClientSession(cookie_jar=jar,headers=headers,timeout=aiohttp.ClientTimeout(total=30)) as s:
+        async def get(path,params=None):
+            async with s.get(URL(API+path).with_query(params or {}),allow_redirects=False) as r:
+                text=await r.text()
+                if r.status!=200:raise RuntimeError(f"HTTP {r.status}: {path}: {text[:200]}")
+                return json.loads(text)
+        sap=str(config["store_context"]["sap_code"]);store=await get(f"/cita/v1/stores/{urllib.parse.quote(sap)}");searches=[]
+        for q in config.get("queries",[]):
+            try:searches.append({"query":q,"payload":await get(f"/catalog/v3/stores/{urllib.parse.quote(sap)}/search",{"q":q,"mode":"store","offset":0,"limit":config.get("limit_per_query",30),"include_restrict":"true"})})
+            except Exception as e:searches.append({"query":q,"error":str(e)})
+        return{"store":store,"searches":searches}
+def main():
+    config=json.load(sys.stdin);cookies,ua=warm();json.dump(asyncio.run(collect(config,cookies,ua)),sys.stdout,ensure_ascii=False)
 if __name__=="__main__":main()
