@@ -10,11 +10,12 @@ vm.runInContext(fs.readFileSync('receipt-verification.js', 'utf8'), context);
 const Receipt = context.window.TDReceiptObservations;
 const Verify = context.window.TDReceiptVerification;
 const now = '2026-09-10T09:00:00.000Z';
+const scopedStore = () => ({ chain_id: 'pyat', store_id: 'S105', external_store_id: 'osm:node:105', address: 'Москва, Кировоградская улица, 17', scope_source: 'verified_store_point', scope_method: 'osm_store_ref', scope_confidence: 1 });
 
 const exact = Receipt.create({
   receipt_id: 'r1',
   observed_at: '2026-09-10T08:30:00.000Z',
-  store: { chain_id: 'pyat', store_id: 'S105', address: 'Москва, Кировоградская улица, 17' },
+  store: scopedStore(),
   image_ref: 'receipt://r1',
   items: [
     { product_id: 'milk', barcode: '460000000001', match_method: 'barcode', price: 89, quantity: 1, receipt_name: 'Молоко' },
@@ -33,7 +34,7 @@ assert.equal(promoted.candidates[1].eligible_for_ranking, false);
 const stale = Receipt.create({
   receipt_id: 'r2',
   observed_at: '2026-09-08T08:30:00.000Z',
-  store: { chain_id: 'pyat', store_id: 'S105', address: 'Москва, Кировоградская улица, 17' },
+  store: scopedStore(),
   image_ref: 'receipt://r2',
   items: [{ product_id: 'milk', match_method: 'sku', price: 90, receipt_name: 'Молоко' }]
 });
@@ -51,7 +52,7 @@ assert.equal(Verify.promote(unscoped, { now }).gate.ok, false);
 const noProof = Receipt.create({
   receipt_id: 'r4',
   observed_at: '2026-09-10T08:30:00.000Z',
-  store: { chain_id: 'pyat', store_id: 'S105', address: 'Москва, Кировоградская улица, 17' },
+  store: scopedStore(),
   items: [{ product_id: 'milk', match_method: 'sku', price: 90, receipt_name: 'Молоко' }]
 });
 assert.equal(Verify.promote(noProof, { now }).gate.ok, false);

@@ -24,6 +24,14 @@
     try { return typeof state !== "undefined" ? state : null; } catch (_) { return null; }
   }
 
+  function selectedPoint() {
+    try {
+      const point = JSON.parse(localStorage.getItem("td:selected-store-point") || "null");
+      if (!point || !point.id || !point.chainId || !point.storeId || !point.address || !point.scopeMethod || Number(point.scopeConfidence) < 0.75) return null;
+      return point;
+    } catch (_) { return null; }
+  }
+
   function loadDrafts() {
     try {
       const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
@@ -50,7 +58,8 @@
   function openSheet() {
     if (document.querySelector(".receipt-entry-backdrop")) return;
     const stateNow = currentState() || {};
-    const selectedStore = stores().find(store => store.id === stateNow.storeId) || stores()[0] || null;
+    const point = selectedPoint();
+    const selectedStore = stores().find(store => store.id === (point ? point.chainId : stateNow.storeId)) || stores()[0] || null;
     const now = new Date();
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
@@ -62,12 +71,12 @@
           <div><h2>Добавить чек</h2><p>Пока сохраняем безопасный черновик. На сравнение цен он не влияет.</p></div>
           <button class="receipt-entry-close" type="button" aria-label="Закрыть">×</button>
         </div>
-        <div class="receipt-entry-note">Фото пока не загружается на сервер. Даже выбранный файл не считается подтверждением и не может сделать цену rankable.</div>
+        <div class="receipt-entry-note">${point ? `Чек будет привязан к выбранной точке: ${esc(point.address)}.` : "Точная точка не выбрана. Адрес можно сохранить в черновике, но он не подтверждает магазин — выбери точку на карте перед отправкой."}</div>
         <form class="receipt-entry-form">
           <div class="receipt-entry-grid">
             <div class="receipt-entry-field"><label>Магазин</label><select name="store_id" required>${storeOptions(selectedStore && selectedStore.id)}</select></div>
             <div class="receipt-entry-field"><label>Дата и время</label><input name="observed_at" type="datetime-local" value="${localDateTime}" required></div>
-            <div class="receipt-entry-field full"><label>Точный адрес магазина</label><input name="address" autocomplete="street-address" placeholder="Москва, Кировоградская улица, 17" required></div>
+            <div class="receipt-entry-field full"><label>Адрес магазина</label><input name="address" autocomplete="street-address" placeholder="Москва, Кировоградская улица, 17" value="${esc(point && point.address || "")}"${point ? " readonly" : ""} required></div>
             <div class="receipt-entry-field full"><label>Название в чеке</label><input name="receipt_name" placeholder="Молоко 3.2% 930 мл" required></div>
             <div class="receipt-entry-field"><label>Цена строки, ₽</label><input name="price" inputmode="decimal" type="number" min="0.01" step="0.01" required></div>
             <div class="receipt-entry-field"><label>Количество</label><input name="quantity" inputmode="decimal" type="number" min="0.001" step="0.001" value="1" required></div>
@@ -96,6 +105,8 @@
       const data = new FormData(form);
       const storeId = String(data.get("store_id") || "");
       const store = stores().find(item => item.id === storeId) || null;
+      const currentPoint = selectedPoint();
+      const scopedPoint = currentPoint && currentPoint.chainId === storeId ? currentPoint : null;
       const productId = String(data.get("product_id") || "").trim() || null;
       const barcode = String(data.get("barcode") || "").trim() || null;
       const matchMethod = productId ? (barcode ? "barcode" : "name") : "unmatched";
@@ -114,8 +125,12 @@
         observed_at: new Date(String(data.get("observed_at"))).toISOString(),
         store: {
           chain_id: store ? store.id : storeId,
-          store_id: storeId,
-          address: String(data.get("address") || "").trim()
+          store_id: scopedPoint ? scopedPoint.storeId : storeId,
+          external_store_id: scopedPoint ? scopedPoint.id : null,
+          address: String(data.get("address") || "").trim(),
+          scope_source: scopedPoint ? "verified_store_point" : "manual_address",
+          scope_method: scopedPoint ? scopedPoint.scopeMethod : null,
+          scope_confidence: scopedPoint ? Number(scopedPoint.scopeConfidence) : null
         },
         items: [{
           receipt_name: String(data.get("receipt_name") || "").trim(),
