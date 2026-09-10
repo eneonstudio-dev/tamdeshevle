@@ -26,11 +26,20 @@
     return { status: book && book.scope_verified === true ? "fresh" : "unverified", usable: Boolean(book && book.scope_verified === true), ageHours: null, reason: null };
   }
 
-  function metaSlot(channel) { return channel === "shelf_catalog" ? "shelf" : "bring"; }
+  function metaSlot(channel) { return channel === "shelf_catalog" || channel === "regional_catalog" ? "shelf" : "bring"; }
+  function productById(productId) {
+    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return null;
+    return PRODUCTS.find(item => item.id === productId) || null;
+  }
   function setPriceMeta(product, storeId, slot, meta) {
     product.priceMeta = product.priceMeta || {};
     product.priceMeta[storeId] = product.priceMeta[storeId] || {};
     product.priceMeta[storeId][slot] = meta;
+  }
+  function setEstimateMeta(product, storeId, slot, meta) {
+    product.estimatedPriceMeta = product.estimatedPriceMeta || {};
+    product.estimatedPriceMeta[storeId] = product.estimatedPriceMeta[storeId] || {};
+    product.estimatedPriceMeta[storeId][slot] = meta;
   }
 
   async function loadOverlays() {
@@ -54,38 +63,61 @@
     applyOverlays(true);
   }
 
+  function buildMeta(book, quality, storeId, channel, value, match, kind) {
+    return {
+      kind,
+      retailer: book.retailer,
+      storeId,
+      city: book.city,
+      channel,
+      checkedAt: book.checked_at || null,
+      freshness: quality.status,
+      ageHours: quality.ageHours,
+      sourceUrl: match.source_url || book.source_url || null,
+      imageUrl: match.image_url || null,
+      retailerProductId: match.retailer_product_id || null,
+      retailerName: match.name || null,
+      storeContext: book.store_context || null,
+      catalogContext: book.catalog_context || null,
+      confidence: Number.isFinite(match.confidence) ? match.confidence : null,
+      method: match.method || null,
+      price: value,
+      oldPrice: Number.isFinite(match.old_price_rub) ? match.old_price_rub : null,
+      promo: Boolean(match.promo),
+      comparisonPriceBasis: match.comparison_price_basis || null,
+      sourcePackagePrice: Number.isFinite(match.source_package_price_rub) ? match.source_package_price_rub : null,
+      sourceUnitPrice: Number.isFinite(match.source_unit_price_rub) ? match.source_unit_price_rub : null,
+      sourceUnitPriceUnit: match.source_unit_price_unit || null,
+      scopeVerified: book.scope_verified === true
+    };
+  }
+
   function applyOverlay(book, quality) {
-    if (!quality.usable) return 0;
-    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return 0;
-    if (typeof state === "undefined" || !state || book.city !== state.city) return 0;
-    const storeId = book.store_id || book.retailer;
+    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return { count: 0, estimatedCount: 0 };
+    if (typeof state === "undefined" || !state || book.city !== state.city) return { count: 0, estimatedCount: 0 };
+    const verifiedStoreId = book.store_id || book.retailer;
+    const estimateStoreId = book.retailer;
     const channel = book.channel || "delivery_catalog";
     const slot = metaSlot(channel);
     const matchedBySku = Object.fromEntries((book.matched || []).map(item => [item.sku, item]));
     let count = 0;
+    let estimatedCount = 0;
 
     for (const product of PRODUCTS) {
       const value = book.prices && book.prices[product.id];
       if (!Number.isFinite(value)) continue;
-      if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [storeId]: value });
-      else product.bring = Object.assign({}, product.bring || {}, { [storeId]: value });
       const match = matchedBySku[product.id] || {};
-      setPriceMeta(product, storeId, slot, {
-        kind: "retailer", retailer: book.retailer, storeId, city: book.city, channel,
-        checkedAt: book.checked_at || null, freshness: quality.status, ageHours: quality.ageHours,
-        sourceUrl: match.source_url || book.source_url || null, imageUrl: match.image_url || null,
-        retailerProductId: match.retailer_product_id || null, retailerName: match.name || null,
-        storeContext: book.store_context || null, catalogContext: book.catalog_context || null,
-        confidence: Number.isFinite(match.confidence) ? match.confidence : null, method: match.method || null,
-        price: value, oldPrice: Number.isFinite(match.old_price_rub) ? match.old_price_rub : null,
-        promo: Boolean(match.promo), comparisonPriceBasis: match.comparison_price_basis || null,
-        sourcePackagePrice: Number.isFinite(match.source_package_price_rub) ? match.source_package_price_rub : null,
-        sourceUnitPrice: Number.isFinite(match.source_unit_price_rub) ? match.source_unit_price_rub : null,
-        sourceUnitPriceUnit: match.source_unit_price_unit || null
-      });
-      count += 1;
+      if (quality.usable) {
+        if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [verifiedStoreId]: value });
+        else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: value });
+        setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, value, match, "retailer"));
+        count += 1;
+      } else if (quality.status === "unverified" && book.catalog_context?.price_scope === "regional_catalog") {
+        setEstimateMeta(product, estimateStoreId, slot, buildMeta(book, quality, estimateStoreId, channel, value, match, "regional_catalog_estimate"));
+        estimatedCount += 1;
+      }
     }
-    return count;
+    return { count, estimatedCount };
   }
 
   function applyOverlays(force) {
@@ -99,6 +131,7 @@
 
     const applied = books.map(book => {
       const quality = qualityFor(book);
+      const result = applyOverlay(book, quality);
       return {
         retailer: book.retailer,
         city: book.city,
@@ -111,13 +144,14 @@
         freshnessReason: quality.reason || null,
         ageHours: Number.isFinite(quality.ageHours) ? quality.ageHours : null,
         usable: quality.usable,
-        count: applyOverlay(book, quality)
+        count: result.count,
+        estimatedCount: result.estimatedCount
       };
     });
 
     appliedSignature = signature;
     window.TDRetailerPriceState = {
-      schema: "tamdeshevle.retailer-price-runtime.v2",
+      schema: "tamdeshevle.retailer-price-runtime.v3",
       city: state.city,
       overlays: applied,
       loadIssues: loadIssues.slice(),
@@ -126,17 +160,22 @@
     };
     window.dispatchEvent(new CustomEvent("td:retailer-prices-applied", { detail: window.TDRetailerPriceState }));
     window.dispatchEvent(new CustomEvent("td:retailer-health", { detail: window.TDRetailerPriceState }));
-    if (applied.some(item => item.count > 0) && typeof render === "function") render();
+    if (applied.some(item => item.count > 0 || item.estimatedCount > 0) && typeof render === "function") render();
     return true;
   }
 
   window.TDPriceMeta = {
     get(productId, storeId, channel) {
-      if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return null;
-      const product = PRODUCTS.find(item => item.id === productId);
+      const product = productById(productId);
       if (!product || !product.priceMeta || !product.priceMeta[storeId]) return null;
       const slot = channel === "bring" || channel === "delivery_catalog" ? "bring" : "shelf";
       return product.priceMeta[storeId][slot] || null;
+    },
+    getEstimated(productId, storeId, channel) {
+      const product = productById(productId);
+      if (!product || !product.estimatedPriceMeta || !product.estimatedPriceMeta[storeId]) return null;
+      const slot = channel === "bring" || channel === "delivery_catalog" ? "bring" : "shelf";
+      return product.estimatedPriceMeta[storeId][slot] || null;
     },
     isRetailer(productId, storeId, channel) {
       const meta = this.get(productId, storeId, channel);

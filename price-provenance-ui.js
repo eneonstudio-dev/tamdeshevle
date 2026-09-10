@@ -9,9 +9,11 @@
       .td-price-origin{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:5px;font-size:10px;font-weight:800;line-height:1.2}
       .td-price-pill{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 7px;background:#efebe4;color:#746c60}
       .td-price-pill.real{background:#e5f6ea;color:#0f7b4a}
+      .td-price-pill.estimate{background:#fff3dd;color:#8a5a00}
       .td-price-origin a{color:#0f7b4a;text-decoration:none;border-bottom:1px solid rgba(15,123,74,.25)}
       .td-plan-source{margin:7px 0 2px;font-size:11px;font-weight:800;color:#6b6458}
       .td-plan-source.real{color:#0f7b4a}
+      .td-plan-source.estimate{color:#8a5a00}
       .td-source-summary{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
       .td-coverage{margin-top:8px;padding:9px 10px;border-radius:12px;background:#eef8f1;color:#176b47;font-size:11px;font-weight:800;line-height:1.35}
       .td-coverage.incomplete{background:#fff3dd;color:#8a5a00}
@@ -33,11 +35,20 @@
     return TDPriceMeta.get(product.id, storeId, channel);
   }
 
+  function getEstimatedMeta(product, storeId, channel) {
+    if (!product || !window.TDPriceMeta || typeof TDPriceMeta.getEstimated !== "function") return null;
+    return TDPriceMeta.getEstimated(product.id, storeId, channel);
+  }
+
   function shortDate(value) {
     if (!value) return "";
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return "";
     return d.toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
+  }
+
+  function money(value) {
+    return Number(value).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function productFromCard(card) {
@@ -57,12 +68,18 @@
       const price = card.querySelector(".price");
       if (!product || !price) return;
       const meta = getMeta(product, storeId, channel);
+      const estimate = meta ? null : getEstimatedMeta(product, storeId, channel);
       const holder = document.createElement("div");
       holder.className = "td-price-origin";
       if (meta) {
         const checked = shortDate(meta.checkedAt);
         holder.innerHTML = `<span class="td-price-pill real">● цена из магазина${checked ? ` · ${checked}` : ""}</span>${meta.sourceUrl ? `<a href="${meta.sourceUrl}" target="_blank" rel="noopener">источник ↗</a>` : ""}`;
         holder.title = meta.retailerName || "Подтверждённая цена из публичного каталога сети";
+      } else if (estimate) {
+        const checked = shortDate(estimate.checkedAt);
+        const region = estimate.catalogContext?.region || "регион";
+        holder.innerHTML = `<span class="td-price-pill estimate">≈ каталог · ${region}: ${money(estimate.price)} ₽${checked ? ` · ${checked}` : ""}</span>${estimate.sourceUrl ? `<a href="${estimate.sourceUrl}" target="_blank" rel="noopener">источник ↗</a>` : ""}`;
+        holder.title = "Ориентировочная цена регионального каталога. Не подтверждена для конкретного магазина и не участвует в рейтинге.";
       } else {
         holder.innerHTML = `<span class="td-price-pill">учебная цена</span>`;
       }
@@ -96,11 +113,16 @@
 
       if (!plan.querySelector(".td-plan-source")) {
         const real = products.filter(product => getMeta(product, row.id, row.channel)).length;
+        const regional = products.filter(product => !getMeta(product, row.id, row.channel) && getEstimatedMeta(product, row.id, row.channel)).length;
         const source = document.createElement("div");
-        source.className = `td-plan-source${real ? " real" : ""}`;
-        source.textContent = real
-          ? `${real} из ${products.length} цен подтверждены каталогом сети`
-          : "Сейчас расчёт на учебных ценах";
+        source.className = `td-plan-source${real ? " real" : regional ? " estimate" : ""}`;
+        source.textContent = real && regional
+          ? `${real} подтверждено · ${regional} по региональному каталогу вне рейтинга`
+          : real
+            ? `${real} из ${products.length} цен подтверждены каталогом сети`
+            : regional
+              ? `${regional} из ${products.length} цен есть в региональном каталоге · вне рейтинга`
+              : "Сейчас расчёт на учебных ценах";
         const sum = plan.querySelector(".sum");
         if (sum) sum.insertAdjacentElement("afterend", source);
         else plan.appendChild(source);
@@ -116,7 +138,7 @@
       if (complete) {
         box.textContent = `${coverageText(row, products.length)} · итог можно сравнивать`;
       } else if (missing.length) {
-        box.innerHTML = `${coverageText(row, products.length)} · итог пока нельзя сравнить<small>Нет цены: ${missing.slice(0, 3).join(", ")}${missing.length > 3 ? ` +${missing.length - 3}` : ""}</small>`;
+        box.innerHTML = `${coverageText(row, products.length)} · итог пока нельзя сравнить<small>Нет подтверждённой цены: ${missing.slice(0, 3).join(", ")}${missing.length > 3 ? ` +${missing.length - 3}` : ""}</small>`;
       } else if (feeUnknown) {
         box.innerHTML = `Товары посчитаны, но итог пока нельзя сравнить<small>Неизвестна стоимость доставки</small>`;
       } else {
@@ -140,10 +162,10 @@
     if (!note || note.dataset.provenanceReady) return;
     note.dataset.provenanceReady = "1";
     const overlays = window.TDRetailerPriceState && window.TDRetailerPriceState.overlays || [];
-    const live = overlays.reduce((sum, item) => sum + Number(item.count || 0), 0);
-    const retailers = [...new Set(overlays.filter(item => Number(item.count || 0) > 0).map(item => item.retailer))];
-    note.textContent = live
-      ? `Уже есть ${live} подтверждённых цен из публичных каталогов${retailers.length ? ` (${retailers.join(", ")})` : ""}. Неполные корзины не участвуют в рейтинге до появления всех нужных цен.`
+    const verified = overlays.reduce((sum, item) => sum + Number(item.count || 0), 0);
+    const estimated = overlays.reduce((sum, item) => sum + Number(item.estimatedCount || 0), 0);
+    note.textContent = verified || estimated
+      ? `Данные: ${verified} подтверждённых цен · ${estimated} ориентировочных цен региональных каталогов. Ориентировочные цены не участвуют в рейтинге.`
       : "Пока здесь учебные цены. Когда есть подтверждённая цена из каталога сети, мы помечаем её отдельно и показываем источник.";
   }
 
