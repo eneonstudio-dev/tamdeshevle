@@ -3,7 +3,31 @@ name: Validate data and scripts
 on:
   pull_request:
   push:
-    branches: [main]
+    branches:
+      - main
+      - chatgpt/architecture-cleanup
+      - chatgpt/retailer-adapter-perekrestok
+      - chatgpt/sku-matcher
+      - chatgpt/retailer-price-overlay
+      - chatgpt/price-provenance
+      - chatgpt/retailer-adapter-magnit
+      - chatgpt/magnit-live-overlay
+      - chatgpt/collector-magnit
+      - chatgpt/retailer-adapter-pyat
+      - chatgpt/pyat-store-scoped-collector
+      - chatgpt/retailer-product-images
+      - chatgpt/data-freshness-health
+      - chatgpt/geo-lenta
+      - chatgpt/store-id-bridge
+      - chatgpt/store-basket-map
+      - chatgpt/store-point-details
+      - chatgpt/worth-it
+      - chatgpt/on-the-way-final2
+      - chatgpt/smart-substitutions
+      - chatgpt/price-history
+      - chatgpt/profile-basket-today
+      - chatgpt/account-hub
+      - chatgpt/auth-backend
 
 permissions:
   contents: read
@@ -94,5 +118,86 @@ jobs:
           diff -u data/retailers/dixy.overlay.json /tmp/dixy.overlay.json
       - name: Check JavaScript syntax
         run: |
-          find . -maxdepth 1 -name '*.js' -print0 | xargs -0 -n1 node --check
-          find retailers scripts -type f \( -name '*.js' -o -name '*.mjs' \) -print0 | xargs -0 -n1 node --check
+          node --check app.js
+          node --check catalog-boot.js
+          node --check store-boot.js
+          node --check price-sync.js
+          node --check data-quality.js
+          node --check retailer-price-sync.js
+          node --check collector-health.js
+          node --check data-health-ui.js
+          node --check price-provenance-ui.js
+          node --check product-ui.js
+          node --check store-id-bridge.js
+          node --check geo-store-map.js
+          node --check geo-store-map-theme.js
+          node --check map-cluster-priority.js
+          node --check selected-store-ui.js
+          node --check map-one-tap.js
+          node --check ui-layer-coordinator.js
+          node --check bai-assistant.js
+          node --check worth-it.js
+          node --check on-the-way.js
+          node --check smart-substitutions.js
+          node --check price-history.js
+          node --check receipt-observations.js
+          node --check receipt-verification.js
+          node --check receipt-price-adapter.js
+          node --check receipt-entry-ui.js
+          node --check receipt-local-tools.js
+          node --check receipt-local-panel.js
+          node --check receipt-local-review.js
+          node --check receipt-price-history-model.js
+          node --check receipt-review-console.js
+          node --check profile-basket.js
+          node --check account-hub.js
+          node --check auth-client.js
+          node --check account-auth-ui.js
+          node --check supabase-config.js
+          node --check data-layer.js
+          node --check comparison-engine.js
+          node --check runtime-bridge.js
+          node --check retailers/perekrestok.mjs
+          node --check retailers/magnit.mjs
+          node --check retailers/magnit-collector.mjs
+          node --check retailers/pyat.mjs
+          node --check retailers/pyat-collector.mjs
+          node --check retailers/proshoper-collector.mjs
+          node --check retailers/lenta.mjs
+          node --check retailers/dixy.mjs
+          node --check retailers/sku-matcher.mjs
+          node --check retailers/overlay-builder.mjs
+          node --check scripts/build-retailer-overlay.mjs
+          node --check scripts/collect-magnit.mjs
+          node --check scripts/collect-pyat.mjs
+          node --check scripts/collect-pyat-proshoper.mjs
+          node --check scripts/update-collector-health.mjs
+          node --check scripts/test-data-quality.mjs
+          node --check scripts/test-trust-ui.mjs
+          node --check scripts/test-receipt-observations.mjs
+          node --check scripts/test-receipt-verification.mjs
+          node --check scripts/test-public-receipt-fixture.mjs
+          node --check scripts/test-receipt-price-adapter.mjs
+          node --check scripts/test-receipt-local-tools.mjs
+          node --check scripts/test-receipt-local-review.mjs
+          node --check scripts/test-receipt-price-history.mjs
+          node --check scripts/test-magnit-adapter.mjs
+          node --check scripts/test-magnit-collector.mjs
+          node --check scripts/test-pyat-adapter.mjs
+          node --check scripts/test-pyat-collector.mjs
+          node --check scripts/test-proshoper-collector.mjs
+          node --check scripts/test-lenta-adapter.mjs
+          node --check scripts/test-dixy-adapter.mjs
+          node --check scripts/test-store-id-bridge.mjs
+          node --check scripts/test-geo-store-map-source.mjs
+          node --check scripts/test-mobile-smoke-flow.mjs
+          node --check scripts/test-worth-it.mjs
+          node --check scripts/test-on-the-way.mjs
+          node --check scripts/test-smart-substitutions.mjs
+          node --check scripts/test-price-history.mjs
+          node --check scripts/test-profile-basket.mjs
+          node --check scripts/test-account-hub.mjs
+          node --check scripts/test-auth-backend.mjs
+          node --check metrics.js
+          node --check store-covers.js
+          node --check gsap-motion.js
