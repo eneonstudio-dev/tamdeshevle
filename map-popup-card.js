@@ -1,0 +1,89 @@
+(function(){
+  "use strict";
+
+  const CHAIN_META={
+    pyat:{short:"5",tone:"#16a34a"},
+    magnit:{short:"М",tone:"#ef4444"},
+    perek:{short:"П",tone:"#22c55e"},
+    lenta:{short:"Л",tone:"#2563eb"},
+    dixy:{short:"Д",tone:"#f59e0b"}
+  };
+  let activeIndex=-1,raf=0;
+
+  function points(){return window.TDGeo&&Array.isArray(TDGeo.nearby)?TDGeo.nearby:[];}
+  function markers(){return [...document.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
+  function pointAt(index){return points()[index]||null;}
+  function markerIndex(marker){return markers().indexOf(marker);}
+  function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+  function rub(v){return `${Math.round(Number(v)||0).toLocaleString("ru-RU")} ₽`;}
+  function distanceText(point){const km=Number(point?.distanceKm);if(!Number.isFinite(km))return"";return km<1?`${Math.round(km*1000)} м`:`${km.toFixed(1)} км`;}
+  function meta(point){return CHAIN_META[point?.chainId]||{short:"₽",tone:"#0f7b4a"};}
+  function resolve(point){try{return window.TDStoreIdBridge?.resolve?.(point)||null;}catch{return null;}}
+  function basket(point){try{return window.TDStoreIdBridge?.basket?.(point,{products:typeof PRODUCTS!=="undefined"?PRODUCTS:[],cart:window.state&&state.cart||{},stores:typeof STORES!=="undefined"?STORES:[],referenceStoreId:window.state&&state.storeId})||null;}catch{return null;}}
+
+  function injectStyles(){
+    if(document.getElementById("td-map-popup-card-style"))return;
+    const s=document.createElement("style");s.id="td-map-popup-card-style";s.textContent=`
+      .leaflet-popup-content-wrapper{padding:0!important;border-radius:20px!important;overflow:hidden;box-shadow:0 18px 44px rgba(22,20,16,.22)!important;background:#fff!important}
+      .leaflet-popup-content{margin:0!important;width:264px!important;font-family:Manrope,system-ui,sans-serif!important}
+      .leaflet-popup-tip-container{display:none!important}
+      .leaflet-popup-close-button{top:8px!important;right:8px!important;width:28px!important;height:28px!important;border-radius:9px!important;background:rgba(255,255,255,.92)!important;color:#161410!important;font-size:20px!important;line-height:25px!important;box-shadow:0 4px 12px rgba(22,20,16,.12)!important;z-index:3}
+      .td-map-popup-card{--tone:#0f7b4a;background:#fff;color:#161410;min-width:264px}
+      .td-map-popup-top{position:relative;padding:14px 42px 12px 14px;background:linear-gradient(135deg,color-mix(in srgb,var(--tone) 12%,#fff),#fff 68%);border-bottom:1px solid rgba(22,20,16,.06)}
+      .td-map-popup-brand{display:flex;align-items:center;gap:9px}.td-map-popup-logo{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--tone);color:#fff;font-size:13px;font-weight:900;box-shadow:0 6px 14px rgba(22,20,16,.12)}
+      .td-map-popup-name{font-size:14px;font-weight:900;letter-spacing:-.02em}.td-map-popup-distance{margin-top:2px;color:#6b6458;font-size:10px;font-weight:800}
+      .td-map-popup-address{margin-top:9px;color:#625b50;font-size:10px;line-height:1.4;font-weight:700}
+      .td-map-popup-body{padding:11px 12px 12px}.td-map-popup-status{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:900}.td-map-popup-status:before{content:"";width:7px;height:7px;border-radius:50%;background:#b8b0a3}.td-map-popup-status.ok{color:#0f7b4a}.td-map-popup-status.ok:before{background:#16a34a}.td-map-popup-status.wait{color:#7a7165}
+      .td-map-popup-price{margin-top:9px;padding:10px;border-radius:13px;background:#f7f4ee}.td-map-popup-price strong{display:block;font-size:17px;letter-spacing:-.03em}.td-map-popup-price small{display:block;margin-top:2px;color:#6b6458;font-size:9px;font-weight:750;line-height:1.35}.td-map-popup-price .save{color:#0f7b4a;font-weight:900}
+      .td-map-popup-actions{display:flex;gap:7px;margin-top:10px}.td-map-popup-actions button{min-height:42px;border:0;border-radius:12px;padding:9px 11px;font:900 11px Manrope,system-ui,sans-serif;cursor:pointer;touch-action:manipulation}.td-map-popup-compare{flex:1;background:#ffe14a;color:#161410}.td-map-popup-detail{background:#161410;color:#fff}.td-map-popup-compare[disabled]{background:#ece7de;color:#8b8275;cursor:not-allowed}
+      @media(max-width:430px){.leaflet-popup-content{width:246px!important}.td-map-popup-card{min-width:246px}.td-map-popup-actions button{min-height:44px}}
+      @media(prefers-reduced-motion:reduce){.leaflet-popup{transition:none!important}}
+    `;document.head.appendChild(s);
+  }
+
+  function priceBlock(point,b,verified){
+    if(verified&&b?.verified&&Number.isFinite(b.total)){
+      const saving=Number.isFinite(b.savings)&&b.savings>0?`<small class="save">Экономия ${esc(rub(b.savings))}</small>`:"";
+      return `<div class="td-map-popup-price"><strong>${esc(rub(b.total))}</strong><small>Корзина · ${Number(b.coveredItems)||0}/${Number(b.totalItems)||0} цен подтверждены</small>${saving}</div>`;
+    }
+    if(verified&&b?.totalItems&&Number(b.coveredItems)>0)return `<div class="td-map-popup-price"><strong>${Number(b.coveredItems)}/${Number(b.totalItems)} цен</strong><small>Подтверждена только часть корзины — полный итог не показываем</small></div>`;
+    if(verified)return '<div class="td-map-popup-price"><strong>Точка подтверждена</strong><small>Добавь товары в корзину — здесь появится точный итог</small></div>';
+    return '<div class="td-map-popup-price"><strong>Цена не подтверждена</strong><small>Для этой конкретной точки ещё нет подтверждённого Store ID</small></div>';
+  }
+
+  function cardHtml(index){
+    const point=pointAt(index);if(!point)return"";
+    const match=resolve(point),verified=Boolean(match?.verified),b=verified?basket(point):null,m=meta(point),distance=distanceText(point);
+    return `<article class="td-map-popup-card" data-td-map-popup data-index="${index}" style="--tone:${m.tone}"><div class="td-map-popup-top"><div class="td-map-popup-brand"><span class="td-map-popup-logo">${esc(m.short)}</span><div><div class="td-map-popup-name">${esc(point.chainLabel||point.name||"Магазин")}</div>${distance?`<div class="td-map-popup-distance">${esc(distance)} от вас</div>`:""}</div></div><div class="td-map-popup-address">${esc(point.address||"Адрес точки")}</div></div><div class="td-map-popup-body"><div class="td-map-popup-status ${verified?"ok":"wait"}">${verified?"Цена точки подтверждена":"Цена точки пока не подтверждена"}</div>${priceBlock(point,b,verified)}<div class="td-map-popup-actions"><button type="button" class="td-map-popup-compare" data-popup-compare${verified?"":" disabled aria-disabled=\"true\""}>${verified?"Сравнить":"Недоступно"}</button><button type="button" class="td-map-popup-detail" data-popup-detail>Подробнее</button></div></div></article>`;
+  }
+
+  function decoratePopup(){
+    cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+      if(activeIndex<0)return;
+      const content=document.querySelector(".leaflet-popup-content");if(!content||content.querySelector("[data-td-map-popup]"))return;
+      const html=cardHtml(activeIndex);if(html)content.innerHTML=html;
+    });
+  }
+
+  function compare(index){
+    const point=pointAt(index),match=resolve(point);if(!point||!match?.verified)return false;
+    const chosen=window.TDMapOneTap?.choosePoint?.(index);if(!chosen?.match?.verified)return false;
+    return Boolean(window.TDMapOneTap?.compare?.());
+  }
+
+  function install(){
+    injectStyles();
+    document.addEventListener("click",e=>{
+      const marker=e.target.closest?.("img.leaflet-marker-icon.td-themed-marker");
+      if(marker){const index=markerIndex(marker);if(index>=0){activeIndex=index;decoratePopup();setTimeout(decoratePopup,30);}return;}
+      const popup=e.target.closest?.("[data-td-map-popup]");if(!popup)return;
+      const index=Number(popup.dataset.index);if(!Number.isInteger(index))return;
+      if(e.target.closest("[data-popup-compare]")){e.preventDefault();e.stopPropagation();compare(index);return;}
+      if(e.target.closest("[data-popup-detail]")){e.preventDefault();e.stopPropagation();const point=pointAt(index);if(point)window.TDGeo?.openPointDetails?.(point);}
+    },true);
+    new MutationObserver(mutations=>{if(mutations.some(m=>[...m.addedNodes].some(n=>n.nodeType===1&&(n.matches?.(".leaflet-popup")||n.querySelector?.(".leaflet-popup")))))decoratePopup();}).observe(document.body,{childList:true,subtree:true});
+  }
+
+  window.TDMapPopupCard={refresh:decoratePopup,compare};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
+})();
