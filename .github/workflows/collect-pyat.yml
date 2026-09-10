@@ -8,7 +8,6 @@ on:
       - ".github/workflows/collect-pyat.yml"
       - "retailers/pyat-collector.mjs"
       - "scripts/collect-pyat.mjs"
-      - "scripts/pyat-camoufox-fetch.py"
       - "data/retailers/pyat.collector.json"
   schedule:
     - cron: "47 2 * * *"
@@ -31,21 +30,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install Pyaterochka browser runtime
-        run: |
-          pip install pytest pyaterochka_api "camoufox[geoip]"
-          python -m camoufox fetch
       - name: Collect and validate one-store Pyaterochka catalog
         id: refresh
         continue-on-error: true
-        env:
-          PYAT_CAMOUFOX: "1"
         run: |
           set -e
-          xvfb-run -a node scripts/collect-pyat.mjs
+          node scripts/collect-pyat.mjs
           node -e "const s=require('./data/retailers/pyat.sample.json'); if(s.scope_verified!==true) process.exit(2)"
           node scripts/test-pyat-collector.mjs
           node scripts/test-pyat-adapter.mjs
