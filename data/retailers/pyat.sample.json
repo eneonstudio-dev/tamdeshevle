@@ -1,37 +1,43 @@
 {
   "schema": "tamdeshevle.retailer-snapshot.v1",
   "retailer": "pyat",
-  "store_id": "pyat",
+  "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "channel": "delivery_catalog",
-  "source_url": "https://5ka.ru/",
-  "checked_at": "2026-09-10T02:30:00+03:00",
-  "method": "public_catalog_snapshot_via_index",
+  "channel": "regional_catalog",
+  "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+  "source_name": "proshoper.ru",
+  "source_kind": "aggregator_catalog",
+  "checked_at": "2026-09-10T09:44:21+03:00",
+  "method": "public_regional_catalog_snapshot",
   "scope_verified": false,
   "catalog_context": {
-    "type": "public_delivery_catalog",
-    "location_verified": false,
-    "note": "Public 5ka.ru product pages expose current catalog prices but the store/city scope was not verifiable from the public indexed page context. Runtime must not rank these prices until scope_verified=true."
+    "type": "regional_promotional_catalog",
+    "region": "Москва",
+    "valid_from": "2026-09-08",
+    "valid_to": "2026-09-14",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Источник публикует каталог Пятёрочки для Москвы и предупреждает, что цены могут отличаться в зависимости от магазина. Эти цены ориентировочные и не должны считаться подтверждёнными для конкретной торговой точки."
   },
   "rows": [
-    {
-      "id": "4192464",
-      "name": "Молоко Эконива ультрапастеризованное 3.2% БЗМЖ",
-      "brand": "ЭкоНива",
-      "pack_text": "1 л",
-      "price": 207.99,
-      "availability": "В корзину",
-      "url": "https://5ka.ru/product/moloko-ekoniva-ultrapasterizovannoe-3-2-bzmzh--4192464/"
-    },
-    {
-      "id": "4002375",
-      "name": "Манка Селяночка",
-      "brand": "Селяночка",
-      "pack_text": "800 г",
-      "price": 62.99,
-      "old_price": 69.99,
-      "availability": "В корзину",
-      "url": "https://5ka.ru/product/manka-selyanochka--4002375/"
-    }
+    {"id":"proshoper-carrot-washed-1kg","name":"Морковь мытая упаковка","pack_text":"1 кг","price":49.99,"old_price":89.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-potato-washed","name":"Картофель мытый","pack_text":"1 кг","price":79.99,"old_price":94.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-tomato-plum","name":"Томаты сливовидные красные","price":79.99,"old_price":119.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-eggplant","name":"Баклажан","price":99.99,"old_price":129.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-pumpkin-butternut","name":"Тыква Баттернат","price":114.99,"old_price":129.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-tomato-greenhouse-600g","name":"Томат тепличный красный","pack_text":"600 г","price":129.99,"old_price":169.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-broccoli","name":"Капуста Брокколи","price":309.99,"old_price":349.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-garlic-100g","name":"Чеснок свежий","pack_text":"100 г","price":49.99,"old_price":56.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-white-onion","name":"Лук белый","price":119.99,"old_price":139.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-watermelon-domestic","name":"Арбуз отечественный","price":19.99,"old_price":29.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-watermelon-yellow","name":"Арбуз желтый","price":29.99,"old_price":54.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-watermelon-black-prince","name":"Арбуз Черный принц без косточек отечественный","price":46.99,"old_price":52.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-fig-one","name":"Инжир","pack_text":"1 шт","price":59.99,"old_price":99.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-melon-gulyabi","name":"Дыня Гуляби","price":79.90,"old_price":89.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-plum-seasonal","name":"Слива сезонная","price":79.99,"old_price":89.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-pomelo-pink","name":"Помело розовое","price":199.99,"old_price":249.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-pear-forelle","name":"Груша Форель","price":209.99,"old_price":279.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"},
+    {"id":"proshoper-pomegranate","name":"Гранат","price":389.99,"old_price":449.99,"availability":"каталог","url":"https://mos.proshoper.ru/actions/pyaterochka/"}
   ]
 }
