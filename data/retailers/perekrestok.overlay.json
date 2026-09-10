@@ -6,7 +6,6 @@
   "checked_at": "2026-09-10T01:00:00+03:00",
   "prices": {
     "eggs_c1": 114.99,
-    "milk": 71.99,
     "oil_sunflower": 161.99,
     "pasta": 109.99
   },
@@ -20,18 +19,17 @@
       "promo": false,
       "source_url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0",
       "confidence": 0.9,
-      "method": "conservative_rule"
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко Для Всей Семьи пастеризованное 2.5%, 900мл",
-      "retailer_product_id": null,
-      "price_rub": 71.99,
-      "old_price_rub": null,
-      "promo": false,
-      "source_url": "https://promo.perekrestok.ru/cat/c/114/moloko?filter.proizvoditel=izmoloko",
-      "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
     },
     {
       "sku": "oil_sunflower",
@@ -42,7 +40,17 @@
       "promo": false,
       "source_url": "https://promo.perekrestok.ru/cat/104/p/maslo-podsolnecnoe-a-lublu-gotovit-rafinirovannoe-dezodorirovannoe-1l-4269568",
       "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "availability": "in_stock"
     },
     {
       "sku": "pasta",
@@ -53,10 +61,39 @@
       "promo": false,
       "source_url": "https://promo.perekrestok.ru/cat/search?page=13&search=%D0%BB%D0%B0",
       "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [],
+  "alternatives": [
+    {
+      "sku": "milk",
+      "name": "Молоко Для Всей Семьи пастеризованное 2.5%, 900мл",
+      "retailer_product_id": null,
+      "source_url": "https://promo.perekrestok.ru/cat/c/114/moloko?filter.proizvoditel=izmoloko",
+      "price_rub": 71.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    }
+  ],
   "channel": "regional_catalog",
   "source_url": "https://promo.perekrestok.ru/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",

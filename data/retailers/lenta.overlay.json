@@ -18,7 +18,17 @@
       "promo": true,
       "source_url": "https://lenta.com/catalog/moloko-pasterizovannoe-25733/?filter.zhirnost-66=-6846549",
       "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "availability": "in_stock"
     },
     {
       "sku": "pasta",
@@ -29,10 +39,21 @@
       "promo": true,
       "source_url": "https://lenta.com/product/makarony-spaghettoni-n7-rossiya-450g-543168/",
       "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [],
+  "alternatives": [],
   "channel": "regional_catalog",
   "source_url": "https://mos.proshoper.ru/actions/lenta/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",

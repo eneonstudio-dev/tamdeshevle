@@ -41,8 +41,8 @@ assert(any.find(row => row.id === "hyper").verifiedItems === 0, "educational pri
 const verifiedProducts = products.map(product => ({
   ...product,
   priceMeta: {
-    shop: { shelf: { kind: "retailer", freshness: "fresh" } },
-    hyper: { shelf: { kind: "retailer", freshness: "stale" } }
+    shop: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } },
+    hyper: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "stale" } }
   }
 }));
 const verified = TDCompare.compare({ stores: stores.slice(0, 2), products: verifiedProducts, cart, city: "msk", mode: "walk", originStoreId: "shop" });
@@ -94,3 +94,15 @@ const empty = TDCompare.compare({ stores: [], products, cart, city: "msk", mode:
 assert(Array.isArray(empty) && empty.length === 0, "empty stores case failed");
 
 console.log("Comparison engine tests passed: strict channels, coverage safety and verified-vs-estimated savings.");
+for (const delivery of [null, undefined, '', -1, NaN]) assert(!TDCompare.feeQuote({delivery},'bring').known, 'missing/invalid fee is not free delivery');
+assert(TDCompare.feeQuote({delivery:0},'bring').known, 'explicit zero fee is valid');
+assert(!TDCompare.basketQuote(verifiedProducts,{},'shop','shelf').verifiedComplete, 'empty cart cannot claim verified comparison');
+assert(!TDCompare.basketQuote(verifiedProducts,{a:1,deleted_sku:1},'shop','shelf').complete, 'unknown cart item cannot silently disappear');
+const unsafe = {...verifiedProducts[0],priceMeta:{shop:{shelf:{kind:'retailer',freshness:'fresh'}}}};
+assert(!TDCompare.isVerifiedPrice(unsafe,'shop','shelf'), 'retailer name alone does not prove scope and equivalence');
+const channelsProduct = {id:'a',prices:{shop:100},bring:{shop:150,delivery:170}};
+const channelResult = TDCompare.compare({stores:[{...stores[0],delivery:0}, {...stores[2],delivery:0}],products:[channelsProduct],cart:{a:1},mode:'delivery',city:'msk',originStoreId:'shop'});
+assert(channelResult.find(x=>x.id==='shop').indicativeSave===0,'delivery origin must use delivery prices');
+assert(!TDCompare.basketQuote(verifiedProducts,{a:Infinity},'shop','shelf').complete,'infinite quantity rejected');
+assert(!TDCompare.basketQuote(verifiedProducts,{a:0.5},'shop','shelf').complete,'half a packaged item cannot be bought');
+assert(TDCompare.goodsTotal([{id:'x',prices:{shop:0.1}}],{x:3},'shop','shelf')===0.3,'money accumulates in kopecks');

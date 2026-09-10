@@ -5,23 +5,10 @@
   "city": "msk",
   "checked_at": "2026-09-10T07:41:46.719Z",
   "prices": {
-    "buckwheat": 94.99,
     "carrot": 49.99,
-    "eggs_c1": 96.99,
-    "potato": 79.99
+    "eggs_c1": 96.99
   },
   "matched": [
-    {
-      "sku": "buckwheat",
-      "name": "Гречка ядрица Селяночка быстроразваривающаяся пропаренная 900г",
-      "retailer_product_id": "proshoper-гречка-ядрица-селяночка-быстроразваривающаяся-пропаренная-900г-132",
-      "price_rub": 94.99,
-      "old_price_rub": 119.99,
-      "promo": true,
-      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
-      "confidence": 0.9,
-      "method": "conservative_rule"
-    },
     {
       "sku": "carrot",
       "name": "Морковь мытая упаковка 1кг",
@@ -31,7 +18,17 @@
       "promo": true,
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "availability": "in_stock"
     },
     {
       "sku": "eggs_c1",
@@ -42,18 +39,17 @@
       "promo": true,
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "confidence": 0.9,
-      "method": "conservative_rule"
-    },
-    {
-      "sku": "potato",
-      "name": "Картофель мытый",
-      "retailer_product_id": "proshoper-картофель-мытыи-11",
-      "price_rub": 79.99,
-      "old_price_rub": 94.99,
-      "promo": true,
-      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
-      "confidence": 0.9,
-      "method": "conservative_rule"
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [
@@ -2101,6 +2097,34 @@
       "name": "Сидушка туристическая Хоба 24х35х2см",
       "retailer_product_id": "proshoper-сидушка-туристическая-хоба-24х35х2см-413",
       "reason": "no_rule_match"
+    }
+  ],
+  "alternatives": [
+    {
+      "sku": "potato",
+      "name": "Картофель мытый",
+      "retailer_product_id": "proshoper-картофель-мытыи-11",
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "pack_missing"
+    },
+    {
+      "sku": "buckwheat",
+      "name": "Гречка ядрица Селяночка быстроразваривающаяся пропаренная 900г",
+      "retailer_product_id": "proshoper-гречка-ядрица-селяночка-быстроразваривающаяся-пропаренная-900г-132",
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "price_rub": 94.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 800,
+        "unit": "g"
+      }
     }
   ],
   "channel": "regional_catalog",
