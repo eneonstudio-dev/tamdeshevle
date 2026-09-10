@@ -2,13 +2,15 @@ import { adaptPerekrestokCatalog } from "./perekrestok.mjs";
 import { adaptMagnitCatalog } from "./magnit.mjs";
 import { adaptPyatCatalog } from "./pyat.mjs";
 import { adaptLentaCatalog } from "./lenta.mjs";
+import { adaptDixyCatalog } from "./dixy.mjs";
 import { buildPriceOverlay } from "./sku-matcher.mjs";
 
 const ADAPTERS = {
   perek: adaptPerekrestokCatalog,
   magnit: adaptMagnitCatalog,
   pyat: adaptPyatCatalog,
-  lenta: adaptLentaCatalog
+  lenta: adaptLentaCatalog,
+  dixy: adaptDixyCatalog
 };
 
 export function buildOverlayFromSnapshot(snapshot) {

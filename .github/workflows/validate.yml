@@ -80,6 +80,8 @@ jobs:
         run: node scripts/test-pyat-collector.mjs
       - name: Test Lenta adapter
         run: node scripts/test-lenta-adapter.mjs
+      - name: Test Dixy adapter
+        run: node scripts/test-dixy-adapter.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
@@ -94,6 +96,8 @@ jobs:
           diff -u data/retailers/pyat.overlay.json /tmp/pyat.overlay.json
           node scripts/build-retailer-overlay.mjs data/retailers/lenta.sample.json /tmp/lenta.overlay.json
           diff -u data/retailers/lenta.overlay.json /tmp/lenta.overlay.json
+          node scripts/build-retailer-overlay.mjs data/retailers/dixy.sample.json /tmp/dixy.overlay.json
+          diff -u data/retailers/dixy.overlay.json /tmp/dixy.overlay.json
       - name: Check JavaScript syntax
         run: |
           node --check app.js
@@ -126,6 +130,7 @@ jobs:
           node --check retailers/pyat.mjs
           node --check retailers/pyat-collector.mjs
           node --check retailers/lenta.mjs
+          node --check retailers/dixy.mjs
           node --check retailers/sku-matcher.mjs
           node --check retailers/overlay-builder.mjs
           node --check scripts/build-retailer-overlay.mjs
@@ -139,6 +144,7 @@ jobs:
           node --check scripts/test-pyat-adapter.mjs
           node --check scripts/test-pyat-collector.mjs
           node --check scripts/test-lenta-adapter.mjs
+          node --check scripts/test-dixy-adapter.mjs
           node --check scripts/test-store-id-bridge.mjs
           node --check scripts/test-geo-store-map-source.mjs
           node --check scripts/test-worth-it.mjs

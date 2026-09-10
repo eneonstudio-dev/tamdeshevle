@@ -1,0 +1,57 @@
+{
+  "schema": "tamdeshevle.retailer-price-overlay.v1",
+  "retailer": "dixy",
+  "store_id": "dixy_msk_catalog",
+  "city": "msk",
+  "checked_at": "2026-09-10T10:10:00+03:00",
+  "prices": {
+    "chicken_fil": 549.9,
+    "milk": 94.99
+  },
+  "matched": [
+    {
+      "sku": "chicken_fil",
+      "name": "Филе цыпленка-бройлера ПЕТЕЛИНКА охлажденное, 1 кг",
+      "retailer_product_id": "proshoper-dixy-petelinka-chicken-fillet-1kg",
+      "price_rub": 549.9,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://mos.proshoper.ru/actions/diksi/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко ПРОСТОКВАШИНО пастеризованное 2,5%, 930 мл",
+      "retailer_product_id": "proshoper-dixy-prostokvashino-milk-25-930",
+      "price_rub": 94.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://mos.proshoper.ru/actions/diksi/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    }
+  ],
+  "unmatched": [
+    {
+      "name": "Яйцо куриное ДЕРЕВЕНСКИЕ НАПЕВЫ 1 категория, 10 шт",
+      "retailer_product_id": "proshoper-dixy-derevenskie-napevy-eggs-cat1-10",
+      "reason": "no_rule_match"
+    }
+  ],
+  "channel": "regional_catalog",
+  "source_url": "https://mos.proshoper.ru/actions/diksi/",
+  "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "catalog_context": {
+    "type": "regional_promotional_catalog",
+    "region": "Москва",
+    "valid_from": "2026-09-07",
+    "valid_to": "2026-09-13",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Региональный каталог Дикси для Москвы; цены не подтверждены для конкретного магазина."
+  },
+  "scope_verified": false,
+  "normalized_count": 3
+}

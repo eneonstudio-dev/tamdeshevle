@@ -5,7 +5,8 @@
     "data/retailers/perekrestok.overlay.json?v=20260910a",
     "data/retailers/magnit.overlay.json?v=20260910b",
     "data/retailers/pyat.overlay.json?v=20260910a",
-    "data/retailers/lenta.overlay.json?v=20260910a"
+    "data/retailers/lenta.overlay.json?v=20260910a",
+    "data/retailers/dixy.overlay.json?v=20260910a"
   ];
   let books = [];
   let loadIssues = [];
@@ -16,6 +17,7 @@
     if (/magnit/i.test(url)) return "magnit";
     if (/pyat/i.test(url)) return "pyat";
     if (/lenta/i.test(url)) return "lenta";
+    if (/dixy/i.test(url)) return "dixy";
     return "unknown";
   }
 
