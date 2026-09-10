@@ -15,6 +15,32 @@
     return date.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
   }
 
+  function queueLabel(status) {
+    return ({ pending: "на проверке", reviewing: "смотрим", accepted: "принят", rejected: "отклонён" })[status] || "статус уточняется";
+  }
+
+  function queueTitle(item) {
+    const lines = item && item.payload && item.payload.items;
+    return Array.isArray(lines) && lines[0] && lines[0].receipt_name || "Чек";
+  }
+
+  async function renderQueue(root) {
+    const node = root.querySelector(".receipt-cloud-list");
+    if (!node) return;
+    if (!window.TDAuth || !window.TDAuth.user || !window.TDAuth.user()) {
+      node.innerHTML = '<div class="receipt-local-empty">Войди в аккаунт, чтобы видеть отправленные на проверку чеки.</div>';
+      return;
+    }
+    node.innerHTML = '<div class="receipt-local-empty">Загружаю очередь проверки…</div>';
+    try {
+      const items = await window.TDAuth.receiptQueue();
+      if (!items.length) { node.innerHTML = '<div class="receipt-local-empty">В очереди пока нет чеков.</div>'; return; }
+      node.innerHTML = items.map(item => `<div class="receipt-local-row receipt-cloud-row"><div><b>${esc(queueTitle(item))}</b><small>${esc(item.store_address || item.store_id || "магазин")} · отправлен ${esc(formatDate(item.submitted_at))}${item.review_note ? ` · ${esc(item.review_note)}` : ""}</small></div><span class="receipt-status-${esc(item.status)}">${esc(queueLabel(item.status))}</span></div>`).join("");
+    } catch (_) {
+      node.innerHTML = '<div class="receipt-local-empty">Не удалось загрузить очередь. Локальные черновики на месте.</div>';
+    }
+  }
+
   function renderList(root) {
     const tools = api();
     if (!tools) return;
@@ -44,8 +70,10 @@
     if (!tools) return;
     const overlay = document.createElement("div");
     overlay.className = "receipt-local-backdrop";
-    overlay.innerHTML = `<section class="receipt-local-sheet" role="dialog" aria-modal="true" aria-label="Черновики чеков">
-      <div class="receipt-local-head"><div><h2>Чеки на устройстве</h2><p><b data-receipt-count>0</b> черновиков. Ни один не участвует в рейтинге.</p></div><button type="button" class="receipt-local-close" aria-label="Закрыть">×</button></div>
+    overlay.innerHTML = `<section class="receipt-local-sheet" role="dialog" aria-modal="true" aria-label="Мои чеки">
+      <div class="receipt-local-head"><div><h2>Мои чеки</h2><p><b data-receipt-count>0</b> локальных черновиков. Ни один не участвует в рейтинге.</p></div><button type="button" class="receipt-local-close" aria-label="Закрыть">×</button></div>
+      <h3 class="receipt-cloud-title">Отправленные на проверку</h3><div class="receipt-cloud-list"></div>
+      <h3 class="receipt-cloud-title">На этом устройстве</h3>
       <div class="receipt-local-actions"><button type="button" data-action="export">Скачать JSON-копию</button><label>Импорт JSON<input type="file" accept="application/json,.json" data-action="import" hidden></label></div>
       <div class="receipt-local-status" hidden></div><div class="receipt-local-list"></div>
       <button type="button" class="receipt-local-clear" data-action="clear">Очистить локальные черновики</button>
@@ -53,6 +81,7 @@
     </section>`;
     document.body.appendChild(overlay);
     renderList(overlay);
+    renderQueue(overlay);
     const status = overlay.querySelector(".receipt-local-status");
     const close = () => overlay.remove();
     overlay.querySelector(".receipt-local-close").addEventListener("click", close);
@@ -92,7 +121,8 @@
   const observer = new MutationObserver(mount);
   observer.observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener("td:receipt-draft-saved", mount);
+  window.addEventListener("td:receipt-submitted", () => { const root = document.querySelector(".receipt-local-backdrop"); if (root) renderQueue(root); });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { mount(); loadReview(); }, { once: true });
   else { mount(); loadReview(); }
-  window.TDReceiptLocalPanel = { open: openPanel, mount, renderList };
+  window.TDReceiptLocalPanel = { open: openPanel, mount, renderList, renderQueue };
 })();
