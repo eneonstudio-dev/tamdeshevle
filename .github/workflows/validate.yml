@@ -78,6 +78,8 @@ jobs:
         run: node scripts/test-pyat-adapter.mjs
       - name: Test Pyaterochka collector
         run: node scripts/test-pyat-collector.mjs
+      - name: Test Proshoper regional collector parser
+        run: node scripts/test-proshoper-collector.mjs
       - name: Test Lenta adapter
         run: node scripts/test-lenta-adapter.mjs
       - name: Test Dixy adapter
@@ -129,6 +131,7 @@ jobs:
           node --check retailers/magnit-collector.mjs
           node --check retailers/pyat.mjs
           node --check retailers/pyat-collector.mjs
+          node --check retailers/proshoper-collector.mjs
           node --check retailers/lenta.mjs
           node --check retailers/dixy.mjs
           node --check retailers/sku-matcher.mjs
@@ -136,6 +139,7 @@ jobs:
           node --check scripts/build-retailer-overlay.mjs
           node --check scripts/collect-magnit.mjs
           node --check scripts/collect-pyat.mjs
+          node --check scripts/collect-pyat-proshoper.mjs
           node --check scripts/update-collector-health.mjs
           node --check scripts/test-data-quality.mjs
           node --check scripts/test-trust-ui.mjs
@@ -143,6 +147,7 @@ jobs:
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
           node --check scripts/test-pyat-collector.mjs
+          node --check scripts/test-proshoper-collector.mjs
           node --check scripts/test-lenta-adapter.mjs
           node --check scripts/test-dixy-adapter.mjs
           node --check scripts/test-store-id-bridge.mjs

@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   workflow_run:
-    workflows: ["Collect Magnit prices", "Collect Pyaterochka prices"]
+    workflows: ["Collect Magnit prices", "Collect Pyaterochka prices", "Collect Pyaterochka regional catalog"]
     types: [completed]
   workflow_dispatch:
 permissions:
