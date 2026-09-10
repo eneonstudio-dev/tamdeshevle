@@ -28,7 +28,7 @@ assert(geo.includes("data-use-point"), "geo details must keep a verified point s
 assert(bridge.includes("verified:true") && bridge.includes("verified:false"), "store bridge must gate verified and unverified points");
 assert(bridge.includes("complete?partialTotal:null"), "point basket must not expose a full total for partial coverage");
 
-assert(oneTap.includes("if(!match||!match.verified)return false"), "compare navigation must reject unverified points");
+assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
 assert(oneTap.includes("td:selected-store-point-current"), "one-tap selection must announce the current exact point");
 assert(oneTap.includes("cleanupTray"), "map flow must clean up the bottom tray");
