@@ -5,8 +5,8 @@
   "store_id": "magnit",
   "channel": "delivery_catalog",
   "source_url": "https://magnit.ru/",
-  "delay_ms": 750,
-  "max_products": 120,
+  "delay_ms": 100,
+  "max_products": 24,
   "expected_address_tokens": ["Чертановская", "47"],
   "store_context": {
     "shop_code": "770105",
