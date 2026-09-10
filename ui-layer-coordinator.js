@@ -26,8 +26,10 @@
     injectStyles();
     const overlay=activeOverlay();
     const bai=document.getElementById("bai-assistant");
+    const app=document.getElementById("app");
     const blocked=Boolean(overlay);
-    document.body.dataset.tdOverlayOpen=blocked?"true":"false";
+    if(blocked)document.body.dataset.tdOverlayOpen="true";else document.body.removeAttribute("data-td-overlay-open");
+    if(app&&"inert" in app)app.inert=blocked;
     if(bai){
       if(blocked){
         bai.dataset.uiParked="true";
