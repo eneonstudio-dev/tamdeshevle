@@ -1,31 +1,132 @@
 {
   "schema": "tamdeshevle.retailer-price-overlay.v1",
   "retailer": "pyat",
-  "store_id": "pyat",
+  "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "checked_at": "2026-09-10T02:30:00+03:00",
-  "prices": {},
-  "matched": [],
+  "checked_at": "2026-09-10T09:44:21+03:00",
+  "prices": {
+    "carrot": 49.99,
+    "potato": 79.99
+  },
+  "matched": [
+    {
+      "sku": "carrot",
+      "name": "Морковь мытая упаковка",
+      "retailer_product_id": "proshoper-carrot-washed-1kg",
+      "price_rub": 49.99,
+      "old_price_rub": 89.99,
+      "promo": true,
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
+      "sku": "potato",
+      "name": "Картофель мытый",
+      "retailer_product_id": "proshoper-potato-washed",
+      "price_rub": 79.99,
+      "old_price_rub": 94.99,
+      "promo": true,
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    }
+  ],
   "unmatched": [
     {
-      "name": "Молоко Эконива ультрапастеризованное 3.2% БЗМЖ",
-      "retailer_product_id": "4192464",
+      "name": "Томаты сливовидные красные",
+      "retailer_product_id": "proshoper-tomato-plum",
       "reason": "no_rule_match"
     },
     {
-      "name": "Манка Селяночка",
-      "retailer_product_id": "4002375",
+      "name": "Баклажан",
+      "retailer_product_id": "proshoper-eggplant",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тыква Баттернат",
+      "retailer_product_id": "proshoper-pumpkin-butternut",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Томат тепличный красный",
+      "retailer_product_id": "proshoper-tomato-greenhouse-600g",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Капуста Брокколи",
+      "retailer_product_id": "proshoper-broccoli",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чеснок свежий",
+      "retailer_product_id": "proshoper-garlic-100g",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лук белый",
+      "retailer_product_id": "proshoper-white-onion",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз отечественный",
+      "retailer_product_id": "proshoper-watermelon-domestic",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз желтый",
+      "retailer_product_id": "proshoper-watermelon-yellow",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз Черный принц без косточек отечественный",
+      "retailer_product_id": "proshoper-watermelon-black-prince",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Инжир",
+      "retailer_product_id": "proshoper-fig-one",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дыня Гуляби",
+      "retailer_product_id": "proshoper-melon-gulyabi",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Слива сезонная",
+      "retailer_product_id": "proshoper-plum-seasonal",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Помело розовое",
+      "retailer_product_id": "proshoper-pomelo-pink",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Груша Форель",
+      "retailer_product_id": "proshoper-pear-forelle",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гранат",
+      "retailer_product_id": "proshoper-pomegranate",
       "reason": "no_rule_match"
     }
   ],
-  "channel": "delivery_catalog",
-  "source_url": "https://5ka.ru/",
+  "channel": "regional_catalog",
+  "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",
   "catalog_context": {
-    "type": "public_delivery_catalog",
-    "location_verified": false,
-    "note": "Public 5ka.ru product pages expose current catalog prices but the store/city scope was not verifiable from the public indexed page context. Runtime must not rank these prices until scope_verified=true."
+    "type": "regional_promotional_catalog",
+    "region": "Москва",
+    "valid_from": "2026-09-08",
+    "valid_to": "2026-09-14",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Источник публикует каталог Пятёрочки для Москвы и предупреждает, что цены могут отличаться в зависимости от магазина. Эти цены ориентировочные и не должны считаться подтверждёнными для конкретной торговой точки."
   },
   "scope_verified": false,
-  "normalized_count": 2
+  "normalized_count": 18
 }
