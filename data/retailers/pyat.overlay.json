@@ -3,33 +3,11 @@
   "retailer": "pyat",
   "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "checked_at": "2026-09-10T07:41:46.719Z",
+  "checked_at": "2026-09-10T09:56:15.271Z",
   "prices": {
-    "carrot": 49.99,
     "eggs_c1": 96.99
   },
   "matched": [
-    {
-      "sku": "carrot",
-      "name": "Морковь мытая упаковка 1кг",
-      "retailer_product_id": "proshoper-морковь-мытая-упаковка-1кг-10",
-      "price_rub": 49.99,
-      "old_price_rub": 89.99,
-      "promo": true,
-      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
-      "confidence": 0.9,
-      "method": "conservative_rule",
-      "comparison_eligible": true,
-      "source_pack": {
-        "value": 1000,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
-      },
-      "availability": "in_stock"
-    },
     {
       "sku": "eggs_c1",
       "name": "Яйцо куриное Село Зеленое Деревенское С1 10шт.",
@@ -2100,6 +2078,15 @@
     }
   ],
   "alternatives": [
+    {
+      "sku": "carrot",
+      "name": "Морковь мытая упаковка 1кг",
+      "retailer_product_id": "proshoper-морковь-мытая-упаковка-1кг-10",
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "price_rub": 49.99,
+      "eligible": false,
+      "reason": "multipack_unconfirmed"
+    },
     {
       "sku": "potato",
       "name": "Картофель мытый",
