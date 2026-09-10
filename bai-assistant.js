@@ -19,7 +19,7 @@
   bai.innerHTML = `<span class="bai-bubble" aria-hidden="true"></span><img src="${poses.tail}" alt="" draggable="false">`;
   document.body.appendChild(bai);
 
-  let hideTimer, idleTimer, settleTimer, lastHint = '', stateToken = 0;
+  let hideTimer, idleTimer, settleTimer, scrollTimer, lastHint = '', stateToken = 0;
   const bubble = bai.querySelector('.bai-bubble');
   const image = bai.querySelector('img');
 
@@ -44,6 +44,14 @@
     idleTimer = setTimeout(() => setState('sleep', 'Я тут подремлю… разбудишь 😴', 2600, false), 45000);
   };
 
+  const onScroll = () => {
+    wake();
+    bai.classList.add('is-scrolling');
+    bai.classList.remove('is-talking');
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => bai.classList.remove('is-scrolling'), 520);
+  };
+
   const contextHint = () => {
     const text = document.body.innerText;
     let hint = 'Добавляй товары — покажу, где корзина дешевле 🐾';
@@ -56,7 +64,8 @@
   };
 
   bai.addEventListener('click', () => { wake(); contextHint(); });
-  ['pointerdown', 'keydown', 'scroll'].forEach(type => window.addEventListener(type, wake, { passive: true }));
+  ['pointerdown', 'keydown'].forEach(type => window.addEventListener(type, wake, { passive: true }));
+  window.addEventListener('scroll', onScroll, { passive: true });
   document.addEventListener('click', event => {
     if (event.target.closest('.step button:last-child')) setState('happy', 'Есть! Ещё товар в корзине 🐾');
     if (event.target.closest('.btn.yellow,.btn.green')) setState('checking', 'Секунду, проверяю цены 🔎', 4200);
@@ -69,6 +78,6 @@
 
   bai.dataset.state = 'tail';
   setTimeout(() => bai.classList.add('is-ready'), 350);
-  setTimeout(() => setState('greeting', 'Сәлам! Я Бай. Помогу найти дешевле 🐾', 3600), 850);
+  setTimeout(() => setState('greeting', 'Сәлам! Я Бай. Помогу найти дешевле 🐾', 2800), 850);
   wake();
 })();
