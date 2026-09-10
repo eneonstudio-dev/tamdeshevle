@@ -1,10 +1,21 @@
 {
   "schema": "tamdeshevle.retailer-snapshot.v1",
   "retailer": "perek",
+  "store_id": "perek_msk_catalog",
   "city": "msk",
+  "channel": "regional_catalog",
   "source_url": "https://promo.perekrestok.ru/",
   "checked_at": "2026-09-10T01:00:00+03:00",
-  "method": "public_catalog_snapshot",
+  "method": "public_regional_catalog_snapshot",
+  "scope_verified": false,
+  "catalog_context": {
+    "type": "regional_public_catalog",
+    "region": "Москва",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Public Perekrestok catalog prices are useful as Moscow catalog guidance, but they are not verified for a specific store. Runtime must not treat them as store-verified prices."
+  },
   "rows": [
     {
       "name": "Молоко Для Всей Семьи пастеризованное 2.5%, 900мл",

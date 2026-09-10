@@ -6,10 +6,12 @@ const snapshot = JSON.parse(fs.readFileSync("data/retailers/perekrestok.sample.j
 const basketOverlay = buildOverlayFromSnapshot(snapshot);
 assert.equal(basketOverlay.retailer, "perek");
 assert.equal(basketOverlay.city, "msk");
-assert.equal(basketOverlay.channel, "delivery_catalog");
+assert.equal(basketOverlay.channel, "regional_catalog");
 assert.equal(basketOverlay.normalized_count, snapshot.rows.length);
 assert.equal(basketOverlay.matched.length, 4);
 assert.equal(basketOverlay.scope_verified, false);
+assert.equal(basketOverlay.catalog_context.price_scope, "regional_catalog");
+assert.equal(basketOverlay.catalog_context.store_verified, false);
 assert.deepEqual(basketOverlay.prices, {
   eggs_c1: 114.99,
   milk: 71.99,
@@ -36,4 +38,4 @@ assert.equal(overlay.matched.length, 2);
 assert.equal(overlay.store_id, "perek");
 assert.equal(overlay.channel, "delivery_catalog");
 
-console.log("Retailer overlay builder tests passed with live basket matches.");
+console.log("Retailer overlay builder tests passed with regional trust metadata and live basket matches.");
