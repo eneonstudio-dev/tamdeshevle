@@ -27,6 +27,7 @@ on:
       - chatgpt/price-history
       - chatgpt/profile-basket-today
       - chatgpt/account-hub
+      - chatgpt/auth-backend
 
 permissions:
   contents: read
@@ -61,6 +62,8 @@ jobs:
         run: node scripts/test-profile-basket.mjs
       - name: Test account hub
         run: node scripts/test-account-hub.mjs
+      - name: Test auth backend wiring
+        run: node scripts/test-auth-backend.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
       - name: Test Magnit adapter
@@ -107,6 +110,9 @@ jobs:
           node --check price-history.js
           node --check profile-basket.js
           node --check account-hub.js
+          node --check auth-client.js
+          node --check account-auth-ui.js
+          node --check supabase-config.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
@@ -136,6 +142,7 @@ jobs:
           node --check scripts/test-price-history.mjs
           node --check scripts/test-profile-basket.mjs
           node --check scripts/test-account-hub.mjs
+          node --check scripts/test-auth-backend.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
