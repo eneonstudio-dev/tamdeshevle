@@ -17,6 +17,17 @@
     }).filter(Boolean).join(" · ");
   }
 
+  function allocationLines(option) {
+    if (!option || !option.allocations) return "";
+    return option.stores.map(store => {
+      const lines = option.allocations[store.id] || [];
+      if (!lines.length) return "";
+      const channel = option.channels && option.channels[store.id] === "bring" ? "доставка сети" : "полка";
+      const sum = lines.reduce((total, line) => total + line.lineTotal, 0);
+      return `<div class="split-basket__list-store"><b>${store.name}</b><span>${channel} · ${money(sum)}</span>${lines.map(line => `<div class="split-basket__line"><span>${line.name} × ${line.quantity}</span><span>${money(line.lineTotal)}</span></div>`).join("")}</div>`;
+    }).join("");
+  }
+
   function buildCard(result) {
     const one = result.bestOne;
     const two = result.bestTwo;
@@ -40,8 +51,9 @@
           <div class="split-basket__stores">${storeNames(two)}</div>
         </div>
       </div>
-      <div class="split-basket__save">Ещё −${money(result.extraSaving)}</div>
-      <div class="split-basket__note">${allocationSummary(two)} товара(ов) по магазинам. Только подтверждённые цены. Пока без учёта маршрута и времени.</div>
+      <div class="split-basket__save">${result.netSaving != null ? `Чистая выгода по известным условиям: −${money(result.netSaving)}` : `Потенциально −${money(result.extraSaving)}`}</div>
+      <div class="split-basket__note">${allocationSummary(two)} товара(ов) по магазинам. Только подтверждённые цены${two.channels && Object.values(two.channels).includes("bring") ? "; доставка сети включена, если тариф известен" : ""}. Маршрут и время не выдумываем.</div>
+      <details class="split-basket__details"><summary>Что куда брать</summary>${allocationLines(two)}</details>
     `;
     return card;
   }

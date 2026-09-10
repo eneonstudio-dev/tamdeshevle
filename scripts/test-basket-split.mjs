@@ -23,7 +23,7 @@ const stores = [
 
 {
   const products = [product('x', 100, 140), product('y', 200, 120)];
-  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk' });
+  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk' });
   assert.equal(result.bestOne.total, 260);
   assert.equal(result.bestTwo.total, 220);
   assert.equal(result.extraSaving, 40);
@@ -33,9 +33,25 @@ const stores = [
 
 {
   const products = [product('x', 100, 140), product('y', 200, 120, true, false)];
-  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk' });
+  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk' });
   assert.equal(result.bestTwo, null);
   assert.equal(result.worthSplitting, false);
+}
+
+{
+  const deliveryStores = [
+    { id: 'a', name: 'A', kind: 'delivery', city: ['msk'], has_bring: true, delivery: 50, minOrder: 150 },
+    { id: 'b', name: 'B', kind: 'delivery', city: ['msk'], has_bring: true, delivery: 30, minOrder: 100 }
+  ];
+  const products = [
+    { id: 'x', name: 'X', bring: { a: 100, b: 180 }, priceMeta: { a: { bring: meta() }, b: { bring: meta() } } },
+    { id: 'y', name: 'Y', bring: { a: 220, b: 100 }, priceMeta: { a: { bring: meta() }, b: { bring: meta() } } }
+  ];
+  const result = context.window.TDBasketSplit.optimize({ stores: deliveryStores, products, cart: { x: 2, y: 2 }, city: 'msk', mode: 'delivery' });
+  assert.equal(result.bestOne.total, 590);
+  assert.equal(result.bestTwo.total, 480);
+  assert.equal(result.netSaving, 110);
+  assert.equal(result.worthSplitting, true);
 }
 
 console.log('basket split tests passed');
