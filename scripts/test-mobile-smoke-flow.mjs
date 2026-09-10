@@ -60,7 +60,7 @@ assert(popup.includes("match?.verified") && popup.includes("Цена точки 
 assert(popup.includes("b?.verified&&Number.isFinite(b.total)"), "popup may show a full basket total only for a verified complete basket");
 assert(popup.includes("Подтверждена только часть корзины — полный итог не показываем"), "popup must not invent a full total for partial basket coverage");
 assert(popup.includes("data-popup-compare") && popup.includes("TDMapOneTap?.choosePoint") && popup.includes("TDMapOneTap?.compare"), "popup compare action must route through the existing verified one-tap flow");
-assert(popup.includes("disabled aria-disabled=\"true\""), "unverified popup comparison must stay disabled");
+assert(popup.includes("disabled aria-disabled=") && popup.includes("Недоступно"), "unverified popup comparison must stay disabled");
 
 assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
