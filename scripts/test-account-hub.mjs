@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const src=fs.readFileSync(new URL('../account-hub.js', import.meta.url),'utf8');
+const html=fs.readFileSync(new URL('../index.html', import.meta.url),'utf8');
+assert.match(src,/scroll-snap-type:x mandatory/);
+assert.match(src,/Главная/);
+assert.match(src,/Экономия/);
+assert.match(src,/Корзины/);
+assert.match(src,/Адреса/);
+assert.match(src,/Настройки/);
+assert.match(src,/td:auth-requested/);
+assert.match(src,/migrationKeys/);
+assert.match(src,/Гостевой режим/);
+assert.ok(html.indexOf('profile-basket.js') < html.indexOf('account-hub.js'));
+console.log('Account hub checks passed: swipe tabs, auth contract and local migration are wired.');
