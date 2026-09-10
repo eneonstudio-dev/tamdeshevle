@@ -1,7 +1,7 @@
 {
   "schema": "tamdeshevle.retailer-price-overlay.v1",
   "retailer": "perek",
-  "store_id": "perek",
+  "store_id": "perek_msk_catalog",
   "city": "msk",
   "checked_at": "2026-09-10T01:00:00+03:00",
   "prices": {
@@ -57,9 +57,17 @@
     }
   ],
   "unmatched": [],
-  "channel": "delivery_catalog",
+  "channel": "regional_catalog",
   "source_url": "https://promo.perekrestok.ru/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "catalog_context": {
+    "type": "regional_public_catalog",
+    "region": "Москва",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Public Perekrestok catalog prices are useful as Moscow catalog guidance, but they are not verified for a specific store. Runtime must not treat them as store-verified prices."
+  },
   "scope_verified": false,
   "normalized_count": 4
 }
