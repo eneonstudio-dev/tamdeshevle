@@ -115,6 +115,18 @@ export function pageUnitPrice(html) {
 
 function expectedAddressPresent(html, tokens) { const wanted = (tokens || []).map(x => String(x).toLowerCase().trim()).filter(Boolean); if (!wanted.length) return true; const haystack = stripTags(html).toLowerCase(); return wanted.every(token => haystack.includes(token)); }
 
+export function verifyMagnitScopeConfig(config) {
+  const shopCode = String(config?.store_context?.shop_code || "").trim();
+  const address = String(config?.store_context?.address || "").trim();
+  const tokens = (config?.expected_address_tokens || []).map(x => String(x).trim()).filter(Boolean);
+  if (!shopCode) throw new Error("Magnit collector requires store_context.shop_code");
+  if (!address) throw new Error("Magnit collector requires store_context.address");
+  if (!tokens.length) throw new Error("Magnit collector requires expected_address_tokens");
+  const normalizedAddress = address.toLowerCase();
+  if (!tokens.every(token => normalizedAddress.includes(token.toLowerCase()))) throw new Error("Magnit configured address does not match expected_address_tokens");
+  return { shop_code: shopCode, address, shop_type: String(config.store_context.shop_type || 1) };
+}
+
 export function parseMagnitProductPage(html, url, context) {
   if (!expectedAddressPresent(html, context.expected_address_tokens)) throw new Error("Magnit page does not match expected store address");
   const product = jsonLdProducts(html)[0] || null;
@@ -145,7 +157,7 @@ function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
 export async function collectMagnitSnapshot(config, options = {}) {
   if (!config || config.retailer !== "magnit") throw new Error("Collector config retailer must be magnit");
-  if (!config.store_context || config.store_context.shop_code == null) throw new Error("Collector config requires store_context.shop_code");
+  const verifiedStore = verifyMagnitScopeConfig(config);
   const delay = Math.max(0, Number(config.delay_ms ?? 500)); const maxProducts = Math.max(1, Number(config.max_products ?? 40));
   const pinned = (config.product_urls || []).map(url => withMagnitStore(url, config.store_context)); const productUrls = new Set(pinned);
   for (const raw of config.catalog_urls || []) {
@@ -159,5 +171,5 @@ export async function collectMagnitSnapshot(config, options = {}) {
     if (delay) await sleep(delay);
   }
   if (!rows.length) throw new Error(`Magnit collector found no usable products (${errors.length} errors)`);
-  return { schema:"tamdeshevle.retailer-snapshot.v1", retailer:"magnit", city:config.city || "msk", store_id:config.store_id || "magnit", channel:config.channel || "delivery_catalog", checked_at:options.checked_at || new Date().toISOString(), source_url:config.source_url || "https://magnit.ru/", method:"public_catalog_collector", store_context:config.store_context, collector:{ discovered:productUrls.size, attempted:Math.min(rankedUrls.length, maxProducts), accepted:rows.length, errors }, rows };
+  return { schema:"tamdeshevle.retailer-snapshot.v1", retailer:"magnit", city:config.city || "msk", store_id:config.store_id || "magnit", channel:config.channel || "delivery_catalog", checked_at:options.checked_at || new Date().toISOString(), source_url:config.source_url || "https://magnit.ru/", method:"public_store_scoped_catalog_collector", scope_verified:true, store_context:verifiedStore, catalog_context:{ type:"store_scoped_public_catalog", location_verified:true, shop_code:verifiedStore.shop_code, address:verifiedStore.address }, collector:{ discovered:productUrls.size, attempted:Math.min(rankedUrls.length, maxProducts), accepted:rows.length, errors }, rows };
 }
