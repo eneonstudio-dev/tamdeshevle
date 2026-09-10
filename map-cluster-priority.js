@@ -8,12 +8,13 @@
     {id:"saving",label:"Выгоднее"},
     {id:"near",label:"До 1 км"}
   ];
-  let clusterLayer=null,raf=0,expandedUntil=0,activeFilter="all";
+  let clusterLayer=null,raf=0,expandedUntil=0,activeFilter="all",mapInstance=null,scrollRaf=0,lastVisible=-1;
 
   function points(){return window.TDGeo&&Array.isArray(TDGeo.nearby)?TDGeo.nearby:[];}
   function markers(){return [...document.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
   function cards(){return [...document.querySelectorAll(".td-map-store")];}
   function selectedId(){try{return JSON.parse(localStorage.getItem(SELECTED_KEY)||"null")?.id||null;}catch{return null;}}
+  function reducedMotion(){return window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;}
   function quote(point){
     if(!point||!window.TDStoreIdBridge)return null;
     try{
@@ -132,6 +133,44 @@
     });
     layer()?.replaceChildren();setTimeout(schedule,3600);
   }
+
+  function patchLeaflet(){
+    if(!window.L||typeof L.map!=="function"||L.map.__tdFocusPatched)return false;
+    const original=L.map;
+    function wrapped(target,...args){const instance=original.call(this,target,...args),id=typeof target==="string"?target:target&&target.id;if(id==="td-map")mapInstance=instance;return instance;}
+    wrapped.__tdFocusPatched=true;L.map=wrapped;return true;
+  }
+  function watchLeaflet(){
+    if(patchLeaflet())return;
+    const attach=node=>{if(node instanceof HTMLScriptElement&&String(node.src||"").includes("leaflet"))node.addEventListener("load",patchLeaflet,{once:true});};
+    document.querySelectorAll("script[src*='leaflet']").forEach(attach);
+    new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(attach))).observe(document.documentElement,{childList:true,subtree:true});
+  }
+  function focusPoint(index,{popup=true}={}){
+    const point=points()[index],marker=markers()[index];if(!point||!marker)return false;
+    window.TDMapTheme?.setActive?.(index);
+    if(mapInstance&&document.querySelector("#td-map")&&Number.isFinite(Number(point.lat))&&Number.isFinite(Number(point.lon))){
+      const zoom=Math.max(Number(mapInstance.getZoom?.())||14,15);
+      if(reducedMotion())mapInstance.setView?.([point.lat,point.lon],zoom,{animate:false});
+      else if(typeof mapInstance.flyTo==="function")mapInstance.flyTo([point.lat,point.lon],zoom,{animate:true,duration:.38,easeLinearity:.22});
+      else mapInstance.setView?.([point.lat,point.lon],zoom,{animate:true});
+    }
+    if(popup)setTimeout(()=>{const current=markers()[index];if(current&&current.style.pointerEvents!=="none")current.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window}));},reducedMotion()?0:260);
+    return true;
+  }
+  function visibleCardIndex(){
+    const list=document.querySelector(".td-map-list");if(!list)return-1;
+    const lr=list.getBoundingClientRect(),center=lr.top+lr.height*.42;let best=-1,bestD=Infinity;
+    cards().forEach((card,index)=>{if(card.hidden||getComputedStyle(card).display==="none")return;const r=card.getBoundingClientRect();if(r.bottom<=lr.top||r.top>=lr.bottom)return;const d=Math.abs((r.top+r.bottom)/2-center);if(d<bestD){bestD=d;best=index;}});
+    return best;
+  }
+  function syncListFocus(){cancelAnimationFrame(scrollRaf);scrollRaf=requestAnimationFrame(()=>{const index=visibleCardIndex();if(index<0||index===lastVisible)return;lastVisible=index;window.TDMapTheme?.setActive?.(index);});}
+  function installListSync(){const list=document.querySelector(".td-map-list");if(!list||list.dataset.tdFocusScroll)return;list.dataset.tdFocusScroll="1";list.addEventListener("scroll",syncListFocus,{passive:true});syncListFocus();}
+  function installCardFocus(){
+    document.addEventListener("click",e=>{const card=e.target.closest?.(".td-map-store");if(!card||e.target.closest("button,a"))return;const index=cards().indexOf(card);if(index>=0)focusPoint(index,{popup:true});},true);
+    document.addEventListener("keydown",e=>{if(e.key!=="Enter"&&e.key!==" ")return;const card=e.target.closest?.(".td-map-store");if(!card)return;const index=cards().indexOf(card);if(index>=0)focusPoint(index,{popup:true});},true);
+  }
+
   function render(){
     injectStyles();
     const root=layer(),mapEl=document.querySelector("#td-map.td-map"),list=points(),ms=markers();
@@ -152,12 +191,12 @@
   }
   function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render);}
   function install(){
-    schedule();const map=document.querySelector("#td-map.td-map");if(!map)return;
+    patchLeaflet();installListSync();schedule();const map=document.querySelector("#td-map.td-map");if(!map)return;
     if(!map.dataset.tdClusterEvents){map.dataset.tdClusterEvents="1";["pointerup","touchend","wheel","dblclick"].forEach(ev=>map.addEventListener(ev,()=>setTimeout(schedule,180),{passive:true}));}
     const pane=map.querySelector(".leaflet-map-pane");if(pane&&!pane.dataset.tdClusterObserved){pane.dataset.tdClusterObserved="1";new MutationObserver(schedule).observe(pane,{attributes:true,attributeFilter:["style","class"]});}
   }
-  const obs=new MutationObserver(mutations=>{if(mutations.every(m=>m.target?.closest?.(".td-map-cluster-layer,.td-map-filter-bar")))return;schedule();});
-  function start(){obs.observe(document.body,{childList:true,subtree:true});injectStyles();schedule();setInterval(()=>{if(document.querySelector("#td-map.td-map"))install();},800);window.addEventListener("resize",schedule);window.addEventListener("td:retailer-prices-applied",schedule);window.addEventListener("td:selected-store-point-current",schedule);window.addEventListener("td:selected-store-point-cleared",schedule);}
-  window.TDMapClusterPriority={refresh:schedule,get filter(){return activeFilter;},setFilter(id){if(FILTERS.some(f=>f.id===id)){activeFilter=id;expandedUntil=0;schedule();return true;}return false;}};
+  const obs=new MutationObserver(mutations=>{if(mutations.every(m=>m.target?.closest?.(".td-map-cluster-layer,.td-map-filter-bar")))return;schedule();installListSync();});
+  function start(){watchLeaflet();installCardFocus();obs.observe(document.body,{childList:true,subtree:true});injectStyles();schedule();setInterval(()=>{if(document.querySelector("#td-map.td-map"))install();},800);window.addEventListener("resize",schedule);window.addEventListener("td:retailer-prices-applied",schedule);window.addEventListener("td:selected-store-point-current",schedule);window.addEventListener("td:selected-store-point-cleared",schedule);}
+  window.TDMapClusterPriority={refresh:schedule,focus:focusPoint,get filter(){return activeFilter;},setFilter(id){if(FILTERS.some(f=>f.id===id)){activeFilter=id;expandedUntil=0;schedule();return true;}return false;}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
