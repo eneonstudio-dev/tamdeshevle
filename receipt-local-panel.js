@@ -24,6 +24,37 @@
     return Array.isArray(lines) && lines[0] && lines[0].receipt_name || "Чек";
   }
 
+  function productName(id) {
+    try { const item = Array.isArray(PRODUCTS) && PRODUCTS.find(product => product.id === id); return item && item.name || id || "Товар"; }
+    catch (_) { return id || "Товар"; }
+  }
+
+  function rubles(value) {
+    return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 2 }).format(Number(value) || 0) + " ₽";
+  }
+
+  async function renderPriceHistory(root) {
+    const node = root.querySelector(".receipt-price-history-list");
+    if (!node) return;
+    if (!window.TDAuth || !window.TDAuth.user || !window.TDAuth.user()) {
+      node.innerHTML = '<div class="receipt-local-empty">Войди, чтобы видеть подтверждённые цены.</div>';
+      return;
+    }
+    node.innerHTML = '<div class="receipt-local-empty">Загружаю подтверждённые цены…</div>';
+    try {
+      const rows = await window.TDAuth.receiptPriceHistory();
+      if (!rows.length) { node.innerHTML = '<div class="receipt-local-empty">Подтверждённых цен пока нет.</div>'; return; }
+      const model = window.TDReceiptPriceHistory;
+      node.innerHTML = rows.map(row => {
+        const freshness = model && model.status(row) === "fresh" ? "fresh" : "expired";
+        const label = freshness === "fresh" ? `актуальна до ${formatDate(row.expires_at)}` : "устарела";
+        return `<div class="receipt-local-row receipt-price-history-row"><div><b>${esc(productName(row.product_id))} · ${esc(rubles(row.unit_price))}</b><small>${esc(row.store_address || row.store_id)} · чек ${esc(formatDate(row.observed_at))}</small></div><span class="receipt-freshness-${freshness}">${esc(label)}</span></div>`;
+      }).join("");
+    } catch (_) {
+      node.innerHTML = '<div class="receipt-local-empty">Не удалось загрузить историю. Попробуй позже.</div>';
+    }
+  }
+
   async function renderQueue(root) {
     const node = root.querySelector(".receipt-cloud-list");
     if (!node) return;
@@ -73,6 +104,7 @@
     overlay.innerHTML = `<section class="receipt-local-sheet" role="dialog" aria-modal="true" aria-label="Мои чеки">
       <div class="receipt-local-head"><div><h2>Мои чеки</h2><p><b data-receipt-count>0</b> локальных черновиков. Ни один не участвует в рейтинге.</p></div><button type="button" class="receipt-local-close" aria-label="Закрыть">×</button></div>
       <h3 class="receipt-cloud-title">Отправленные на проверку</h3><div class="receipt-cloud-list"></div>
+      <h3 class="receipt-cloud-title">Подтверждённая история цен</h3><div class="receipt-price-history-list"></div>
       <h3 class="receipt-cloud-title">На этом устройстве</h3>
       <div class="receipt-local-actions"><button type="button" data-action="export">Скачать JSON-копию</button><label>Импорт JSON<input type="file" accept="application/json,.json" data-action="import" hidden></label></div>
       <div class="receipt-local-status" hidden></div><div class="receipt-local-list"></div>
@@ -82,6 +114,7 @@
     document.body.appendChild(overlay);
     renderList(overlay);
     renderQueue(overlay);
+    renderPriceHistory(overlay);
     const status = overlay.querySelector(".receipt-local-status");
     const close = () => overlay.remove();
     overlay.querySelector(".receipt-local-close").addEventListener("click", close);
@@ -123,7 +156,8 @@
   observer.observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener("td:receipt-draft-saved", mount);
   window.addEventListener("td:receipt-submitted", () => { const root = document.querySelector(".receipt-local-backdrop"); if (root) renderQueue(root); });
+  window.addEventListener("td:receipt-reviewed", () => { const root = document.querySelector(".receipt-local-backdrop"); if (root) { renderQueue(root); renderPriceHistory(root); } });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { mount(); loadReview(); }, { once: true });
   else { mount(); loadReview(); }
-  window.TDReceiptLocalPanel = { open: openPanel, mount, renderList, renderQueue };
+  window.TDReceiptLocalPanel = { open: openPanel, mount, renderList, renderQueue, renderPriceHistory };
 })();

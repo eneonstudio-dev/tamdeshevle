@@ -60,6 +60,8 @@ jobs:
         run: node scripts/test-receipt-local-tools.mjs
       - name: Test local receipt review safety
         run: node scripts/test-receipt-local-review.mjs
+      - name: Test immutable receipt price history
+        run: node scripts/test-receipt-price-history.mjs
       - name: Test store ID basket bridge
         run: node scripts/test-store-id-bridge.mjs
       - name: Test geo point details wiring
@@ -145,6 +147,7 @@ jobs:
           node --check receipt-local-tools.js
           node --check receipt-local-panel.js
           node --check receipt-local-review.js
+          node --check receipt-price-history-model.js
           node --check receipt-review-console.js
           node --check profile-basket.js
           node --check account-hub.js
@@ -177,6 +180,7 @@ jobs:
           node --check scripts/test-receipt-price-adapter.mjs
           node --check scripts/test-receipt-local-tools.mjs
           node --check scripts/test-receipt-local-review.mjs
+          node --check scripts/test-receipt-price-history.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
