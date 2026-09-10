@@ -16,17 +16,15 @@
       return{match,basket};
     }catch{return null;}
   }
-  function score(point){
-    const q=quote(point),selected=String(selectedId()||"")===String(point?.id||"");
+  function score(point,q,selected){
     let value=selected?100000:0;
     if(q?.basket?.verified&&Number.isFinite(q.basket.savings)&&q.basket.savings>0)value+=50000+Math.min(20000,q.basket.savings);
     if(q?.match?.verified)value+=20000;
     const km=Number(point?.distanceKm);if(Number.isFinite(km))value+=Math.max(0,5000-km*1000);
     return value;
   }
-  function priority(point){
-    const q=quote(point);
-    if(String(selectedId()||"")===String(point?.id||""))return"selected";
+  function priority(point,q,selected){
+    if(selected)return"selected";
     if(q?.basket?.verified&&Number.isFinite(q.basket.savings)&&q.basket.savings>0)return"saving";
     if(q?.match?.verified)return"verified";
     return"normal";
@@ -58,19 +56,18 @@
     });
     return groups;
   }
-  function pillText(point,p){
-    const q=quote(point);
-    if(p==="selected")return"выбрана";
-    if(p==="saving"&&Number.isFinite(q?.basket?.savings)&&q.basket.savings>0)return`−${rub(q.basket.savings)}`;
-    if(p==="verified")return"✓ цена";
+  function pillText(item){
+    if(item.priority==="selected")return"выбрана";
+    if(item.priority==="saving"&&Number.isFinite(item.quote?.basket?.savings)&&item.quote.basket.savings>0)return`−${rub(item.quote.basket.savings)}`;
+    if(item.priority==="verified")return"✓ цена";
     return"";
   }
   function showPill(root,item){
-    const p=priority(item.point),text=pillText(item.point,p);if(!text)return;
-    const el=document.createElement("span");el.className="td-map-priority-pill";el.dataset.priority=p;el.textContent=text;el.style.left=`${item.x}px`;el.style.top=`${item.y}px`;root.appendChild(el);
+    const text=pillText(item);if(!text)return;
+    const el=document.createElement("span");el.className="td-map-priority-pill";el.dataset.priority=item.priority;el.textContent=text;el.style.left=`${item.x}px`;el.style.top=`${item.y}px`;root.appendChild(el);
   }
   function resetMarker(marker){marker.style.opacity="";marker.style.pointerEvents="";marker.style.marginLeft="-17px";marker.style.marginTop="-46px";marker.removeAttribute("data-map-priority");}
-  function applyCardPriority(list){cards().forEach((card,i)=>{const p=priority(list[i]);if(p==="normal")card.removeAttribute("data-map-priority");else card.dataset.mapPriority=p;});}
+  function applyCardPriority(items){cards().forEach((card,i)=>{const p=items[i]?.priority||"normal";if(p==="normal")card.removeAttribute("data-map-priority");else card.dataset.mapPriority=p;});}
   function expandGroup(group){
     expandedUntil=Date.now()+3500;
     group.items.forEach((item,i)=>{
@@ -83,16 +80,18 @@
     injectStyles();
     const root=layer(),mapEl=document.querySelector("#td-map.td-map"),list=points(),ms=markers();
     if(!root||!mapEl||!list.length||!ms.length)return;
-    root.replaceChildren();ms.forEach(resetMarker);applyCardPriority(list);
-    const rect=mapEl.getBoundingClientRect();
-    const items=ms.map((marker,index)=>({marker,index,point:list[index],...markerCenter(marker,rect)})).filter(x=>x.point&&x.x>-40&&x.y>-60&&x.x<rect.width+40&&x.y<rect.height+60);
+    root.replaceChildren();ms.forEach(resetMarker);
+    const rect=mapEl.getBoundingClientRect(),selected=String(selectedId()||"");
+    const all=ms.map((marker,index)=>{const point=list[index],q=quote(point),isSelected=Boolean(point&&selected&&String(point.id)===selected),pos=markerCenter(marker,rect);return{marker,index,point,quote:q,priority:priority(point,q,isSelected),score:score(point,q,isSelected),...pos};});
+    applyCardPriority(all);
+    const items=all.filter(x=>x.point&&x.x>-40&&x.y>-60&&x.x<rect.width+40&&x.y<rect.height+60);
     if(Date.now()<expandedUntil){items.forEach(i=>showPill(root,i));return;}
     buildGroups(items).forEach(group=>{
-      if(group.items.length===1){const item=group.items[0],p=priority(item.point);if(p!=="normal")item.marker.dataset.mapPriority=p;showPill(root,item);return;}
-      const winner=[...group.items].sort((a,b)=>score(b.point)-score(a.point))[0],p=priority(winner.point);winner.marker.dataset.mapPriority=p;
+      if(group.items.length===1){const item=group.items[0];if(item.priority!=="normal")item.marker.dataset.mapPriority=item.priority;showPill(root,item);return;}
+      const winner=[...group.items].sort((a,b)=>b.score-a.score)[0];winner.marker.dataset.mapPriority=winner.priority;
       group.items.forEach(item=>{if(item!==winner){item.marker.style.opacity="0";item.marker.style.pointerEvents="none";}});
       showPill(root,winner);
-      const btn=document.createElement("button");btn.type="button";btn.className="td-map-cluster";btn.dataset.priority=p;btn.textContent=String(group.items.length);btn.setAttribute("aria-label",`Показать ${group.items.length} магазинов рядом`);btn.style.left=`${winner.x}px`;btn.style.top=`${winner.y-16}px`;btn.addEventListener("click",e=>{e.stopPropagation();expandGroup(group);});root.appendChild(btn);
+      const btn=document.createElement("button");btn.type="button";btn.className="td-map-cluster";btn.dataset.priority=winner.priority;btn.textContent=String(group.items.length);btn.setAttribute("aria-label",`Показать ${group.items.length} магазинов рядом`);btn.style.left=`${winner.x}px`;btn.style.top=`${winner.y-16}px`;btn.addEventListener("click",e=>{e.stopPropagation();expandGroup(group);});root.appendChild(btn);
     });
   }
   function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(render);}
@@ -101,7 +100,7 @@
     if(!map.dataset.tdClusterEvents){map.dataset.tdClusterEvents="1";["pointerup","touchend","wheel","dblclick"].forEach(ev=>map.addEventListener(ev,()=>setTimeout(schedule,180),{passive:true}));}
     const pane=map.querySelector(".leaflet-map-pane");if(pane&&!pane.dataset.tdClusterObserved){pane.dataset.tdClusterObserved="1";new MutationObserver(schedule).observe(pane,{attributes:true,subtree:true,attributeFilter:["style","class"]});}
   }
-  const obs=new MutationObserver(()=>schedule());
+  const obs=new MutationObserver(mutations=>{if(mutations.every(m=>m.target?.closest?.(".td-map-cluster-layer")))return;schedule();});
   function start(){obs.observe(document.body,{childList:true,subtree:true});injectStyles();schedule();setInterval(()=>{if(document.querySelector("#td-map.td-map"))install();},800);window.addEventListener("resize",schedule);window.addEventListener("td:retailer-prices-applied",schedule);window.addEventListener("td:selected-store-point-current",schedule);window.addEventListener("td:selected-store-point-cleared",schedule);}
   window.TDMapClusterPriority={refresh:schedule};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
