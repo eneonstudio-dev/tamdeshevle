@@ -1,0 +1,9 @@
+{
+  "retailer": "pyat",
+  "store_id": "pyat_msk_catalog",
+  "city": "msk",
+  "region": "Москва",
+  "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+  "timeout_ms": 20000,
+  "min_products": 100
+}
