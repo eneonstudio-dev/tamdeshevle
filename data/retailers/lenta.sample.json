@@ -2,41 +2,42 @@
   "schema": "tamdeshevle.retailer-snapshot.v1",
   "retailer": "lenta",
   "city": "msk",
-  "store_id": "lenta",
-  "channel": "delivery_catalog",
-  "checked_at": "2026-09-10T00:20:00Z",
-  "method": "public_catalog_index",
-  "source_url": "https://lenta.com/catalog/128/",
+  "store_id": "lenta_msk_catalog",
+  "channel": "regional_catalog",
+  "checked_at": "2026-09-10T10:05:00+03:00",
+  "method": "aggregator_catalog_snapshot",
+  "source_url": "https://mos.proshoper.ru/actions/lenta/",
   "scope_verified": false,
   "catalog_context": {
-    "scope": "city_or_session_catalog",
-    "warning": "Public catalog prices were visible, but no proof was found that they were bound to store 0293. Runtime must not apply this overlay until store selection is verified."
-  },
-  "store_context": {
-    "store_code": "0293",
-    "address": "Москва, Дмитровское шоссе, д. 116, Д",
-    "source_url": "https://lenta.com/cities/msk/0293/"
+    "type": "regional_promotional_catalog",
+    "region": "Москва",
+    "valid_from": "2026-08-20",
+    "valid_to": "2026-09-16",
+    "location_verified": true,
+    "store_verified": false,
+    "price_scope": "regional_catalog",
+    "note": "Региональный каталог Ленты для Москвы; цена не подтверждена для конкретного магазина."
   },
   "rows": [
     {
-      "id": "lenta-milk-25-900",
-      "name": "Молоко пастеризованное ЛЕНТА 2,5%, без змж 900мл",
-      "brand": "ЛЕНТА",
-      "price": 75.99,
-      "old_price": 92.59,
+      "id": "lenta-ekoniva-milk-25-1000",
+      "name": "Молоко пастеризованное ЭКОНИВА 2,5%, без змж 1000мл",
+      "brand": "ЭКОНИВА",
+      "price": 99.99,
+      "old_price": 115.79,
       "promo": true,
       "availability": "В корзину",
-      "url": "https://lenta.com/catalog/128/"
+      "url": "https://lenta.com/catalog/moloko-pasterizovannoe-25733/?filter.zhirnost-66=-6846549"
     },
     {
-      "id": "lenta-smetana-20-300",
-      "name": "Сметана ДОМИК В ДЕРЕВНЕ 20%, без змж 300г",
-      "brand": "ДОМИК В ДЕРЕВНЕ",
+      "id": "543168",
+      "name": "Макароны BARILLA Spaghettoni №7, 450г",
+      "brand": "BARILLA",
       "price": 89.99,
-      "old_price": 110.59,
+      "old_price": 115.79,
       "promo": true,
       "availability": "В корзину",
-      "url": "https://lenta.com/catalog/molochnye-produkty-yajjco-3/"
+      "url": "https://lenta.com/product/makarony-spaghettoni-n7-rossiya-450g-543168/"
     }
   ]
 }
