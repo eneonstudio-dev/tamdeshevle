@@ -32,7 +32,7 @@ jobs:
           python-version: '3.12'
       - name: Install Pyaterochka browser runtime
         run: |
-          pip install pyaterochka_api "camoufox[geoip]"
+          pip install pytest pyaterochka_api "camoufox[geoip]"
           python -m camoufox fetch
       - name: Collect and validate one-store Pyaterochka catalog
         id: refresh
