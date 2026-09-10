@@ -17,6 +17,7 @@ on:
       - chatgpt/pyat-store-scoped-collector
       - chatgpt/retailer-product-images
       - chatgpt/data-freshness-health
+      - chatgpt/geo-lenta
 
 permissions:
   contents: read
@@ -45,6 +46,8 @@ jobs:
         run: node scripts/test-pyat-adapter.mjs
       - name: Test Pyaterochka collector
         run: node scripts/test-pyat-collector.mjs
+      - name: Test Lenta adapter
+        run: node scripts/test-lenta-adapter.mjs
       - name: Test SKU matcher
         run: node scripts/test-sku-matcher.mjs
       - name: Test retailer overlay pipeline
@@ -57,6 +60,8 @@ jobs:
           diff -u data/retailers/magnit.overlay.json /tmp/magnit.overlay.json
           node scripts/build-retailer-overlay.mjs data/retailers/pyat.sample.json /tmp/pyat.overlay.json
           diff -u data/retailers/pyat.overlay.json /tmp/pyat.overlay.json
+          node scripts/build-retailer-overlay.mjs data/retailers/lenta.sample.json /tmp/lenta.overlay.json
+          diff -u data/retailers/lenta.overlay.json /tmp/lenta.overlay.json
       - name: Check JavaScript syntax
         run: |
           node --check app.js
@@ -69,6 +74,7 @@ jobs:
           node --check data-health-ui.js
           node --check price-provenance-ui.js
           node --check product-ui.js
+          node --check geo-store-map.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
@@ -77,6 +83,7 @@ jobs:
           node --check retailers/magnit-collector.mjs
           node --check retailers/pyat.mjs
           node --check retailers/pyat-collector.mjs
+          node --check retailers/lenta.mjs
           node --check retailers/sku-matcher.mjs
           node --check retailers/overlay-builder.mjs
           node --check scripts/build-retailer-overlay.mjs
@@ -88,6 +95,7 @@ jobs:
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
           node --check scripts/test-pyat-collector.mjs
+          node --check scripts/test-lenta-adapter.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
