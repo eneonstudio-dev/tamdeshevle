@@ -11,5 +11,8 @@ assert.match(src,/Настройки/);
 assert.match(src,/td:auth-requested/);
 assert.match(src,/migrationKeys/);
 assert.match(src,/Гостевой режим/);
+assert.match(src,/Сохранить в облако/);
+assert.match(src,/Восстановить из облака/);
+assert.doesNotMatch(src,/Следующий backend-слой/);
 assert.ok(html.indexOf('profile-basket.js') < html.indexOf('account-hub.js'));
 console.log('Account hub checks passed: swipe tabs, auth contract and local migration are wired.');
