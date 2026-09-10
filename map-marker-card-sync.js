@@ -1,6 +1,5 @@
 (function(){
   "use strict";
-  let suppressScrollSyncUntil=0;
 
   function markers(){return [...document.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
   function cards(){return [...document.querySelectorAll(".td-map-store")];}
@@ -16,40 +15,30 @@
   function centerCard(index){
     const list=document.querySelector(".td-map-list"),card=cards()[index];
     if(!list||!card||card.hidden||getComputedStyle(card).display==="none")return false;
-    const top=card.offsetTop-(list.clientHeight-card.offsetHeight)/2;
-    suppressScrollSyncUntil=performance.now()+520;
-    list.scrollTo({top:Math.max(0,top),behavior:reducedMotion()?"auto":"smooth"});
+    const lr=list.getBoundingClientRect(),cr=card.getBoundingClientRect();
+    const delta=(cr.top+cr.height/2)-(lr.top+lr.height/2);
+    const top=Math.max(0,list.scrollTop+delta);
+    list.scrollTo({top,behavior:reducedMotion()?"auto":"smooth"});
     setActive(index);
+    card.dataset.markerFocused="true";
+    setTimeout(()=>card.removeAttribute("data-marker-focused"),650);
     return true;
   }
 
   function markerIndex(marker){return markers().indexOf(marker);}
-  function install(){
-    document.addEventListener("click",e=>{
-      const marker=e.target.closest?.("img.leaflet-marker-icon.td-themed-marker");
-      if(!marker||marker.style.pointerEvents==="none")return;
-      const index=markerIndex(marker);if(index<0)return;
-      requestAnimationFrame(()=>centerCard(index));
-    },true);
+  function onMarker(marker){
+    if(!marker||marker.style.pointerEvents==="none"||marker.style.opacity==="0")return false;
+    const index=markerIndex(marker);if(index<0)return false;
+    requestAnimationFrame(()=>centerCard(index));
+    return true;
+  }
 
+  function install(){
+    document.addEventListener("click",e=>onMarker(e.target.closest?.("img.leaflet-marker-icon.td-themed-marker")),true);
     document.addEventListener("keydown",e=>{
       if(e.key!=="Enter"&&e.key!==" ")return;
-      const marker=e.target.closest?.("img.leaflet-marker-icon.td-themed-marker");
-      if(!marker)return;
-      const index=markerIndex(marker);if(index<0)return;
-      requestAnimationFrame(()=>centerCard(index));
+      onMarker(e.target.closest?.("img.leaflet-marker-icon.td-themed-marker"));
     },true);
-
-    const listObserver=new MutationObserver(()=>{
-      const list=document.querySelector(".td-map-list");
-      if(list&&!list.dataset.tdMarkerCardSync){
-        list.dataset.tdMarkerCardSync="1";
-        list.addEventListener("scroll",()=>{
-          if(performance.now()<suppressScrollSyncUntil)return;
-        },{passive:true});
-      }
-    });
-    listObserver.observe(document.body,{childList:true,subtree:true});
   }
 
   window.TDMapMarkerCardSync={center:centerCard};
