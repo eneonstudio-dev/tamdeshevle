@@ -113,7 +113,8 @@
         <div><b>79</b><span>товаров в базовом каталоге</span></div>
         <div><b>7</b><span>сетей в сравнении</span></div>
         <div><b>✓</b><span>в рейтинг входят только подтверждённые цены</span></div>
-      </div>`;
+      </div>
+      ${typeof window.saleEasterEgg === "function" ? window.saleEasterEgg() : ""}`;
   }
 
   function dress() {
