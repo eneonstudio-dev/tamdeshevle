@@ -14,17 +14,26 @@
   }
   function channelFor(overlay){return overlay&&overlay.channel==="delivery_catalog"?"bring":"shelf";}
   function quote(point){const match=resolve(point);if(!match.verified)return{verified:false,text:"цена точки пока не подтверждена",match};const o=match.overlay;if(!o.usable)return{verified:false,text:"точка привязана, но цены сейчас недоступны",match};const count=Number(o.count||0);return{verified:count>0,text:count>0?`точка привязана · ${count} подтвержд. цен`:`точка привязана · ждём цены`,match};}
+  function verifiedLines(products,cart,priceStoreId,channel){
+    const entries=window.TDCompare&&typeof window.TDCompare.cartEntries==="function"?window.TDCompare.cartEntries(products,cart):products.filter(p=>Number(cart&&cart[p.id])>0);
+    return entries.map(product=>{
+      const qty=Number(cart[product.id]||0),meta=window.TDCompare&&typeof window.TDCompare.priceMeta==="function"?window.TDCompare.priceMeta(product,priceStoreId,channel):null;
+      const verified=Boolean(window.TDCompare&&typeof window.TDCompare.isVerifiedPrice==="function"&&window.TDCompare.isVerifiedPrice(product,priceStoreId,channel));
+      const price=verified&&window.TDCompare&&typeof window.TDCompare.unitPrice==="function"?window.TDCompare.unitPrice(product,priceStoreId,channel):null;
+      return{id:product.id,name:product.name||product.id,pack:product.pack||"",qty,verified,price:Number.isFinite(price)?price:null,subtotal:Number.isFinite(price)?price*qty:null,meta:verified&&meta?{checkedAt:meta.checkedAt||null,freshness:meta.freshness||null,sourceUrl:meta.sourceUrl||null,retailerName:meta.retailerName||null,retailerProductId:meta.retailerProductId||null,promo:Boolean(meta.promo),oldPrice:Number.isFinite(meta.oldPrice)?meta.oldPrice:null}:null};
+    });
+  }
   function basket(point,options){
     const opts=options||{},match=resolve(point),products=opts.products||[],cart=opts.cart||{};
-    const result={verified:false,match,channel:null,quote:null,total:null,partialTotal:null,coveredItems:0,totalItems:0,coverage:0,savings:null,referenceTotal:null};
-    if(!match.verified||!match.overlay||!match.overlay.usable||!window.TDCompare||typeof window.TDCompare.basketQuote!=="function")return result;
-    const channel=channelFor(match.overlay),q=window.TDCompare.basketQuote(products,cart,match.priceStoreId,channel);
-    Object.assign(result,{verified:q.verifiedComplete,channel,quote:q,total:q.verifiedComplete?q.goods:null,partialTotal:q.partialGoods,coveredItems:q.verifiedItems,totalItems:q.totalItems,coverage:q.verifiedCoverage});
+    const result={verified:false,match,channel:null,quote:null,total:null,partialTotal:null,coveredItems:0,totalItems:0,coverage:0,savings:null,referenceTotal:null,items:[]};
+    if(!match.verified||!match.overlay||!match.overlay.usable||!window.TDCompare)return result;
+    const channel=channelFor(match.overlay),items=verifiedLines(products,cart,match.priceStoreId,channel),coveredItems=items.filter(x=>x.verified).length,totalItems=items.length,partialTotal=items.reduce((sum,x)=>sum+(Number.isFinite(x.subtotal)?x.subtotal:0),0),complete=totalItems===coveredItems;
+    Object.assign(result,{verified:complete,channel,total:complete?partialTotal:null,partialTotal,coveredItems,totalItems,coverage:totalItems?coveredItems/totalItems:1,items});
     const referenceStoreId=opts.referenceStoreId;
-    if(referenceStoreId&&q.verifiedComplete){
+    if(referenceStoreId&&complete){
       const stores=opts.stores||[],referenceStore=stores.find(s=>s.id===referenceStoreId),referenceChannel=referenceStore&&window.TDCompare.defaultChannel?window.TDCompare.defaultChannel(referenceStore):"shelf";
       const rq=window.TDCompare.basketQuote(products,cart,referenceStoreId,referenceChannel);
-      if(rq.verifiedComplete){result.referenceTotal=rq.goods;result.savings=rq.goods-q.goods;}
+      if(rq.verifiedComplete){result.referenceTotal=rq.goods;result.savings=rq.goods-partialTotal;}
     }
     return result;
   }
