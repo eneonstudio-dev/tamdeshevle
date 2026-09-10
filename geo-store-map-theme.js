@@ -21,9 +21,12 @@
       .td-map-head span{margin-top:2px;line-height:1.35}
       .td-map{height:48vh;min-height:310px;border-bottom:1px solid rgba(22,20,16,.08)}
       .td-map-list{padding:14px 14px 30px}
-      .td-map-store{position:relative;border:1px solid rgba(22,20,16,.06);box-shadow:0 10px 24px rgba(22,20,16,.06);padding:13px 13px 13px 58px;min-height:86px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+      .td-map-store{position:relative;border:1px solid rgba(22,20,16,.06);box-shadow:0 10px 24px rgba(22,20,16,.06);padding:13px 13px 13px 58px;min-height:86px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;cursor:pointer;outline:none}
       .td-map-store:active{transform:scale(.992)}
+      .td-map-store:focus-visible{box-shadow:0 0 0 3px rgba(15,123,74,.20),0 10px 24px rgba(22,20,16,.06)}
+      .td-map-store[data-active="true"]{border-color:#0f7b4a;background:#f4fbf6;box-shadow:0 14px 30px rgba(15,123,74,.14)}
       .td-map-store[data-best="true"]{border-color:rgba(15,123,74,.28);box-shadow:0 12px 28px rgba(15,123,74,.10)}
+      .td-map-store[data-active="true"][data-best="true"]{border-color:#0f7b4a;box-shadow:0 14px 30px rgba(15,123,74,.16)}
       .td-map-store-icon{position:absolute;left:13px;top:13px;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;font-size:13px;font-weight:900;box-shadow:0 5px 14px rgba(22,20,16,.12)}
       .td-map-store-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
       .td-map-store-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 7px;background:#f2efe8;color:#665f54;font-size:9px;font-weight:900;line-height:1}
@@ -41,9 +44,10 @@
       .leaflet-control-zoom a{border:0!important;color:#161410!important;font-weight:900!important}
       .leaflet-popup-content-wrapper{border-radius:16px;box-shadow:0 12px 30px rgba(22,20,16,.16)}
       .leaflet-popup-content{font-family:Manrope,system-ui,sans-serif;font-size:12px;line-height:1.45;margin:12px 14px}
-      .td-themed-marker{filter:drop-shadow(0 4px 6px rgba(15,123,74,.22))}
+      .td-themed-marker{filter:drop-shadow(0 4px 6px rgba(15,123,74,.22));transition:transform .16s ease,filter .16s ease}
+      .td-themed-marker[data-active="true"]{transform:scale(1.18);filter:drop-shadow(0 6px 10px rgba(15,123,74,.36))}
       @media (min-width:700px){.td-map-sheet{left:50%;right:auto;width:min(680px,100%);transform:translateX(-50%);box-shadow:0 0 70px rgba(22,20,16,.22)}}
-      @media (prefers-reduced-motion:reduce){.td-map-store{transition:none}}
+      @media (prefers-reduced-motion:reduce){.td-map-store,.td-themed-marker{transition:none}}
     `;
     document.head.appendChild(s);
   }
@@ -51,6 +55,21 @@
   function svgMarker(){
     const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44"><path fill="#0f7b4a" d="M16 1C7.7 1 1 7.7 1 16c0 10.9 15 27 15 27s15-16.1 15-27C31 7.7 24.3 1 16 1z"/><circle cx="16" cy="16" r="9" fill="#fff"/><path fill="#0f7b4a" d="M12 11h8v3h-2.4c1.8.8 2.9 2.3 2.9 4.4 0 3-2.2 5-5.7 5H12v-3h2.7c1.7 0 2.6-.7 2.6-2s-.9-2-2.6-2H12V11z"/></svg>`;
     return "data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(svg);
+  }
+
+  function storeMarkers(root=document){return [...root.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
+  function storeCards(root=document){return [...root.querySelectorAll(".td-map-store")];}
+
+  function setActive(index,{scroll=false}={}){
+    const cards=storeCards(),markers=storeMarkers();
+    cards.forEach((card,i)=>card.dataset.active=i===index?"true":"false");
+    markers.forEach((marker,i)=>marker.dataset.active=i===index?"true":"false");
+    if(scroll&&cards[index])cards[index].scrollIntoView({behavior:"smooth",block:"nearest"});
+  }
+
+  function openCardDetails(index){
+    const point=window.TDGeo&&Array.isArray(TDGeo.nearby)?TDGeo.nearby[index]:window.TDGeo?.nearby?.[index];
+    if(point&&window.TDGeo&&typeof TDGeo.openPointDetails==="function")TDGeo.openPointDetails(point);
   }
 
   function themeMarkers(root=document){
@@ -63,44 +82,67 @@
       img.style.marginLeft="-16px";
       img.style.marginTop="-44px";
     });
+    storeMarkers(root).forEach((marker,index)=>{
+      if(marker.dataset.tdLinked)return;
+      marker.dataset.tdLinked="1";
+      marker.addEventListener("click",()=>setActive(index,{scroll:true}));
+    });
   }
 
   function decorateCards(root=document){
-    const cards=[...root.querySelectorAll(".td-map-store")];
+    const cards=storeCards(root);
     cards.forEach((card,index)=>{
-      if(card.dataset.tdDecorated)return;
-      card.dataset.tdDecorated="1";
-      const title=card.querySelector("b")?.textContent?.trim()||"Магазин";
-      const meta=CHAIN_META[title]||{short:"₽",tone:"#0f7b4a"};
-      const icon=document.createElement("span");
-      icon.className="td-map-store-icon";
-      icon.textContent=meta.short;
-      icon.style.background=meta.tone;
-      card.appendChild(icon);
+      if(!card.dataset.tdDecorated){
+        card.dataset.tdDecorated="1";
+        card.tabIndex=0;
+        card.setAttribute("role","button");
+        const title=card.querySelector("b")?.textContent?.trim()||"Магазин";
+        card.setAttribute("aria-label",`Открыть ${title}`);
+        const meta=CHAIN_META[title]||{short:"₽",tone:"#0f7b4a"};
+        const icon=document.createElement("span");
+        icon.className="td-map-store-icon";
+        icon.textContent=meta.short;
+        icon.style.background=meta.tone;
+        card.appendChild(icon);
 
-      const badges=document.createElement("div");
-      badges.className="td-map-store-badges";
-      if(index===0){
-        const near=document.createElement("span");
-        near.className="td-map-store-badge near";
-        near.textContent="ближе всего";
-        badges.appendChild(near);
+        const badges=document.createElement("div");
+        badges.className="td-map-store-badges";
+        if(index===0){
+          const near=document.createElement("span");
+          near.className="td-map-store-badge near";
+          near.textContent="ближе всего";
+          badges.appendChild(near);
+        }
+        const hasSaving=Boolean(card.querySelector(".td-map-basket .save"));
+        const hasVerified=Boolean(card.querySelector(".td-map-price-state.ok"));
+        if(hasSaving){
+          card.dataset.best="true";
+          const best=document.createElement("span");
+          best.className="td-map-store-badge best";
+          best.textContent="выгоднее";
+          badges.appendChild(best);
+        }else if(hasVerified){
+          const verified=document.createElement("span");
+          verified.className="td-map-store-badge near";
+          verified.textContent="цена подтверждена";
+          badges.appendChild(verified);
+        }
+        if(badges.childNodes.length)card.querySelector(".td-map-store-main")?.appendChild(badges);
       }
-      const hasSaving=Boolean(card.querySelector(".td-map-basket .save"));
-      const hasVerified=Boolean(card.querySelector(".td-map-price-state.ok"));
-      if(hasSaving){
-        card.dataset.best="true";
-        const best=document.createElement("span");
-        best.className="td-map-store-badge best";
-        best.textContent="выгоднее";
-        badges.appendChild(best);
-      }else if(hasVerified){
-        const verified=document.createElement("span");
-        verified.className="td-map-store-badge near";
-        verified.textContent="цена подтверждена";
-        badges.appendChild(verified);
+      if(!card.dataset.tdLinked){
+        card.dataset.tdLinked="1";
+        card.addEventListener("click",e=>{
+          if(e.target.closest("button,a"))return;
+          setActive(index);
+          openCardDetails(index);
+        });
+        card.addEventListener("keydown",e=>{
+          if(e.key!=="Enter"&&e.key!==" ")return;
+          e.preventDefault();
+          setActive(index);
+          openCardDetails(index);
+        });
       }
-      if(badges.childNodes.length)card.querySelector(".td-map-store-main")?.appendChild(badges);
     });
   }
 
