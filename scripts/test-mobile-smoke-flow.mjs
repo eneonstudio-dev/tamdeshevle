@@ -6,6 +6,7 @@ const assert = (condition, message) => { if (!condition) throw new Error(message
 const html = read("index.html");
 const geo = read("geo-store-map.js");
 const bridge = read("store-id-bridge.js");
+const cluster = read("map-cluster-priority.js");
 const selected = read("selected-store-ui.js");
 const oneTap = read("map-one-tap.js");
 const bai = read("bai-assistant.js");
@@ -15,6 +16,7 @@ const order = [
   "store-id-bridge.js",
   "geo-store-map.js",
   "geo-store-map-theme.js",
+  "map-cluster-priority.js",
   "selected-store-ui.js",
   "map-one-tap.js",
   "bai-assistant.js",
@@ -27,6 +29,11 @@ assert(geo.includes("td:selected-store-point"), "geo flow must persist an exact 
 assert(geo.includes("data-use-point"), "geo details must keep a verified point selection action");
 assert(bridge.includes("verified:true") && bridge.includes("verified:false"), "store bridge must gate verified and unverified points");
 assert(bridge.includes("complete?partialTotal:null"), "point basket must not expose a full total for partial coverage");
+
+assert(cluster.includes("CLUSTER_DISTANCE"), "map clustering must keep an explicit visual distance threshold");
+assert(cluster.includes("q?.basket?.verified") && cluster.includes("q?.match?.verified"), "map priority must only promote verified price/store states");
+assert(cluster.includes("selected?100000") || cluster.includes("selected?100000:0"), "selected exact point must outrank cluster alternatives");
+assert(cluster.includes("td-map-cluster"), "overlapping map points must expose an expandable cluster control");
 
 assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
@@ -43,4 +50,4 @@ assert(layers.includes("data-ui-parked"), "Bay must be parked while map overlays
 assert(layers.includes("app.inert=blocked"), "underlying app must be inert while an overlay is active when supported");
 assert(bai.includes("bai-assistant"), "Bay assistant must remain independently mountable");
 
-console.log("Mobile smoke flow checks passed: exact store selection, trust gates, compare routing, overlay cleanup and Bay coordination are wired.");
+console.log("Mobile smoke flow checks passed: exact store selection, clustering, trust gates, compare routing, overlay cleanup and Bay coordination are wired.");
