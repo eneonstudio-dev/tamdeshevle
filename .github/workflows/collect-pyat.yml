@@ -27,15 +27,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install browser runtime
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Camoufox runtime
         run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
+          pip install "camoufox[geoip]"
+          python -m camoufox fetch
       - name: Collect and validate one-store Pyaterochka catalog
         id: refresh
         continue-on-error: true
         env:
-          PYAT_BROWSER_SESSION: "1"
+          PYAT_CAMOUFOX: "1"
         run: |
           set -e
           node scripts/collect-pyat.mjs
