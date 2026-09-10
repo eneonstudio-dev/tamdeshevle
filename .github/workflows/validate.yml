@@ -127,6 +127,7 @@ jobs:
           node --check store-id-bridge.js
           node --check geo-store-map.js
           node --check geo-store-map-theme.js
+          node --check map-cluster-priority.js
           node --check selected-store-ui.js
           node --check map-one-tap.js
           node --check ui-layer-coordinator.js
