@@ -5,10 +5,12 @@ const MONTHS = {
 
 function decodeHtml(value) {
   return String(value || "")
-    .replace(/&nbsp;|&#160;/gi, " ")
-    .replace(/&quot;|&#34;/gi, '"')
-    .replace(/&apos;|&#39;/gi, "'")
-    .replace(/&amp;|&#38;/gi, "&")
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(Number.parseInt(n, 16)))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">");
 }
@@ -44,7 +46,7 @@ function slugify(text, index) {
 
 function parsePeriod(html) {
   const text = plainText(html).toLowerCase();
-  const match = text.match(/\bс\s+(\d{1,2})(?:\s+([а-яё]+))?\s+по\s+(\d{1,2})\s+([а-яё]+)\s+(20\d{2})\b/i);
+  const match = text.match(/с\s+(\d{1,2})(?:\s+([а-яё]+))?\s+по\s+(\d{1,2})\s+([а-яё]+)\s+(20\d{2})/i);
   if (!match) return { valid_from: null, valid_to: null };
   const [, fromDay, explicitFromMonth, toDay, toMonth, yearText] = match;
   const endMonth = MONTHS[toMonth];
