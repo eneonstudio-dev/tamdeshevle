@@ -16,7 +16,15 @@
 
   function isVerifiedPrice(product, storeId, channel) {
     const meta = priceMeta(product, storeId, channel);
-    return Boolean(meta && meta.kind === "retailer" && meta.freshness !== "expired" && meta.freshness !== "invalid");
+    if (!meta || meta.freshness === "expired" || meta.freshness === "invalid") return false;
+    if (meta.kind === "retailer") return true;
+    if (meta.kind !== "receipt") return false;
+    return Boolean(
+      meta.trust === "verified_receipt" &&
+      meta.scope_verified === true &&
+      meta.proof_verified === true &&
+      meta.identity_verified === true
+    );
   }
 
   function unitPrice(product, storeId, channel) {
@@ -120,7 +128,7 @@
         total,
         complete,
         verifiedComplete,
-        // Only a complete retailer-backed basket may participate in “where is cheaper”.
+        // Only a complete price set that passes the explicit trust gate may rank.
         rankable: verifiedComplete,
         coveredItems: quote.coveredItems,
         verifiedItems: quote.verifiedItems,
