@@ -66,6 +66,7 @@ const storeBy = id => STORES.find(s => s.id === id);
 const cartEntries = () => TDCompare.cartEntries(PRODUCTS, state.cart || {});
 const cartCount = () => cartEntries().reduce((a, p) => a + Number(state.cart[p.id] || 0), 0);
 const defaultChannel = id => TDCompare.defaultChannel(storeBy(id));
+const selectedChannel = store => state.mode === "delivery" && store && store.has_bring ? "bring" : defaultChannel(store.id);
 function priceOf(p, storeId, channel) {
   return TDCompare.unitPrice(p, storeId, channel || defaultChannel(storeId));
 }
@@ -141,7 +142,7 @@ function screenCatalog() {
   const s = storeBy(state.storeId);
   const q = state.q.trim().toLowerCase();
   const items = PRODUCTS.filter(p => !q || p.name.toLowerCase().includes(q));
-  const ch = defaultChannel(s.id);
+  const ch = selectedChannel(s);
   return `${header(s.name, "Клади товары, сравнение потом", "stores")}
     <div class="wrap">
       <input class="search" placeholder="Молоко, курица, гречка" value="${state.q}" oninput="state.q=this.value;render()" />
@@ -154,7 +155,7 @@ function screenCatalog() {
 }
 function screenCart() {
   const s = storeBy(state.storeId);
-  const ch = defaultChannel(s.id);
+  const ch = selectedChannel(s);
   const quote=TDCompare.basketQuote(PRODUCTS,state.cart||{},s.id,ch),fee=TDCompare.feeQuote(s,ch);
   const total=quote.complete&&fee.known?quote.goods+fee.value:null,verified=quote.verifiedComplete&&fee.known;
   const best = scenarios().find(x => !x.same && x.rankable && x.save > 0);
