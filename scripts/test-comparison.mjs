@@ -32,7 +32,7 @@ assert(TDCompare.goodsTotal(products, cart, "shop", "shelf") === 240, "goods tot
 
 const any = TDCompare.compare({ stores, products, cart, city: "msk", mode: "any", originStoreId: "shop" });
 assert(any.length === 3, "any mode should include three stores");
-assert(any[0].id === "hyper" && any[0].total === 210, "any mode ranking failed");
+assert(any.every(row => row.rankable === false), "educational baskets must stay outside the ranking");
 assert(any.find(row => row.id === "delivery").total === 350, "delivery fee in any mode failed");
 assert(any.find(row => row.id === "hyper").save === null, "estimated prices must not claim verified savings");
 assert(any.find(row => row.id === "hyper").indicativeSave === 30, "indicative savings should remain available");
@@ -50,6 +50,15 @@ const verifiedHyper = verified.find(row => row.id === "hyper");
 assert(verifiedHyper.verifiedComplete === true, "fresh/stale retailer-backed basket should be verified complete");
 assert(verifiedHyper.verifiedItems === 2 && verifiedHyper.estimatedItems === 0, "verified coverage counters failed");
 assert(verifiedHyper.save === 30, "fully verified basket may claim savings");
+assert(verified.every(row => row.rankable), "fully verified baskets may enter the ranking");
+
+const mixedProducts = verifiedProducts.map(product => ({
+  ...product,
+  priceMeta: { shop: product.priceMeta.shop }
+}));
+const mixed = TDCompare.compare({ stores: stores.slice(0, 2), products: mixedProducts, cart, city: "msk", mode: "walk", originStoreId: "shop" });
+assert(mixed[0].id === "shop" && mixed[0].rankable, "verified basket must rank before a cheaper educational basket");
+assert(mixed.find(row => row.id === "hyper").rankable === false, "unverified basket must not enter the ranking");
 
 const walk = TDCompare.compare({ stores, products, cart, city: "msk", mode: "walk", originStoreId: "shop" });
 assert(walk.length === 2, "walk mode should exclude delivery stores");

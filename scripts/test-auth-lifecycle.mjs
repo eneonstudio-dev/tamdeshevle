@@ -29,11 +29,11 @@ await Promise.all([a.window.TDAuth.init(),a.window.TDAuth.init()]);assert.equal(
 a.fire();assert.equal(a.writes.length,0,'Login must never overwrite cloud data');
 a.window.state={cart:{milk:3,bread:2},city:'spb',storeId:'magnit',address:'Тестовый адрес'};
 a.storage.set('td:profile',JSON.stringify({name:'Тест'}));
-a.storage.set('td:basket-history',JSON.stringify([{date:'2026-09-10',city:'spb',cart:{milk:3},total:300,items:3}]));
+a.storage.set('td:basket-history',JSON.stringify([{date:'2026-09-09',city:'spb',cart:{milk:9},total:900,items:9},{date:'2026-09-10',city:'spb',cart:{milk:3},total:300,items:3,verified:true}]));
 await a.window.TDAuth.syncLocalToCloud();assert.equal(a.window.TDAuth.cloudStatus().status,'saved');
-assert.deepEqual(JSON.parse(JSON.stringify(a.rows.baskets[0].items)),{milk:3,bread:2});assert.equal(a.rows.addresses.length,1);assert.equal(a.rows.basket_history.length,1);
+assert.deepEqual(JSON.parse(JSON.stringify(a.rows.baskets[0].items)),{milk:3,bread:2});assert.equal(a.rows.addresses.length,1);assert.equal(a.rows.basket_history.length,1);assert.equal(a.rows.basket_history[0].day,'2026-09-10');
 const b=await setup({rows:a.rows});b.window.state={cart:{eggs:99},city:'msk'};
-await b.window.TDAuth.hydrateLocalFromCloud();assert.deepEqual(JSON.parse(JSON.stringify(b.window.state.cart)),{milk:3,bread:2});assert.equal(b.window.state.city,'spb');assert.equal(b.rendered(),1);assert.equal(b.writes.length,0);assert.ok(b.storage.has('td:before-cloud-restore'));
+await b.window.TDAuth.hydrateLocalFromCloud();assert.deepEqual(JSON.parse(JSON.stringify(b.window.state.cart)),{milk:3,bread:2});assert.equal(b.window.state.city,'spb');assert.equal(b.rendered(),1);assert.equal(b.writes.length,0);assert.ok(b.storage.has('td:before-cloud-restore'));assert.equal(JSON.parse(b.storage.get('td:basket-history'))[0].verified,true);
 a.window.state.cart={};await a.window.TDAuth.syncLocalToCloud();assert.equal(Object.keys(a.rows.baskets[0].items).length,0,'Empty basket must save');
 const c=await setup({fail:true});await assert.rejects(c.window.TDAuth.syncLocalToCloud());assert.equal(c.window.TDAuth.cloudStatus().status,'error');assert.equal(c.events.some(x=>x.type==='td:cloud-synced'),false);
 const d=await setup({sdkFailure:true});await d.window.TDAuth.init();assert.equal(d.created(),1);

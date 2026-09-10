@@ -43,7 +43,7 @@
     const basketId=stableUuid(uid,"a"),cart=td.cart||{};
     await upsert("baskets",{id:basketId,user_id:uid,name:"Моя корзина",city:td.city||"msk",store_id:td.storeId||null,items:cart,is_default:true,updated_at:new Date().toISOString()},"id");assertUser(uid);
     if(td.address){await upsert("addresses",{id:stableUuid(uid,"b"),user_id:uid,label:"Основной",address:String(td.address).slice(0,240),city:td.city||"msk",is_default:true,updated_at:new Date().toISOString()},"id");assertUser(uid);}
-    for(const h of hist.slice(-90)){if(!h||!h.date)continue;assertUser(uid);await upsert("basket_history",{user_id:uid,day:h.date,city:h.city||"msk",store_id:h.storeId||null,total:Math.max(0,Math.round(Number(h.total)||0)),item_count:Math.max(0,Math.round(Number(h.items)||0)),items:h.cart||{},recorded_at:h.at||new Date().toISOString()},"user_id,day,city");}
+    for(const h of hist.filter(x=>x&&x.verified===true).slice(-90)){if(!h.date)continue;assertUser(uid);await upsert("basket_history",{user_id:uid,day:h.date,city:h.city||"msk",store_id:h.storeId||null,total:Math.max(0,Math.round(Number(h.total)||0)),item_count:Math.max(0,Math.round(Number(h.items)||0)),items:h.cart||{},recorded_at:h.at||new Date().toISOString()},"user_id,day,city");}
     const cloud=await cloudSummary();assertUser(uid);
     const saved=cloud?.baskets.find(b=>b.id===basketId);
     const sameCart=(a,b)=>Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>a[k]===b[k]);
@@ -73,7 +73,7 @@
     if(!write("td:before-cloud-restore",{td:window.state||td,profile:localProfile,history:read("td:basket-history",[])}))throw new Error("LOCAL_STORAGE_FAILED");
     if(!write("td",restored))throw new Error("LOCAL_STORAGE_FAILED");
     if(cloud.profile&&!write("td:profile",{...localProfile,name:cloud.profile.display_name}))throw new Error("LOCAL_STORAGE_FAILED");
-    if(!write("td:basket-history",cloud.history.slice().reverse().map(h=>({date:h.day,city:h.city,storeId:h.store_id,total:h.total,items:h.item_count,cart:h.items||{},at:h.recorded_at}))))throw new Error("LOCAL_STORAGE_FAILED");
+    if(!write("td:basket-history",cloud.history.slice().reverse().map(h=>({date:h.day,city:h.city,storeId:h.store_id,total:h.total,items:h.item_count,cart:h.items||{},at:h.recorded_at,verified:true}))))throw new Error("LOCAL_STORAGE_FAILED");
     if(window.state)Object.assign(window.state,{cart:restored.cart,city:restored.city,storeId:restored.storeId,address:restored.address});
     if(typeof window.render==="function")window.render();
     setCloudState("loaded","Корзина восстановлена из облака");emit("td:cloud-hydrated",{userId:uid});return true;

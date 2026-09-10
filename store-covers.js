@@ -93,9 +93,9 @@
         <div class="home-title">Одна корзина.<br><em>Разные цены.</em></div>
         <div class="home-copy">Собери привычные продукты — покажем, где тот же набор выходит дешевле: в магазине или с доставкой.</div>
         <div class="home-price-cloud" aria-hidden="true">
-          <span class="home-price">молоко 72 ₽</span>
-          <span class="home-price">яйца 115 ₽</span>
-          <span class="home-price">−187 ₽ корзина</span>
+          <span class="home-price">молоко ✓</span>
+          <span class="home-price">яйца ✓</span>
+          <span class="home-price">корзина целиком</span>
         </div>
       </section>
       <div class="home-actions">
