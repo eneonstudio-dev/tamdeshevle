@@ -69,6 +69,11 @@ const defaultChannel = id => TDCompare.defaultChannel(storeBy(id));
 function priceOf(p, storeId, channel) {
   return TDCompare.unitPrice(p, storeId, channel || defaultChannel(storeId));
 }
+function displayPrice(p, storeId, channel, quantity = 1) {
+  const slot = channel || defaultChannel(storeId);
+  const verified = Boolean(window.TDPriceMeta && TDPriceMeta.get(p.id, storeId, slot));
+  return `${verified ? "" : "≈ "}${priceOf(p, storeId, slot) * quantity} ₽`;
+}
 const sumIn = (id, channel) => TDCompare.goodsTotal(PRODUCTS, state.cart || {}, id, channel || defaultChannel(id));
 function scenarios() {
   return TDCompare.compare({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city, mode: state.mode, originStoreId: state.storeId });
@@ -142,7 +147,7 @@ function screenCatalog() {
       <input class="search" placeholder="Молоко, курица, гречка" value="${state.q}" oninput="state.q=this.value;render()" />
       ${items.map(p => `<div class="item">
         <div class="thumb">${p.emoji}</div>
-        <div><div class="title">${p.name}</div><div class="pack">${p.pack}</div><div class="price">${priceOf(p, s.id, ch)} ₽</div></div>
+        <div><div class="title">${p.name}</div><div class="pack">${p.pack}</div><div class="price">${displayPrice(p, s.id, ch)}</div></div>
         <div class="step"><button onclick="setQty('${p.id}',-1)">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)">+</button></div>
       </div>`).join("")}
     </div>${dockCart()}`;
@@ -158,10 +163,10 @@ function screenCart() {
       <div class="thumb">${p.emoji}</div>
       <div>
         <div class="title">${p.name}</div>
-        <div class="pack">${p.pack} · ${priceOf(p, s.id, ch)} ₽</div>
+        <div class="pack">${p.pack} · ${displayPrice(p, s.id, ch)}</div>
         <div class="step"><button onclick="setQty('${p.id}',-1)">−</button><b>${state.cart[p.id]}</b><button onclick="setQty('${p.id}',1)">+</button></div>
       </div>
-      <div class="price">${priceOf(p, s.id, ch)*state.cart[p.id]} ₽</div>
+      <div class="price">${displayPrice(p, s.id, ch, state.cart[p.id])}</div>
     </div>`).join("") || "<p class='hint'>Корзина пустая</p>"}</div>
     <div class="dock">
       <div style="background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:8px;font-weight:800;display:flex;justify-content:space-between">
