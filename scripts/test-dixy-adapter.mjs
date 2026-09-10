@@ -1,0 +1,28 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import { adaptDixyCatalog, parseDixyPack } from "../retailers/dixy.mjs";
+import { buildOverlayFromSnapshot } from "../retailers/overlay-builder.mjs";
+
+const snapshot=JSON.parse(fs.readFileSync("data/retailers/dixy.sample.json","utf8"));
+const products=adaptDixyCatalog(snapshot.rows,snapshot);
+assert.equal(products.length,3);
+assert.ok(products.every(p=>p.retailer==="dixy"));
+assert.ok(products.every(p=>p.scope_verified===false));
+assert.ok(products.every(p=>p.channel==="regional_catalog"));
+assert.ok(products.every(p=>p.availability==="in_stock"));
+assert.ok(products.every(p=>p.catalog_context?.region==="Москва"));
+assert.ok(products.every(p=>p.source?.kind==="aggregator_catalog"));
+assert.ok(products.every(p=>p.source?.name==="proshoper"));
+assert.deepEqual(parseDixyPack("Молоко 930 мл"),{value:930,unit:"ml",source:"930 мл"});
+assert.deepEqual(parseDixyPack("Филе 1 кг"),{value:1000,unit:"g",source:"1 кг"});
+assert.deepEqual(parseDixyPack("Яйцо 10 шт"),{value:10,unit:"pcs",source:"10 шт"});
+const overlay=buildOverlayFromSnapshot(snapshot);
+assert.equal(overlay.scope_verified,false);
+assert.equal(overlay.channel,"regional_catalog");
+assert.equal(overlay.catalog_context.region,"Москва");
+assert.equal(overlay.prices.milk,94.99);
+assert.equal(overlay.prices.chicken_fil,549.9);
+assert.equal(overlay.matched.length,2);
+assert.equal(overlay.unmatched.length,1);
+assert.equal(overlay.unmatched[0].reason,"no_rule_match");
+console.log("Dixy adapter tests passed: Moscow catalog stays regional/unverified and only conservative matches enter overlay.");
