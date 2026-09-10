@@ -29,7 +29,7 @@ export function normalizePyatAvailability(value) {
   const text = String(value || "").trim().toLowerCase();
   if (!text) return "unknown";
   if (text.includes("нет в наличии") || text.includes("законч")) return "out_of_stock";
-  if (text.includes("в корзину") || text.includes("в наличии")) return "in_stock";
+  if (text.includes("в корзину") || text.includes("в наличии") || text.includes("каталог")) return "in_stock";
   return "unknown";
 }
 
@@ -39,6 +39,8 @@ export function adaptPyatProduct(raw, context = {}) {
   if (price == null || price < 0) throw new Error(`Invalid price for ${raw.name}`);
   const oldPrice = number(raw.old_price ?? raw.oldPrice);
   const checkedAt = context.checked_at || context.checkedAt || new Date().toISOString();
+  const sourceName = context.source_name || context.source?.name || "5ka.ru";
+  const sourceKind = context.source_kind || context.source?.kind || "retailer_catalog";
 
   return {
     schema: "tamdeshevle.retailer-product.v1",
@@ -58,7 +60,8 @@ export function adaptPyatProduct(raw, context = {}) {
     catalog_context: context.catalog_context || null,
     scope_verified: context.scope_verified === true,
     source: {
-      site: "5ka.ru",
+      site: sourceName,
+      kind: sourceKind,
       method: context.method || "public_catalog_snapshot"
     }
   };
