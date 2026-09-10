@@ -1,6 +1,6 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T00:00:00Z",
+  "generated_at": "2026-09-10T05:29:46.834Z",
   "collectors": {
     "magnit": {
       "status": "not_observed",
@@ -9,10 +9,10 @@
       "message": "Health tracking starts after this release."
     },
     "pyat": {
-      "status": "not_observed",
-      "last_attempt_at": null,
+      "status": "error",
+      "last_attempt_at": "2026-09-10T05:29:46.834Z",
       "last_success_at": null,
-      "message": "Health tracking starts after this release."
+      "message": "Collector, scope verification or validation failed; previous data were kept."
     }
   }
 }
