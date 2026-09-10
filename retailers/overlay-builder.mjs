@@ -33,7 +33,7 @@ export function buildOverlayFromSnapshot(snapshot) {
     source_schema: snapshot.schema || null,
     ...(snapshot.store_context ? { store_context: snapshot.store_context } : {}),
     ...(snapshot.catalog_context ? { catalog_context: snapshot.catalog_context } : {}),
-    ...(snapshot.scope_verified != null ? { scope_verified: snapshot.scope_verified === true } : {}),
+    scope_verified: snapshot.scope_verified === true,
     normalized_count: normalized.length
   };
 }

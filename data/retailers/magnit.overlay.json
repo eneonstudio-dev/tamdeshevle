@@ -30,5 +30,6 @@
     "shop_type": "1",
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
+  "scope_verified": false,
   "normalized_count": 1
 }

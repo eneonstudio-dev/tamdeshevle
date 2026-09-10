@@ -9,6 +9,7 @@ assert.equal(basketOverlay.city, "msk");
 assert.equal(basketOverlay.channel, "delivery_catalog");
 assert.equal(basketOverlay.normalized_count, snapshot.rows.length);
 assert.equal(basketOverlay.matched.length, 4);
+assert.equal(basketOverlay.scope_verified, false);
 assert.deepEqual(basketOverlay.prices, {
   eggs_c1: 114.99,
   milk: 71.99,
