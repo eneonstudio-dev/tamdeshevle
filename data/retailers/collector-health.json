@@ -1,12 +1,12 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T05:33:06.753Z",
+  "generated_at": "2026-09-10T05:43:52.023Z",
   "collectors": {
     "magnit": {
-      "status": "not_observed",
-      "last_attempt_at": null,
-      "last_success_at": null,
-      "message": "Health tracking starts after this release."
+      "status": "healthy",
+      "last_attempt_at": "2026-09-10T05:43:52.023Z",
+      "last_success_at": "2026-09-10T05:43:52.023Z",
+      "message": "Collector and validation succeeded."
     },
     "pyat": {
       "status": "error",
