@@ -62,6 +62,9 @@ async function loadPrices() {
   }
 }
 const cityName = () => state.city === "msk" ? "Москва" : "Санкт-Петербург";
+const EASTER_EGG_DEADLINE = Date.UTC(2026, 8, 13, 20, 59, 59);
+// Add the owner's public Telegram username here, without @.
+const EASTER_EGG_TELEGRAM = "kaipovich";
 const storeBy = id => STORES.find(s => s.id === id);
 const cartEntries = () => TDCompare.cartEntries(PRODUCTS, state.cart || {});
 const cartCount = () => cartEntries().reduce((a, p) => a + Number(state.cart[p.id] || 0), 0);
@@ -118,7 +121,32 @@ function screenHome() {
         onchange="state.address=this.value;persist()" />
       <button class="btn green" onclick="go('stores')">Выбрать магазин</button>
       <button class="ghost" onclick="go('cart')">Сразу к корзине</button>
+      ${saleEasterEgg()}
     </div>`;
+}
+function saleEasterEgg() {
+  const telegram = EASTER_EGG_TELEGRAM.trim().replace(/^@/, "");
+  const contact = telegram
+    ? `<a class="sale-contact" href="https://t.me/${encodeURIComponent(telegram)}" target="_blank" rel="noopener noreferrer">Написать в Telegram ↗</a>`
+    : `<span class="sale-contact pending">Telegram владельца: добавь @username</span>`;
+  return `<section class="sale-easter-egg" aria-label="Пасхалка о продаже проекта">
+    <div class="sale-kicker">если вдруг есть лишнее</div>
+    <div class="sale-title">Там Дешевле продаётся</div>
+    <div class="sale-price">20 000 000 ₽</div>
+    <div class="sale-note">Не публичная оферта. Просто очень дорогая кнопка для разговора.</div>
+    <div class="sale-timer" aria-live="polite"><span>до исчезновения</span><b data-sale-timer>72:00:00</b></div>
+    ${contact}
+  </section>`;
+}
+function updateSaleTimer() {
+  const node = document.querySelector("[data-sale-timer]");
+  if (!node) return;
+  const left = Math.max(0, EASTER_EGG_DEADLINE - Date.now());
+  const seconds = Math.floor(left / 1000);
+  const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor(seconds % 3600 / 60)).padStart(2, "0");
+  const rest = String(seconds % 60).padStart(2, "0");
+  node.textContent = left ? `${hours}:${minutes}:${rest}` : "закончилось";
 }
 function screenStores() {
   const filters = ["Все", "Продукты", "Гипер"];
@@ -224,7 +252,9 @@ function toggleCity() {
 function render() {
   const map = { home: screenHome, stores: screenStores, catalog: screenCatalog, cart: screenCart, compare: screenCompare };
   document.getElementById("app").innerHTML = (map[state.screen] || screenHome)();
+  updateSaleTimer();
 }
-window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.state = state; window.render = render;
+window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render;
 render();
+setInterval(updateSaleTimer, 1000);
 loadPrices();
