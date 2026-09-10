@@ -36,6 +36,10 @@
       @media (min-width:700px){.td-one-tap{width:min(620px,calc(100% - 32px))}}
     `;document.head.appendChild(s);
   }
+  function ensureMarkerCardSync(){
+    if(window.TDMapMarkerCardSync||document.querySelector('script[data-td-marker-card-sync]'))return;
+    const s=document.createElement("script");s.src="map-marker-card-sync.js?v=20260910-marker-card-v1";s.dataset.tdMarkerCardSync="1";document.head.appendChild(s);
+  }
   function cleanupTray(){document.querySelector(".td-one-tap")?.remove();}
   function renderTray(point,index,match){
     injectStyles();cleanupTray();
@@ -94,7 +98,7 @@
     if(btn&&btn.textContent!=="← К магазинам рядом")btn.textContent="← К магазинам рядом";
   }
   let raf=0;const obs=new MutationObserver(()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(polishBackLink);});
-  function start(){injectStyles();installEvents();polishBackLink();obs.observe(document.body,{childList:true,subtree:true});window.addEventListener("pagehide",cleanupTray);}
+  function start(){injectStyles();ensureMarkerCardSync();installEvents();polishBackLink();obs.observe(document.body,{childList:true,subtree:true});window.addEventListener("pagehide",cleanupTray);}
   window.TDMapOneTap={choosePoint,compare:()=>{const tray=document.querySelector(".td-one-tap");const index=Number(tray&&tray.dataset.index);return Number.isInteger(index)?goCompare(pointAt(index)):false;},close:cleanupTray};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();

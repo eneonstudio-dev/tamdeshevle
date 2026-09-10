@@ -7,6 +7,7 @@ const html = read("index.html");
 const geo = read("geo-store-map.js");
 const bridge = read("store-id-bridge.js");
 const cluster = read("map-cluster-priority.js");
+const markerSync = read("map-marker-card-sync.js");
 const selected = read("selected-store-ui.js");
 const oneTap = read("map-one-tap.js");
 const bai = read("bai-assistant.js");
@@ -44,6 +45,13 @@ assert(cluster.includes("flyTo([point.lat,point.lon]") && cluster.includes("dura
 assert(cluster.includes("tdFocusScroll") && cluster.includes("visibleCardIndex"), "store list scrolling must synchronize the active map marker");
 assert(cluster.includes("installCardFocus") && cluster.includes("focus:focusPoint"), "card focus behavior must be installed before one-tap capture and remain externally refreshable");
 
+new Function(markerSync);
+assert(markerSync.includes("leaflet-marker-icon.td-themed-marker"), "reverse sync must listen to themed map markers");
+assert(markerSync.includes("list.scrollTo") && markerSync.includes("list.scrollTop+delta") && markerSync.includes("lr.top+lr.height/2"), "marker tap must center the matching store card in the scrollable list");
+assert(markerSync.includes("behavior:reducedMotion()?\"auto\":\"smooth\""), "reverse sync must respect reduced-motion preferences");
+assert(markerSync.includes("TDMapMarkerCardSync"), "reverse sync must expose a small integration API");
+assert(oneTap.includes("map-marker-card-sync.js") && oneTap.includes("ensureMarkerCardSync"), "one-tap map flow must load reverse marker-card sync");
+
 assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
 assert(oneTap.includes("td:selected-store-point-current"), "one-tap selection must announce the current exact point");
@@ -59,4 +67,4 @@ assert(layers.includes("data-ui-parked"), "Bay must be parked while map overlays
 assert(layers.includes("app.inert=blocked"), "underlying app must be inert while an overlay is active when supported");
 assert(bai.includes("bai-assistant"), "Bay assistant must remain independently mountable");
 
-console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, card focus sync, compare routing, overlay cleanup and Bay coordination are wired.");
+console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, two-way card/marker sync, compare routing, overlay cleanup and Bay coordination are wired.");
