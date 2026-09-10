@@ -19,8 +19,8 @@ window.TDRetailerPriceState = {
 vm.runInContext(bridge, context, { filename: "store-id-bridge.js" });
 
 const products = [
-  { id: "milk", bring: { lenta: 80, origin: 100 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } },
-  { id: "bread", bring: { lenta: 50 }, prices: { origin: 70 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } }
+  { id: "milk", name: "Молоко", pack: "1 л", bring: { lenta: 80, origin: 100 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z", sourceUrl: "https://example.test/milk", retailerName: "Молоко Лента" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } },
+  { id: "bread", name: "Хлеб", pack: "650 г", bring: { lenta: 50 }, prices: { origin: 70 }, priceMeta: { lenta: { bring: { kind: "retailer", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z" } }, origin: { shelf: { kind: "retailer", freshness: "fresh" } } } }
 ];
 products[0].prices = { origin: 100 };
 const cart = { milk: 1, bread: 2 };
@@ -37,10 +37,14 @@ assert(basket.verified === true, "fully retailer-backed point basket must be ver
 assert(basket.total === 180, "point basket total failed");
 assert(basket.coveredItems === 2 && basket.totalItems === 2, "SKU coverage failed");
 assert(basket.savings === 60, "verified savings failed");
+assert(basket.items.length === 2 && basket.items[0].name === "Молоко", "basket must expose SKU detail rows");
+assert(basket.items[0].subtotal === 80 && basket.items[1].subtotal === 100, "SKU subtotals failed");
+assert(basket.items[0].meta.sourceUrl === "https://example.test/milk", "SKU provenance must be preserved");
 
-const partialProducts = products.map((p, i) => i ? { ...p, bring: {}, priceMeta: { ...p.priceMeta, lenta: undefined } } : p);
+const partialProducts = products.map((p, i) => i ? { ...p, bring: { lenta: 1 }, priceMeta: { ...p.priceMeta, lenta: undefined } } : p);
 const partial = window.TDStoreIdBridge.basket(point, { products: partialProducts, cart });
 assert(partial.verified === false && partial.coveredItems === 1 && partial.totalItems === 2, "partial point basket must not be called complete");
-assert(partial.total === null && partial.partialTotal === 80, "partial basket subtotal failed");
+assert(partial.total === null && partial.partialTotal === 80, "unverified educational/network price must not leak into point subtotal");
+assert(partial.items[1].verified === false && partial.items[1].price === null, "unverified point SKU must be shown as missing, not estimated");
 
-console.log("Store ID bridge tests passed: exact point, price key, basket coverage and verified savings.");
+console.log("Store ID bridge tests passed: exact point, safe price key, SKU details, coverage and verified savings.");
