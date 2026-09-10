@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-10T05:43:51.758Z",
+  "checked_at": "2026-09-10T07:19:22.379Z",
   "prices": {
     "eggs_c1": 75.89,
     "milk": 73.99,
@@ -79,11 +79,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
-      "retailer_product_id": "1000143306",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко Кубанский молочник пастеризованное 3.4-6% 720г",
       "retailer_product_id": "1000172832",
       "reason": "no_rule_match"
@@ -109,11 +104,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
-      "retailer_product_id": "1000456510",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко Павловское пастеризованное 2.5% 900г",
       "retailer_product_id": "1000495985",
       "reason": "no_rule_match"
@@ -129,6 +119,11 @@
       "reason": "no_rule_match"
     },
     {
+      "name": "Молоко безлактозное ультрапастеризованное Neo High Protein 0.5% 950г",
+      "retailer_product_id": "8000104060",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Сметана Павловское 15% 330г",
       "retailer_product_id": "1000495990",
       "reason": "no_rule_match"
@@ -136,6 +131,11 @@
     {
       "name": "Сметана Ключевское 20% 360г",
       "retailer_product_id": "1000507218",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сметана Ключевское 20% 180г",
+      "retailer_product_id": "1000544222",
       "reason": "no_rule_match"
     }
   ],

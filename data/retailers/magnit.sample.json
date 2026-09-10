@@ -4,7 +4,7 @@
   "city": "msk",
   "store_id": "magnit",
   "channel": "delivery_catalog",
-  "checked_at": "2026-09-10T05:43:51.758Z",
+  "checked_at": "2026-09-10T07:19:22.379Z",
   "source_url": "https://magnit.ru/",
   "method": "public_store_scoped_catalog_collector",
   "scope_verified": true,
@@ -20,7 +20,7 @@
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
   "collector": {
-    "discovered": 207,
+    "discovered": 203,
     "attempted": 24,
     "accepted": 24,
     "errors": []
@@ -144,19 +144,6 @@
       "url": "https://magnit.ru/product/1000143304-kubanskaya_burenka_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000143306",
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
-      "brand": "Домик в Деревне",
-      "price": 134.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/nurbxKXmPdUIomoW4dYyjhgUzlYduwjrHjvVq6MlutA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000143306/image/531e667df78dbd29dcee9bf53410ba5f.jpeg@webp",
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000143306-domik_v_derevne_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
-    },
-    {
       "id": "1000166913",
       "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
       "brand": "Здоровье из Предгорья",
@@ -248,19 +235,6 @@
       "url": "https://magnit.ru/product/1000427388-dzhubgskiy_fermer_moloko_paster_3_2_1l?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000456510",
-      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
-      "brand": "Коровка из Кореновки",
-      "price": 144.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/lHRkFX0Ir7svhMerRiUSxXOvihgcllGPLAsQb0SXvXA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/e17/e17e5ee3523d6373401202ab2456ea42/3561b33def871e9d4850e5d37aa41f9b.jpeg@webp",
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000456510-korovka_iz_korenovki_moloko_pasterizovan_2_5_1_4l_pl_but?shopCode=770105&shopType=1"
-    },
-    {
       "id": "1000495985",
       "name": "Молоко Павловское пастеризованное 2.5% 900г",
       "brand": "Павловское",
@@ -313,6 +287,19 @@
       "url": "https://magnit.ru/product/1899800733-moloko_prostokvashino_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1"
     },
     {
+      "id": "8000104060",
+      "name": "Молоко безлактозное ультрапастеризованное Neo High Protein 0.5% 950г",
+      "brand": "Neo",
+      "price": 209.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/QoDuNKwuM52nmecAnkUAepIzkZ90r1sThJWrA7nGvwA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/8000104060/image/92c909a575402f622013f2e33ecf56fd.jpeg@webp",
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/8000104060-neo_high_protein_moloko_bezlaktozn_ultrapast_0_5_950g?shopCode=770105&shopType=1"
+    },
+    {
       "id": "1000495990",
       "name": "Сметана Павловское 15% 330г",
       "brand": "Павловское",
@@ -337,6 +324,19 @@
       "availability": "В наличии",
       "shop_code": "770105",
       "url": "https://magnit.ru/product/1000507218-klyuchevskoe_smetana_20_360g_pl_st?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1000544222",
+      "name": "Сметана Ключевское 20% 180г",
+      "brand": "Ключевское",
+      "price": 96.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/ao_4uOnKlwbOtJOjw1j9u3R7cA3UW8qrtY-sdqwlK-U/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/30f/30ffd2277426def3a8bf331a83d81f9f/129ea5aba0a2df3226a186949791fb38.jpeg@webp",
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1000544222-klyuchevskoe_smetana_20_180g_pl_st?shopCode=770105&shopType=1"
     }
   ]
 }

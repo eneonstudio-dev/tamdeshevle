@@ -1,11 +1,11 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T06:14:59.673Z",
+  "generated_at": "2026-09-10T07:19:22.675Z",
   "collectors": {
     "magnit": {
       "status": "healthy",
-      "last_attempt_at": "2026-09-10T05:43:52.023Z",
-      "last_success_at": "2026-09-10T05:43:52.023Z",
+      "last_attempt_at": "2026-09-10T07:19:22.675Z",
+      "last_success_at": "2026-09-10T07:19:22.675Z",
       "message": "Collector and validation succeeded."
     },
     "pyat": {
