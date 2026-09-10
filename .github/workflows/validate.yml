@@ -21,6 +21,7 @@ on:
       - chatgpt/store-id-bridge
       - chatgpt/store-basket-map
       - chatgpt/store-point-details
+      - chatgpt/worth-it
 
 permissions:
   contents: read
@@ -43,6 +44,8 @@ jobs:
         run: node scripts/test-store-id-bridge.mjs
       - name: Test geo point details wiring
         run: node scripts/test-geo-store-map-source.mjs
+      - name: Test worth-it recommendations
+        run: node scripts/test-worth-it.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
       - name: Test Magnit adapter
@@ -83,6 +86,7 @@ jobs:
           node --check product-ui.js
           node --check store-id-bridge.js
           node --check geo-store-map.js
+          node --check worth-it.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
@@ -106,6 +110,7 @@ jobs:
           node --check scripts/test-lenta-adapter.mjs
           node --check scripts/test-store-id-bridge.mjs
           node --check scripts/test-geo-store-map-source.mjs
+          node --check scripts/test-worth-it.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
