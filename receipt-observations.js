@@ -53,7 +53,10 @@
     const chainId = cleanText(store.chain_id || source.chain_id);
     const address = cleanText(store.address || source.store_address);
     const externalStoreId = cleanText(store.external_store_id || source.external_store_id);
-    const exactStore = Boolean(storeId && (externalStoreId || address));
+    const scopeSource = cleanText(store.scope_source || source.scope_source);
+    const scopeMethod = cleanText(store.scope_method || source.scope_method);
+    const scopeConfidence = Number(store.scope_confidence || source.scope_confidence);
+    const exactStore = Boolean(storeId && externalStoreId && address && scopeSource === "verified_store_point" && scopeMethod && Number.isFinite(scopeConfidence) && scopeConfidence >= 0.75);
 
     const observation = {
       schema: "td.receipt_observation",
@@ -65,7 +68,10 @@
         chain_id: chainId,
         store_id: storeId,
         external_store_id: externalStoreId,
-        address
+        address,
+        scope_source: scopeSource,
+        scope_method: scopeMethod,
+        scope_confidence: Number.isFinite(scopeConfidence) ? scopeConfidence : null
       },
       proof: {
         kind: "receipt",
@@ -85,7 +91,7 @@
         rankable: false,
         reason: exactStore
           ? "Receipt observation is exact-store evidence but requires promotion through the verification pipeline before ranking."
-          : "Receipt store identity is incomplete; observation cannot participate in ranking."
+          : "Receipt is not linked to a verified store point; a typed address alone cannot participate in ranking."
       }
     };
 

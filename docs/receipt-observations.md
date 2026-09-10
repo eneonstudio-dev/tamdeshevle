@@ -19,7 +19,7 @@ A receipt is evidence, not an automatic production price.
 To pass the observation gate it must:
 
 - have a valid v1 receipt contract;
-- identify an exact store (`store_id` plus address or external store id);
+- identify an exact store using a selected verified point (`store_id`, external point id, address, match method and confidence ≥ 0.75); a typed address alone is never sufficient;
 - include receipt proof (`image_ref`, fiscal sign or raw-text reference);
 - be within the freshness window (24 hours by default).
 
