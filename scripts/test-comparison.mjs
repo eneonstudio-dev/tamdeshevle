@@ -34,6 +34,22 @@ const any = TDCompare.compare({ stores, products, cart, city: "msk", mode: "any"
 assert(any.length === 3, "any mode should include three stores");
 assert(any[0].id === "hyper" && any[0].total === 210, "any mode ranking failed");
 assert(any.find(row => row.id === "delivery").total === 350, "delivery fee in any mode failed");
+assert(any.find(row => row.id === "hyper").save === null, "estimated prices must not claim verified savings");
+assert(any.find(row => row.id === "hyper").indicativeSave === 30, "indicative savings should remain available");
+assert(any.find(row => row.id === "hyper").verifiedItems === 0, "educational prices must not count as verified");
+
+const verifiedProducts = products.map(product => ({
+  ...product,
+  priceMeta: {
+    shop: { shelf: { kind: "retailer", freshness: "fresh" } },
+    hyper: { shelf: { kind: "retailer", freshness: "stale" } }
+  }
+}));
+const verified = TDCompare.compare({ stores: stores.slice(0, 2), products: verifiedProducts, cart, city: "msk", mode: "walk", originStoreId: "shop" });
+const verifiedHyper = verified.find(row => row.id === "hyper");
+assert(verifiedHyper.verifiedComplete === true, "fresh/stale retailer-backed basket should be verified complete");
+assert(verifiedHyper.verifiedItems === 2 && verifiedHyper.estimatedItems === 0, "verified coverage counters failed");
+assert(verifiedHyper.save === 30, "fully verified basket may claim savings");
 
 const walk = TDCompare.compare({ stores, products, cart, city: "msk", mode: "walk", originStoreId: "shop" });
 assert(walk.length === 2, "walk mode should exclude delivery stores");
@@ -68,4 +84,4 @@ assert(spb.length === 2 && !spb.some(row => row.id === "hyper"), "city filtering
 const empty = TDCompare.compare({ stores: [], products, cart, city: "msk", mode: "any", originStoreId: "shop" });
 assert(Array.isArray(empty) && empty.length === 0, "empty stores case failed");
 
-console.log("Comparison engine tests passed: coverage-safe ranking, strict channels and unknown-fee handling.");
+console.log("Comparison engine tests passed: strict channels, coverage safety and verified-vs-estimated savings.");
