@@ -33,22 +33,86 @@
     }
   ],
   "unmatched": [
-    {"name":"Томаты сливовидные красные","retailer_product_id":"proshoper-tomato-plum","reason":"no_rule_match"},
-    {"name":"Баклажан","retailer_product_id":"proshoper-eggplant","reason":"no_rule_match"},
-    {"name":"Тыква Баттернат","retailer_product_id":"proshoper-pumpkin-butternut","reason":"no_rule_match"},
-    {"name":"Томат тепличный красный","retailer_product_id":"proshoper-tomato-greenhouse-600g","reason":"no_rule_match"},
-    {"name":"Капуста Брокколи","retailer_product_id":"proshoper-broccoli","reason":"no_rule_match"},
-    {"name":"Чеснок свежий","retailer_product_id":"proshoper-garlic-100g","reason":"no_rule_match"},
-    {"name":"Лук белый","retailer_product_id":"proshoper-white-onion","reason":"no_rule_match"},
-    {"name":"Арбуз отечественный","retailer_product_id":"proshoper-watermelon-domestic","reason":"no_rule_match"},
-    {"name":"Арбуз желтый","retailer_product_id":"proshoper-watermelon-yellow","reason":"no_rule_match"},
-    {"name":"Арбуз Черный принц без косточек отечественный","retailer_product_id":"proshoper-watermelon-black-prince","reason":"no_rule_match"},
-    {"name":"Инжир","retailer_product_id":"proshoper-fig-one","reason":"no_rule_match"},
-    {"name":"Дыня Гуляби","retailer_product_id":"proshoper-melon-gulyabi","reason":"no_rule_match"},
-    {"name":"Слива сезонная","retailer_product_id":"proshoper-plum-seasonal","reason":"no_rule_match"},
-    {"name":"Помело розовое","retailer_product_id":"proshoper-pomelo-pink","reason":"no_rule_match"},
-    {"name":"Груша Форель","retailer_product_id":"proshoper-pear-forelle","reason":"no_rule_match"},
-    {"name":"Гранат","retailer_product_id":"proshoper-pomegranate","reason":"no_rule_match"}
+    {
+      "name": "Томаты сливовидные красные",
+      "retailer_product_id": "proshoper-tomato-plum",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Баклажан",
+      "retailer_product_id": "proshoper-eggplant",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тыква Баттернат",
+      "retailer_product_id": "proshoper-pumpkin-butternut",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Томат тепличный красный",
+      "retailer_product_id": "proshoper-tomato-greenhouse-600g",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Капуста Брокколи",
+      "retailer_product_id": "proshoper-broccoli",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чеснок свежий",
+      "retailer_product_id": "proshoper-garlic-100g",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лук белый",
+      "retailer_product_id": "proshoper-white-onion",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз отечественный",
+      "retailer_product_id": "proshoper-watermelon-domestic",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз желтый",
+      "retailer_product_id": "proshoper-watermelon-yellow",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арбуз Черный принц без косточек отечественный",
+      "retailer_product_id": "proshoper-watermelon-black-prince",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Инжир",
+      "retailer_product_id": "proshoper-fig-one",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дыня Гуляби",
+      "retailer_product_id": "proshoper-melon-gulyabi",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Слива сезонная",
+      "retailer_product_id": "proshoper-plum-seasonal",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Помело розовое",
+      "retailer_product_id": "proshoper-pomelo-pink",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Груша Форель",
+      "retailer_product_id": "proshoper-pear-forelle",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гранат",
+      "retailer_product_id": "proshoper-pomegranate",
+      "reason": "no_rule_match"
+    }
   ],
   "channel": "regional_catalog",
   "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
