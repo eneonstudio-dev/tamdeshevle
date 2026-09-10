@@ -78,11 +78,29 @@
     if(typeof window.render==="function")window.render();
     setCloudState("loaded","Корзина восстановлена из облака");emit("td:cloud-hydrated",{userId:uid});return true;
   });}
+  const RECEIPT_BUCKET="receipt-proofs", RECEIPT_TYPES=new Set(["image/jpeg","image/png","image/webp","image/heic"]), RECEIPT_MAX_BYTES=10*1024*1024;
+  function receiptFileName(file){const type=String(file&&file.type||"").toLowerCase();const ext=type==="image/png"?"png":type==="image/webp"?"webp":type==="image/heic"?"heic":"jpg";const id=window.crypto&&typeof window.crypto.randomUUID==="function"?window.crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;return `${id}.${ext}`;}
+  async function submitReceiptEvidence(input){return cloudOperation(async uid=>{
+    const file=input&&input.file, observation=input&&input.observation;
+    if(!file||!RECEIPT_TYPES.has(String(file.type||"").toLowerCase())||file.size<1||file.size>RECEIPT_MAX_BYTES)throw new Error("RECEIPT_FILE_INVALID");
+    const check=window.TDReceiptObservations&&window.TDReceiptObservations.validate(observation);
+    if(!check||!check.ok)throw new Error("RECEIPT_INVALID");
+    const store=observation.store||{};
+    if(!store.store_id||!store.chain_id||!store.address||!observation.receipt_id)throw new Error("RECEIPT_SCOPE_INVALID");
+    const path=`${uid}/${receiptFileName(file)}`;
+    const {error:uploadError}=await client.storage.from(RECEIPT_BUCKET).upload(path,file,{contentType:file.type,upsert:false});
+    if(uploadError)throw uploadError;
+    assertUser(uid);
+    const row={user_id:uid,receipt_id:observation.receipt_id,chain_id:store.chain_id,store_id:store.store_id,store_address:store.address,observed_at:observation.observed_at,payload:observation,proof_path:path,status:"pending"};
+    const {data,error}=await client.from("receipt_submissions").insert(row).select("id,status,submitted_at").single();
+    if(error){await client.storage.from(RECEIPT_BUCKET).remove([path]);throw error;}
+    assertUser(uid);emit("td:receipt-submitted",{id:data.id,status:data.status});return data;
+  });}
   function modal(){
     document.querySelector(".td-auth-modal")?.remove();const root=document.createElement("div");root.className="td-auth-modal";root.innerHTML=`<div class="td-auth-card"><button class="td-auth-x" aria-label="Закрыть">×</button><div class="td-auth-logo">ТД</div><h2>Твой аккаунт</h2><p>Войди по любой почте — Яндекс, Mail.ru, корпоративной или другой. Пришлём безопасную ссылку, пароль не нужен.</p>${configured()?`<form><input type="email" required autocomplete="email" inputmode="email" placeholder="name@yandex.ru" aria-label="Электронная почта"><button type="submit">Получить ссылку</button></form><div class="td-auth-hint">Подойдут, например: @yandex.ru, @mail.ru, @bk.ru, @inbox.ru и другие.</div><div class="td-auth-msg" aria-live="polite"></div>`:`<div class="td-auth-warning">Вход временно недоступен. Попробуй позже.</div>`}</div>`;document.body.appendChild(root);root.querySelector(".td-auth-x").onclick=()=>root.remove();root.onclick=e=>{if(e.target===root)root.remove();};const form=root.querySelector("form");if(form)form.onsubmit=async e=>{e.preventDefault();const msg=root.querySelector(".td-auth-msg"),btn=form.querySelector("button"),email=form.querySelector("input").value;btn.disabled=true;msg.textContent="Отправляем письмо…";try{await signInWithEmail(email);msg.textContent="Ссылка отправлена. Проверь входящие и папку «Спам», затем открой ссылку из письма.";}catch(err){msg.textContent=err.message==="EMAIL_INVALID"?"Проверь адрес почты.":"Не получилось: "+(err.message||err);}finally{btn.disabled=false;}};
   }
   function css(){if(document.getElementById("td-auth-style"))return;const s=document.createElement("style");s.id="td-auth-style";s.textContent=`.td-auth-modal{position:fixed;inset:0;z-index:500;background:rgba(22,20,16,.55);display:grid;place-items:end center;padding:16px}.td-auth-card{width:min(398px,100%);background:#f4f1ea;border-radius:26px;padding:20px;position:relative}.td-auth-card h2{font-size:26px;letter-spacing:-.04em;margin:10px 0 6px}.td-auth-card p{font-size:12px;color:#6b6458;font-weight:700;line-height:1.5}.td-auth-logo{width:48px;height:48px;border-radius:15px;background:#0f7b4a;color:white;display:grid;place-items:center;font-weight:900}.td-auth-x{position:absolute;right:14px;top:14px;width:36px;height:36px;border:0;border-radius:50%;background:white;font-size:20px}.td-auth-card form{display:grid;gap:9px;margin-top:16px}.td-auth-card input{border:0;border-radius:14px;padding:13px 14px;font:700 14px Manrope,sans-serif}.td-auth-card form button{border:0;border-radius:14px;padding:13px;background:#161410;color:#fff;font:900 13px Manrope,sans-serif}.td-auth-hint{margin-top:9px;color:#80786b;font-size:10px;font-weight:700;line-height:1.45}.td-auth-msg,.td-auth-warning{margin-top:12px;font-size:11px;font-weight:700;line-height:1.45}.td-auth-warning{background:#fff3cd;padding:11px;border-radius:12px}`;document.head.appendChild(s);}
   window.addEventListener("td:auth-requested",()=>{css();modal();});
-  window.TDAuth={init,configured,user,signInWithEmail,signOut,syncLocalToCloud,hydrateLocalFromCloud,cloudSummary,cloudStatus:()=>({...cloudState}),open:modal};
+  window.TDAuth={init,configured,user,signInWithEmail,signOut,syncLocalToCloud,hydrateLocalFromCloud,cloudSummary,submitReceiptEvidence,cloudStatus:()=>({...cloudState}),open:modal};
   css();init().catch(err=>{console.warn("Auth init failed",err);emit("td:auth-state",{configured:configured(),session:null,error:String(err.message||err)});});
 })();
