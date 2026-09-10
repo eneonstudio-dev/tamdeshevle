@@ -3,18 +3,54 @@
   "retailer": "pyat",
   "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "checked_at": "2026-09-10T09:44:21+03:00",
+  "checked_at": "2026-09-10T07:34:31.767Z",
   "prices": {
-    "carrot": 49.99,
+    "banana": 109.99,
+    "buckwheat": 94.99,
+    "carrot": 11.99,
+    "eggs_c1": 96.99,
     "potato": 79.99
   },
   "matched": [
     {
+      "sku": "banana",
+      "name": "Шоколад Miskets Capybara молочный с банановой начинкой 60г",
+      "retailer_product_id": "proshoper-шоколад-miskets-capybara-молочныи-с-банановои-начинкои-60г-181",
+      "price_rub": 109.99,
+      "old_price_rub": 149.99,
+      "promo": true,
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
+      "sku": "buckwheat",
+      "name": "Гречка ядрица Селяночка быстроразваривающаяся пропаренная 900г",
+      "retailer_product_id": "proshoper-гречка-ядрица-селяночка-быстроразваривающаяся-пропаренная-900г-132",
+      "price_rub": 94.99,
+      "old_price_rub": 119.99,
+      "promo": true,
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
       "sku": "carrot",
-      "name": "Морковь мытая упаковка",
-      "retailer_product_id": "proshoper-carrot-washed-1kg",
-      "price_rub": 49.99,
-      "old_price_rub": 89.99,
+      "name": "Семена Удачные семена Морковь Королева осени, 2г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-морковь-королева-осени-2г-366",
+      "price_rub": 11.99,
+      "old_price_rub": 29.99,
+      "promo": true,
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
+      "sku": "eggs_c1",
+      "name": "Яйцо куриное Село Зеленое Деревенское С1 10шт.",
+      "retailer_product_id": "proshoper-яи-цо-куриное-село-зеленое-деревенское-с1-10шт-30",
+      "price_rub": 96.99,
+      "old_price_rub": 109.99,
       "promo": true,
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "confidence": 0.9,
@@ -23,7 +59,7 @@
     {
       "sku": "potato",
       "name": "Картофель мытый",
-      "retailer_product_id": "proshoper-potato-washed",
+      "retailer_product_id": "proshoper-картофель-мытыи-11",
       "price_rub": 79.99,
       "old_price_rub": 94.99,
       "promo": true,
@@ -34,83 +70,2033 @@
   ],
   "unmatched": [
     {
-      "name": "Томаты сливовидные красные",
-      "retailer_product_id": "proshoper-tomato-plum",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Баклажан",
-      "retailer_product_id": "proshoper-eggplant",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Тыква Баттернат",
-      "retailer_product_id": "proshoper-pumpkin-butternut",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Томат тепличный красный",
-      "retailer_product_id": "proshoper-tomato-greenhouse-600g",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Капуста Брокколи",
-      "retailer_product_id": "proshoper-broccoli",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чеснок свежий",
-      "retailer_product_id": "proshoper-garlic-100g",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Лук белый",
-      "retailer_product_id": "proshoper-white-onion",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Арбуз отечественный",
-      "retailer_product_id": "proshoper-watermelon-domestic",
+      "retailer_product_id": "proshoper-арбуз-отечественныи-1",
       "reason": "no_rule_match"
     },
     {
       "name": "Арбуз желтый",
-      "retailer_product_id": "proshoper-watermelon-yellow",
+      "retailer_product_id": "proshoper-арбуз-желтыи-2",
       "reason": "no_rule_match"
     },
     {
       "name": "Арбуз Черный принц без косточек отечественный",
-      "retailer_product_id": "proshoper-watermelon-black-prince",
+      "retailer_product_id": "proshoper-арбуз-черныи-принц-без-косточек-отечественныи-3",
       "reason": "no_rule_match"
     },
     {
-      "name": "Инжир",
-      "retailer_product_id": "proshoper-fig-one",
+      "name": "Инжир, 1шт.",
+      "retailer_product_id": "proshoper-инжир-1шт-4",
       "reason": "no_rule_match"
     },
     {
       "name": "Дыня Гуляби",
-      "retailer_product_id": "proshoper-melon-gulyabi",
+      "retailer_product_id": "proshoper-дыня-гуляби-5",
       "reason": "no_rule_match"
     },
     {
       "name": "Слива сезонная",
-      "retailer_product_id": "proshoper-plum-seasonal",
+      "retailer_product_id": "proshoper-слива-сезонная-6",
       "reason": "no_rule_match"
     },
     {
       "name": "Помело розовое",
-      "retailer_product_id": "proshoper-pomelo-pink",
+      "retailer_product_id": "proshoper-помело-розовое-7",
       "reason": "no_rule_match"
     },
     {
       "name": "Груша Форель",
-      "retailer_product_id": "proshoper-pear-forelle",
+      "retailer_product_id": "proshoper-груша-форель-8",
       "reason": "no_rule_match"
     },
     {
       "name": "Гранат",
-      "retailer_product_id": "proshoper-pomegranate",
+      "retailer_product_id": "proshoper-гранат-9",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Томаты сливовидные красные",
+      "retailer_product_id": "proshoper-томаты-сливовидные-красные-12",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Баклажан",
+      "retailer_product_id": "proshoper-баклажан-13",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тыква Баттернат",
+      "retailer_product_id": "proshoper-тыква-баттернат-14",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Томат тепличный красный 600г",
+      "retailer_product_id": "proshoper-томат-тепличныи-красныи-600г-15",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Капуста Брокколи",
+      "retailer_product_id": "proshoper-капуста-брокколи-16",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чеснок свежий 100г",
+      "retailer_product_id": "proshoper-чеснок-свежии-100г-17",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лук белый",
+      "retailer_product_id": "proshoper-лук-белыи-18",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Салатная смесь Рукола и Радиччо 75г",
+      "retailer_product_id": "proshoper-салатная-смесь-рукола-и-радиччо-75г-19",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Сарафаново детское ультрапастеризованное 3.2% БЗМЖ 970мл",
+      "retailer_product_id": "proshoper-молоко-сарафаново-детское-ультрапастеризованное-3-2-бзмж-970мл-20",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Домик в деревне ультрапастеризованное 3.2% БЗМЖ 950г",
+      "retailer_product_id": "proshoper-молоко-домик-в-деревне-ультрапастеризованное-3-2-бзмж-950г-21",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Домик в деревне безлактозное ультрапастеризованное 1.8% БЗМЖ 950г",
+      "retailer_product_id": "proshoper-молоко-домик-в-деревне-безлактозное-ультрапастеризованное-1-8-бзмж-950г-22",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сливки Сарафаново ультрапастеризованные 10% БЗМЖ 480мл",
+      "retailer_product_id": "proshoper-сливки-сарафаново-ультрапастеризованные-10-бзмж-480мл-23",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сливки Село Зеленое для взбивания ультрапастеризованные 33% БЗМЖ 500г",
+      "retailer_product_id": "proshoper-сливки-село-зеленое-для-взбивания-ультрапастеризованные-33-бзмж-500г-24",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Алексеевское сгущенное цельное с сахаром 8.5% БЗМЖ 500г",
+      "retailer_product_id": "proshoper-молоко-алексеевское-сгущенное-цельное-с-сахаром-8-5-бзмж-500г-25",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Айран Халамилк 1% БЗМЖ 500мл",
+      "retailer_product_id": "proshoper-аи-ран-халамилк-1-бзмж-500мл-26",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сыр Выручай Чечил-спагетти копченый 43% БЗМЖ 100 г",
+      "retailer_product_id": "proshoper-сыр-выручаи-чечил-спагетти-копченыи-43-бзмж-100-г-27",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сыр Выручай Косичка 45% БЗМЖ 150г",
+      "retailer_product_id": "proshoper-сыр-выручаи-косичка-45-бзмж-150г-28",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сыр Экомилк творожный 60% 350г",
+      "retailer_product_id": "proshoper-сыр-экомилк-творожныи-60-350г-29",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Маринад Virtex food Жарим Мясо для приготовления крылышек барбекю, 80г",
+      "retailer_product_id": "proshoper-маринад-virtex-food-жарим-мясо-для-приготовления-крылышек-барбекю-80г-31",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тушка цыпленка Петелинка 1 сорта охлажденная",
+      "retailer_product_id": "proshoper-тушка-цыпленка-петелинка-1-сорта-охлажденная-32",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бедро цыпленка Петелинка охлажденное",
+      "retailer_product_id": "proshoper-бедро-цыпленка-петелинка-охлажденное-33",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Стейк грудки индейки ИндиЛайт охлажденный, 450г",
+      "retailer_product_id": "proshoper-стеи-к-грудки-индеи-ки-индилаи-т-охлажденныи-450г-34",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шашлык свиной Мираторг Деликатесный охлажденный",
+      "retailer_product_id": "proshoper-шашлык-свинои-мираторг-деликатесныи-охлажденныи-35",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Фарш Мираторг свино-говяжий домашний 400г",
+      "retailer_product_id": "proshoper-фарш-мираторг-свино-говяжии-домашнии-400г-36",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса МД Бородина Докторская вареная",
+      "retailer_product_id": "proshoper-колбаса-мд-бородина-докторская-вареная-37",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Ремит Салями Классическая сырокопченая полусухая 85г",
+      "retailer_product_id": "proshoper-колбаса-ремит-салями-классическая-сырокопченая-полусухая-85г-38",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Ближние горки Кремлевская варено-копченая",
+      "retailer_product_id": "proshoper-колбаса-ближние-горки-кремлевская-варено-копченая-39",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Мясницкий Ряд Верона сыровяленая полусухая нарезка 80г",
+      "retailer_product_id": "proshoper-колбаса-мясницкии-ряд-верона-сыровяленая-полусухая-нарезка-80г-40",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаски Черкизово Мясной снек сырокопченые полусухие 70г",
+      "retailer_product_id": "proshoper-колбаски-черкизово-мяснои-снек-сырокопченые-полусухие-70г-41",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Папа может Сервелат мясной варено-копченая 280г",
+      "retailer_product_id": "proshoper-колбаса-папа-может-сервелат-мяснои-варено-копченая-280г-42",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Мясная Ферма Докторская вареная, 400г",
+      "retailer_product_id": "proshoper-колбаса-мясная-ферма-докторская-вареная-400г-43",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбасы Черкизово Ассорти Сервелетти И Прошутто сырокопченые полусухие 85г",
+      "retailer_product_id": "proshoper-колбасы-черкизово-ассорти-сервелетти-и-прошутто-сырокопченые-полусухие-8-44",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сервелат Стародворье Мясорубский варено-копченый 400г",
+      "retailer_product_id": "proshoper-сервелат-стародворье-мясорубскии-варено-копченыи-400г-45",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ветчина Папа может с индейкой, 300г",
+      "retailer_product_id": "proshoper-ветчина-папа-может-с-индеи-кои-300г-46",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Папа может с индейкой варёная, 400г",
+      "retailer_product_id": "proshoper-колбаса-папа-может-с-индеи-кои-варе-ная-400г-47",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Мясная Ферма Краковская полукопченая 350г",
+      "retailer_product_id": "proshoper-колбаса-мясная-ферма-краковская-полукопченая-350г-48",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Вязанка Докторская вареная 370г",
+      "retailer_product_id": "proshoper-колбаса-вязанка-докторская-вареная-370г-49",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Черкизово Свиная По-черкизовски сырокопченая 225г",
+      "retailer_product_id": "proshoper-колбаса-черкизово-свиная-по-черкизовски-сырокопченая-225г-50",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шейка свиная Рестория охлажденная 400г",
+      "retailer_product_id": "proshoper-шеи-ка-свиная-рестория-охлажденная-400г-51",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Рублевский Докторская вареная 400г",
+      "retailer_product_id": "proshoper-колбаса-рублевскии-докторская-вареная-400г-52",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Велком Языковая вареная 400г",
+      "retailer_product_id": "proshoper-колбаса-велком-языковая-вареная-400г-53",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Колбаса Клинский Парме сырокопченая полусухая 170г",
+      "retailer_product_id": "proshoper-колбаса-клинскии-парме-сырокопченая-полусухая-170г-54",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ветчина Рублевский Для завтрака вареная 400г",
+      "retailer_product_id": "proshoper-ветчина-рублевскии-для-завтрака-вареная-400г-55",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Папа может с индейкой из мяса птицы 270г",
+      "retailer_product_id": "proshoper-сосиски-папа-может-с-индеи-кои-из-мяса-птицы-270г-56",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Папа может Для детей, 264г",
+      "retailer_product_id": "proshoper-сосиски-папа-может-для-детеи-264г-57",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Купаты свиные Рестория фирменные охлажденные 400г",
+      "retailer_product_id": "proshoper-купаты-свиные-рестория-фирменные-охлажденные-400г-58",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Вязанка Сливушки 330г",
+      "retailer_product_id": "proshoper-сосиски-вязанка-сливушки-330г-59",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Папа может Сочные, 500г",
+      "retailer_product_id": "proshoper-сосиски-папа-может-сочные-500г-60",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Велком Молочные вареные 300г",
+      "retailer_product_id": "proshoper-сосиски-велком-молочные-вареные-300г-61",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Вязанка Молочные Молокуши 370г",
+      "retailer_product_id": "proshoper-сосиски-вязанка-молочные-молокуши-370г-62",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски ИндиЛайт Грандос вареные из мяса индейки 440г",
+      "retailer_product_id": "proshoper-сосиски-индилаи-т-грандос-вареные-из-мяса-индеи-ки-440г-63",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сосиски Клинский МК Сливочные, 410г",
+      "retailer_product_id": "proshoper-сосиски-клинскии-мк-сливочные-410г-64",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Купаты Индилайт Сочные из индейки 350г",
+      "retailer_product_id": "proshoper-купаты-индилаи-т-сочные-из-индеи-ки-350г-65",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сельдь Красная Цена слабосоленая тихоокеанская 270г",
+      "retailer_product_id": "proshoper-сельдь-красная-цена-слабосоленая-тихоокеанская-270г-66",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тунец Пеликан натуральный для салатов, 185г",
+      "retailer_product_id": "proshoper-тунец-пеликан-натуральныи-для-салатов-185г-67",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сельдь Fish House слабосоленая филе-кусочки в масле 400г",
+      "retailer_product_id": "proshoper-сельдь-fish-house-слабосоленая-филе-кусочки-в-масле-400г-68",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рыба масляная Fish House ломтики холодного копчения 100г",
+      "retailer_product_id": "proshoper-рыба-масляная-fish-house-ломтики-холодного-копчения-100г-69",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сельдь Матиас XXL Отборный филе-кусочки слабосоленые в масле 260г",
+      "retailer_product_id": "proshoper-сельдь-матиас-xxl-отборныи-филе-кусочки-слабосоленые-в-масле-260г-70",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Форель Fish House радужная слабосоленая ломтики 100г",
+      "retailer_product_id": "proshoper-форель-fish-house-радужная-слабосоленая-ломтики-100г-71",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Коктейль из морепродуктов Fish House в рассоле 300г",
+      "retailer_product_id": "proshoper-коктеи-ль-из-морепродуктов-fish-house-в-рассоле-300г-72",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Минтай Fish House филе без кожи замороженное 600г",
+      "retailer_product_id": "proshoper-минтаи-fish-house-филе-без-кожи-замороженное-600г-73",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пельмени Рестория Классические 800г",
+      "retailer_product_id": "proshoper-пельмени-рестория-классические-800г-74",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дамплинги Bibigo Королевские с овощами и свининой замороженные 280г",
+      "retailer_product_id": "proshoper-дамплинги-bibigo-королевские-с-овощами-и-свининои-замороженные-280г-75",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пельмени Мясной Дворик Cибирские халяль 800г",
+      "retailer_product_id": "proshoper-пельмени-мяснои-дворик-cибирские-халяль-800г-76",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Наггетсы Стародворье Хрустящие из мяса цыплят-бройлеров 230г",
+      "retailer_product_id": "proshoper-наггетсы-стародворье-хрустящие-из-мяса-цыплят-брои-леров-230г-77",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чебупицца Курочка по-итальянски Горячая Штучка 250г",
+      "retailer_product_id": "proshoper-чебупицца-курочка-по-итальянски-горячая-штучка-250г-78",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хотстеры Горячая Штучка 250г",
+      "retailer_product_id": "proshoper-хотстеры-горячая-штучка-250г-79",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Наггетсы Мираторг Классические куриные запеченные замороженные 250г",
+      "retailer_product_id": "proshoper-наггетсы-мираторг-классические-куриные-запеченные-замороженные-250г-80",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чебупицца Горячая штучка Курочка По-Итальянски замороженная, 250г",
+      "retailer_product_id": "proshoper-чебупицца-горячая-штучка-курочка-по-итальянски-замороженная-250г-81",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пельмени Горячая штучка Бульмени с говядиной и свининой 700г",
+      "retailer_product_id": "proshoper-пельмени-горячая-штучка-бульмени-с-говядинои-и-свининои-700г-82",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пельмени Горячая штучка Бульмени мини с мясом и оливковым маслом 700г",
+      "retailer_product_id": "proshoper-пельмени-горячая-штучка-бульмени-мини-с-мясом-и-оливковым-маслом-700г-83",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Креветки Fish House Королевские 500г",
+      "retailer_product_id": "proshoper-креветки-fish-house-королевские-500г-84",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Блинчики Папа может круглые с творогом, 180г",
+      "retailer_product_id": "proshoper-блинчики-папа-может-круглые-с-творогом-180г-85",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Блинчики Останкино с мясом замороженные 350г",
+      "retailer_product_id": "proshoper-блинчики-останкино-с-мясом-замороженные-350г-86",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вишня Global Village без косточки замороженная 300г",
+      "retailer_product_id": "proshoper-вишня-global-village-без-косточки-замороженная-300г-87",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пломбир Золотой Стандарт сэндвич 12% БЗМЖ 69г",
+      "retailer_product_id": "proshoper-пломбир-золотои-стандарт-сэндвич-12-бзмж-69г-88",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Чистая Линия 67 Пломбир с ароматом ванили и рисовыми шариками 12%, 70г",
+      "retailer_product_id": "proshoper-мороженое-чистая-линия-67-пломбир-с-ароматом-ванили-и-рисовыми-шариками--89",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Чистая Линия Эскимо с рисовыми шариками в глазури 12% 70г",
+      "retailer_product_id": "proshoper-мороженое-чистая-линия-эскимо-с-рисовыми-шариками-в-глазури-12-70г-90",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Snickers молочное с карамелью и арахисом в глазури эскимо 5% БЗМЖ 65г",
+      "retailer_product_id": "proshoper-мороженое-snickers-молочное-с-карамелью-и-арахисом-в-глазури-эскимо-5-бз-91",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Чистая Линия Эскимо пломбир с ароматом ванили с рисовыми шариками в глазури с ароматом малины 12% БЗМЖ 70г",
+      "retailer_product_id": "proshoper-мороженое-чистая-линия-эскимо-пломбир-с-ароматом-ванили-с-рисовыми-шарик-92",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Эскимо Milka сливочное ванильное с шоколадным соусом в молочном шоколаде 8% БЗМЖ 62г",
+      "retailer_product_id": "proshoper-эскимо-milka-сливочное-ванильное-с-шоколадным-соусом-в-молочном-шоколаде-93",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Twix Карамель с рисовыми шариками в молочном шоколаде 5% БЗМЖ 68г",
+      "retailer_product_id": "proshoper-мороженое-twix-карамель-с-рисовыми-шариками-в-молочном-шоколаде-5-бзмж-6-94",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Магнат Невероятно Сливочный эскимо сливочное в молочном шоколаде с шариками в молочном и темном шоколаде 8% БЗМЖ, 62г",
+      "retailer_product_id": "proshoper-мороженое-магнат-невероятно-сливочныи-эскимо-сливочное-в-молочном-шокола-95",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мороженое Магнат Double Соленая карамель 10% БЗМЖ 310г",
+      "retailer_product_id": "proshoper-мороженое-магнат-double-соленая-карамель-10-бзмж-310г-96",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тесто Рестория слоеное бездрожжевое 500г",
+      "retailer_product_id": "proshoper-тесто-рестория-слоеное-бездрожжевое-500г-97",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Горошек Global Village зеленый из мозговых сортов 240г",
+      "retailer_product_id": "proshoper-горошек-global-village-зеленыи-из-мозговых-сортов-240г-98",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Икра Global Village из баклажанов 350г",
+      "retailer_product_id": "proshoper-икра-global-village-из-баклажанов-350г-99",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Фасоль Global Village печеная 350г",
+      "retailer_product_id": "proshoper-фасоль-global-village-печеная-350г-100",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Горошек Global Village Selection зеленый 520г",
+      "retailer_product_id": "proshoper-горошек-global-village-selection-зеленыи-520г-101",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Фасоль Global Village белая в томатном соусе 400г",
+      "retailer_product_id": "proshoper-фасоль-global-village-белая-в-томатном-соусе-400г-102",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Перец Халапеньо Global Village Selection зеленый резаный маринованный 350г",
+      "retailer_product_id": "proshoper-перец-халапеньо-global-village-selection-зеленыи-резаныи-маринованныи-35-103",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Аппетитка Global Village с нежно-острым вкусом 350г",
+      "retailer_product_id": "proshoper-аппетитка-global-village-с-нежно-острым-вкусом-350г-104",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лечо Global Village 520г",
+      "retailer_product_id": "proshoper-лечо-global-village-520г-105",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шампиньоны Global Village резаные быстрозамороженные 400г",
+      "retailer_product_id": "proshoper-шампиньоны-global-village-резаные-быстрозамороженные-400г-106",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кукуруза сахарная в початках вареная 1уп.",
+      "retailer_product_id": "proshoper-кукуруза-сахарная-в-початках-вареная-1уп-107",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Грибы грузди Global Village соленые 330г",
+      "retailer_product_id": "proshoper-грибы-грузди-global-village-соленые-330г-108",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ассорти Global Village из маринованных грибов 330г",
+      "retailer_product_id": "proshoper-ассорти-global-village-из-маринованных-грибов-330г-109",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Огурцы Global Village Корнишоны маринованные, 580мл",
+      "retailer_product_id": "proshoper-огурцы-global-village-корнишоны-маринованные-580мл-110",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пикули Global Village Selection хрустящие 500г",
+      "retailer_product_id": "proshoper-пикули-global-village-selection-хрустящие-500г-111",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кукуруза сладкая свежая",
+      "retailer_product_id": "proshoper-кукуруза-сладкая-свежая-112",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Огурчики Global Village Фермерские хрустящие 1.5кг",
+      "retailer_product_id": "proshoper-огурчики-global-village-фермерские-хрустящие-1-5кг-113",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Полосатик Fish House жёлтый сушёно-вяленый, 40г",
+      "retailer_product_id": "proshoper-полосатик-fish-house-же-лтыи-суше-но-вяленыи-40г-114",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Скумбрия Fish House атлантическая кусочки в томатном соусе 240г",
+      "retailer_product_id": "proshoper-скумбрия-fish-house-атлантическая-кусочки-в-томатном-соусе-240г-115",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тунец Пеликан для салатов в масле 185г",
+      "retailer_product_id": "proshoper-тунец-пеликан-для-салатов-в-масле-185г-116",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шпроты Fish House из балтийской кильки в масле 160г",
+      "retailer_product_id": "proshoper-шпроты-fish-house-из-балтии-скои-кильки-в-масле-160г-117",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тунец Вкусные Консервы натуральный филе-кусочки, 185г",
+      "retailer_product_id": "proshoper-тунец-вкусные-консервы-натуральныи-филе-кусочки-185г-118",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тунец Fish House рубленый в собственном соку 185г",
+      "retailer_product_id": "proshoper-тунец-fish-house-рубленыи-в-собственном-соку-185г-119",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Свинина Скопинский МК банка №9 тушеная 325г",
+      "retailer_product_id": "proshoper-свинина-скопинскии-мк-банка-No9-тушеная-325г-120",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Свинина Великолукский МК тушеная 325г",
+      "retailer_product_id": "proshoper-свинина-великолукскии-мк-тушеная-325г-121",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Говядина БелРосПрод тушеная 338г",
+      "retailer_product_id": "proshoper-говядина-белроспрод-тушеная-338г-122",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Говядина Скопинский МК тушеная 500г",
+      "retailer_product_id": "proshoper-говядина-скопинскии-мк-тушеная-500г-123",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Варенье Global Village selection бруснично-апельсиновое с пряностями 310г",
+      "retailer_product_id": "proshoper-варенье-global-village-selection-бруснично-апельсиновое-с-пряностями-310-124",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ананасы Global Village кусочки в сиропе 580мл",
+      "retailer_product_id": "proshoper-ананасы-global-village-кусочки-в-сиропе-580мл-125",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ананасы Global Village кольца 580г",
+      "retailer_product_id": "proshoper-ананасы-global-village-кольца-580г-126",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Варенье Выручай клубничное 380г",
+      "retailer_product_id": "proshoper-варенье-выручаи-клубничное-380г-127",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Паштет Рублевский Утка с черносливом мясной деликатесный 200г",
+      "retailer_product_id": "proshoper-паштет-рублевскии-утка-с-черносливом-мяснои-деликатесныи-200г-128",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лапша Бизнес Ланч яичная с куриным бульоном и овощами быстрого приготовления, 80г",
+      "retailer_product_id": "proshoper-лапша-бизнес-ланч-яичная-с-куриным-бульоном-и-овощами-быстрого-приготовл-129",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рис Селяночка круглозерный 5x80г",
+      "retailer_product_id": "proshoper-рис-селяночка-круглозерныи-5x80г-130",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рис Увелка круглозерный шлифованный 500г",
+      "retailer_product_id": "proshoper-рис-увелка-круглозерныи-шлифованныи-500г-131",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рис Мистраль Янтарь длиннозерный пропаренный 5х80г",
+      "retailer_product_id": "proshoper-рис-мистраль-янтарь-длиннозерныи-пропаренныи-5х80г-133",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рис Селяночка длиннозерный шлифованный 900г",
+      "retailer_product_id": "proshoper-рис-селяночка-длиннозерныи-шлифованныи-900г-134",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Рис Мистраль Кубань белый круглозёрный 900г",
+      "retailer_product_id": "proshoper-рис-мистраль-кубань-белыи-круглозе-рныи-900г-135",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мука Селяночка пшеничная высшего сорта 2кг",
+      "retailer_product_id": "proshoper-мука-селяночка-пшеничная-высшего-сорта-2кг-136",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Подсластитель Вкус & Польза Стевия столовый 200г",
+      "retailer_product_id": "proshoper-подсластитель-вкус-польза-стевия-столовыи-200г-137",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Палочки Кузя Лакомкин со вкусом карамели кукурузные 100г",
+      "retailer_product_id": "proshoper-палочки-кузя-лакомкин-со-вкусом-карамели-кукурузные-100г-138",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Картофельное пюре Бизнес Меню с куриным филе и овощами 110г",
+      "retailer_product_id": "proshoper-картофельное-пюре-бизнес-меню-с-куриным-филе-и-овощами-110г-139",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Масло Вкус & Польза из семян тыквенной семечки нерафинированное 250мл",
+      "retailer_product_id": "proshoper-масло-вкус-польза-из-семян-тыквеннои-семечки-нерафинированное-250мл-140",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Масло Вкус & Польза кокосовое нерафинированное первого холодного отжима 250мл",
+      "retailer_product_id": "proshoper-масло-вкус-польза-кокосовое-нерафинированное-первого-холодного-отжима-25-141",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Соус Premissimo барбекю томатный, 200г",
+      "retailer_product_id": "proshoper-соус-premissimo-барбекю-томатныи-200г-142",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Соус Рестория Краснодарский томатный 500г",
+      "retailer_product_id": "proshoper-соус-рестория-краснодарскии-томатныи-500г-143",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Майонез Mr. Ricco Premium на перепелином яйце 67% 360мл",
+      "retailer_product_id": "proshoper-маи-онез-mr-ricco-premium-на-перепелином-яи-це-67-360мл-144",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Соус Махеевъ Тайский майонезный 200г",
+      "retailer_product_id": "proshoper-соус-махеевъ-таи-скии-маи-онезныи-200г-145",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Майонез Ряба Сметанный Провансаль 50.5% 552мл",
+      "retailer_product_id": "proshoper-маи-онез-ряба-сметанныи-провансаль-50-5-552мл-146",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Базилик Рестория 7г",
+      "retailer_product_id": "proshoper-базилик-рестория-7г-147",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пряная зелень Рестория Укроп сушеный 10г",
+      "retailer_product_id": "proshoper-пряная-зелень-рестория-укроп-сушеныи-10г-148",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кумин Рестория целый 15г",
+      "retailer_product_id": "proshoper-кумин-рестория-целыи-15г-149",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лавровый лист Рестория целый сушеный 5г",
+      "retailer_product_id": "proshoper-лавровыи-лист-рестория-целыи-сушеныи-5г-150",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пряности Рестория Перец душистый горошек 10г",
+      "retailer_product_id": "proshoper-пряности-рестория-перец-душистыи-горошек-10г-151",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Петрушка Рестория сушеная 7г",
+      "retailer_product_id": "proshoper-петрушка-рестория-сушеная-7г-152",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория для шашлыка классическая 50г",
+      "retailer_product_id": "proshoper-приправа-рестория-для-шашлыка-классическая-50г-153",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория Томаты и Базилик с чесноком 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-томаты-и-базилик-с-чесноком-15г-154",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория Карри 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-карри-15г-155",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория для мяса, 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-для-мяса-15г-156",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория 4 Перца 20г",
+      "retailer_product_id": "proshoper-приправа-рестория-4-перца-20г-157",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория для плова 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-для-плова-15г-158",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа для рыбы Рестория 15г",
+      "retailer_product_id": "proshoper-приправа-для-рыбы-рестория-15г-159",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория для курицы 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-для-курицы-15г-160",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория Итальянские травы 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-итальянские-травы-15г-161",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Приправа Рестория Хмели-сунели 15г",
+      "retailer_product_id": "proshoper-приправа-рестория-хмели-сунели-15г-162",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чеснок Рестория сушеный 15г",
+      "retailer_product_id": "proshoper-чеснок-рестория-сушеныи-15г-163",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Перец молотый Рестория черный 50г",
+      "retailer_product_id": "proshoper-перец-молотыи-рестория-черныи-50г-164",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Изделия сдобные Шарлиз Парижские сахарные, 6х25г",
+      "retailer_product_id": "proshoper-изделия-сдобные-шарлиз-парижские-сахарные-6х25г-165",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад молочный Алёнка 15г",
+      "retailer_product_id": "proshoper-шоколад-молочныи-але-нка-15г-166",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батончик Snaq Fabriq Кокос глазированный, 38г",
+      "retailer_product_id": "proshoper-батончик-snaq-fabriq-кокос-глазированныи-38г-167",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батончик протеиновый Snaq Fabriq Арахис и карамель 50г",
+      "retailer_product_id": "proshoper-батончик-протеиновыи-snaq-fabriq-арахис-и-карамель-50г-168",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Goodmix молочный с хрустящей вафлей 40г",
+      "retailer_product_id": "proshoper-шоколад-goodmix-молочныи-с-хрустящеи-вафлеи-40г-169",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батончик шоколадный Бабаевский с помадно-сливочной начинкой 50г",
+      "retailer_product_id": "proshoper-батончик-шоколадныи-бабаевскии-с-помадно-сливочнои-начинкои-50г-170",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия щедрая душа Кофе с Молоком молочный с добавлением кофе, 75г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-кофе-с-молоком-молочныи-с-добавлением-кофе-75-171",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия-Щедрая Душа с карамелью и арахисом молочный, 75г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-с-карамелью-и-арахисом-молочныи-75г-172",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия - Щедрая Душа Очень молочный, 75г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-очень-молочныи-75г-173",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия-Щедрая Душа с начинкой с кокосовой стружкой и вафлей молочный и белый, 75г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-с-начинкои-с-кокосовои-стружкои-и-вафлеи-моло-174",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия Щедрая Душа Шоколадные пузырьки белый пористый 70г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-шоколадные-пузырьки-белыи-пористыи-70г-175",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Россия Щедрая Душа Шоколадные пузырьки молочный и белый пористый 70г",
+      "retailer_product_id": "proshoper-шоколад-россия-щедрая-душа-шоколадные-пузырьки-молочныи-и-белыи-пористыи-176",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад молочный Россия - Щедрая Душа! Шоколадные пузырьки пористый, 70г",
+      "retailer_product_id": "proshoper-шоколад-молочныи-россия-щедрая-душа-шоколадные-пузырьки-пористыи-70г-177",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батончик шоколадный Nuts Фундук и фисташка 47г",
+      "retailer_product_id": "proshoper-батончик-шоколадныи-nuts-фундук-и-фисташка-47г-178",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шоколад Miskets Chicken bite молочный-белый с кремовой начинкой покрытый крошкой печенья в карамели 50г",
+      "retailer_product_id": "proshoper-шоколад-miskets-chicken-bite-молочныи-белыи-с-кремовои-начинкои-покрытыи-179",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кондитерское изделие Orion Choco Pie Арбуз в глазури 6х30г",
+      "retailer_product_id": "proshoper-кондитерское-изделие-orion-choco-pie-арбуз-в-глазури-6х30г-180",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Карамель Mixbar молочная 11.3г в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-карамель-mixbar-молочная-11-3г-в-ассортименте-1шт-182",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мармелад Chupa chups Страйпс экструдированный с фруктовым вкусом 10.5г",
+      "retailer_product_id": "proshoper-мармелад-chupa-chups-страи-пс-экструдированныи-с-фруктовым-вкусом-10-5г-183",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Выручай молочные ассорти сливочные, с арахисом, с клюквой, с маком",
+      "retailer_product_id": "proshoper-конфеты-выручаи-молочные-ассорти-сливочные-с-арахисом-с-клюквои-с-маком-184",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Карамель Конфета Доброты леденцовая на палочке, 20г",
+      "retailer_product_id": "proshoper-карамель-конфета-доброты-леденцовая-на-палочке-20г-185",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Orion Choco Boy с обогащающей добавкой 45г",
+      "retailer_product_id": "proshoper-печенье-orion-choco-boy-с-обогащающеи-добавкои-45г-186",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Карамель Mixbar с начинкой жевательное ассорти 250г",
+      "retailer_product_id": "proshoper-карамель-mixbar-с-начинкои-жевательное-ассорти-250г-187",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мармелад Chupa Chups Фансы с фруктовым вкусом 150г",
+      "retailer_product_id": "proshoper-мармелад-chupa-chups-фансы-с-фруктовым-вкусом-150г-188",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ирис Красный октябрь Золотой ключик 250г",
+      "retailer_product_id": "proshoper-ирис-красныи-октябрь-золотои-ключик-250г-189",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Milla Vanilla с кокосовой стружкой 150г",
+      "retailer_product_id": "proshoper-конфеты-milla-vanilla-с-кокосовои-стружкои-150г-190",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Рот Фронт Батончики 250г",
+      "retailer_product_id": "proshoper-конфеты-рот-фронт-батончики-250г-191",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Красный октябрь Цитрон 250г",
+      "retailer_product_id": "proshoper-конфеты-красныи-октябрь-цитрон-250г-192",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Рот Фронт батончики с шоколадно-сливочным вкусом 250г",
+      "retailer_product_id": "proshoper-конфеты-рот-фронт-батончики-с-шоколадно-сливочным-вкусом-250г-193",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Набор Канди Клаб Лизунец Макси карамель на палочке с подарком в ассортименте, 104г",
+      "retailer_product_id": "proshoper-набор-канди-клаб-лизунец-макси-карамель-на-палочке-с-подарком-в-ассортим-194",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Красный Октябрь Мишка косолапый 200г",
+      "retailer_product_id": "proshoper-конфеты-красныи-октябрь-мишка-косолапыи-200г-195",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты КФ Крупской Мишка на севере 200г",
+      "retailer_product_id": "proshoper-конфеты-кф-крупскои-мишка-на-севере-200г-196",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Красный Октябрь Трюфели 200г",
+      "retailer_product_id": "proshoper-конфеты-красныи-октябрь-трюфели-200г-197",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты шоколадные Коркунов Коллекция из темного и молочного шоколада с фундуком и вафельной крошкой 165г",
+      "retailer_product_id": "proshoper-конфеты-шоколадные-коркунов-коллекция-из-темного-и-молочного-шоколада-с--198",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Набор конфет Altamente 370г",
+      "retailer_product_id": "proshoper-набор-конфет-altamente-370г-199",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Конфеты Лёвушка глазированные",
+      "retailer_product_id": "proshoper-конфеты-ле-вушка-глазированные-200",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крекер Выручай с луком 200г",
+      "retailer_product_id": "proshoper-крекер-выручаи-с-луком-200г-201",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Bombbar Шоколадный Брауни 40г",
+      "retailer_product_id": "proshoper-печенье-bombbar-шоколадныи-брауни-40г-202",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вафли Шарлиз Венские со сгущёнкой 100г",
+      "retailer_product_id": "proshoper-вафли-шарлиз-венские-со-сгуще-нкои-100г-203",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вафли Шарлиз со вкусом лимона 200г",
+      "retailer_product_id": "proshoper-вафли-шарлиз-со-вкусом-лимона-200г-204",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крекер Tuc со вкусом пиццы 100г",
+      "retailer_product_id": "proshoper-крекер-tuc-со-вкусом-пиццы-100г-205",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Трубочки Яшкино Ореховые вафельные 190г",
+      "retailer_product_id": "proshoper-трубочки-яшкино-ореховые-вафельные-190г-206",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вафли Яшкино Вафельный сэндвич с какао и молочной начинкой 168г",
+      "retailer_product_id": "proshoper-вафли-яшкино-вафельныи-сэндвич-с-какао-и-молочнои-начинкои-168г-207",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Шарлиз сдобное клубника 137г",
+      "retailer_product_id": "proshoper-печенье-шарлиз-сдобное-клубника-137г-208",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Шарлиз сдобное апельсин 137г",
+      "retailer_product_id": "proshoper-печенье-шарлиз-сдобное-апельсин-137г-209",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Хлебный спас Имбирное сдобное с корицей и тростниковым сахаром 240г",
+      "retailer_product_id": "proshoper-печенье-хлебныи-спас-имбирное-сдобное-с-корицеи-и-тростниковым-сахаром-2-210",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Юбилейное Традиционное 403г",
+      "retailer_product_id": "proshoper-печенье-юбилеи-ное-традиционное-403г-211",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вафли Коровка Топленое молоко 300г",
+      "retailer_product_id": "proshoper-вафли-коровка-топленое-молоко-300г-212",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вафельные рулеты Услада Кот Федот со вкусом и ароматом сгущенного молока 400г",
+      "retailer_product_id": "proshoper-вафельные-рулеты-услада-кот-федот-со-вкусом-и-ароматом-сгущенного-молока-213",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Печенье Milka с кусочками молочного шоколада 126г",
+      "retailer_product_id": "proshoper-печенье-milka-с-кусочками-молочного-шоколада-126г-214",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Булочки Коломенское с кардамоном 200г",
+      "retailer_product_id": "proshoper-булочки-коломенское-с-кардамоном-200г-215",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кекс Хлебный дом Ягодное Лукошко с вишней 2х70г",
+      "retailer_product_id": "proshoper-кекс-хлебныи-дом-ягодное-лукошко-с-вишнеи-2х70г-216",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кекс Хлебный Дом Ягодное Лукошко с черникой 2х70г",
+      "retailer_product_id": "proshoper-кекс-хлебныи-дом-ягодное-лукошко-с-черникои-2х70г-217",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Круассаны 7Days мини с кремом какао 265г",
+      "retailer_product_id": "proshoper-круассаны-7days-мини-с-кремом-какао-265г-218",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-круассаны Шарлиз с клубничной начинкой 200г",
+      "retailer_product_id": "proshoper-мини-круассаны-шарлиз-с-клубничнои-начинкои-200г-219",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-круассаны Шарлиз с какао кремом 200г",
+      "retailer_product_id": "proshoper-мини-круассаны-шарлиз-с-какао-кремом-200г-220",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-кексы Юбилейное с кусочками молочного шоколада 5х28г",
+      "retailer_product_id": "proshoper-мини-кексы-юбилеи-ное-с-кусочками-молочного-шоколада-5х28г-221",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-маффины Шарлиз с начинкой с шоколадным вкусом 433г",
+      "retailer_product_id": "proshoper-мини-маффины-шарлиз-с-начинкои-с-шоколадным-вкусом-433г-222",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-маффины Шарлиз с вареной сгущенкой 433г",
+      "retailer_product_id": "proshoper-мини-маффины-шарлиз-с-варенои-сгущенкои-433г-223",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мини-маффины Шарлиз с клубничной начинкой 433г",
+      "retailer_product_id": "proshoper-мини-маффины-шарлиз-с-клубничнои-начинкои-433г-224",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Смесь Вкус & Польза протеиновая для выпечки блинов и оладий 300г",
+      "retailer_product_id": "proshoper-смесь-вкус-польза-протеиновая-для-выпечки-блинов-и-оладии-300г-225",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зефир Шарлиз бело-розовый 180г",
+      "retailer_product_id": "proshoper-зефир-шарлиз-бело-розовыи-180г-226",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зефир Шарлиз Белёвский Антоновка ручной работы 250г",
+      "retailer_product_id": "proshoper-зефир-шарлиз-беле-вскии-антоновка-ручнои-работы-250г-227",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мармелад Шарлиз Французский сад желейный 300г",
+      "retailer_product_id": "proshoper-мармелад-шарлиз-французскии-сад-желеи-ныи-300г-228",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пирожное Milla Vanilla Воздушный Ломтик с начинкой со вкусом шоколада, 60г",
+      "retailer_product_id": "proshoper-пирожное-milla-vanilla-воздушныи-ломтик-с-начинкои-со-вкусом-шоколада-60-229",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пирожное Milka Bisсuits с шоколадной начинкой и кусочками молочного шоколада бисквитное 175г",
+      "retailer_product_id": "proshoper-пирожное-milka-bisсuits-с-шоколаднои-начинкои-и-кусочками-молочного-шоко-230",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пирог Шарлиз Фруктовый Пай песочный с вишневым джемом 430г",
+      "retailer_product_id": "proshoper-пирог-шарлиз-фруктовыи-паи-песочныи-с-вишневым-джемом-430г-231",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Торт Шарлиз Медовик 350г",
+      "retailer_product_id": "proshoper-торт-шарлиз-медовик-350г-232",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлебцы Хлебцы Молодцы Фитнес линия цельнозерновые витамин плюс хрустящие 100г",
+      "retailer_product_id": "proshoper-хлебцы-хлебцы-молодцы-фитнес-линия-цельнозерновые-витамин-плюс-хрустящие-233",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Коломенское Даниловский зерновой 300г",
+      "retailer_product_id": "proshoper-хлеб-коломенское-даниловскии-зерновои-300г-234",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Хлебный Дом Марьин заварной 350г",
+      "retailer_product_id": "proshoper-хлеб-хлебныи-дом-марьин-заварнои-350г-235",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Ржаной Край зерновой нарезка 300г",
+      "retailer_product_id": "proshoper-хлеб-ржанои-краи-зерновои-нарезка-300г-236",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кофейный напиток Нескафе Фраппе растворимый, 11,5г",
+      "retailer_product_id": "proshoper-кофеи-ныи-напиток-нескафе-фраппе-растворимыи-11-5г-237",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток кофейный растворимый Monarch Латте со вкусом кокоса, 16г",
+      "retailer_product_id": "proshoper-напиток-кофеи-ныи-растворимыи-monarch-латте-со-вкусом-кокоса-16г-238",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Цикорий Вкус & Польза растворимый порошкообразный 85г",
+      "retailer_product_id": "proshoper-цикории-вкус-польза-растворимыи-порошкообразныи-85г-239",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Цикорий растворимый Вкус & Польза с экстрактом черники 85г",
+      "retailer_product_id": "proshoper-цикории-растворимыи-вкус-польза-с-экстрактом-черники-85г-240",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Какао-порошок Золотой Ярлык 100г",
+      "retailer_product_id": "proshoper-какао-порошок-золотои-ярлык-100г-241",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Паста Шарлиз с молоком и какао 350г",
+      "retailer_product_id": "proshoper-паста-шарлиз-с-молоком-и-какао-350г-242",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Паста Premissimo с фундуком и какао 330г",
+      "retailer_product_id": "proshoper-паста-premissimo-с-фундуком-и-какао-330г-243",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вода Gorgi Нагутская-26 минеральная лечебно-столовая газированная 1л",
+      "retailer_product_id": "proshoper-вода-gorgi-нагутская-26-минеральная-лечебно-столовая-газированная-1л-244",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Сады Придонья Exclusive вишневый осветленный, 200мл",
+      "retailer_product_id": "proshoper-нектар-сады-придонья-exclusive-вишневыи-осветленныи-200мл-245",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сок Honey Kid яблочный восстановленный осветленный для детей с 4 мес. 0.2л",
+      "retailer_product_id": "proshoper-сок-honey-kid-яблочныи-восстановленныи-осветленныи-для-детеи-с-4-мес-0-2-246",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сок Global Village томатный 0.95л",
+      "retailer_product_id": "proshoper-сок-global-village-томатныи-0-95л-247",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сок Global Village яблочный 950мл",
+      "retailer_product_id": "proshoper-сок-global-village-яблочныи-950мл-248",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Global Village ананасовый 950мл",
+      "retailer_product_id": "proshoper-нектар-global-village-ананасовыи-950мл-249",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Global Village Вишня осветленный 0.95л",
+      "retailer_product_id": "proshoper-нектар-global-village-вишня-осветленныи-0-95л-250",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Global Village апельсиновый 950мл",
+      "retailer_product_id": "proshoper-нектар-global-village-апельсиновыи-950мл-251",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток Добрый Апельсин-мандарин для детского питания сокосодержащий 1.45л",
+      "retailer_product_id": "proshoper-напиток-добрыи-апельсин-мандарин-для-детского-питания-сокосодержащии-1-4-252",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Добрый из яблок, черноплодной рябины и вишни 1.45л",
+      "retailer_product_id": "proshoper-нектар-добрыи-из-яблок-черноплоднои-рябины-и-вишни-1-45л-253",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Добрый Виноградный 1.45л",
+      "retailer_product_id": "proshoper-нектар-добрыи-виноградныи-1-45л-254",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Добрый Фермерские яблочки яблочный для детского питания 1.45л",
+      "retailer_product_id": "proshoper-нектар-добрыи-фермерские-яблочки-яблочныи-для-детского-питания-1-45л-255",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Добрый томатный с сахаром и солью 1.45л",
+      "retailer_product_id": "proshoper-нектар-добрыи-томатныи-с-сахаром-и-солью-1-45л-256",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Добрый Мультифруктовый 1.45л",
+      "retailer_product_id": "proshoper-нектар-добрыи-мультифруктовыи-1-45л-257",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Сады Придонья Exclusive Банан-клубника, 1.93л",
+      "retailer_product_id": "proshoper-нектар-сады-придонья-exclusive-банан-клубника-1-93л-258",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сок Сады Придонья яблоко, виноград восстановленный осветленный для питания детей старше 3-х лет 1.93л",
+      "retailer_product_id": "proshoper-сок-сады-придонья-яблоко-виноград-восстановленныи-осветленныи-для-питани-259",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Нектар Сады Придонья ананас для питания детей старше 3-х лет 1.93л",
+      "retailer_product_id": "proshoper-нектар-сады-придонья-ананас-для-питания-детеи-старше-3-х-лет-1-93л-260",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток Fresh Bubble gum со вкусом жевательной резинки Бабл Гам с кусочками кокосового желе 0.32л",
+      "retailer_product_id": "proshoper-напиток-fresh-bubble-gum-со-вкусом-жевательнои-резинки-бабл-гам-с-кусочк-261",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток Fresh mango со вкусом манго с кусочками кокосового желе 0.32л",
+      "retailer_product_id": "proshoper-напиток-fresh-mango-со-вкусом-манго-с-кусочками-кокосового-желе-0-32л-262",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Морс Фрутмотив из клюквы пастеризованный, 500мл",
+      "retailer_product_id": "proshoper-морс-фрутмотив-из-клюквы-пастеризованныи-500мл-263",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток Chillout Пина Колада со вкусом ананас-кокос безалкогольный газированный, 450мл",
+      "retailer_product_id": "proshoper-напиток-chillout-пина-колада-со-вкусом-ананас-кокос-безалкогольныи-газир-264",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток Chillout Беллини с игристыми нотами и вкусом персика безалкогольный газированный, 450мл",
+      "retailer_product_id": "proshoper-напиток-chillout-беллини-с-игристыми-нотами-и-вкусом-персика-безалкоголь-265",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сироп Вкус & Польза топинамбура 240г",
+      "retailer_product_id": "proshoper-сироп-вкус-польза-топинамбура-240г-266",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток энергетический Alligator Mango Coconut газированный, 250мл",
+      "retailer_product_id": "proshoper-напиток-энергетическии-alligator-mango-coconut-газированныи-250мл-267",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток энергетический Alligator Pomegranate газированный, 250мл",
+      "retailer_product_id": "proshoper-напиток-энергетическии-alligator-pomegranate-газированныи-250мл-268",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Напиток энергетический Flash Up Energy Киви и Карамбола витаминизированный газированный 450мл",
+      "retailer_product_id": "proshoper-напиток-энергетическии-flash-up-energy-киви-и-карамбола-витаминизированн-269",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Московский картофель Лисички в сливочном соусе, 70г",
+      "retailer_product_id": "proshoper-чипсы-московскии-картофель-лисички-в-сливочном-соусе-70г-270",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Арахис не бланшированный",
+      "retailer_product_id": "proshoper-арахис-не-бланшированныи-271",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ядра подсолнечника Mixbar жареные 70г",
+      "retailer_product_id": "proshoper-ядра-подсолнечника-mixbar-жареные-70г-272",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семечки Кукусики подсолнечника полосатые жареные сладкие, 90г",
+      "retailer_product_id": "proshoper-семечки-кукусики-подсолнечника-полосатые-жареные-сладкие-90г-273",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена подсолнечника Mixbar жареные 300г",
+      "retailer_product_id": "proshoper-семена-подсолнечника-mixbar-жареные-300г-274",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кешью",
+      "retailer_product_id": "proshoper-кешью-275",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семечки Крутой Окер Полосатые с морской солью 240г",
+      "retailer_product_id": "proshoper-семечки-крутои-окер-полосатые-с-морскои-солью-240г-276",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Изюм светлый",
+      "retailer_product_id": "proshoper-изюм-светлыи-277",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кукурузные шарики СырBall со вкусом краба, 45г",
+      "retailer_product_id": "proshoper-кукурузные-шарики-сырball-со-вкусом-краба-45г-278",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кукурузные шарики СырBall со вкусом сыра, 45г",
+      "retailer_product_id": "proshoper-кукурузные-шарики-сырball-со-вкусом-сыра-45г-279",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Дон Чипсарро пшеничные со вкусом маринованного огурчика, 90г",
+      "retailer_product_id": "proshoper-чипсы-дон-чипсарро-пшеничные-со-вкусом-маринованного-огурчика-90г-280",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Снеки Луковые кольца со вкусом жареные креветки хрустящие, 90г",
+      "retailer_product_id": "proshoper-снеки-луковые-кольца-со-вкусом-жареные-креветки-хрустящие-90г-281",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Снеки Луковые кольца со вкусом сметана и лук хрустящие, 90г",
+      "retailer_product_id": "proshoper-снеки-луковые-кольца-со-вкусом-сметана-и-лук-хрустящие-90г-282",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Bruto из натурального картофеля со вкусом латяо с говядиной, 70г",
+      "retailer_product_id": "proshoper-чипсы-bruto-из-натурального-картофеля-со-вкусом-латяо-с-говядинои-70г-283",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Bruto из натурального картофеля со вкусом латяо с курицей, 70г",
+      "retailer_product_id": "proshoper-чипсы-bruto-из-натурального-картофеля-со-вкусом-латяо-с-курицеи-70г-284",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Lay's Пряная креветка рифлёные 105г",
+      "retailer_product_id": "proshoper-чипсы-lay-s-пряная-креветка-рифле-ные-105г-285",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чипсы Lay's Белые грибы со сметаной, 105г",
+      "retailer_product_id": "proshoper-чипсы-lay-s-белые-грибы-со-сметанои-105г-286",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Подгузники Красная цена Maxi 4L 26шт.",
+      "retailer_product_id": "proshoper-подгузники-красная-цена-maxi-4l-26шт-288",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Мялка в ассортименте 1шт",
+      "retailer_product_id": "proshoper-игрушка-мялка-в-ассортименте-1шт-289",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Набор Конфитрейд в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-набор-конфитреи-д-в-ассортименте-1шт-290",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Unic-Toys Конструктор Принцесса в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-игрушка-unic-toys-конструктор-принцесса-в-ассортименте-1шт-291",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Unionline Растущая",
+      "retailer_product_id": "proshoper-игрушка-unionline-растущая-292",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Toysmax Мини Поп-Звезда",
+      "retailer_product_id": "proshoper-игрушка-toysmax-мини-поп-звезда-293",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Huada Toy Гоночная машина для детей в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-игрушка-huada-toy-гоночная-машина-для-детеи-в-ассортименте-1шт-294",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Супер Жим Антистресс для детей XIN-SOM-01-RU 1шт.",
+      "retailer_product_id": "proshoper-игрушка-супер-жим-антистресс-для-детеи-xin-som-01-ru-1шт-295",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Раскраска Умка Смешарики с наклейками + 16 наклеек",
+      "retailer_product_id": "proshoper-раскраска-умка-смешарики-с-наклеи-ками-16-наклеек-296",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Конфитрейд Фигурка Ми-Ми-Мишки в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-игрушка-конфитреи-д-фигурка-ми-ми-мишки-в-ассортименте-1шт-297",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Molang мягконабивная в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-игрушка-molang-мягконабивная-в-ассортименте-1шт-298",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Конфитрейд Фигурка Турбозавры в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-игрушка-конфитреи-д-фигурка-турбозавры-в-ассортименте-1шт-299",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Конфитрейд Фигурка Животное в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-игрушка-конфитреи-д-фигурка-животное-в-ассортименте-1шт-300",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Play Me Фигурка Капибарчик в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-игрушка-play-me-фигурка-капибарчик-в-ассортименте-1шт-301",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Игрушка Йокими брелок в ассортименте, 1шт",
+      "retailer_product_id": "proshoper-игрушка-и-окими-брелок-в-ассортименте-1шт-302",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бомбочка Body & Up для ванны в ассортименте 120г",
+      "retailer_product_id": "proshoper-бомбочка-body-up-для-ванны-в-ассортименте-120г-303",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шампунь Чистая линия Крапива укрепляющий для всех типов волос 750мл",
+      "retailer_product_id": "proshoper-шампунь-чистая-линия-крапива-укрепляющии-для-всех-типов-волос-750мл-304",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель-Шампунь для душа АКС На Пляже 3в1 250мл",
+      "retailer_product_id": "proshoper-гель-шампунь-для-душа-акс-на-пляже-3в1-250мл-305",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бальзам Глисс Кур Жидкий шелк для непослушных тусклых волос 360мл",
+      "retailer_product_id": "proshoper-бальзам-глисс-кур-жидкии-шелк-для-непослушных-тусклых-волос-360мл-306",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бальзам Глисс Кур Исключительное увлажнение для нормальных и склонных к сухости волос 360мл",
+      "retailer_product_id": "proshoper-бальзам-глисс-кур-исключительное-увлажнение-для-нормальных-и-склонных-к--307",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шампунь Сьёсс Volume с экстрактом черного риса для тонких волос 0.45л",
+      "retailer_product_id": "proshoper-шампунь-сье-сс-volume-с-экстрактом-черного-риса-для-тонких-волос-0-45л-308",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бальзам My Muse SOS-Восстановление укрепляющий 400мл",
+      "retailer_product_id": "proshoper-бальзам-my-muse-sos-восстановление-укрепляющии-400мл-309",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Шампунь My Muse SOS-Восстановление укрепляющий 400мл",
+      "retailer_product_id": "proshoper-шампунь-my-muse-sos-восстановление-укрепляющии-400мл-310",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крем-мыло туалетное Aquatel классическое твердое 90г",
+      "retailer_product_id": "proshoper-крем-мыло-туалетное-aquatel-классическое-твердое-90г-311",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пенка для умывания Dolce Milk Bubble Milk 150мл",
+      "retailer_product_id": "proshoper-пенка-для-умывания-dolce-milk-bubble-milk-150мл-312",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пенка Grass Milana Клубника со сливками для душа 750мл",
+      "retailer_product_id": "proshoper-пенка-grass-milana-клубника-со-сливками-для-душа-750мл-313",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель-крем для душа Palmolive Натурэль Олива и Увлажняющее молочко, 750мл",
+      "retailer_product_id": "proshoper-гель-крем-для-душа-palmolive-натурэль-олива-и-увлажняющее-молочко-750мл-314",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крем Body & Up Восстанавливающий для ног 75мл",
+      "retailer_product_id": "proshoper-крем-body-up-восстанавливающии-для-ног-75мл-315",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крем Body Up Роскошный Уход для рук 75мл",
+      "retailer_product_id": "proshoper-крем-body-up-роскошныи-уход-для-рук-75мл-316",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крем для лица Mixit c гиалуроновой кислотой увлажняющий, 50мл",
+      "retailer_product_id": "proshoper-крем-для-лица-mixit-c-гиалуроновои-кислотои-увлажняющии-50мл-317",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная щетка Colgate 360° Optic White отбеливающая, средней жесткости",
+      "retailer_product_id": "proshoper-зубная-щетка-colgate-360-optic-white-отбеливающая-среднеи-жесткости-318",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная щетка Splat Junior детская в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-зубная-щетка-splat-junior-детская-в-ассортименте-1шт-319",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная паста Colgate Тройное действие Натуральная мята, 150мл",
+      "retailer_product_id": "proshoper-зубная-паста-colgate-трои-ное-деи-ствие-натуральная-мята-150мл-320",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная паста Colgate Макс Блеск Кристальная мята с отбеливающими пластинками, 100мл",
+      "retailer_product_id": "proshoper-зубная-паста-colgate-макс-блеск-кристальная-мята-с-отбеливающими-пластин-321",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная паста Colgate Макс Фреш Взрывная мята с освежающими кристаллами, 100мл",
+      "retailer_product_id": "proshoper-зубная-паста-colgate-макс-фреш-взрывная-мята-с-освежающими-кристаллами-1-322",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зубная нить Stardent мятная 50м",
+      "retailer_product_id": "proshoper-зубная-нить-stardent-мятная-50м-323",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Влажные салфетки Я Самая Peptides для всех типов кожи даже для чувствительной 15шт.",
+      "retailer_product_id": "proshoper-влажные-салфетки-я-самая-peptides-для-всех-типов-кожи-даже-для-чувствите-324",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Туалетная бумага Tolli Lux белая 3 слоя 8шт.",
+      "retailer_product_id": "proshoper-туалетная-бумага-tolli-lux-белая-3-слоя-8шт-325",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Туалетная бумага Tolli Lux белая 3 слоя ароматизированная 8шт.",
+      "retailer_product_id": "proshoper-туалетная-бумага-tolli-lux-белая-3-слоя-ароматизированная-8шт-326",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Туалетная бумага Papia Deluxe Dolce Vita белая 4 слоя 8шт.",
+      "retailer_product_id": "proshoper-туалетная-бумага-papia-deluxe-dolce-vita-белая-4-слоя-8шт-327",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Маска для лица Missha Airy Fit Sheet Mask Aloe увлажняющая с экстрактом алоэ 19г",
+      "retailer_product_id": "proshoper-маска-для-лица-missha-airy-fit-sheet-mask-aloe-увлажняющая-с-экстрактом--328",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Маска для лица Missha Airy Fit Sheet Mask Green Tea успокаивающая с экстрактом зеленого чая 19г",
+      "retailer_product_id": "proshoper-маска-для-лица-missha-airy-fit-sheet-mask-green-tea-успокаивающая-с-экст-329",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Станок для бритья Endeavor женский одноразовый 5шт.",
+      "retailer_product_id": "proshoper-станок-для-бритья-endeavor-женскии-одноразовыи-5шт-330",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дезодорант Антиперспирант Deonica Энергия витаминов роликовый женский 50мл",
+      "retailer_product_id": "proshoper-дезодорант-антиперспирант-deonica-энергия-витаминов-роликовыи-женскии-50-331",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дезодорант Антиперспирант Deonica Невидимый женский 200мл",
+      "retailer_product_id": "proshoper-дезодорант-антиперспирант-deonica-невидимыи-женскии-200мл-332",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Антиперспирант Nivea Clear Невидимая защита для черного и белого 150мл",
+      "retailer_product_id": "proshoper-антиперспирант-nivea-clear-невидимая-защита-для-черного-и-белого-150мл-333",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дезодорант Nivea Fresh Cherry 150мл",
+      "retailer_product_id": "proshoper-дезодорант-nivea-fresh-cherry-150мл-334",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Станок для бритья Endeavor мужской одноразовый 5шт.",
+      "retailer_product_id": "proshoper-станок-для-бритья-endeavor-мужскои-одноразовыи-5шт-335",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пена для бритья Endeavor sensitive для чувствительной кожи 200мл",
+      "retailer_product_id": "proshoper-пена-для-бритья-endeavor-sensitive-для-чувствительнои-кожи-200мл-336",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кассеты для бритья Gillette Fusion Proglide сменные 2шт.",
+      "retailer_product_id": "proshoper-кассеты-для-бритья-gillette-fusion-proglide-сменные-2шт-337",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Станок бритвенный Endeavor со сменной кассетой с тремя лезвиями SL-7006 1шт.",
+      "retailer_product_id": "proshoper-станок-бритвенныи-endeavor-со-сменнои-кассетои-с-тремя-лезвиями-sl-7006--338",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Средство для мытья посуды Peros жидкое моющее Яблоко 500мл",
+      "retailer_product_id": "proshoper-средство-для-мытья-посуды-peros-жидкое-моющее-яблоко-500мл-339",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Средство для мытья посуды Synergetic Алоэ 500мл",
+      "retailer_product_id": "proshoper-средство-для-мытья-посуды-synergetic-алоэ-500мл-340",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Порошок стиральный Персил Color Свежесть от Vernel 450г",
+      "retailer_product_id": "proshoper-порошок-стиральныи-персил-color-свежесть-от-vernel-450г-341",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель Aroma Drop 2в1 Aromatherapy Свежесть лотоса для стирки 1000г",
+      "retailer_product_id": "proshoper-гель-aroma-drop-2в1-aromatherapy-свежесть-лотоса-для-стирки-1000г-342",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель-концентрат Ecqwa Color для стирки 1л",
+      "retailer_product_id": "proshoper-гель-концентрат-ecqwa-color-для-стирки-1л-343",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Порошок стиральный Лоск Color Total 2.7кг",
+      "retailer_product_id": "proshoper-порошок-стиральныи-лоск-color-total-2-7кг-344",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Средство Lamm Aroma для стирки жидкое в капсулах 15кап",
+      "retailer_product_id": "proshoper-средство-lamm-aroma-для-стирки-жидкое-в-капсулах-15кап-345",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Порошок стиральный Лоск Active 6 Горное Озеро автомат для белого и светлого белья, 2.7кг",
+      "retailer_product_id": "proshoper-порошок-стиральныи-лоск-active-6-горное-озеро-автомат-для-белого-и-светл-346",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Капсулы Персил Power Caps Color 4in1 для стирки концентрированные 14шт",
+      "retailer_product_id": "proshoper-капсулы-персил-power-caps-color-4in1-для-стирки-концентрированные-14шт-347",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Порошок стиральный Персил Color свежесть от Vernel 2.1кг",
+      "retailer_product_id": "proshoper-порошок-стиральныи-персил-color-свежесть-от-vernel-2-1кг-348",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель для стирки Lamm Universal 1.3л",
+      "retailer_product_id": "proshoper-гель-для-стирки-lamm-universal-1-3л-349",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гель для стирки Lamm Color 1.3л",
+      "retailer_product_id": "proshoper-гель-для-стирки-lamm-color-1-3л-350",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Порошок стиральный BiMax Color automat 3кг",
+      "retailer_product_id": "proshoper-порошок-стиральныи-bimax-color-automat-3кг-351",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ножи Готовое решение деревянные столовые одноразовые 6шт.",
+      "retailer_product_id": "proshoper-ножи-готовое-решение-деревянные-столовые-одноразовые-6шт-352",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ложка Архимед поварская в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-ложка-архимед-поварская-в-ассортименте-1шт-353",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Вилки Liberhaus столовые 2шт.",
+      "retailer_product_id": "proshoper-вилки-liberhaus-столовые-2шт-354",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ложки Liberhaus столовые 2шт.",
+      "retailer_product_id": "proshoper-ложки-liberhaus-столовые-2шт-355",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Фужер Disco Party для шампанского одноразовый 6х180мл",
+      "retailer_product_id": "proshoper-фужер-disco-party-для-шампанского-одноразовыи-6х180мл-356",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крышка Liberhaus мультиразмерная с силиконовым ободом 22/24/26см 1шт.",
+      "retailer_product_id": "proshoper-крышка-liberhaus-мультиразмерная-с-силиконовым-ободом-22-24-26см-1шт-357",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кастрюля с крышкой TX212-18 18см 2л",
+      "retailer_product_id": "proshoper-кастрюля-с-крышкои-tx212-18-18см-2л-358",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ковшик Spean&Clean в ассортименте, 1.4л",
+      "retailer_product_id": "proshoper-ковшик-spean-clean-в-ассортименте-1-4л-359",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ершик Liberhaus для ванной с подставкой 35x9,5x3,5см",
+      "retailer_product_id": "proshoper-ершик-liberhaus-для-ваннои-с-подставкои-35x9-5x3-5см-360",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Менажница Sugar&Spice 5 секций в ассортименте",
+      "retailer_product_id": "proshoper-менажница-sugar-spice-5-секции-в-ассортименте-361",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Термокружка Liberhaus с колбой из нержавеющей стали 470мл",
+      "retailer_product_id": "proshoper-термокружка-liberhaus-с-колбои-из-нержавеющеи-стали-470мл-362",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чайник Liberhaus заварочный, 750мл",
+      "retailer_product_id": "proshoper-чаи-ник-liberhaus-заварочныи-750мл-363",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Противень овальный 1шт.",
+      "retailer_product_id": "proshoper-противень-овальныи-1шт-364",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Термоодеяло 210х160см, 2шт.",
+      "retailer_product_id": "proshoper-термоодеяло-210х160см-2шт-365",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Капуста цветная Сноуболл 123, 0.3г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-капуста-цветная-сноуболл-123-0-3г-367",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Патиссон Белые 13, 1г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-патиссон-белые-13-1г-368",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Эшшольция Вальс цветов смесь, 0.1г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-эшшольция-вальс-цветов-смесь-0-1г-369",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Томат Ракета, 0.3г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-томат-ракета-0-3г-370",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Томат Белый Налив 241, 0.3г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-томат-белыи-налив-241-0-3г-371",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Томат Яблонька России, 0.3г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-томат-яблонька-россии-0-3г-372",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Георгина Бриджит, 0.3г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-георгина-бриджит-0-3г-373",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Клипсы для подвязки растений d-25мм, 50шт.",
+      "retailer_product_id": "proshoper-клипсы-для-подвязки-растении-d-25мм-50шт-374",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Крышки Твист-Офф металлические винтовые 82мм 20шт.",
+      "retailer_product_id": "proshoper-крышки-твист-офф-металлические-винтовые-82мм-20шт-375",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пластины от комаров Раптор без запаха 10шт.",
+      "retailer_product_id": "proshoper-пластины-от-комаров-раптор-без-запаха-10шт-376",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Пластины от комаров Mosquitall Нежная Защита для детей 10шт.",
+      "retailer_product_id": "proshoper-пластины-от-комаров-mosquitall-нежная-защита-для-детеи-10шт-377",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Набор шампуров 6шт.",
+      "retailer_product_id": "proshoper-набор-шампуров-6шт-378",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бутылка Sugar&Spice для воды в ассортименте, 520мл",
+      "retailer_product_id": "proshoper-бутылка-sugar-spice-для-воды-в-ассортименте-520мл-379",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сменная кассета для фильтра Барьер №4 Классик 1шт",
+      "retailer_product_id": "proshoper-сменная-кассета-для-фильтра-барьер-No4-классик-1шт-380",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Изделие декоративное Смешарики в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-изделие-декоративное-смешарики-в-ассортименте-1шт-381",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Брелок Сумочка в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-брелок-сумочка-в-ассортименте-1шт-382",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Наклейки Носики-Хвостики объемные в ассортименте 12шт",
+      "retailer_product_id": "proshoper-наклеи-ки-носики-хвостики-объемные-в-ассортименте-12шт-383",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Букет цветов Seasons Пионы искусственные 1шт.",
+      "retailer_product_id": "proshoper-букет-цветов-seasons-пионы-искусственные-1шт-384",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Букет цветов Seasons Гвоздики искусственные 1шт.",
+      "retailer_product_id": "proshoper-букет-цветов-seasons-гвоздики-искусственные-1шт-385",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Букет цветов Seasons Тюльпаны искусственные 1шт.",
+      "retailer_product_id": "proshoper-букет-цветов-seasons-тюльпаны-искусственные-1шт-386",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Букет цветов Seasons Хризантемы искусственные 1шт.",
+      "retailer_product_id": "proshoper-букет-цветов-seasons-хризантемы-искусственные-1шт-387",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чехол Liberhaus для стирки одежды 3шт.",
+      "retailer_product_id": "proshoper-чехол-liberhaus-для-стирки-одежды-3шт-388",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Зонт для детей в ассортименте 1шт.",
+      "retailer_product_id": "proshoper-зонт-для-детеи-в-ассортименте-1шт-389",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Корм влажный Cattera с курицей в желе для взрослых кошек 75г",
+      "retailer_product_id": "proshoper-корм-влажныи-cattera-с-курицеи-в-желе-для-взрослых-кошек-75г-390",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Наполнитель для кошачьих туалетов Cat Step Tofu Green Tea комкующийся 6л",
+      "retailer_product_id": "proshoper-наполнитель-для-кошачьих-туалетов-cat-step-tofu-green-tea-комкующии-ся-6-391",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Корм сухой Perfect Fit Sterile с курицей для стерилизованных кошек 2.5кг",
+      "retailer_product_id": "proshoper-корм-сухои-perfect-fit-sterile-с-курицеи-для-стерилизованных-кошек-2-5кг-392",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Кофемашина капсульная Privilegio CM-208N1L 1шт.",
+      "retailer_product_id": "proshoper-кофемашина-капсульная-privilegio-cm-208n1l-1шт-393",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лампа светодиодная Старт E27 10W теплый свет 1шт.",
+      "retailer_product_id": "proshoper-лампа-светодиодная-старт-e27-10w-теплыи-свет-1шт-394",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лампа светодиодная Старт Eco LED GLS E27 15W 30 теплый свет 1шт.",
+      "retailer_product_id": "proshoper-лампа-светодиодная-старт-eco-led-gls-e27-15w-30-теплыи-свет-1шт-395",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Водосгон 24.5х24.5см",
+      "retailer_product_id": "proshoper-водосгон-24-5х24-5см-396",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ароматизатор для автомобиля, 1шт.",
+      "retailer_product_id": "proshoper-ароматизатор-для-автомобиля-1шт-397",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Гвоздика Рестория целая 15г",
+      "retailer_product_id": "proshoper-гвоздика-рестория-целая-15г-398",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Палочки неоновые, 3шт.",
+      "retailer_product_id": "proshoper-палочки-неоновые-3шт-399",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Свисток в ассортименте, 1шт.",
+      "retailer_product_id": "proshoper-свисток-в-ассортименте-1шт-400",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Наклейки объемные, 4шт.",
+      "retailer_product_id": "proshoper-наклеи-ки-объемные-4шт-401",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Тату-наклейки, 1шт.",
+      "retailer_product_id": "proshoper-тату-наклеи-ки-1шт-402",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Щетка 17.6x7x4см",
+      "retailer_product_id": "proshoper-щетка-17-6x7x4см-403",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Щетка для уборки 13.5х8см",
+      "retailer_product_id": "proshoper-щетка-для-уборки-13-5х8см-404",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Горючее Дача сухое 8шт.",
+      "retailer_product_id": "proshoper-горючее-дача-сухое-8шт-405",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Аккумулятор холода 4х10х1.5см HJW251124G02, 200мл",
+      "retailer_product_id": "proshoper-аккумулятор-холода-4х10х1-5см-hjw251124g02-200мл-406",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Открывалка Dinoromano, 1шт.",
+      "retailer_product_id": "proshoper-открывалка-dinoromano-1шт-407",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Дудка, 1шт.",
+      "retailer_product_id": "proshoper-дудка-1шт-408",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Мишень футбольная, 1шт.",
+      "retailer_product_id": "proshoper-мишень-футбольная-1шт-409",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Ладошка-трещотка, 1шт.",
+      "retailer_product_id": "proshoper-ладошка-трещотка-1шт-410",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Бутылка, 1шт.",
+      "retailer_product_id": "proshoper-бутылка-1шт-411",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Щетка для чистки решеток для гриля и барбекю 15х6х10см 1шт.",
+      "retailer_product_id": "proshoper-щетка-для-чистки-решеток-для-гриля-и-барбекю-15х6х10см-1шт-412",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сидушка туристическая Хоба 24х35х2см",
+      "retailer_product_id": "proshoper-сидушка-туристическая-хоба-24х35х2см-413",
       "reason": "no_rule_match"
     }
   ],
@@ -125,8 +2111,8 @@
     "location_verified": true,
     "store_verified": false,
     "price_scope": "regional_catalog",
-    "note": "Источник публикует каталог Пятёрочки для Москвы и предупреждает, что цены могут отличаться в зависимости от магазина. Эти цены ориентировочные и не должны считаться подтверждёнными для конкретной торговой точки."
+    "note": "Региональный каталог-агрегатор: цена ориентировочная и может отличаться в конкретном магазине."
   },
   "scope_verified": false,
-  "normalized_count": 18
+  "normalized_count": 413
 }
