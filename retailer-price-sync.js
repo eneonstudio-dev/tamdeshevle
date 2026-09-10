@@ -4,7 +4,8 @@
   const OVERLAYS = [
     "data/retailers/perekrestok.overlay.json?v=20260910a",
     "data/retailers/magnit.overlay.json?v=20260910b",
-    "data/retailers/pyat.overlay.json?v=20260910a"
+    "data/retailers/pyat.overlay.json?v=20260910a",
+    "data/retailers/lenta.overlay.json?v=20260910a"
   ];
   let books = [];
   let loadIssues = [];
@@ -14,6 +15,7 @@
     if (/perekrestok/i.test(url)) return "perek";
     if (/magnit/i.test(url)) return "magnit";
     if (/pyat/i.test(url)) return "pyat";
+    if (/lenta/i.test(url)) return "lenta";
     return "unknown";
   }
 
