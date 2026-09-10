@@ -6,8 +6,8 @@
   function reducedMotion(){return window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;}
 
   function ensurePopupCard(){
-    if(window.TDMapPopupCard||document.querySelector('script[data-td-map-popup-card]'))return;
-    const s=document.createElement("script");s.src="map-popup-card.js?v=20260911-popup-v1";s.dataset.tdMapPopupCard="1";document.head.appendChild(s);
+    if(!window.TDMapPopupCard&&!document.querySelector('script[data-td-map-popup-card]')){const s=document.createElement("script");s.src="map-popup-card.js?v=20260911-popup-v1";s.dataset.tdMapPopupCard="1";document.head.appendChild(s);}
+    if(!window.TDMapBestNearby&&!document.querySelector('script[data-td-map-best-nearby]')){const s=document.createElement("script");s.src="map-best-nearby.js?v=20260911-best-nearby-v1";s.dataset.tdMapBestNearby="1";document.head.appendChild(s);}
   }
 
   function setActive(index){
