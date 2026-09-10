@@ -1,6 +1,6 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T07:19:22.675Z",
+  "generated_at": "2026-09-10T07:30:13.981Z",
   "collectors": {
     "magnit": {
       "status": "healthy",
@@ -13,6 +13,12 @@
       "last_attempt_at": "2026-09-10T06:14:59.673Z",
       "last_success_at": null,
       "message": "Collector, scope verification or validation failed; previous data were kept."
+    },
+    "pyat_regional": {
+      "status": "error",
+      "last_attempt_at": "2026-09-10T07:30:13.981Z",
+      "last_success_at": null,
+      "message": "Regional Proshoper catalog refresh failed; previous catalog snapshot was kept."
     }
   }
 }
