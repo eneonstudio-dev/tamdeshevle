@@ -76,6 +76,7 @@
             <div class="receipt-entry-field"><label>Фото чека</label><div class="receipt-entry-file"><input name="photo" type="file" accept="image/*" capture="environment"></div></div>
           </div>
           <button class="receipt-entry-save" type="submit">Сохранить черновик</button>
+          <button class="receipt-entry-submit" type="button" disabled>Отправить фото на проверку</button>
           <div class="receipt-entry-status" hidden></div>
         </form>
       </section>`;
@@ -86,7 +87,9 @@
     overlay.querySelector(".receipt-entry-close").addEventListener("click", close);
     overlay.addEventListener("click", event => { if (event.target === overlay) close(); });
 
-    overlay.querySelector(".receipt-entry-form").addEventListener("submit", event => {
+    const form = overlay.querySelector(".receipt-entry-form");
+    const queueButton = form.querySelector(".receipt-entry-submit");
+    form.addEventListener("submit", event => {
       event.preventDefault();
       const form = event.currentTarget;
       const status = form.querySelector(".receipt-entry-status");
@@ -134,12 +137,29 @@
       }
 
       saveDraft(observation, localPhoto ? localPhoto.name : null);
+      form._receiptObservation = observation;
+      form._receiptPhoto = localPhoto || null;
+      queueButton.disabled = !(localPhoto && window.TDAuth && typeof window.TDAuth.submitReceiptEvidence === "function");
       status.hidden = false;
       status.className = "receipt-entry-status ok";
       status.textContent = localPhoto
-        ? "Черновик сохранён. Фото осталось только на этом устройстве и не считается proof."
+        ? (queueButton.disabled ? "Черновик сохранён. Чтобы отправить фото на проверку, сначала войди в аккаунт." : "Черновик сохранён. Фото ещё не отправлено — нажми кнопку ниже.")
         : "Черновик сохранён. Он не участвует в рейтинге до подтверждения чека.";
       window.dispatchEvent(new CustomEvent("td:receipt-draft-saved", { detail: { observation } }));
+    });
+    queueButton.addEventListener("click", async () => {
+      const status = form.querySelector(".receipt-entry-status");
+      if (!form._receiptObservation || !form._receiptPhoto) { status.hidden = false; status.className = "receipt-entry-status warn"; status.textContent = "Сначала сохрани черновик с фото чека."; return; }
+      queueButton.disabled = true; status.hidden = false; status.className = "receipt-entry-status"; status.textContent = "Отправляем защищённое фото на проверку…";
+      try {
+        const result = await window.TDAuth.submitReceiptEvidence({ observation: form._receiptObservation, file: form._receiptPhoto });
+        status.className = "receipt-entry-status ok";
+        status.textContent = `Чек отправлен в очередь проверки · ${result.status}. До ручного подтверждения цена не влияет на рейтинг.`;
+      } catch (error) {
+        const code = String(error && error.message || error);
+        status.className = "receipt-entry-status warn";
+        status.textContent = code === "SIGN_IN_REQUIRED" ? "Войди в аккаунт, чтобы отправить чек." : code === "RECEIPT_FILE_INVALID" ? "Нужен JPG, PNG, WEBP или HEIC до 10 МБ." : "Не удалось отправить чек. Черновик остался на устройстве.";
+      } finally { queueButton.disabled = false; }
     });
   }
 
