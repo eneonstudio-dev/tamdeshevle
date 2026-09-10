@@ -6,6 +6,14 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/collect-pyat-regional.yml"
+      - "retailers/proshoper-collector.mjs"
+      - "retailers/sku-matcher.mjs"
+      - "retailers/overlay-builder.mjs"
+      - "retailers/pyat.mjs"
+      - "scripts/collect-pyat-proshoper.mjs"
+      - "scripts/test-pyat-adapter.mjs"
+      - "scripts/test-sku-matcher.mjs"
+      - "data/retailers/pyat.proshoper.collector.json"
   schedule:
     - cron: "41 3 * * *"
 
