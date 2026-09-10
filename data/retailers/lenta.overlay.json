@@ -1,0 +1,50 @@
+{
+  "schema": "tamdeshevle.retailer-price-overlay.v1",
+  "retailer": "lenta",
+  "store_id": "lenta",
+  "city": "msk",
+  "checked_at": "2026-09-10T00:20:00Z",
+  "prices": {
+    "milk": 75.99,
+    "smetana": 89.99
+  },
+  "matched": [
+    {
+      "sku": "milk",
+      "name": "Молоко пастеризованное ЛЕНТА 2,5%, без змж 900мл",
+      "retailer_product_id": "lenta-milk-25-900",
+      "price_rub": 75.99,
+      "old_price_rub": 92.59,
+      "promo": true,
+      "source_url": "https://lenta.com/catalog/128/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    },
+    {
+      "sku": "smetana",
+      "name": "Сметана ДОМИК В ДЕРЕВНЕ 20%, без змж 300г",
+      "retailer_product_id": "lenta-smetana-20-300",
+      "price_rub": 89.99,
+      "old_price_rub": 110.59,
+      "promo": true,
+      "source_url": "https://lenta.com/catalog/molochnye-produkty-yajjco-3/",
+      "confidence": 0.9,
+      "method": "conservative_rule"
+    }
+  ],
+  "unmatched": [],
+  "channel": "delivery_catalog",
+  "source_url": "https://lenta.com/catalog/128/",
+  "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "store_context": {
+    "store_code": "0293",
+    "address": "Москва, Дмитровское шоссе, д. 116, Д",
+    "source_url": "https://lenta.com/cities/msk/0293/"
+  },
+  "catalog_context": {
+    "scope": "city_or_session_catalog",
+    "warning": "Public catalog prices were visible, but no proof was found that they were bound to store 0293. Runtime must not apply this overlay until store selection is verified."
+  },
+  "scope_verified": false,
+  "normalized_count": 2
+}
