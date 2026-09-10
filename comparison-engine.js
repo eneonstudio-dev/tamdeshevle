@@ -120,7 +120,8 @@
         total,
         complete,
         verifiedComplete,
-        rankable: complete,
+        // Only a complete retailer-backed basket may participate in “where is cheaper”.
+        rankable: verifiedComplete,
         coveredItems: quote.coveredItems,
         verifiedItems: quote.verifiedItems,
         estimatedItems: quote.estimatedItems,
@@ -136,6 +137,7 @@
     }).sort((a, b) => {
       if (a.rankable !== b.rankable) return a.rankable ? -1 : 1;
       if (a.rankable && b.rankable && a.total !== b.total) return a.total - b.total;
+      if (a.verifiedCoverage !== b.verifiedCoverage) return b.verifiedCoverage - a.verifiedCoverage;
       if (a.coverage !== b.coverage) return b.coverage - a.coverage;
       return String(a.name || a.id).localeCompare(String(b.name || b.id), "ru");
     });

@@ -60,5 +60,6 @@
   "channel": "delivery_catalog",
   "source_url": "https://promo.perekrestok.ru/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",
+  "scope_verified": false,
   "normalized_count": 4
 }

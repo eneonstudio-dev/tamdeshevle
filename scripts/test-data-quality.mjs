@@ -14,6 +14,8 @@ assert(quality.assessTimestamp("2026-09-08T18:00:00Z", now).status === "stale", 
 assert(quality.assessTimestamp("2026-09-06T00:00:00Z", now).status === "expired", "older than 72h should expire");
 assert(quality.assessTimestamp("2026-09-11T00:00:00Z", now).status === "invalid", "future timestamp should be invalid");
 assert(quality.assessOverlay({ schema: "tamdeshevle.retailer-price-overlay.v1", scope_verified: false, checked_at: now }, now).status === "unverified", "unverified scope must be blocked");
+assert(quality.assessOverlay({ schema: "tamdeshevle.retailer-price-overlay.v1", checked_at: now }, now).usable === false, "missing scope proof must fail closed");
+assert(quality.assessOverlay({ schema: "tamdeshevle.retailer-price-overlay.v1", scope_verified: true, checked_at: now }, now).usable === true, "explicit scope proof may be used while fresh");
 assert(quality.assessOverlay({ schema: "wrong", checked_at: now }, now).usable === false, "wrong overlay schema must be blocked");
 
 const products = [

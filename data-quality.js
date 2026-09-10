@@ -37,7 +37,7 @@
     if (!book || book.schema !== "tamdeshevle.retailer-price-overlay.v1") {
       return { status: "invalid", usable: false, reason: "invalid_schema", ageHours: null };
     }
-    if (book.scope_verified === false) {
+    if (book.scope_verified !== true) {
       return { status: "unverified", usable: false, reason: "scope_not_verified", ageHours: null };
     }
     return assessTimestamp(book.checked_at, nowValue, policyValue);

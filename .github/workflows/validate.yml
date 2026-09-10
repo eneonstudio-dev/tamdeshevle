@@ -46,6 +46,8 @@ jobs:
         run: node scripts/test-data-quality.mjs
       - name: Test comparison engine
         run: node scripts/test-comparison.mjs
+      - name: Test trust labels and ranking gates
+        run: node scripts/test-trust-ui.mjs
       - name: Test store ID basket bridge
         run: node scripts/test-store-id-bridge.mjs
       - name: Test geo point details wiring
@@ -131,6 +133,7 @@ jobs:
           node --check scripts/collect-pyat.mjs
           node --check scripts/update-collector-health.mjs
           node --check scripts/test-data-quality.mjs
+          node --check scripts/test-trust-ui.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs

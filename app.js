@@ -97,10 +97,11 @@ function header(title, sub, back) {
 }
 function dockCart() {
   if (!cartCount()) return "";
-  const best = scenarios().filter(x => !x.same && x.save > 0)[0];
+  const rows=scenarios(),best=rows.find(x=>!x.same&&x.rankable&&x.save>0),current=rows.find(x=>x.same);
+  const amount=current&&Number.isFinite(current.total)?`${current.verifiedComplete?"":"≈ "}${Math.round(current.total)} ₽`:"итог уточняется";
   return `<div class="dock"><button class="btn yellow" onclick="go('cart')">
     <span>Корзина · ${cartCount()}</span>
-    <span>${best ? "можно −" + best.save + " ₽" : sumIn(state.storeId) + " ₽"}</span>
+    <span>${best ? "можно −" + Math.round(best.save) + " ₽" : amount}</span>
   </button></div>`;
 }
 function screenHome() {
@@ -119,14 +120,15 @@ function screenStores() {
   return `${header("Магазины", "Сети для сравнения, не витрина заказа")}
     <div class="chips">${filters.map(f => `<button class="chip ${state.filter===f?"on":""}" onclick="state.filter='${f}';render()">${f}</button>`).join("")}</div>
     <div class="wrap"><div class="grid">${list.map(s => {
-      const total = cartCount() ? sumIn(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
-      const save = total != null ? sumIn(state.storeId) - total : 0;
+      const row=cartCount()?TDCompare.compare({stores:STORES,products:PRODUCTS,cart:state.cart,city:state.city,mode:"any",originStoreId:state.storeId}).find(x=>x.id===s.id):null;
+      const total=row&&Number.isFinite(row.total)?Math.round(row.total):null;
+      const save=row&&Number.isFinite(row.save)?Math.round(row.save):null;
       return `<button class="store" onclick="state.storeId='${s.id}';persist();go('catalog')">
         <div class="cover" style="background:${s.color}">${s.short}</div>
         <div class="meta">
           <div class="name">${s.name}</div>
           <div class="time">${s.kind === "delivery" ? s.time + " · доставка сети" : s.time + " · без адреса"}</div>
-          ${total != null ? `<div style="margin-top:6px">${save>0?`<span class="badge">корзина −${save} ₽</span>`:`<span class="hint">${total} ₽</span>`}</div>` : ""}
+          ${total != null ? `<div style="margin-top:6px">${save>0?`<span class="badge">корзина −${save} ₽</span>`:row.verifiedComplete?`<span class="hint">${total} ₽ · подтверждено</span>`:`<span class="hint">≈ ${total} ₽ · оценка</span>`}</div>` : ""}
         </div></button>`;
     }).join("")}</div></div>${dockCart()}`;
 }
@@ -148,8 +150,9 @@ function screenCatalog() {
 function screenCart() {
   const s = storeBy(state.storeId);
   const ch = defaultChannel(s.id);
-  const total = sumIn(s.id, ch);
-  const best = scenarios().filter(x => !x.same && x.save > 0)[0];
+  const quote=TDCompare.basketQuote(PRODUCTS,state.cart||{},s.id,ch),fee=TDCompare.feeQuote(s,ch);
+  const total=quote.complete&&fee.known?quote.goods+fee.value:null,verified=quote.verifiedComplete&&fee.known;
+  const best = scenarios().find(x => !x.same && x.rankable && x.save > 0);
   return `${header("Корзина", s.name + " · " + cityName(), "catalog")}
     <div class="wrap">${cartEntries().map(p => `<div class="item">
       <div class="thumb">${p.emoji}</div>
@@ -162,7 +165,7 @@ function screenCart() {
     </div>`).join("") || "<p class='hint'>Корзина пустая</p>"}</div>
     <div class="dock">
       <div style="background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:8px;font-weight:800;display:flex;justify-content:space-between">
-        <span>Итого здесь</span><span>${total} ₽</span>
+        <span>${verified?"Итого здесь":"Оценка здесь"}</span><span>${total==null?"уточняется":`${verified?"":"≈ "}${Math.round(total)} ₽`}</span>
       </div>
       ${best ? `<div style="background:var(--soft);border-radius:14px;padding:10px 12px;margin-bottom:8px;font-weight:700;color:#0f7b4a">Эту корзину можно собрать дешевле на ${best.save} ₽</div>` : ""}
       <button class="btn dark" onclick="go('compare')">Где выгоднее</button>
@@ -185,10 +188,10 @@ function screenCompare() {
         <button class="${state.mode==="delivery"?"on":""}" onclick="state.mode='delivery';render()">Привезти</button>
       </div>
       ${plans.map((p,i) => `
-        <div class="plan ${i===0?"best":""}">
-          <div class="row"><h3 class="grow">${p.same ? p.name + ", как есть" : p.channel==="bring" && p.kind!=="delivery" ? p.name + ", привезти" : p.name}</h3>${i===0?"<span class='badge'>лучший</span>":""}</div>
-          <div class="sum">${p.total} ₽</div>
-          <div class="${p.save>0?"delta":"hint"}">${p.save>0 ? "−"+p.save+" ₽ к «"+origin.name+"»" : p.save<0 ? "+"+Math.abs(p.save)+" ₽" : "текущий выбор"}</div>
+        <div class="plan ${i===0&&p.rankable?"best":""}">
+          <div class="row"><h3 class="grow">${p.same ? p.name + ", как есть" : p.channel==="bring" && p.kind!=="delivery" ? p.name + ", привезти" : p.name}</h3>${i===0&&p.rankable?"<span class='badge'>лучший</span>":""}</div>
+          <div class="sum">${p.total==null?"Итог уточняется":`${p.verifiedComplete?"":"≈ "}${Math.round(p.total)} ₽`}</div>
+          <div class="${p.save>0?"delta":"hint"}">${p.save>0 ? "−"+Math.round(p.save)+" ₽ к «"+origin.name+"»" : p.save<0 ? "+"+Math.abs(Math.round(p.save))+" ₽" : p.rankable&&p.same ? "текущий выбор" : "оценка · вне рейтинга"}</div>
           <div class="hint">${planHint(p)}</div>
           <button class="ghost" style="margin-top:8px" onclick="state.openWhy='${p.id}_${p.channel}';render()">Почему так</button>
           ${state.openWhy===p.id+"_"+p.channel ? whyBlock(p) : ""}
@@ -201,7 +204,7 @@ function whyBlock(p) {
   const rows = cartEntries().map(x => {
     const here = priceOf(x, state.storeId, originCh) * state.cart[x.id];
     const there = priceOf(x, p.id, p.channel) * state.cart[x.id];
-    return `<div class="why-line"><span>${x.name}</span><span>${there} ₽ ${there<here?" · −"+(here-there):there>here?" · +"+(there-here):""}</span></div>`;
+    return `<div class="why-line"><span>${x.name}</span><span>${p.verifiedComplete?"":"≈ "}${there} ₽ ${p.save!=null?(there<here?" · −"+(here-there):there>here?" · +"+(there-here):""):""}</span></div>`;
   }).join("");
   return `<div style="margin-top:8px">${rows}</div>`;
 }

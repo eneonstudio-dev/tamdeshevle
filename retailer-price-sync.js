@@ -21,7 +21,7 @@
 
   function qualityFor(book) {
     if (window.TDDataQuality && typeof TDDataQuality.assessOverlay === "function") return TDDataQuality.assessOverlay(book);
-    return { status: book && book.scope_verified === false ? "unverified" : "fresh", usable: Boolean(book && book.scope_verified !== false), ageHours: null, reason: null };
+    return { status: book && book.scope_verified === true ? "fresh" : "unverified", usable: Boolean(book && book.scope_verified === true), ageHours: null, reason: null };
   }
 
   function metaSlot(channel) { return channel === "shelf_catalog" ? "shelf" : "bring"; }
@@ -104,7 +104,7 @@
         checkedAt: book.checked_at || null,
         storeContext: book.store_context || null,
         catalogContext: book.catalog_context || null,
-        scopeVerified: book.scope_verified !== false,
+        scopeVerified: book.scope_verified === true,
         freshness: quality.status,
         freshnessReason: quality.reason || null,
         ageHours: Number.isFinite(quality.ageHours) ? quality.ageHours : null,
