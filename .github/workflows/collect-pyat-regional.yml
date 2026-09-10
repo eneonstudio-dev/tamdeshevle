@@ -32,7 +32,7 @@ jobs:
         continue-on-error: true
         run: |
           set -e
-          # Keep regional estimates fail-closed: parser/date/provenance must all validate before replacing data.
+          # Keep regional estimates fail-closed: parser/date/provenance and rotation-safe overlay tests must validate before replacing data.
           node scripts/collect-pyat-proshoper.mjs
           node -e "const s=require('./data/retailers/pyat.sample.json'); if(s.scope_verified!==false || s.source_kind!=='aggregator_catalog' || s.catalog_context?.price_scope!=='regional_catalog') process.exit(2)"
           node scripts/test-pyat-adapter.mjs
