@@ -28,6 +28,16 @@
     return `${Math.round(Number(value)||0).toLocaleString("ru-RU")} ₽`;
   }
 
+  function persistCurrentChain(point){
+    if(!point||!point.chainId)return;
+    if(window.state)state.storeId=point.chainId;
+    try{
+      const saved=JSON.parse(localStorage.getItem("td")||"{}");
+      saved.storeId=point.chainId;
+      localStorage.setItem("td",JSON.stringify(saved));
+    }catch{}
+  }
+
   function basketState(point){
     if(!window.state)return{kind:"none",text:""};
     const products=appProducts(),stores=appStores(),cart=state.cart||{};
@@ -103,11 +113,12 @@
     const name=chainName(point.chainId);
     const address=point.address||"Точка магазина выбрана";
     const saving=quote.saving?`<span class="td-selected-store-saving">экономия ${escapeHtml(rub(quote.saving))}</span>`:"";
+    const kicker=window.state&&state.screen==="compare"?"Считаем по этой конкретной точке":"Текущая точка для расчёта";
     return `<section class="td-selected-store" data-td-selected-store data-quote="${escapeHtml(quote.kind)}">
       <div class="td-selected-store-top">
         <div class="td-selected-store-pin" aria-hidden="true">⌖</div>
         <div class="td-selected-store-copy">
-          <div class="td-selected-store-kicker">Выбранная точка</div>
+          <div class="td-selected-store-kicker">${escapeHtml(kicker)}</div>
           <div class="td-selected-store-title">${escapeHtml(name)}</div>
           <div class="td-selected-store-address">${escapeHtml(address)}</div>
         </div>
@@ -164,20 +175,37 @@
     markMapCard();
   }
 
+  function reconcileSelectedPoint(){
+    const point=readPoint();
+    if(point&&window.state&&state.storeId!==point.chainId)persistCurrentChain(point);
+  }
+
   let raf=0;
   const obs=new MutationObserver(()=>{
     cancelAnimationFrame(raf);
     raf=requestAnimationFrame(sync);
   });
   function start(){
+    reconcileSelectedPoint();
     sync();
     obs.observe(document.getElementById("app")||document.body,{childList:true,subtree:true});
   }
 
-  window.addEventListener("storage",e=>{if(e.key===KEY)sync();});
+  document.addEventListener("click",e=>{
+    if(!e.target.closest("[data-use-point]"))return;
+    setTimeout(()=>{
+      const point=readPoint();
+      if(!point)return;
+      persistCurrentChain(point);
+      sync();
+      window.dispatchEvent(new CustomEvent("td:selected-store-point-current",{detail:{point}}));
+    },0);
+  },true);
+
+  window.addEventListener("storage",e=>{if(e.key===KEY){reconcileSelectedPoint();sync();}});
   window.addEventListener("td:retailer-prices-applied",sync);
   window.addEventListener("td:store-id-bridge-ready",sync);
-  window.TDSelectedStore={get:readPoint,clear:clearSelection,change:changeSelection,refresh:sync,basket:()=>{const p=readPoint();return p?basketState(p):null;}};
+  window.TDSelectedStore={get:readPoint,clear:clearSelection,change:changeSelection,refresh:sync,basket:()=>{const p=readPoint();return p?basketState(p):null;},makeCurrent:()=>{const p=readPoint();if(p){persistCurrentChain(p);sync();}return p;}};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
