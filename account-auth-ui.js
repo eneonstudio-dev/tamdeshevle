@@ -17,6 +17,18 @@
     if(button.textContent!==nextButton)button.textContent=nextButton;
     if(button.dataset.mode!==nextMode)button.dataset.mode=nextMode;
   }
+
+  function patchAccountOpen(){
+    if(!window.TDAccountHub||typeof window.TDAccountHub.open!=="function"||window.TDAccountHub.__authPatched)return;
+    const originalOpen=window.TDAccountHub.open;
+    window.TDAccountHub.open=function(){
+      const result=originalOpen.apply(this,arguments);
+      queueMicrotask(apply);
+      return result;
+    };
+    window.TDAccountHub.__authPatched=true;
+  }
+
   document.addEventListener('click',async e=>{
     const b=e.target.closest&&e.target.closest('.td-account [data-auth]');
     if(!b||!window.TDAuth)return;
@@ -25,16 +37,12 @@
       try{await TDAuth.signOut();apply();}catch(err){console.warn('Sign out failed',err);}
     }
   },true);
-  const obs=new MutationObserver(mutations=>{
-    const accountAdded=mutations.some(m=>[...m.addedNodes].some(node=>
-      node.nodeType===1&&(node.matches?.('.td-account')||node.querySelector?.('.td-account'))
-    ));
-    if(accountAdded)queueMicrotask(apply);
-  });
-  function start(){obs.observe(document.body,{childList:true,subtree:true});apply();}
+
   window.addEventListener('td:auth-state',apply);
   window.addEventListener('td:cloud-synced',apply);
   window.addEventListener('td:cloud-hydrated',apply);
+
+  function start(){patchAccountOpen();apply();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.TDAccountAuthUI={apply};
+  window.TDAccountAuthUI={apply,patchAccountOpen};
 })();
