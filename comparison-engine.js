@@ -5,6 +5,20 @@
     return store && store.kind === "delivery" ? "bring" : "shelf";
   }
 
+  function metaSlot(channel) {
+    return channel === "bring" || channel === "delivery_catalog" ? "bring" : "shelf";
+  }
+
+  function priceMeta(product, storeId, channel) {
+    if (!product || !product.priceMeta || !product.priceMeta[storeId]) return null;
+    return product.priceMeta[storeId][metaSlot(channel)] || null;
+  }
+
+  function isVerifiedPrice(product, storeId, channel) {
+    const meta = priceMeta(product, storeId, channel);
+    return Boolean(meta && meta.kind === "retailer" && meta.freshness !== "expired" && meta.freshness !== "invalid");
+  }
+
   function unitPrice(product, storeId, channel) {
     if (!product) return null;
     if (channel === "bring") {
@@ -22,8 +36,10 @@
   function basketQuote(products, cart, storeId, channel) {
     const entries = cartEntries(products, cart);
     const missingProductIds = [];
+    const estimatedProductIds = [];
     let partialGoods = 0;
     let coveredItems = 0;
+    let verifiedItems = 0;
 
     for (const product of entries) {
       const price = unitPrice(product, storeId, channel);
@@ -33,18 +49,26 @@
       }
       partialGoods += price * Number(cart[product.id] || 0);
       coveredItems += 1;
+      if (isVerifiedPrice(product, storeId, channel)) verifiedItems += 1;
+      else estimatedProductIds.push(product.id);
     }
 
     const totalItems = entries.length;
     const complete = missingProductIds.length === 0;
+    const verifiedComplete = complete && verifiedItems === totalItems;
     return {
       goods: complete ? partialGoods : null,
       partialGoods,
       complete,
+      verifiedComplete,
       missingProductIds,
+      estimatedProductIds,
       coveredItems,
+      verifiedItems,
+      estimatedItems: Math.max(0, coveredItems - verifiedItems),
       totalItems,
-      coverage: totalItems ? coveredItems / totalItems : 1
+      coverage: totalItems ? coveredItems / totalItems : 1,
+      verifiedCoverage: totalItems ? verifiedItems / totalItems : 1
     };
   }
 
@@ -84,7 +108,9 @@
       const quote = basketQuote(products, cart, store.id, channel);
       const fee = feeQuote(store, channel);
       const complete = quote.complete && fee.known;
+      const verifiedComplete = complete && quote.verifiedComplete;
       const total = complete ? quote.goods + fee.value : null;
+      const verifiedSavings = originTotal != null && total != null && originQuote.verifiedComplete && quote.verifiedComplete;
       return Object.assign({}, store, {
         channel,
         goods: quote.goods,
@@ -93,12 +119,18 @@
         feeKnown: fee.known,
         total,
         complete,
+        verifiedComplete,
         rankable: complete,
         coveredItems: quote.coveredItems,
+        verifiedItems: quote.verifiedItems,
+        estimatedItems: quote.estimatedItems,
         totalItems: quote.totalItems,
         coverage: quote.coverage,
+        verifiedCoverage: quote.verifiedCoverage,
         missingProductIds: quote.missingProductIds,
-        save: originTotal != null && total != null ? originTotal - total : null,
+        estimatedProductIds: quote.estimatedProductIds,
+        save: verifiedSavings ? originTotal - total : null,
+        indicativeSave: originTotal != null && total != null ? originTotal - total : null,
         same: store.id === origin.id && channel === originChannel
       });
     }).sort((a, b) => {
@@ -123,6 +155,8 @@
 
   window.TDCompare = {
     defaultChannel,
+    priceMeta,
+    isVerifiedPrice,
     unitPrice,
     cartEntries,
     basketQuote,

@@ -16,6 +16,7 @@ on:
       - chatgpt/retailer-adapter-pyat
       - chatgpt/pyat-store-scoped-collector
       - chatgpt/retailer-product-images
+      - chatgpt/data-freshness-health
 
 permissions:
   contents: read
@@ -30,6 +31,8 @@ jobs:
           node-version: 22
       - name: Validate JSON data contracts
         run: node scripts/validate-data.mjs
+      - name: Test data freshness and health
+        run: node scripts/test-data-quality.mjs
       - name: Test comparison engine
         run: node scripts/test-comparison.mjs
       - name: Test Perekrestok adapter
@@ -60,7 +63,10 @@ jobs:
           node --check catalog-boot.js
           node --check store-boot.js
           node --check price-sync.js
+          node --check data-quality.js
           node --check retailer-price-sync.js
+          node --check collector-health.js
+          node --check data-health-ui.js
           node --check price-provenance-ui.js
           node --check product-ui.js
           node --check data-layer.js
@@ -76,6 +82,8 @@ jobs:
           node --check scripts/build-retailer-overlay.mjs
           node --check scripts/collect-magnit.mjs
           node --check scripts/collect-pyat.mjs
+          node --check scripts/update-collector-health.mjs
+          node --check scripts/test-data-quality.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs

@@ -1,0 +1,18 @@
+{
+  "schema": "tamdeshevle.collector-health.v1",
+  "generated_at": "2026-09-10T00:00:00Z",
+  "collectors": {
+    "magnit": {
+      "status": "not_observed",
+      "last_attempt_at": null,
+      "last_success_at": null,
+      "message": "Health tracking starts after this release."
+    },
+    "pyat": {
+      "status": "not_observed",
+      "last_attempt_at": null,
+      "last_success_at": null,
+      "message": "Health tracking starts after this release."
+    }
+  }
+}
