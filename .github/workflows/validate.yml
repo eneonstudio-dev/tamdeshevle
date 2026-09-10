@@ -54,6 +54,8 @@ jobs:
         run: node scripts/test-receipt-verification.mjs
       - name: Test receipt price adapter
         run: node scripts/test-receipt-price-adapter.mjs
+      - name: Test local receipt backup tools
+        run: node scripts/test-receipt-local-tools.mjs
       - name: Test store ID basket bridge
         run: node scripts/test-store-id-bridge.mjs
       - name: Test geo point details wiring
@@ -127,6 +129,9 @@ jobs:
           node --check receipt-observations.js
           node --check receipt-verification.js
           node --check receipt-price-adapter.js
+          node --check receipt-entry-ui.js
+          node --check receipt-local-tools.js
+          node --check receipt-local-panel.js
           node --check profile-basket.js
           node --check account-hub.js
           node --check auth-client.js
@@ -155,6 +160,7 @@ jobs:
           node --check scripts/test-receipt-observations.mjs
           node --check scripts/test-receipt-verification.mjs
           node --check scripts/test-receipt-price-adapter.mjs
+          node --check scripts/test-receipt-local-tools.mjs
           node --check scripts/test-magnit-adapter.mjs
           node --check scripts/test-magnit-collector.mjs
           node --check scripts/test-pyat-adapter.mjs
