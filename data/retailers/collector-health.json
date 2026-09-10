@@ -1,6 +1,6 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T06:08:16.549Z",
+  "generated_at": "2026-09-10T06:10:38.243Z",
   "collectors": {
     "magnit": {
       "status": "healthy",
@@ -10,7 +10,7 @@
     },
     "pyat": {
       "status": "error",
-      "last_attempt_at": "2026-09-10T06:08:16.549Z",
+      "last_attempt_at": "2026-09-10T06:10:38.243Z",
       "last_success_at": null,
       "message": "Collector, scope verification or validation failed; previous data were kept."
     }
