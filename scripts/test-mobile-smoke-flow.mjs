@@ -39,6 +39,10 @@ assert(cluster.includes('item.quote?.match?.verified'), "verified filter must de
 assert(cluster.includes('item.quote?.basket?.verified') && cluster.includes('item.quote.basket.savings>0'), "saving filter must only expose verified positive basket savings");
 assert(cluster.includes('Number(item.point.distanceKm)<=1'), "nearby filter must enforce a one-kilometre threshold");
 assert(cluster.includes("setFilter(id)"), "map filters must remain programmatically refreshable");
+assert(cluster.includes("patchLeaflet") && cluster.includes("mapInstance"), "map UI must capture the live Leaflet instance for card focusing");
+assert(cluster.includes("flyTo([point.lat,point.lon]") && cluster.includes("duration:.38"), "card selection must smoothly focus the exact store point");
+assert(cluster.includes("tdFocusScroll") && cluster.includes("visibleCardIndex"), "store list scrolling must synchronize the active map marker");
+assert(cluster.includes("installCardFocus") && cluster.includes("focus:focusPoint"), "card focus behavior must be installed before one-tap capture and remain externally refreshable");
 
 assert(oneTap.includes("if(!point||!match||!match.verified)return false"), "compare navigation must reject missing or unverified points");
 assert(oneTap.includes("localStorage.setItem(KEY"), "one-tap selection must persist the exact verified point");
@@ -55,4 +59,4 @@ assert(layers.includes("data-ui-parked"), "Bay must be parked while map overlays
 assert(layers.includes("app.inert=blocked"), "underlying app must be inert while an overlay is active when supported");
 assert(bai.includes("bai-assistant"), "Bay assistant must remain independently mountable");
 
-console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, compare routing, overlay cleanup and Bay coordination are wired.");
+console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, card focus sync, compare routing, overlay cleanup and Bay coordination are wired.");
