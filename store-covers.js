@@ -93,8 +93,8 @@
         <div class="home-title">Одна корзина.<br><em>Разные цены.</em></div>
         <div class="home-copy">Собери привычные продукты — покажем, где тот же набор выходит дешевле: в магазине или с доставкой.</div>
         <div class="home-price-cloud" aria-hidden="true">
-          <span class="home-price">молоко ✓</span>
-          <span class="home-price">яйца ✓</span>
+          <span class="home-price">товары</span>
+          <span class="home-price">магазины</span>
           <span class="home-price">корзина целиком</span>
         </div>
       </section>
@@ -105,14 +105,14 @@
       <input class="addr home-address" placeholder="Адрес — скоро учтём ближайшие магазины" value="${state.address || ""}" onchange="state.address=this.value;persist()" />
       <div class="home-section-title">Популярные сети <span>быстрый вход</span></div>
       <div class="home-nets">
-        ${homeNet("perek", "Перекрёсток", "есть реальные цены")}
+        ${homeNet("perek", "Перекрёсток", "сравнить корзину")}
         ${homeNet("pyat", "Пятёрочка", "сравнить корзину")}
         ${homeNet("magnit", "Магнит", "сравнить корзину")}
       </div>
       <div class="home-proof">
         <div><b>79</b><span>товаров в базовом каталоге</span></div>
         <div><b>7</b><span>сетей в сравнении</span></div>
-        <div><b>4</b><span>SKU Перекрёстка уже из публичного каталога</span></div>
+        <div><b>✓</b><span>в рейтинг входят только подтверждённые цены</span></div>
       </div>`;
   }
 
