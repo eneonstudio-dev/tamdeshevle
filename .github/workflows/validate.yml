@@ -23,6 +23,7 @@ on:
       - chatgpt/store-point-details
       - chatgpt/worth-it
       - chatgpt/on-the-way-final2
+      - chatgpt/smart-substitutions
 
 permissions:
   contents: read
@@ -49,6 +50,8 @@ jobs:
         run: node scripts/test-worth-it.mjs
       - name: Test on-the-way recommendations
         run: node scripts/test-on-the-way.mjs
+      - name: Test smart substitutions
+        run: node scripts/test-smart-substitutions.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
       - name: Test Magnit adapter
@@ -91,6 +94,7 @@ jobs:
           node --check geo-store-map.js
           node --check worth-it.js
           node --check on-the-way.js
+          node --check smart-substitutions.js
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
@@ -116,6 +120,7 @@ jobs:
           node --check scripts/test-geo-store-map-source.mjs
           node --check scripts/test-worth-it.mjs
           node --check scripts/test-on-the-way.mjs
+          node --check scripts/test-smart-substitutions.mjs
           node --check metrics.js
           node --check store-covers.js
           node --check gsap-motion.js
