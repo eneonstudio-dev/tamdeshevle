@@ -2,7 +2,13 @@
   "use strict";
   const SELECTED_KEY="td:selected-store-point";
   const CLUSTER_DISTANCE=54;
-  let clusterLayer=null,raf=0,expandedUntil=0;
+  const FILTERS=[
+    {id:"all",label:"Все"},
+    {id:"verified",label:"✓ Цена"},
+    {id:"saving",label:"Выгоднее"},
+    {id:"near",label:"До 1 км"}
+  ];
+  let clusterLayer=null,raf=0,expandedUntil=0,activeFilter="all";
 
   function points(){return window.TDGeo&&Array.isArray(TDGeo.nearby)?TDGeo.nearby:[];}
   function markers(){return [...document.querySelectorAll("img.leaflet-marker-icon.td-themed-marker")];}
@@ -29,15 +35,23 @@
     if(q?.match?.verified)return"verified";
     return"normal";
   }
+  function matchesFilter(item){
+    if(activeFilter==="verified")return Boolean(item.quote?.match?.verified);
+    if(activeFilter==="saving")return Boolean(item.quote?.basket?.verified&&Number.isFinite(item.quote.basket.savings)&&item.quote.basket.savings>0);
+    if(activeFilter==="near")return Number.isFinite(Number(item.point?.distanceKm))&&Number(item.point.distanceKm)<=1;
+    return true;
+  }
   function rub(v){return `${Math.round(Number(v)||0).toLocaleString("ru-RU")} ₽`;}
 
   function injectStyles(){
     if(document.getElementById("td-map-cluster-style"))return;
     const s=document.createElement("style");s.id="td-map-cluster-style";s.textContent=`
-      .td-map{position:relative}.td-map-cluster-layer{position:absolute;inset:0;z-index:650;pointer-events:none;overflow:hidden}.td-map-cluster{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:0;min-width:32px;height:32px;border-radius:999px;padding:0 9px;background:#161410;color:#fff;font:900 11px Manrope,system-ui,sans-serif;box-shadow:0 8px 22px rgba(22,20,16,.24);display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation}.td-map-cluster:after{content:"точек";font-size:8px;font-weight:800;opacity:.72}.td-map-cluster[data-priority="saving"]{background:#0f7b4a}.td-map-cluster[data-priority="selected"]{background:#ffe14a;color:#161410;box-shadow:0 0 0 3px rgba(15,123,74,.20),0 8px 22px rgba(22,20,16,.22)}
+      .td-map{position:relative}.td-map-filter-bar{position:absolute;left:10px;right:66px;top:10px;z-index:720;display:flex;gap:6px;overflow:auto;padding:2px;scrollbar-width:none;pointer-events:auto}.td-map-filter-bar::-webkit-scrollbar{display:none}.td-map-filter{flex:0 0 auto;border:0;border-radius:999px;min-height:34px;padding:0 10px;background:rgba(255,255,255,.94);color:#4f493f;font:850 10px Manrope,system-ui,sans-serif;box-shadow:0 6px 18px rgba(22,20,16,.14);backdrop-filter:blur(8px);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.td-map-filter[aria-pressed="true"]{background:#161410;color:#fff;box-shadow:0 7px 20px rgba(22,20,16,.24)}.td-map-filter:focus-visible{outline:3px solid rgba(15,123,74,.28);outline-offset:2px}.td-map-filter-count{opacity:.66;margin-left:3px;font-size:9px}.td-map-filter-empty{margin:0 0 10px;padding:11px 12px;border-radius:14px;background:#fff;color:#6b6458;font-size:11px;font-weight:750;line-height:1.4;box-shadow:0 8px 20px rgba(22,20,16,.05)}
+      .td-map-cluster-layer{position:absolute;inset:0;z-index:650;pointer-events:none;overflow:hidden}.td-map-cluster{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:0;min-width:32px;height:32px;border-radius:999px;padding:0 9px;background:#161410;color:#fff;font:900 11px Manrope,system-ui,sans-serif;box-shadow:0 8px 22px rgba(22,20,16,.24);display:flex;align-items:center;justify-content:center;gap:4px;touch-action:manipulation}.td-map-cluster:after{content:"точек";font-size:8px;font-weight:800;opacity:.72}.td-map-cluster[data-priority="saving"]{background:#0f7b4a}.td-map-cluster[data-priority="selected"]{background:#ffe14a;color:#161410;box-shadow:0 0 0 3px rgba(15,123,74,.20),0 8px 22px rgba(22,20,16,.22)}
       .td-map-priority-pill{position:absolute;transform:translate(-50%,-100%);margin-top:-25px;pointer-events:none;white-space:nowrap;border-radius:999px;padding:5px 7px;background:#161410;color:#fff;font:900 8px Manrope,system-ui,sans-serif;box-shadow:0 6px 16px rgba(22,20,16,.18)}.td-map-priority-pill[data-priority="saving"]{background:#0f7b4a}.td-map-priority-pill[data-priority="verified"]{background:#fff;color:#0f7b4a;border:1px solid rgba(15,123,74,.18)}.td-map-priority-pill[data-priority="selected"]{background:#ffe14a;color:#161410}
       .td-map-store[data-map-priority="saving"]{border-color:#0f7b4a}.td-map-store[data-map-priority="saving"] .td-map-distance{background:#0f7b4a;color:#fff}.td-map-store[data-map-priority="verified"] .td-map-distance{color:#0f7b4a}.td-themed-marker[data-map-priority="saving"]{z-index:900!important}.td-themed-marker[data-map-priority="selected"]{z-index:950!important}
-      @media(max-width:430px){.td-map-cluster{min-width:36px;height:36px}.td-map-priority-pill{margin-top:-27px}}
+      @media(max-width:430px){.td-map-filter-bar{left:8px;right:62px;top:8px}.td-map-filter{min-height:36px;padding:0 10px}.td-map-cluster{min-width:36px;height:36px}.td-map-priority-pill{margin-top:-27px}}
+      @media(prefers-reduced-motion:reduce){.td-map-filter{scroll-behavior:auto}}
     `;document.head.appendChild(s);
   }
   function layer(){
@@ -68,6 +82,48 @@
   }
   function resetMarker(marker){marker.style.opacity="";marker.style.pointerEvents="";marker.style.marginLeft="-17px";marker.style.marginTop="-46px";marker.removeAttribute("data-map-priority");}
   function applyCardPriority(items){cards().forEach((card,i)=>{const p=items[i]?.priority||"normal";if(p==="normal")card.removeAttribute("data-map-priority");else card.dataset.mapPriority=p;});}
+  function applyFilterVisibility(items){
+    const cs=cards();
+    items.forEach(item=>{
+      const visible=matchesFilter(item);
+      item.visible=visible;
+      if(cs[item.index])cs[item.index].hidden=!visible;
+      if(!visible){item.marker.style.opacity="0";item.marker.style.pointerEvents="none";}
+    });
+  }
+  function updateEmptyState(items){
+    const list=document.querySelector(".td-map-list");if(!list)return;
+    const visible=items.filter(item=>item.visible).length;
+    let empty=list.querySelector(".td-map-filter-empty");
+    if(visible||activeFilter==="all"){empty?.remove();return;}
+    if(!empty){empty=document.createElement("div");empty.className="td-map-filter-empty";list.prepend(empty);}
+    empty.textContent=activeFilter==="saving"?"Пока нет точек с подтверждённой экономией для этой корзины.":activeFilter==="verified"?"Пока нет точек с подтверждённой ценой.":"В пределах 1 км поддерживаемых магазинов пока нет.";
+  }
+  function filterCounts(items){
+    return{
+      all:items.length,
+      verified:items.filter(item=>item.quote?.match?.verified).length,
+      saving:items.filter(item=>item.quote?.basket?.verified&&Number.isFinite(item.quote.basket.savings)&&item.quote.basket.savings>0).length,
+      near:items.filter(item=>Number.isFinite(Number(item.point?.distanceKm))&&Number(item.point.distanceKm)<=1).length
+    };
+  }
+  function ensureFilterBar(items){
+    const map=document.querySelector("#td-map.td-map");if(!map)return;
+    let bar=map.querySelector(".td-map-filter-bar");
+    if(!bar){
+      bar=document.createElement("div");bar.className="td-map-filter-bar";bar.setAttribute("role","group");bar.setAttribute("aria-label","Фильтр магазинов на карте");
+      FILTERS.forEach(filter=>{
+        const btn=document.createElement("button");btn.type="button";btn.className="td-map-filter";btn.dataset.mapFilter=filter.id;btn.addEventListener("click",()=>{if(activeFilter===filter.id)return;activeFilter=filter.id;expandedUntil=0;schedule();});bar.appendChild(btn);
+      });
+      map.appendChild(bar);
+    }
+    const counts=filterCounts(items);
+    FILTERS.forEach(filter=>{
+      const btn=bar.querySelector(`[data-map-filter="${filter.id}"]`);if(!btn)return;
+      btn.setAttribute("aria-pressed",activeFilter===filter.id?"true":"false");
+      btn.innerHTML=`${filter.label}<span class="td-map-filter-count">${counts[filter.id]}</span>`;
+    });
+  }
   function expandGroup(group){
     expandedUntil=Date.now()+3500;
     group.items.forEach((item,i)=>{
@@ -82,9 +138,9 @@
     if(!root||!mapEl||!list.length||!ms.length)return;
     root.replaceChildren();ms.forEach(resetMarker);
     const rect=mapEl.getBoundingClientRect(),selected=String(selectedId()||"");
-    const all=ms.map((marker,index)=>{const point=list[index],q=quote(point),isSelected=Boolean(point&&selected&&String(point.id)===selected),pos=markerCenter(marker,rect);return{marker,index,point,quote:q,priority:priority(point,q,isSelected),score:score(point,q,isSelected),...pos};});
-    applyCardPriority(all);
-    const items=all.filter(x=>x.point&&x.x>-40&&x.y>-60&&x.x<rect.width+40&&x.y<rect.height+60);
+    const all=ms.map((marker,index)=>{const point=list[index],q=quote(point),isSelected=Boolean(point&&selected&&String(point.id)===selected),pos=markerCenter(marker,rect);return{marker,index,point,quote:q,priority:priority(point,q,isSelected),score:score(point,q,isSelected),visible:true,...pos};});
+    applyCardPriority(all);ensureFilterBar(all);applyFilterVisibility(all);updateEmptyState(all);
+    const items=all.filter(x=>x.visible&&x.point&&x.x>-40&&x.y>-60&&x.x<rect.width+40&&x.y<rect.height+60);
     if(Date.now()<expandedUntil){items.forEach(i=>showPill(root,i));return;}
     buildGroups(items).forEach(group=>{
       if(group.items.length===1){const item=group.items[0];if(item.priority!=="normal")item.marker.dataset.mapPriority=item.priority;showPill(root,item);return;}
@@ -98,10 +154,10 @@
   function install(){
     schedule();const map=document.querySelector("#td-map.td-map");if(!map)return;
     if(!map.dataset.tdClusterEvents){map.dataset.tdClusterEvents="1";["pointerup","touchend","wheel","dblclick"].forEach(ev=>map.addEventListener(ev,()=>setTimeout(schedule,180),{passive:true}));}
-    const pane=map.querySelector(".leaflet-map-pane");if(pane&&!pane.dataset.tdClusterObserved){pane.dataset.tdClusterObserved="1";new MutationObserver(schedule).observe(pane,{attributes:true,subtree:true,attributeFilter:["style","class"]});}
+    const pane=map.querySelector(".leaflet-map-pane");if(pane&&!pane.dataset.tdClusterObserved){pane.dataset.tdClusterObserved="1";new MutationObserver(schedule).observe(pane,{attributes:true,attributeFilter:["style","class"]});}
   }
-  const obs=new MutationObserver(mutations=>{if(mutations.every(m=>m.target?.closest?.(".td-map-cluster-layer")))return;schedule();});
+  const obs=new MutationObserver(mutations=>{if(mutations.every(m=>m.target?.closest?.(".td-map-cluster-layer,.td-map-filter-bar")))return;schedule();});
   function start(){obs.observe(document.body,{childList:true,subtree:true});injectStyles();schedule();setInterval(()=>{if(document.querySelector("#td-map.td-map"))install();},800);window.addEventListener("resize",schedule);window.addEventListener("td:retailer-prices-applied",schedule);window.addEventListener("td:selected-store-point-current",schedule);window.addEventListener("td:selected-store-point-cleared",schedule);}
-  window.TDMapClusterPriority={refresh:schedule};
+  window.TDMapClusterPriority={refresh:schedule,get filter(){return activeFilter;},setFilter(id){if(FILTERS.some(f=>f.id===id)){activeFilter=id;expandedUntil=0;schedule();return true;}return false;}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
