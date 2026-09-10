@@ -26,7 +26,7 @@
     return { status: book && book.scope_verified === true ? "fresh" : "unverified", usable: Boolean(book && book.scope_verified === true), ageHours: null, reason: null };
   }
 
-  function metaSlot(channel) { return channel === "shelf_catalog" ? "shelf" : "bring"; }
+  function metaSlot(channel) { return channel === "shelf_catalog" || channel === "regional_catalog" ? "shelf" : "bring"; }
   function productById(productId) {
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return null;
     return PRODUCTS.find(item => item.id === productId) || null;
