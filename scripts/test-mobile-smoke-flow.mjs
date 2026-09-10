@@ -47,7 +47,7 @@ assert(cluster.includes("installCardFocus") && cluster.includes("focus:focusPoin
 
 new Function(markerSync);
 assert(markerSync.includes("leaflet-marker-icon.td-themed-marker"), "reverse sync must listen to themed map markers");
-assert(markerSync.includes("list.scrollTo") && markerSync.includes("card.offsetTop-(list.clientHeight-card.offsetHeight)/2"), "marker tap must center the matching store card in the scrollable list");
+assert(markerSync.includes("list.scrollTo") && markerSync.includes("list.scrollTop+delta") && markerSync.includes("lr.top+lr.height/2"), "marker tap must center the matching store card in the scrollable list");
 assert(markerSync.includes("behavior:reducedMotion()?\"auto\":\"smooth\""), "reverse sync must respect reduced-motion preferences");
 assert(markerSync.includes("TDMapMarkerCardSync"), "reverse sync must expose a small integration API");
 assert(oneTap.includes("map-marker-card-sync.js") && oneTap.includes("ensureMarkerCardSync"), "one-tap map flow must load reverse marker-card sync");
