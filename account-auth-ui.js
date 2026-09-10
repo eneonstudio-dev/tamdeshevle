@@ -18,17 +18,6 @@
     if(button.dataset.mode!==nextMode)button.dataset.mode=nextMode;
   }
 
-  function patchAccountOpen(){
-    if(!window.TDAccountHub||typeof window.TDAccountHub.open!=="function"||window.TDAccountHub.__authPatched)return;
-    const originalOpen=window.TDAccountHub.open;
-    window.TDAccountHub.open=function(){
-      const result=originalOpen.apply(this,arguments);
-      queueMicrotask(apply);
-      return result;
-    };
-    window.TDAccountHub.__authPatched=true;
-  }
-
   document.addEventListener('click',async e=>{
     const b=e.target.closest&&e.target.closest('.td-account [data-auth]');
     if(!b||!window.TDAuth)return;
@@ -39,10 +28,11 @@
   },true);
 
   window.addEventListener('td:auth-state',apply);
+  window.addEventListener('td:account-opened',apply);
   window.addEventListener('td:cloud-synced',apply);
   window.addEventListener('td:cloud-hydrated',apply);
 
-  function start(){patchAccountOpen();apply();}
+  function start(){apply();}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.TDAccountAuthUI={apply,patchAccountOpen};
+  window.TDAccountAuthUI={apply};
 })();

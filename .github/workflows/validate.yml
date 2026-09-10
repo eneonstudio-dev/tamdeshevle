@@ -64,6 +64,8 @@ jobs:
         run: node scripts/test-account-hub.mjs
       - name: Test auth backend wiring
         run: node scripts/test-auth-backend.mjs
+      - name: Test auth lifecycle regressions
+        run: node scripts/test-auth-lifecycle.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
       - name: Test Magnit adapter

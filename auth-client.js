@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   const CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-  let client=null, session=null, ready=false;
+  let client=null, session=null, initPromise=null, syncTimer=null;
   const config=()=>window.TD_SUPABASE||null;
   const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
   const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch{return f}};
@@ -9,15 +9,26 @@
 
   function configured(){const c=config();return !!(c&&/^https:\/\/.+\.supabase\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}
   function loadSdk(){return new Promise((resolve,reject)=>{if(window.supabase&&window.supabase.createClient)return resolve();const s=document.createElement("script");s.src=CDN;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Supabase SDK failed to load"));document.head.appendChild(s);});}
-  async function init(){
-    if(ready)return client;
-    ready=true;
+  function scheduleSync(){
+    clearTimeout(syncTimer);
+    // Auth callbacks run under the SDK lock. Start network work in a new task.
+    syncTimer=setTimeout(async()=>{
+      if(!session)return;
+      try{await hydrateLocalFromCloud();await syncLocalToCloud();}
+      catch(err){console.warn("Cloud sync failed",err);emit("td:cloud-sync-error",{message:String(err.message||err)});}
+    },0);
+  }
+  function init(){
+    if(!initPromise)initPromise=initialize().catch(err=>{initPromise=null;throw err;});
+    return initPromise;
+  }
+  async function initialize(){
     if(!configured()){emit("td:auth-state",{configured:false,session:null});return null;}
     await loadSdk();const c=config();client=window.supabase.createClient(c.url,c.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data,error}=await client.auth.getSession();if(error)throw error;session=data.session||null;
-    client.auth.onAuthStateChange(async(_event,next)=>{session=next||null;emit("td:auth-state",{configured:true,session});if(session){try{await syncLocalToCloud();await hydrateLocalFromCloud();}catch(err){console.warn("Cloud sync failed",err);emit("td:cloud-sync-error",{message:String(err.message||err)});}}});
+    client.auth.onAuthStateChange((_event,next)=>{session=next||null;emit("td:auth-state",{configured:true,session});scheduleSync();});
     emit("td:auth-state",{configured:true,session});
-    if(session){await syncLocalToCloud();await hydrateLocalFromCloud();}
+    if(session)scheduleSync();
     return client;
   }
   function user(){return session&&session.user?session.user:null;}
