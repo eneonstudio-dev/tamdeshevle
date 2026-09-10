@@ -35,6 +35,15 @@ export function normalizeAvailability(value) {
   return "unknown";
 }
 
+function sourceSite(context = {}, raw = {}) {
+  const url = raw.url || context.source_url || "";
+  try {
+    return new URL(url).hostname.replace(/^www\./, "") || "perekrestok.ru";
+  } catch {
+    return "perekrestok.ru";
+  }
+}
+
 export function adaptPerekrestokProduct(raw, context = {}) {
   if (!raw || !raw.name) throw new Error("Perekrestok product requires name");
   const price = number(raw.price);
@@ -58,10 +67,12 @@ export function adaptPerekrestokProduct(raw, context = {}) {
     source_url: raw.url || context.source_url || null,
     city: context.city || "msk",
     store_context: context.store_context || null,
+    catalog_context: context.catalog_context || null,
     channel: context.channel || "delivery_catalog",
     checked_at: checkedAt,
+    scope_verified: context.scope_verified === true,
     source: {
-      site: "perekrestok.ru",
+      site: sourceSite(context, raw),
       method: context.method || "public_catalog_snapshot"
     }
   };
