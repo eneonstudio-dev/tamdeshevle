@@ -20,24 +20,24 @@
   },
   "rows": [
     {
-      "id": "proshoper-lenta-milk-anfiskino-25",
-      "name": "Молоко пастеризованное АНФИСКИНО 2,5%, без змж",
-      "brand": "АНФИСКИНО",
-      "price": 69.99,
-      "old_price": 89.49,
+      "id": "lenta-ekoniva-milk-25-1000",
+      "name": "Молоко пастеризованное ЭКОНИВА 2,5%, без змж 1000мл",
+      "brand": "ЭКОНИВА",
+      "price": 99.99,
+      "old_price": 115.79,
       "promo": true,
-      "availability": "catalog",
-      "url": "https://mos.proshoper.ru/actions/lenta/"
+      "availability": "В корзину",
+      "url": "https://lenta.com/catalog/moloko-pasterizovannoe-25733/?filter.zhirnost-66=-6846549"
     },
     {
-      "id": "proshoper-lenta-barilla-spaghettoni-7",
-      "name": "Макароны BARILLA Spaghettoni №7",
+      "id": "543168",
+      "name": "Макароны BARILLA Spaghettoni №7, 450г",
       "brand": "BARILLA",
       "price": 89.99,
       "old_price": 115.79,
       "promo": true,
-      "availability": "catalog",
-      "url": "https://mos.proshoper.ru/actions/lenta/"
+      "availability": "В корзину",
+      "url": "https://lenta.com/product/makarony-spaghettoni-n7-rossiya-450g-543168/"
     }
   ]
 }
