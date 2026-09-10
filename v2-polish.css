@@ -1,0 +1,25 @@
+/* V2 interaction polish: lightweight, no observers, mobile-first */
+.v2-hero,.v2-product-card,.v2-store-strip>button,.v2-compare,.v2-search button{will-change:transform}
+.v2-hero{isolation:isolate}
+.v2-hero:before{content:"";position:absolute;inset:auto -12% -45% 34%;height:74%;background:radial-gradient(circle,rgba(82,223,145,.18),transparent 68%);filter:blur(4px);pointer-events:none;animation:tdHeroGlow 7s ease-in-out infinite alternate}
+.v2-product-card,.v2-store-strip>button,.v2-search,.v2-compare,.v2-add{transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,border-color .18s ease}
+.v2-store-strip>button:hover{transform:translateY(-2px);border-color:#cdd9d0;box-shadow:0 12px 28px rgba(9,31,19,.08)}
+.v2-add:active,.v2-compare:active,.v2-search button:active,.v2-store-strip>button:active{transform:scale(.97)}
+.v2-product-card.td-added{animation:tdAdded .38s ease}
+.v2-product-card.td-added .v2-add{background:var(--v2-green);transform:scale(1.08)}
+.v2-mobile-cartbar{display:none}
+@keyframes tdHeroGlow{from{transform:translate3d(-2%,0,0) scale(.96);opacity:.55}to{transform:translate3d(4%,-3%,0) scale(1.08);opacity:1}}
+@keyframes tdAdded{0%{transform:translateY(0)}45%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+@media(max-width:1000px){
+  body{padding-bottom:82px}
+  .v2-mobile-cartbar{position:fixed;left:50%;bottom:10px;z-index:80;width:min(560px,calc(100% - 24px));transform:translateX(-50%);display:grid;grid-template-columns:1fr auto;align-items:center;gap:14px;padding:10px 10px 10px 14px;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(11,23,17,.94);color:#fff;box-shadow:0 18px 50px rgba(4,17,10,.28);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+  .v2-mobile-cartbar[hidden]{display:none}
+  .v2-mobile-cartbar-copy{min-width:0}.v2-mobile-cartbar-copy b,.v2-mobile-cartbar-copy span{display:block}.v2-mobile-cartbar-copy b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v2-mobile-cartbar-copy span{margin-top:2px;color:#a9baaf;font-size:9px;font-weight:700}
+  .v2-mobile-cartbar button{border:0;border-radius:12px;padding:11px 14px;background:var(--v2-green);color:#fff;font:800 11px Manrope;cursor:pointer;white-space:nowrap}
+}
+@media(max-width:700px){
+  .v2-header{transition:box-shadow .2s ease,background-color .2s ease}.v2-header.td-scrolled{box-shadow:0 9px 28px rgba(8,31,19,.08);background:rgba(238,240,235,.96)}
+  .v2-product-card:hover{transform:none}.v2-store-strip>button:hover{transform:none}
+  .v2-hero{box-shadow:0 22px 46px rgba(7,37,21,.16)}
+}
+@media(prefers-reduced-motion:reduce){.v2-hero:before{animation:none}.v2-product-card.td-added{animation:none}.v2-product-card,.v2-store-strip>button,.v2-search,.v2-compare,.v2-add,.v2-header{transition:none}}
