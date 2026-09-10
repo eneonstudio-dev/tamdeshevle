@@ -3,26 +3,14 @@
   "retailer": "pyat",
   "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "checked_at": "2026-09-10T07:34:31.767Z",
+  "checked_at": "2026-09-10T07:41:46.719Z",
   "prices": {
-    "banana": 109.99,
     "buckwheat": 94.99,
-    "carrot": 11.99,
+    "carrot": 49.99,
     "eggs_c1": 96.99,
     "potato": 79.99
   },
   "matched": [
-    {
-      "sku": "banana",
-      "name": "Шоколад Miskets Capybara молочный с банановой начинкой 60г",
-      "retailer_product_id": "proshoper-шоколад-miskets-capybara-молочныи-с-банановои-начинкои-60г-181",
-      "price_rub": 109.99,
-      "old_price_rub": 149.99,
-      "promo": true,
-      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
-      "confidence": 0.9,
-      "method": "conservative_rule"
-    },
     {
       "sku": "buckwheat",
       "name": "Гречка ядрица Селяночка быстроразваривающаяся пропаренная 900г",
@@ -36,10 +24,10 @@
     },
     {
       "sku": "carrot",
-      "name": "Семена Удачные семена Морковь Королева осени, 2г",
-      "retailer_product_id": "proshoper-семена-удачные-семена-морковь-королева-осени-2г-366",
-      "price_rub": 11.99,
-      "old_price_rub": 29.99,
+      "name": "Морковь мытая упаковка 1кг",
+      "retailer_product_id": "proshoper-морковь-мытая-упаковка-1кг-10",
+      "price_rub": 49.99,
+      "old_price_rub": 89.99,
       "promo": true,
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "confidence": 0.9,
@@ -950,6 +938,11 @@
       "reason": "no_rule_match"
     },
     {
+      "name": "Шоколад Miskets Capybara молочный с банановой начинкой 60г",
+      "retailer_product_id": "proshoper-шоколад-miskets-capybara-молочныи-с-банановои-начинкои-60г-181",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Карамель Mixbar молочная 11.3г в ассортименте 1шт.",
       "retailer_product_id": "proshoper-карамель-mixbar-молочная-11-3г-в-ассортименте-1шт-182",
       "reason": "no_rule_match"
@@ -1475,6 +1468,11 @@
       "reason": "no_rule_match"
     },
     {
+      "name": "Каша ФрутоНяня молочная с овсяной мукой, бананом и яблоком с 6 мес. 200г",
+      "retailer_product_id": "proshoper-каша-фрутоняня-молочная-с-овсянои-мукои-бананом-и-яблоком-с-6-мес-200г-287",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Подгузники Красная цена Maxi 4L 26шт.",
       "retailer_product_id": "proshoper-подгузники-красная-цена-maxi-4l-26шт-288",
       "reason": "no_rule_match"
@@ -1862,6 +1860,11 @@
     {
       "name": "Термоодеяло 210х160см, 2шт.",
       "retailer_product_id": "proshoper-термоодеяло-210х160см-2шт-365",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Семена Удачные семена Морковь Королева осени, 2г",
+      "retailer_product_id": "proshoper-семена-удачные-семена-морковь-королева-осени-2г-366",
       "reason": "no_rule_match"
     },
     {
