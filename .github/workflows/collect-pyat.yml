@@ -2,6 +2,10 @@ name: Collect Pyaterochka prices
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/collect-pyat.yml"
   schedule:
     - cron: "47 2 * * *"
 
