@@ -63,7 +63,7 @@
     const saving = low != null && high > low ? Math.round((high - low) / high * 100) : 0;
     const image = productImage(product);
     return `<article class="v2-product-card">
-      <button class="v2-product-image" onclick="state.storeId='${store && store.id || state.storeId}';state.q='${esc(product.name)}';go('catalog')">${image ? `<img src="${esc(image)}" alt="${esc(product.name)}">` : `<span>${esc(product.emoji || "•")}</span>`}${saving ? `<em>−${saving}%</em>` : ""}</button>
+      <button class="v2-product-image" onclick="state.storeId='${store && store.id || state.storeId}';state.q='${esc(product.name)}';go('catalog')">${image ? `<img src="${esc(image)}" alt="${esc(product.name)}" loading="lazy" decoding="async" width="420" height="320">` : `<span>${esc(product.emoji || "•")}</span>`}${saving ? `<em>−${saving}%</em>` : ""}</button>
       <div class="v2-product-body"><div class="v2-product-name">${esc(product.name)}</div><div class="v2-product-pack">${esc(product.pack || "")}</div><div class="v2-product-price"><strong>${low == null ? "—" : `≈ ${low} ₽`}</strong>${high > low ? `<del>${high} ₽</del>` : ""}</div><div class="v2-product-store"><span style="--store:${store && store.color || "#0f7b4a"}"></span>${esc(store && store.short || "цена уточняется")}</div></div>
       <button class="v2-add" onclick="setQty('${product.id}',1)" aria-label="Добавить ${esc(product.name)}">${state.cart && state.cart[product.id] ? esc(state.cart[product.id]) : "+"}</button>
     </article>`;
