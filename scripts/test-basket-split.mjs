@@ -28,7 +28,14 @@ const stores = [
   assert.equal(result.bestTwo.total, 220);
   assert.equal(result.extraSaving, 40);
   assert.equal(result.worthSplitting, true);
+  assert.equal(result.netSaving, null, 'walk split cannot claim net saving without travel cost');
   assert.deepEqual(Array.from(result.bestTwo.usedStoreIds), ['a', 'b']);
+}
+
+{
+  const products = [product('x', 100, 140), product('y', 200, 120)];
+  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk', extraStopCost: 15 });
+  assert.equal(result.netSaving, 25);
 }
 
 {

@@ -27,8 +27,10 @@
     if(!configured()){emit("td:auth-state",{configured:false,session:null});return null;}
     await loadSdk();const c=config();client=window.supabase.createClient(c.url,c.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
     const {data,error}=await client.auth.getSession();if(error)throw error;session=data.session||null;
+    if(session&&typeof client.auth.getUser==="function"){const verified=await client.auth.getUser();if(verified.error){session=null;}else if(verified.data&&verified.data.user){session={...session,user:verified.data.user};}}
     client.auth.onAuthStateChange((_event,next)=>{const changed=session?.user?.id!==next?.user?.id;session=next||null;if(changed)setCloudState("idle","Облачная копия ещё не проверена");emit("td:auth-state",{configured:true,session});});
-    emit("td:auth-state",{configured:true,session});
+    if(session&&/[#?](access_token|refresh_token|token_hash|code|error)/.test(String(location.href||""))&&window.history?.replaceState){window.history.replaceState(null,"",location.origin+location.pathname);}
+    emit("td:auth-state",{configured:true,session,verified:Boolean(session)});
     return client;
   }
   function user(){return session&&session.user?session.user:null;}

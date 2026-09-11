@@ -213,7 +213,7 @@ function planHint(p) {
 function comparisonLead(plans) {
   const winner = plans.find(plan => plan.rankable && Number.isFinite(plan.total));
   if (!winner) return `<section class="v2-verdict v2-verdict-wait"><div><span>ЧЕСТНЫЙ РЕЗУЛЬТАТ</span><h2>Победителя пока нет</h2><p>Для всей корзины недостаточно подтверждённых цен конкретных магазинов. Оценки покажем ниже, но не назовём их фактом.</p></div><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')">Найти магазин на карте →</button></section>`;
-  return `<section class="v2-verdict"><div><span>ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ</span><h2>${winner.name}</h2><strong>${Math.round(winner.total)} ₽</strong><p>${winner.save>0?`Экономия ${Math.round(winner.save)} ₽ относительно текущего выбора.`:"Полная корзина подтверждена для сравнения."}</p></div><button onclick="choosePlan('${winner.id}')">Выбрать этот магазин →</button></section>`;
+  return `<section class="v2-verdict"><div><span>ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ</span><h2>${winner.name}</h2><strong>${Math.round(winner.total)} ₽</strong><p>${winner.save>0?`Экономия ${Math.round(winner.save)} ₽ относительно текущего выбора.`:"Полная корзина подтверждена для сравнения."}</p></div><button onclick="window.TDPurchase?TDPurchase.start('${winner.id}','${winner.channel}') : choosePlan('${winner.id}')">Купить здесь →</button></section>`;
 }
 function screenCompare() {
   const origin = storeBy(state.storeId);
@@ -238,7 +238,7 @@ function screenCompare() {
       <p class="hint">«Привезти» — цена товара в доставке сети. Тариф доставки заложен только у Лавки и Впрока. Тамдешевле сам ничего не везёт.</p>
     </div>`;
 }
-function choosePlan(storeId) { if (!storeBy(storeId)) return; state.storeId=storeId; persist(); go("catalog"); }
+function choosePlan(storeId) { const selected=storeBy(storeId);if (!selected) return;const plan=scenarios().find(x=>x.id===storeId&&x.rankable);state.storeId=storeId;persist();window.dispatchEvent(new CustomEvent("td:plan-selected",{detail:{storeId,total:plan?.total??null,saving:plan?.save??null,verified:Boolean(plan?.verifiedComplete),cart:{...state.cart},city:state.city}}));go("catalog"); }
 function whyBlock(p) {
   const originCh = defaultChannel(state.storeId);
   const rows = cartEntries().map(x => {
