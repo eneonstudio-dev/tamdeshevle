@@ -20,6 +20,10 @@ assert.ok(result.state.preferredProducts.includes('фрукты'));
 assert.ok(result.state.currentTotal<=1500);
 assert.ok(result.state.lastPlans.length>=2);
 assert.equal(result.state.lastPlans[0].quality,'ESTIMATED');
+assert.ok(result.state.products.length>=7);
+
+const dotted=context.TDShoppingConversation.apply('Собери еды до 1.500 руб');
+assert.equal(dotted.state.budget,1500);
 
 const before=result.state.currentTotal;
 const changed=context.TDShoppingConversation.apply('Убери воду');
@@ -44,5 +48,6 @@ assert.match(ui,/Как получить\?/);
 assert.match(ui,/CHANGE_QUANTITY/);
 assert.match(ui,/REPLACE_PRODUCT/);
 assert.match(ui,/TDShoppingAssistant\.replace/);
-assert.match(html,/ai-shopping-assistant\.js\?v=20260911-mvp1/);
+assert.match(ui,/newSession/);
+assert.match(html,/ai-shopping-assistant\.js\?v=20260911-mvp2/);
 console.log('AI shopping assistant MVP passed: stateful dialogue, budget, optimizer, honest prices, undo, voice and fulfillment.');
