@@ -1,5 +1,6 @@
 (()=>{
   "use strict";
+  if(!document.querySelector('link[data-bai-checkout-css]')){const l=document.createElement('link');l.rel='stylesheet';l.href='bai-checkout.css?v=20260911-checkout-v1';l.dataset.baiCheckoutCss='1';document.head.appendChild(l)}
   let statusTimer=null;
   const state=()=>window.TDShoppingState?.get?.()||{};
   const storeName=id=>(typeof STORES!=="undefined"?STORES:[]).find(x=>x.id===id)?.name||id||"магазин";
