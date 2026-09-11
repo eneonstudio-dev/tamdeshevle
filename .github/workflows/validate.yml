@@ -100,6 +100,8 @@ jobs:
         run: node tests/magnit-basket-transfer-probe-smoke.js
       - name: Test Magnit cart session probe
         run: node tests/magnit-cart-session-smoke.js
+      - name: Test unified continue-in-stores flow
+        run: node tests/continue-in-stores-smoke.js
       - name: Test Pyaterochka adapter
         run: node scripts/test-pyat-adapter.mjs
       - name: Test Pyaterochka collector
@@ -146,6 +148,8 @@ jobs:
           node --check map-one-tap.js
           node --check ui-layer-coordinator.js
           node --check bai-assistant.js
+          node --check bai-checkout.js
+          node --check continue-in-stores-v1.js
           node --check v2-shell.js
           node --check worth-it.js
           node --check on-the-way.js
@@ -177,6 +181,7 @@ jobs:
           node --check tests/magnit-basket-transfer-probe-smoke.js
           node --check tests/magnit-cart-session-smoke.js
           node --check tests/perekrestok-exact-flow-smoke.js
+          node --check tests/continue-in-stores-smoke.js
           node --check retailers/perekrestok.mjs
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
