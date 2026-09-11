@@ -12,4 +12,5 @@
 .sku:active .sku-plate img{transform:scale(1.04)}
 .item,.product-card{border:0;border-radius:18px;padding:10px;grid-template-columns:76px 1fr auto;gap:10px;box-shadow:0 6px 16px rgba(22,20,16,.05)}
 .thumb,.product-packaging{width:76px;height:76px;border-radius:14px;background:#ece7de}
+.step button{width:40px!important;height:40px!important;min-width:40px;touch-action:manipulation}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
