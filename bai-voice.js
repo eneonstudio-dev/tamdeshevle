@@ -8,6 +8,7 @@
   let enabled = localStorage.getItem(KEY) !== "0";
   let speaking = false;
   let chosenVoice = null;
+  let transcriptTimer = null;
   const nativeSpeak = synth.speak.bind(synth);
   const nativeCancel = synth.cancel.bind(synth);
 
@@ -31,6 +32,51 @@
 
   function assistantRoot() { return document.querySelector(".td-ai"); }
   function voiceButton() { return document.querySelector("[data-bai-voice-toggle]"); }
+
+  function dedupeTranscript(text) {
+    const tokens = String(text || "").trim().split(/\s+/).filter(Boolean);
+    if (tokens.length < 2) return tokens.join(" ");
+    const out = [];
+    for (const token of tokens) {
+      if (out.length && out[out.length - 1].toLowerCase() === token.toLowerCase()) continue;
+      out.push(token);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        const max = Math.min(14, Math.floor(out.length / 2));
+        for (let len = max; len >= 2; len--) {
+          const a = out.slice(out.length - len * 2, out.length - len).join(" ").toLowerCase();
+          const b = out.slice(out.length - len).join(" ").toLowerCase();
+          if (a === b) {
+            out.splice(out.length - len, len);
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
+    return out.join(" ");
+  }
+
+  function cleanTranscript() {
+    const root = assistantRoot();
+    const area = root?.querySelector("textarea");
+    if (!area || !area.value) return;
+    const clean = dedupeTranscript(area.value);
+    if (clean !== area.value.trim()) {
+      area.value = clean;
+      try { area.selectionStart = area.selectionEnd = area.value.length; } catch {}
+    }
+  }
+
+  function keepTranscriptClean() {
+    clearInterval(transcriptTimer);
+    transcriptTimer = setInterval(() => {
+      const mic = assistantRoot()?.querySelector("[data-ai-mic]");
+      if (!mic?.classList.contains("listening")) return;
+      cleanTranscript();
+    }, 140);
+  }
 
   function updateUI() {
     const root = assistantRoot();
@@ -110,7 +156,17 @@
   };
 
   document.addEventListener("click", e => {
-    if (e.target?.closest?.("[data-ai-mic]")) stopSpeaking();
+    if (e.target?.closest?.("[data-ai-mic]")) {
+      stopSpeaking();
+      keepTranscriptClean();
+      setTimeout(cleanTranscript, 80);
+      setTimeout(cleanTranscript, 260);
+    }
+    if (e.target?.closest?.("[data-ai-send]")) cleanTranscript();
+  }, true);
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey && e.target?.closest?.(".td-ai textarea")) cleanTranscript();
   }, true);
 
   const style = document.createElement("style");
@@ -133,12 +189,15 @@
   const observer = new MutationObserver(attachButton);
   observer.observe(document.documentElement, {childList:true, subtree:true});
   attachButton();
+  keepTranscriptClean();
 
   window.TDBaiVoice = {
     isEnabled: () => enabled,
     setEnabled(value) { enabled = Boolean(value); localStorage.setItem(KEY, enabled ? "1" : "0"); if (!enabled) stopSpeaking(); updateUI(); },
     stop: stopSpeaking,
     voice: () => chosenVoice ? {name:chosenVoice.name, lang:chosenVoice.lang, localService:chosenVoice.localService} : null,
-    refresh: refreshVoice
+    refresh: refreshVoice,
+    cleanTranscript,
+    dedupeTranscript
   };
 })();
