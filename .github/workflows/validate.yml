@@ -88,6 +88,8 @@ jobs:
         run: node scripts/test-auth-lifecycle.mjs
       - name: Test Perekrestok adapter
         run: node scripts/test-retailer-adapter.mjs
+      - name: Test Perekrestok exact flow
+        run: node tests/perekrestok-exact-flow-smoke.js
       - name: Test Magnit adapter
         run: node scripts/test-magnit-adapter.mjs
       - name: Test Magnit collector
@@ -169,10 +171,12 @@ jobs:
           node --check magnit-store-context-v1.js
           node --check magnit-basket-transfer-probe-v2.js
           node --check magnit-cart-session-probe-v1.js
+          node --check perekrestok-product-flow-v1.js
           node --check real-store-integration-v1.js
           node --check tests/magnit-store-context-smoke.js
           node --check tests/magnit-basket-transfer-probe-smoke.js
           node --check tests/magnit-cart-session-smoke.js
+          node --check tests/perekrestok-exact-flow-smoke.js
           node --check retailers/perekrestok.mjs
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
