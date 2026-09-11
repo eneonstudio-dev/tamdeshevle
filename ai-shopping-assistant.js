@@ -1,6 +1,6 @@
 (function(){
   "use strict";
-  let root=null,messages=[],recognition=null,brainLoad=null,plannerLoad=null,voiceActive=false,voiceFinal="",voiceInterim="",talkMode=false,silenceTimer=null,lastSuggestions=[],lastStrategies=[];
+  let root=null,messages=[],recognition=null,brainLoad=null,plannerLoad=null,selfCheckLoad=null,voiceActive=false,voiceFinal="",voiceInterim="",talkMode=false,silenceTimer=null,lastSuggestions=[],lastStrategies=[];
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const money=v=>Math.round(Number(v)||0).toLocaleString("ru-RU")+" ₽";
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
@@ -13,6 +13,7 @@
   function speak(text){return new Promise(resolve=>{if(!("speechSynthesis"in window)||!text){resolve();return}window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="ru-RU";u.rate=1.02;u.onend=()=>resolve();u.onerror=()=>resolve();window.speechSynthesis.speak(u)})}
   async function ensureBrain(){if(!window.TDBaiBrain){brainLoad=brainLoad||import("./bai-brain.js?v=20260911-native-v2").catch(e=>{console.warn("[Bai Brain] load failed",e);return null});await brainLoad}return window.TDBaiBrain||null}
   async function ensurePlanner(){if(!window.TDBaiPlanner){plannerLoad=plannerLoad||import("./bai-planner.js?v=20260911-planner-v2").catch(e=>{console.warn("[Bai Planner] load failed",e);return null});await plannerLoad}return window.TDBaiPlanner||null}
+  async function ensureSelfCheck(){if(!window.TDBaiSelfCheck){selfCheckLoad=selfCheckLoad||import("./bai-self-check.js?v=20260911-selfcheck-v1").catch(e=>{console.warn("[Bai SelfCheck] load failed",e);return null});await selfCheckLoad}return window.TDBaiSelfCheck||null}
   function plannerRequested(text,routed,result){const s=TDShoppingState.get(),t=low(text);if(!s.budget||result?.needsClarification)return false;if(/вариант|что лучше|что бы ты выбрал|сам реши|предложи|не знаю что хочу|сравни/.test(t))return true;if(routed?.expectsAnswer)return false;if(/собери|подбери|на вечер|на ужин|нужна еда|хочу еды/.test(t))return true;const ops=routed?.operations||[];return ops.some(o=>["ADD_PREFERENCE","SET_COOKING","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION"].includes(o.type))&&!ops.some(o=>["ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","SET_ONLY_PRODUCTS"].includes(o.type));}
   async function planAlternatives(text){const planner=await ensurePlanner();const s=TDShoppingState.get(),pack=planner?.build?.(s,text);if(!pack?.strategies?.length)return"";lastStrategies=pack.strategies.slice(0,3);return planner.explain(pack,s)}
   async function applyStrategy(id){
@@ -32,7 +33,13 @@
     if(voiceActive)stopVoice(false);
     const area=root?.querySelector("textarea"),value=String(text||area?.value||"").trim();if(!value)return;
     const history=messages.slice(-12);messages.push({role:"user",text:value});lastSuggestions=[];lastStrategies=[];if(area)area.value="";bay("thinking");render();
-    let routed={operations:null,reply:"",suggestions:[]};try{const brain=await ensureBrain();routed=await brain?.route?.(value,history)||routed}catch(e){console.warn("[Bai Brain]",e)}
+    let routed={operations:null,reply:"",suggestions:[]};
+    try{
+      const brain=await ensureBrain();
+      routed=await brain?.route?.(value,history)||routed;
+      const checker=await ensureSelfCheck();
+      routed=checker?.guard?.(value,routed,TDShoppingState.get())||routed;
+    }catch(e){console.warn("[Bai Brain]",e)}
     let result=null,reply="";
     if(Array.isArray(routed.operations)&&routed.operations.length){result=TDShoppingConversation.apply(value,routed.operations);reply=result.message||routed.reply;}
     else if(routed.reply){reply=routed.reply;}
@@ -43,7 +50,7 @@
       const explanation=await planAlternatives(value);
       if(explanation){reply=`${explanation} Я ничего не переключаю сам — покажу варианты, а применю тот, который ты выберешь.`;lastSuggestions=[];}
     }
-    messages.push({role:"assistant",text:reply});bay(result?.needsClarification?"warning":"success");render();await speak(reply);
+    messages.push({role:"assistant",text:reply});bay(result?.needsClarification||routed?.selfCheck?.safe===false?"warning":"success");render();await speak(reply);
     if(talkMode&&root){setTimeout(()=>startVoice(true),250)}
   }
   function dedupe(t){let w=String(t||"").trim().split(/\s+/).filter(Boolean);let changed=true;while(changed){changed=false;for(let n=Math.min(14,Math.floor(w.length/2));n>0;n--){const a=w.slice(-n).join(" ").toLowerCase(),b=w.slice(-2*n,-n).join(" ").toLowerCase();if(a===b){w.splice(-n);changed=true;break}}}return w.filter((x,i)=>!i||x.toLowerCase()!==w[i-1].toLowerCase()).join(" ")}
@@ -55,7 +62,7 @@
   function voice(){if(voiceActive){stopVoice();return}startVoice()}
   function toggleTalkMode(){talkMode=!talkMode;if(talkMode){startVoice(true)}else{stopVoice();window.speechSynthesis?.cancel?.()}render()}
   function newSession(){stopVoice();talkMode=false;TDShoppingState.reset();window.TDBaiBrain?.reset?.();lastSuggestions=[];lastStrategies=[];messages=[{role:"assistant",text:"Начали заново. Опиши задачу как человеку — я сам уточню, чего не хватает, и перед действием сравню нормальные варианты."}];render()}
-  function open(){if(root)return;root=document.createElement("section");root.className="td-ai";root.innerHTML=`<div class="td-ai-shell"><header class="td-ai-head"><button data-ai-close>←</button><div><b>Бай</b><small>AI-помощник покупок</small></div><button class="td-ai-talkmode" data-ai-talkmode>Диалог</button><button data-ai-new>Новая</button></header><main class="td-ai-main"><div class="td-ai-bai"><img data-ai-bai src="assets/bai/bai-idle.webp" alt=""><h2>Что сегодня покупаем?</h2><p>Можешь говорить расплывчато. Я уточню, сравню варианты и скажу, какой выбрал бы сам.</p></div><div class="td-ai-messages" aria-live="polite"></div></main><div class="td-ai-compose"><textarea placeholder="Например: хочу что-нибудь на вечер, но сам не знаю что"></textarea><button data-ai-mic aria-label="Говорить">●</button><button class="td-ai-send" data-ai-send>Отправить</button></div></div>`;document.body.appendChild(root);root.querySelector("[data-ai-close]").onclick=()=>{talkMode=false;stopVoice();window.speechSynthesis?.cancel?.();root.remove();root=null};root.querySelector("[data-ai-new]").onclick=newSession;root.querySelector("[data-ai-talkmode]").onclick=toggleTalkMode;root.querySelector("[data-ai-send]").onclick=()=>submit();root.querySelector("[data-ai-mic]").onclick=voice;root.querySelector("textarea").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();submit()}};messages.length||(messages=[{role:"assistant",text:"Расскажи задачу как есть. Если данных мало, я сам спрошу. Если решений несколько — сравню их по цене и смыслу, а после выбора объясню компромисс и предложу следующий полезный шаг."}]);render();ensureBrain();ensurePlanner();root.querySelector("textarea").focus()}
+  function open(){if(root)return;root=document.createElement("section");root.className="td-ai";root.innerHTML=`<div class="td-ai-shell"><header class="td-ai-head"><button data-ai-close>←</button><div><b>Бай</b><small>AI-помощник покупок</small></div><button class="td-ai-talkmode" data-ai-talkmode>Диалог</button><button data-ai-new>Новая</button></header><main class="td-ai-main"><div class="td-ai-bai"><img data-ai-bai src="assets/bai/bai-idle.webp" alt=""><h2>Что сегодня покупаем?</h2><p>Можешь говорить расплывчато. Я уточню, сравню варианты и скажу, какой выбрал бы сам.</p></div><div class="td-ai-messages" aria-live="polite"></div></main><div class="td-ai-compose"><textarea placeholder="Например: хочу что-нибудь на вечер, но сам не знаю что"></textarea><button data-ai-mic aria-label="Говорить">●</button><button class="td-ai-send" data-ai-send>Отправить</button></div></div>`;document.body.appendChild(root);root.querySelector("[data-ai-close]").onclick=()=>{talkMode=false;stopVoice();window.speechSynthesis?.cancel?.();root.remove();root=null};root.querySelector("[data-ai-new]").onclick=newSession;root.querySelector("[data-ai-talkmode]").onclick=toggleTalkMode;root.querySelector("[data-ai-send]").onclick=()=>submit();root.querySelector("[data-ai-mic]").onclick=voice;root.querySelector("textarea").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();submit()}};messages.length||(messages=[{role:"assistant",text:"Расскажи задачу как есть. Если данных мало, я сам спрошу. Если решений несколько — сравню их по цене и смыслу, а после выбора объясню компромисс и предложу следующий полезный шаг."}]);render();ensureBrain();ensurePlanner();ensureSelfCheck();root.querySelector("textarea").focus()}
   function mutateProduct(type,id,fn){TDShoppingState.commit(type,s=>{const p=s.products.find(x=>x.id===id);if(p)fn(s,p)},type);TDShoppingState.syncCart();render()}
   function adjust(id,d){mutateProduct("CHANGE_QUANTITY",id,(s,p)=>{p.quantity=Math.max(0,p.quantity+d);if(!p.quantity)s.products=s.products.filter(x=>x.id!==id)})}
   function remove(id){mutateProduct("REMOVE_PRODUCT",id,s=>{s.products=s.products.filter(x=>x.id!==id);if(!s.excludedProducts.includes(id))s.excludedProducts.push(id)})}
