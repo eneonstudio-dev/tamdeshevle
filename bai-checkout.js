@@ -2,7 +2,7 @@
   "use strict";
   import("./bai-fallback-bridge.js?v=20260911-fallback-only-v1").catch(e=>console.warn("[Bai Fallback Bridge] load failed",e));
   import("./price-freshness-ui-v2.js?v=20260911-price-freshness-v2").catch(e=>console.warn("[Price Freshness v2] load failed",e));
-  import("./saved-baskets.js?v=20260911-saved-baskets-v1").catch(e=>console.warn("[Saved Baskets] load failed",e));
+  import("./basket-price-history.js?v=20260911-basket-history-v1").then(()=>import("./saved-baskets.js?v=20260911-basket-history-v1")).catch(e=>console.warn("[Saved Baskets] load failed",e));
   if(!document.querySelector('link[data-bai-checkout-css]')){const l=document.createElement('link');l.rel='stylesheet';l.href='bai-checkout.css?v=20260911-checkout-v1';l.dataset.baiCheckoutCss='1';document.head.appendChild(l)}
   if(!document.querySelector('link[data-code-health-v1]')){const l=document.createElement('link');l.rel='stylesheet';l.href='code-health-v1.css?v=20260911-v1';l.dataset.codeHealthV1='1';document.head.appendChild(l)}
   import("./runtime-health.js?v=20260911-v1").catch(e=>console.warn("[Runtime Health] load failed",e));
