@@ -1,0 +1,1 @@
+.split-basket__cost label{display:grid;grid-template-columns:1fr 92px;align-items:center;gap:10px;margin-top:9px;font-size:11px;font-weight:700}.split-basket__cost input{width:100%;border:1px solid rgba(255,255,255,.16);border-radius:9px;background:rgba(255,255,255,.08);color:inherit;padding:8px}.split-basket__cost small{display:block;margin-top:9px;opacity:.72}

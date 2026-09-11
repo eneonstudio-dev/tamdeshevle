@@ -1,6 +1,6 @@
 (function(){
   "use strict";
-  const DELIVERY={lavka:"https://lavka.yandex.ru/",vprok:"https://www.vprok.ru/"};
+  const DELIVERY={pyat:"https://5ka.ru/",magnit:"https://magnit.ru/",perek:"https://www.perekrestok.ru/",lenta:"https://lenta.com/",dixy:"https://dixy.ru/shop-map/",lavka:"https://lavka.yandex.ru/",vprok:"https://www.vprok.ru/"};
   function plan(storeId,channel){return window.TDCompare?.fromWindow().find(x=>x.id===storeId&&x.channel===channel)||null;}
   function start(storeId,channel){
     const p=plan(storeId,channel);

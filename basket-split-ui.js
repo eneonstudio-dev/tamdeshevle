@@ -52,11 +52,14 @@
         </div>
       </div>
       <div class="split-basket__save">${result.netSaving != null ? `Чистая выгода по известным условиям: −${money(result.netSaving)}` : `Потенциально −${money(result.extraSaving)}`}</div>
-      <div class="split-basket__note">${allocationSummary(two)} товара(ов) по магазинам. Только подтверждённые цены${two.channels && Object.values(two.channels).includes("bring") ? "; доставка сети включена, если тариф известен" : ""}. Маршрут и время не выдумываем.</div>
+      <div class="split-basket__note">${allocationSummary(two)} товара(ов) по магазинам. Только подтверждённые цены${two.channels && Object.values(two.channels).includes("bring") ? "; доставка сети включена, если тариф известен" : ""}.</div>
+      ${two.channels && !Object.values(two.channels).includes("bring")?settingsHtml(result):""}
       <details class="split-basket__details"><summary>Что куда брать</summary>${allocationLines(two)}</details>
     `;
     return card;
   }
+
+  function settingsHtml(result){const x=window.TDAssemblyPreferences?.read()||{minutes:0,rubPerMinute:0,transportRub:0};return `<details class="split-basket__details split-basket__cost"><summary>Учесть дорогу и время</summary><label>Лишний крюк, минут <input data-assembly="minutes" type="number" min="0" max="180" value="${x.minutes}"></label><label>Цена минуты, ₽ <input data-assembly="rubPerMinute" type="number" min="0" max="100" value="${x.rubPerMinute}"></label><label>Транспорт, ₽ <input data-assembly="transportRub" type="number" min="0" max="5000" value="${x.transportRub}"></label><small>Учтённая стоимость второго магазина: ${money(result.operationalCost||0)}.</small></details>`;}
 
   function enhance() {
     if (!window.TDBasketSplit || !window.state || state.screen !== "compare") return;
@@ -73,6 +76,8 @@
   const app = document.getElementById("app");
   if (app) new MutationObserver(enhance).observe(app, { childList: true, subtree: true });
   window.addEventListener("td:runtime-ready", enhance);
+  window.addEventListener("td:assembly-settings",()=>{document.querySelector("[data-split-basket]")?.remove();enhance();});
+  document.addEventListener("change",e=>{const input=e.target.closest?.("[data-assembly]");if(!input||!window.TDAssemblyPreferences)return;TDAssemblyPreferences.save({[input.dataset.assembly]:Number(input.value)||0});});
   setTimeout(enhance, 0);
 
   window.TDBasketSplitUI = { enhance };
