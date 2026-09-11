@@ -92,6 +92,8 @@ jobs:
         run: node scripts/test-magnit-adapter.mjs
       - name: Test Magnit collector
         run: node scripts/test-magnit-collector.mjs
+      - name: Test Magnit store context handoff
+        run: node tests/magnit-store-context-smoke.js
       - name: Test Pyaterochka adapter
         run: node scripts/test-pyat-adapter.mjs
       - name: Test Pyaterochka collector
@@ -160,6 +162,9 @@ jobs:
           node --check data-layer.js
           node --check comparison-engine.js
           node --check runtime-bridge.js
+          node --check magnit-store-context-v1.js
+          node --check real-store-integration-v1.js
+          node --check tests/magnit-store-context-smoke.js
           node --check retailers/perekrestok.mjs
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
