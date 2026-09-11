@@ -4,7 +4,7 @@
   if(!document.querySelector('link[data-code-health-v1]')){const l=document.createElement('link');l.rel='stylesheet';l.href='code-health-v1.css?v=20260911-v1';l.dataset.codeHealthV1='1';document.head.appendChild(l)}
   import("./runtime-health.js?v=20260911-v1").catch(e=>console.warn("[Runtime Health] load failed",e));
   const comparisonModule=()=>window.TDComparisonResultV2?Promise.resolve(window.TDComparisonResultV2):import("./comparison-result-v2.js?v=20260911-code-health-v1").then(()=>window.TDComparisonResultV2);
-  const purchaseModule=()=>window.TDPurchaseProof?Promise.resolve(window.TDPurchaseProof):import("./purchase-proof.js?v=20260911-code-health-v1").then(()=>window.TDPurchaseProof);
+  const purchaseModule=()=>window.TDPurchaseProof?Promise.resolve(window.TDPurchaseProof):import("./purchase-proof.js?v=20260911-receipt-proof-v2").then(()=>window.TDPurchaseProof);
   comparisonModule().catch(e=>console.warn("[Comparison Result v2] load failed",e));
   purchaseModule().catch(e=>console.warn("[Purchase Proof] load failed",e));
   let statusTimer=null;
