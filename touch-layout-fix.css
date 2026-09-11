@@ -1,0 +1,51 @@
+/* Android's “desktop site” mode often reports a desktop-width viewport.
+   Coarse pointer detection keeps touch layout safe even in that mode. */
+html,body{max-width:100%;overflow-x:hidden}
+
+/* Product packaging must stay fully visible; only scenic store covers may crop. */
+.sku-plate img,.thumb img,.product-packaging img,.v2-product-image img{
+  width:100%;height:100%;object-fit:contain!important;object-position:center!important;
+}
+.sku-plate,.thumb,.product-packaging,.v2-product-image{background:#f5f3ed}
+.grid,.shelf,.v2-product-grid{min-width:0}
+.store,.sku,.v2-product-card{min-width:0;max-width:100%}
+.phone .store .cover{
+  width:100%;aspect-ratio:16/10;height:auto!important;min-height:108px;
+  background-repeat:no-repeat!important;background-size:cover!important;
+  background-position:center center!important;
+}
+
+/* The panel lives directly under body, so transformed mascot ancestors can
+   never turn fixed positioning into an off-screen strip. */
+body>.bai-panel[data-bai-panel="true"]{
+  position:fixed!important;z-index:120!important;
+  right:max(18px,env(safe-area-inset-right))!important;
+  bottom:max(82px,calc(70px + env(safe-area-inset-bottom)))!important;
+  left:auto!important;width:min(320px,calc(100vw - 36px))!important;
+  max-height:calc(100dvh - 112px)!important;overflow:auto!important;
+  box-sizing:border-box!important;transform:none!important;
+}
+
+@media (hover:none) and (pointer:coarse), (max-width:1100px){
+  body{padding-bottom:78px!important;overflow-x:hidden!important}
+  .phone{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  .v2-inner-screen .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .store:hover{transform:none!important}
+  .store:hover .cover{background-size:cover!important}
+  .bai-assistant{right:0!important;bottom:64px!important;width:62px!important;height:58px!important;z-index:72!important}
+  .bai-character,.bai-image{width:66px!important;height:63px!important}
+  .bai-character{right:-9px!important;bottom:-5px!important}
+  body>.bai-panel[data-bai-panel="true"]{
+    left:max(12px,env(safe-area-inset-left))!important;
+    right:max(12px,env(safe-area-inset-right))!important;
+    bottom:max(82px,calc(72px + env(safe-area-inset-bottom)))!important;
+    width:auto!important;max-width:none!important;
+    max-height:calc(100dvh - 104px)!important;border-radius:20px!important;
+  }
+}
+
+@media(max-width:520px){
+  .grid,.v2-inner-screen .grid{gap:10px!important}
+  .phone .store .cover{min-height:96px}
+}
