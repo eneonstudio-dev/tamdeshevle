@@ -39,17 +39,19 @@
   async function upsert(table,row,onConflict){const {data,error}=await client.from(table).upsert(row,onConflict?{onConflict}:undefined).select();if(error)throw error;return data;}
   function stableUuid(uid,suffix){const hex=String(uid||"").replace(/-/g,"").padEnd(32,"0").slice(0,31)+suffix;return `${hex.slice(0,8)}-${hex.slice(8,12)}-4${hex.slice(13,16)}-8${hex.slice(17,20)}-${hex.slice(20,32)}`;}
   async function syncLocalToCloud(){return cloudOperation(async uid=>{
-    const p=read("td:profile",{}), td=JSON.parse(JSON.stringify(window.state||read("td",{}))), hist=read("td:basket-history",[]);
+    const p=read("td:profile",{}), td=JSON.parse(JSON.stringify(window.state||read("td",{}))), hist=read("td:basket-history",[]), ledger=read("td:savings-ledger",[]);
     const name=String(p.name||user().user_metadata?.display_name||"Покупатель").slice(0,40);
     await upsert("profiles",{user_id:uid,display_name:name,updated_at:new Date().toISOString()},"user_id");assertUser(uid);
     const basketId=stableUuid(uid,"a"),cart=td.cart||{};
     await upsert("baskets",{id:basketId,user_id:uid,name:"Моя корзина",city:td.city||"msk",store_id:td.storeId||null,items:cart,is_default:true,updated_at:new Date().toISOString()},"id");assertUser(uid);
     if(td.address){await upsert("addresses",{id:stableUuid(uid,"b"),user_id:uid,label:"Основной",address:String(td.address).slice(0,240),city:td.city||"msk",is_default:true,updated_at:new Date().toISOString()},"id");assertUser(uid);}
     for(const h of hist.filter(x=>x&&x.verified===true).slice(-90)){if(!h.date)continue;assertUser(uid);await upsert("basket_history",{user_id:uid,day:h.date,city:h.city||"msk",store_id:h.storeId||null,total:Math.max(0,Math.round(Number(h.total)||0)),item_count:Math.max(0,Math.round(Number(h.items)||0)),items:h.cart||{},recorded_at:h.at||new Date().toISOString()},"user_id,day,city");}
+    for(const x of ledger.filter(x=>x&&x.verified===true&&Number(x.saving)>0).slice(-200)){assertUser(uid);await upsert("savings_ledger",{id:x.id,user_id:uid,signature:x.signature,occurred_at:x.at,store_id:x.storeId,store_name:x.storeName,channel:x.channel,basket_total:Math.round(Number(x.total)),saving:Math.round(Number(x.saving)),cart:x.cart||{},verified:true},"user_id,signature");}
     const cloud=await cloudSummary();assertUser(uid);
     const saved=cloud?.baskets.find(b=>b.id===basketId);
     const sameCart=(a,b)=>Object.keys(a).length===Object.keys(b).length&&Object.keys(a).every(k=>a[k]===b[k]);
     if(!saved||!sameCart(saved.items||{},cart)||saved.city!==(td.city||"msk")||saved.store_id!==(td.storeId||null)||cloud.profile?.display_name!==name)throw new Error("CLOUD_VERIFY_FAILED");
+    const localSavings=ledger.filter(x=>x&&x.verified===true&&Number(x.saving)>0).slice(-200);if(localSavings.some(x=>!cloud.savings.some(saved=>saved.signature===x.signature)))throw new Error("CLOUD_VERIFY_FAILED");
     setCloudState("saved","Корзина сохранена в облаке · "+new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}));
     emit("td:cloud-synced",{userId:uid});return true;
   });}
@@ -59,10 +61,11 @@
       client.from("profiles").select("*").eq("user_id",uid).maybeSingle(),
       client.from("baskets").select("*").eq("user_id",uid).order("updated_at",{ascending:false}),
       client.from("addresses").select("*").eq("user_id",uid).order("is_default",{ascending:false}),
-      client.from("basket_history").select("*").eq("user_id",uid).order("day",{ascending:false}).limit(90)
+      client.from("basket_history").select("*").eq("user_id",uid).order("day",{ascending:false}).limit(90),
+      client.from("savings_ledger").select("*").eq("user_id",uid).order("occurred_at",{ascending:false}).limit(200)
     ]);
     for(const q of queries)if(q.error)throw q.error;
-    return{profile:queries[0].data,baskets:queries[1].data||[],addresses:queries[2].data||[],history:queries[3].data||[]};
+    return{profile:queries[0].data,baskets:queries[1].data||[],addresses:queries[2].data||[],history:queries[3].data||[],savings:queries[4].data||[]};
   }
   async function hydrateLocalFromCloud(){return cloudOperation(async uid=>{
     const cloud=await cloudSummary();assertUser(uid);
@@ -76,6 +79,7 @@
     if(!write("td",restored))throw new Error("LOCAL_STORAGE_FAILED");
     if(cloud.profile&&!write("td:profile",{...localProfile,name:cloud.profile.display_name}))throw new Error("LOCAL_STORAGE_FAILED");
     if(!write("td:basket-history",cloud.history.slice().reverse().map(h=>({date:h.day,city:h.city,storeId:h.store_id,total:h.total,items:h.item_count,cart:h.items||{},at:h.recorded_at,verified:true}))))throw new Error("LOCAL_STORAGE_FAILED");
+    if(!write("td:savings-ledger",cloud.savings.slice().reverse().map(x=>({id:x.id,signature:x.signature,at:x.occurred_at,storeId:x.store_id,storeName:x.store_name,channel:x.channel,total:x.basket_total,saving:x.saving,cart:x.cart||{},verified:true}))))throw new Error("LOCAL_STORAGE_FAILED");
     if(window.state)Object.assign(window.state,{cart:restored.cart,city:restored.city,storeId:restored.storeId,address:restored.address});
     if(typeof window.render==="function")window.render();
     setCloudState("loaded","Корзина восстановлена из облака");emit("td:cloud-hydrated",{userId:uid});return true;

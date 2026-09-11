@@ -121,7 +121,9 @@
     if (typeof STORES === "undefined" || typeof PRODUCTS === "undefined" || !window.state) {
       return { bestOne: null, bestTwo: null, extraSaving: null, worthSplitting: false, pairCount: 0 };
     }
-    return optimize({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city || "msk", mode: state.mode || "walk" });
+    const mode=state.mode || "walk";
+    const extraStopCost=mode==="delivery"?0:window.TDAssemblyPreferences?.extraStopCost();
+    return optimize({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city || "msk", mode, extraStopCost });
   }
 
   window.TDBasketSplit = { channelFor, eligibleStores, oneStoreOptions, pairOption, optimize, fromWindow };
