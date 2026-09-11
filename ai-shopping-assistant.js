@@ -1,6 +1,6 @@
 (function(){
   "use strict";
-  import("./bai-checkout.js?v=20260911-receipt-proof-v2").catch(e=>console.warn("[Bai Checkout] load failed",e));
+  import("./bai-checkout.js?v=20260911-comparison-reliability-v1").catch(e=>console.warn("[Bai Checkout] load failed",e));
   let root=null,messages=[],recognition=null,brainLoad=null,plannerLoad=null,selfCheckLoad=null,memoryLoad=null,voiceActive=false,voiceFinal="",voiceInterim="",talkMode=false,silenceTimer=null,lastSuggestions=[],lastStrategies=[];
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const money=v=>Math.round(Number(v)||0).toLocaleString("ru-RU")+" ₽";
@@ -33,5 +33,5 @@
   function mutateProduct(type,id,fn){TDShoppingState.commit(type,s=>{const p=s.products.find(x=>x.id===id);if(p)fn(s,p)},type);TDShoppingState.syncCart();render()}
   function adjust(id,d){mutateProduct("CHANGE_QUANTITY",id,(s,p)=>{p.quantity=Math.max(0,p.quantity+d);if(!p.quantity)s.products=s.products.filter(x=>x.id!==id)})}
   function remove(id){mutateProduct("REMOVE_PRODUCT",id,s=>{s.products=s.products.filter(x=>x.id!==id);if(!s.excludedProducts.includes(id))s.excludedProducts.push(id)});ensureMemory().then(m=>m?.learn?.("убрал товар вручную",{operations:[{type:"REMOVE_PRODUCT",value:id}]}))}
-  window.TDShoppingAssistant={open,voice,submit,adjust,remove,newSession,toggleTalkMode,applyStrategy};
+  window.TDShoppingAssistant={open,voice,submit,adjust,remove,newSession,toggleTalkMode,applyStrategy,refresh:render};
 })();
