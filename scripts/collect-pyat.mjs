@@ -8,7 +8,14 @@ const snapshotPath = process.argv[3] || "data/retailers/pyat.sample.json";
 const overlayPath = process.argv[4] || "data/retailers/pyat.overlay.json";
 
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-const snapshot = await collectPyatSnapshot(config);
+let snapshot;
+try { snapshot = await collectPyatSnapshot(config); }
+catch (error) {
+  const code=String(error?.code||"PYAT_COLLECTOR_FAILED"),status=error?.status==null?"":String(error.status),retryable=error?.retryable===true?"true":"false";
+  if(process.env.GITHUB_OUTPUT)fs.appendFileSync(process.env.GITHUB_OUTPUT,`error_code=${code}\nhttp_status=${status}\nretryable=${retryable}\n`);
+  console.error(`[${code}] ${error?.message||error}`);
+  process.exit(1);
+}
 const overlay = buildOverlayFromSnapshot(snapshot);
 
 for (const file of [snapshotPath, overlayPath]) fs.mkdirSync(path.dirname(file), { recursive: true });

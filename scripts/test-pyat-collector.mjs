@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
-import { normalizePyatSearchProduct, verifyPyatStore } from "../retailers/pyat-collector.mjs";
+import { classifyPyatHttpStatus, normalizePyatSearchProduct, verifyPyatStore } from "../retailers/pyat-collector.mjs";
+
+assert.deepEqual(classifyPyatHttpStatus(403),{code:"PYAT_ACCESS_BLOCKED",retryable:false});
+assert.deepEqual(classifyPyatHttpStatus(429),{code:"PYAT_RATE_LIMITED",retryable:true});
+assert.deepEqual(classifyPyatHttpStatus(503),{code:"PYAT_UPSTREAM_ERROR",retryable:true});
 
 const config = {
   store_context: { sap_code: "S105" },
