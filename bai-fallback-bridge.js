@@ -70,5 +70,7 @@
 
   window.TDShoppingConversation={...current,apply};
   window.TDBaiFallbackBridge={special,clearOldOnly};
-  import("./bai-brain.js?v=20260911-reliability-v1").catch(e=>console.warn("[Bai Brain preload] load failed",e));
+  import("./bai-brain.js?v=20260911-reliability-v1")
+    .then(()=>import("./bai-reasoning-guard.js?v=20260912-direction-v1"))
+    .catch(e=>console.warn("[Bai Brain preload] load failed",e));
 })();
