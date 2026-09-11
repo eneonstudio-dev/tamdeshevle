@@ -1,0 +1,12 @@
+(()=>{
+  "use strict";
+  const HOST=/(^|\.)magnit\.ru$/i;
+  function norm(v){return String(v||"").toLowerCase().replace(/ё/g,"е").replace(/\bc([012])\b/g,"с$1").replace(/[^a-zа-я0-9%.,-]+/g," ").replace(/\s+/g," ").trim()}
+  function productId(url){try{const u=new URL(String(url||""),location.href);if(!HOST.test(u.hostname))return null;return u.pathname.match(/^\/product\/(\d+)-/)?.[1]||null}catch{return null}}
+  function pack(text){const s=norm(text),rules=[[/([0-9]+(?:[.,][0-9]+)?)\s*(?:кг|kg)\b/,1000,"g"],[/([0-9]+(?:[.,][0-9]+)?)\s*(?:гр|г|g)\b/,1,"g"],[/([0-9]+(?:[.,][0-9]+)?)\s*(?:мл|ml)\b/,1,"ml"],[/([0-9]+(?:[.,][0-9]+)?)\s*(?:л|l)\b/,1000,"ml"],[/([0-9]+)\s*(?:шт|pcs)\b/,1,"pcs"]];for(const [re,factor,unit] of rules){const m=s.match(re);if(m)return{value:Number(m[1].replace(",","."))*factor,unit}}return null}
+  function tokens(text){return new Set(norm(text).split(" ").filter(x=>x.length>2&&!/^\d/.test(x)))}
+  function score(query,candidate){const q=tokens(query),c=tokens(candidate.name),common=[...q].filter(x=>c.has(x)).length;let value=q.size?common/q.size:0;const qp=pack(query),cp=pack(candidate.name);if(qp&&cp)value+=qp.unit===cp.unit&&Math.abs(qp.value-cp.value)<.001?.3:-.35;const qPct=norm(query).match(/(\d+(?:[.,]\d+)?)\s*%/)?.[1],cPct=norm(candidate.name).match(/(\d+(?:[.,]\d+)?)\s*%/)?.[1];if(qPct&&cPct)value+=Math.abs(Number(qPct.replace(",","."))-Number(cPct.replace(",",".")))<.01?.2:-.3;return Math.max(0,Math.min(1,Number(value.toFixed(3))))}
+  function fromMeta(product){const meta=window.TDPriceMeta?.get?.(product.id,product.storeId,"shelf")||window.TDPriceMeta?.getEstimated?.(product.id,"magnit","shelf")||null;const url=meta?.sourceUrl||product.source_url||product.sourceUrl||null,id=productId(url);return id?{retailer:"magnit",productId:id,url,name:product.name,confidence:1,method:"official_source_url",verified:true}:null}
+  function match(product,candidates=[]){const exact=fromMeta(product);if(exact)return exact;const ranked=candidates.map(x=>({...x,productId:x.productId||productId(x.url),confidence:score(product.name,x)})).filter(x=>x.productId&&x.confidence>=.72).sort((a,b)=>b.confidence-a.confidence);if(!ranked.length)return null;if(ranked[1]&&ranked[0].confidence-ranked[1].confidence<.08)return null;return{...ranked[0],retailer:"magnit",method:"name_pack_match",verified:false}}
+  window.TDMagnitProductMatchV1={match,score,productId,pack};
+})();
