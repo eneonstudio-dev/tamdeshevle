@@ -19,7 +19,12 @@
     let nav=docks.find(dock=>dock.parentElement===document.body)||docks[0];
     if(!nav) nav=createDock();
     docks.forEach(dock=>{if(dock!==nav)dock.remove();});
-    nav.querySelectorAll("button").forEach(button=>button.classList.toggle("is-active",button.dataset.screen===state.screen));
+    nav.querySelectorAll("button").forEach(button=>{
+      const active=button.dataset.screen===state.screen;
+      button.classList.toggle("is-active",active);
+      if(active) button.setAttribute("aria-current","page");
+      else button.removeAttribute("aria-current");
+    });
   }
 
   window.addEventListener("td:v2-rendered",hydrate);
