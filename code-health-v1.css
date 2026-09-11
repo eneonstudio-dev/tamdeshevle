@@ -1,0 +1,22 @@
+:root{
+  --td-bg:#f4f1ea;
+  --td-text:#161410;
+  --td-muted:#6b6458;
+  --td-green:#0f7b4a;
+  --td-green-bright:#16a34a;
+  --td-surface:#ffffff;
+  --td-line:#e4ddd2;
+  --td-yellow:#ffe14a;
+}
+
+/* Focused AA fixes only: keep the current visual design intact. */
+.sale-kicker,.sale-contact.pending{color:var(--td-muted)!important}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--td-green)!important;
+  outline-offset:2px;
+}
+
+/* Give keyboard focus a visible target without changing mouse/touch states. */
+.td-ai-checkout button:focus-visible,.td-compare-v2 button:focus-visible,.td-purchase-proof button:focus-visible{
+  box-shadow:0 0 0 3px rgba(15,123,74,.22);
+}
