@@ -96,6 +96,8 @@ jobs:
         run: node tests/magnit-store-context-smoke.js
       - name: Test Magnit basket transfer probe
         run: node tests/magnit-basket-transfer-probe-smoke.js
+      - name: Test Magnit cart session probe
+        run: node tests/magnit-cart-session-smoke.js
       - name: Test Pyaterochka adapter
         run: node scripts/test-pyat-adapter.mjs
       - name: Test Pyaterochka collector
@@ -166,9 +168,11 @@ jobs:
           node --check runtime-bridge.js
           node --check magnit-store-context-v1.js
           node --check magnit-basket-transfer-probe-v2.js
+          node --check magnit-cart-session-probe-v1.js
           node --check real-store-integration-v1.js
           node --check tests/magnit-store-context-smoke.js
           node --check tests/magnit-basket-transfer-probe-smoke.js
+          node --check tests/magnit-cart-session-smoke.js
           node --check retailers/perekrestok.mjs
           node --check retailers/magnit.mjs
           node --check retailers/magnit-collector.mjs
