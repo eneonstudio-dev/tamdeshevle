@@ -47,7 +47,7 @@
     return `<section class="v2-hero">
       <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> сравниваем корзину целиком</div><h1>Где <em>дешевле?</em></h1><p>Один поиск. Все магазины рядом. Честно показываем, где данные подтверждены, а где это только оценка.</p></div>
       <div class="v2-hero-bai" aria-hidden="true"><span>Я найду,<br>где дешевле</span><img src="assets/bai/bai-peek.webp" alt=""></div>
-      <form class="v2-search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input name="query" autocomplete="off" value="${esc(state.q || "")}" placeholder="Что хочешь купить?" aria-label="Поиск товара"><button type="submit">Найти</button></form>
+      <form class="v2-search" role="search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input type="search" name="query" autocomplete="off" enterkeyhint="search" autocapitalize="none" spellcheck="false" value="${esc(state.q || "")}" placeholder="Что хочешь купить?" aria-label="Поиск товара"><button type="submit">Найти</button></form>
       <div class="v2-categories" aria-label="Быстрые категории">${["Молоко","Яйца","Курица","Сыр","Хлеб","Яблоки","Для дома"].map(label => `<button type="button" onclick="tdV2Quick('${label}')">${label}</button>`).join("")}</div>
       <div class="v2-hero-proof"><span>✓ Проверяем источник</span><span>✓ Считаем всю корзину</span><span>✓ Не продаём первое место</span></div>
     </section>`;
