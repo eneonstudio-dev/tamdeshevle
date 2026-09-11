@@ -1,6 +1,6 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-10T10:05:38.710Z",
+  "generated_at": "2026-09-11T06:00:21.763Z",
   "collectors": {
     "magnit": {
       "status": "healthy",
@@ -10,9 +10,9 @@
     },
     "pyat": {
       "status": "error",
-      "last_attempt_at": "2026-09-10T10:05:38.710Z",
+      "last_attempt_at": "2026-09-11T06:00:21.763Z",
       "last_success_at": null,
-      "message": "Collector, scope verification or validation failed; previous data were kept."
+      "message": "Collector failed (PYAT_ACCESS_BLOCKED); previous verified data were kept."
     },
     "pyat_regional": {
       "status": "healthy",
