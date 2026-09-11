@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   const STYLE_ID="td-ui-layer-coordinator-style";
-  const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap,.td-account";
+  const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap,.td-account,.td-ai";
 
   function injectStyles(){
     if(document.getElementById(STYLE_ID))return;
