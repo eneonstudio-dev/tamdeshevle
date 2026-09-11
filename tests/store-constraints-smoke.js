@@ -1,0 +1,11 @@
+const assert=require('assert');
+const c=require('../store-constraints-v1.js');
+assert.deepStrictEqual(c.parse('Магнит не используй'),{kind:'exclude',stores:['magnit']});
+assert.deepStrictEqual(c.parse('только Пятёрочка и Перекрёсток'),{kind:'allowed',stores:['pyat','perek']});
+assert.deepStrictEqual(c.parse('максимум два магазина'),{kind:'max',maxStores:2});
+assert.deepStrictEqual(c.parse('предпочитай Ленту'),{kind:'prefer',stores:['lenta']});
+let d=c.derive(['__exclude_store:magnit','__prefer_store:lenta','__max_stores:2','__allowed_stores:pyat,perek,lenta']);
+assert.deepStrictEqual(d,{excluded:['magnit'],preferred:['lenta'],allowed:['pyat','perek','lenta'],maxStores:2});
+d=c.derive(['__exclude_store:magnit','__store_constraints_reset']);
+assert.deepStrictEqual(d,{excluded:[],preferred:[],allowed:null,maxStores:null});
+console.log('store constraints smoke: ok');
