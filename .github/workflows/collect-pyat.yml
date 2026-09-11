@@ -46,11 +46,12 @@ jobs:
         if: always()
         env:
           REFRESH_OUTCOME: ${{ steps.refresh.outcome }}
+          COLLECTOR_ERROR: ${{ steps.refresh.outputs.error_code }}
         run: |
           if [ "$REFRESH_OUTCOME" = "success" ]; then
             node scripts/update-collector-health.mjs pyat success "Store-scoped collector and validation succeeded."
           else
-            node scripts/update-collector-health.mjs pyat failure "Collector, scope verification or validation failed; previous data were kept."
+            node scripts/update-collector-health.mjs pyat failure "Collector failed (${COLLECTOR_ERROR:-unknown}); previous verified data were kept."
           fi
       - name: Commit health and verified data
         if: always()
