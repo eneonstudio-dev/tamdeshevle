@@ -95,5 +95,32 @@
     return why;
   }
 
-  window.TDBaiPlanner={build,explain,presets:PRESETS};
+  function afterChoice(chosen, alternatives, state){
+    if(!chosen) return {text:"",suggestions:[]};
+    const list=Array.isArray(alternatives)?alternatives:[];
+    const cheapest=[...list].sort((a,b)=>a.total-b.total)[0];
+    const fullest=[...list].sort((a,b)=>b.unitCount-a.unitCount)[0];
+    const fewestStores=[...list].sort((a,b)=>a.stores-b.stores||a.total-b.total)[0];
+    const bits=[];
+    if(cheapest&&cheapest.id!==chosen.id){const d=Math.max(0,chosen.total-cheapest.total);if(d)bits.push(`Платим примерно на ${d} ₽ больше самого дешёвого варианта`);}
+    else bits.push("По цене это один из самых аккуратных вариантов");
+    if(fullest&&fullest.id===chosen.id)bits.push("зато здесь больше всего еды из показанных вариантов");
+    else if(chosen.id==="easy")bits.push("зато готовки и возни заметно меньше");
+    else if(chosen.id==="hearty")bits.push("зато приоритет ушёл в плотную еду и сытность");
+    else if(chosen.id==="healthy")bits.push("зато меньше случайных перекусов и больше обычной еды");
+    else if(chosen.id==="balanced")bits.push("зато без сильного перекоса в одну сторону");
+    if(fewestStores&&chosen.stores>fewestStores.stores)bits.push(`минус — придётся зайти в ${chosen.stores} магазина вместо ${fewestStores.stores}`);
+    const total=Number(state?.currentTotal)||chosen.total||0,budget=Number(state?.budget)||0;
+    const suggestions=[];
+    if(budget&&total>budget)suggestions.push("Ужми до бюджета");
+    else if(budget&&total<budget*.82)suggestions.push("Добавь сытности");
+    if(chosen.stores>1)suggestions.push("Собери в одном магазине");
+    if(chosen.id!=="easy")suggestions.push("Сделай без готовки");
+    if(chosen.id!=="economy")suggestions.push("Сделай дешевле");
+    suggestions.push("Оставь так");
+    const text=`Что получили: ${bits.join("; ")}.`;
+    return {text,suggestions:uniq(suggestions).slice(0,4)};
+  }
+
+  window.TDBaiPlanner={build,explain,afterChoice,presets:PRESETS};
 })();
