@@ -8,6 +8,7 @@
 .v2-product-card.td-added{animation:tdAdded .38s ease}
 .v2-product-card.td-added .v2-add{background:var(--v2-green);transform:scale(1.08)}
 .v2-mobile-cartbar{display:none}
+.v2-brand:focus-visible,.v2-nav button:focus-visible,.v2-header-actions button:focus-visible,.v2-mobile-nav button:focus-visible,.v2-search input:focus-visible,.v2-search button:focus-visible,.v2-categories button:focus-visible,.v2-section-head button:focus-visible,.v2-store-strip>button:focus-visible,.v2-product-image:focus-visible,.v2-add:focus-visible,.v2-basket-card button:focus-visible,.v2-footer button:focus-visible,.v2-bottom-nav button:focus-visible,.v2-mobile-cartbar button:focus-visible{outline:3px solid #63e6a0;outline-offset:3px;box-shadow:0 0 0 6px rgba(15,123,74,.18)}
 @keyframes tdHeroGlow{from{transform:translate3d(-2%,0,0) scale(.96);opacity:.55}to{transform:translate3d(4%,-3%,0) scale(1.08);opacity:1}}
 @keyframes tdAdded{0%{transform:translateY(0)}45%{transform:translateY(-5px)}100%{transform:translateY(0)}}
 @media(max-width:1000px){
