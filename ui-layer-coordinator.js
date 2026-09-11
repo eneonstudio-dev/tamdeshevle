@@ -37,23 +37,27 @@
     const bai=document.getElementById("bai-assistant");
     const app=document.getElementById("app");
     const blocked=Boolean(overlay);
-    if(blocked)document.body.dataset.tdOverlayOpen="true";else document.body.removeAttribute("data-td-overlay-open");
+    if(blocked){
+      if(document.body.dataset.tdOverlayOpen!=="true")document.body.dataset.tdOverlayOpen="true";
+    }else if(document.body.hasAttribute("data-td-overlay-open")){
+      document.body.removeAttribute("data-td-overlay-open");
+    }
 
     // Never inert a container that owns the active dialog itself: on browsers with
     // native inert support that makes the dialog unclickable and looks like a freeze.
     const shouldInertApp=Boolean(blocked&&app&&overlay&&!app.contains(overlay));
-    if(app&&"inert" in app)app.inert=shouldInertApp;
+    if(app&&"inert" in app&&app.inert!==shouldInertApp)app.inert=shouldInertApp;
 
     if(bai){
       const shouldPark=Boolean(blocked&&overlay&&!overlay.closest?.("#bai-assistant")&&!overlay.classList?.contains("bai-panel"));
       if(shouldPark){
-        bai.dataset.uiParked="true";
-        bai.setAttribute("aria-hidden","true");
-        bai.tabIndex=-1;
+        if(bai.dataset.uiParked!=="true")bai.dataset.uiParked="true";
+        if(bai.getAttribute("aria-hidden")!=="true")bai.setAttribute("aria-hidden","true");
+        if(bai.tabIndex!==-1)bai.tabIndex=-1;
       }else{
-        bai.removeAttribute("data-ui-parked");
-        bai.removeAttribute("aria-hidden");
-        bai.tabIndex=0;
+        if(bai.hasAttribute("data-ui-parked"))bai.removeAttribute("data-ui-parked");
+        if(bai.hasAttribute("aria-hidden"))bai.removeAttribute("aria-hidden");
+        if(bai.tabIndex!==0)bai.tabIndex=0;
       }
     }
   }
