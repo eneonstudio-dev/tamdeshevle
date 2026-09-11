@@ -1,0 +1,16 @@
+(()=>{
+  "use strict";
+  const KEY="td:basket-price-history:v1",MAX=300;
+  const clone=v=>JSON.parse(JSON.stringify(v));
+  const read=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||"[]");return Array.isArray(v)?v:[]}catch{return[]}};
+  const write=rows=>{const next=rows.slice(-MAX);localStorage.setItem(KEY,JSON.stringify(next));window.dispatchEvent(new CustomEvent("td:basket-price-history",{detail:{count:next.length}}));return next};
+  const day=v=>{const d=new Date(v||Date.now());return Number.isNaN(d.getTime())?"":`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+  const uniq=a=>[...new Set((a||[]).filter(Boolean).map(String))].sort();
+  function signature(snapshot,products){const s=snapshot||{},ids=uniq((s.onlyProducts&&s.onlyProducts.length?s.onlyProducts:s.requiredProducts&&s.requiredProducts.length?s.requiredProducts:(products||[]).map(x=>x.id)).filter(Boolean)),qty={};for(const id of ids){const q=s.quantityTargets?.[id];if(q)qty[id]={amount:Number(q.amount)||0,unit:String(q.unit||"")};else{const p=(products||[]).find(x=>String(x.id)===id);if(p)qty[id]={packs:Number(p.quantity)||1}}}return JSON.stringify({ids,qty,stores:uniq(s.stores),mode:s.mode||"multi",people:Number(s.peopleCount)||1,days:Number(s.duration)||1,cooking:s.cookingPreference||"normal",preferences:uniq(s.preferences),excluded:uniq(s.excludedProducts)})}
+  function record(input){const total=Math.round(Number(input?.total)||0);if(total<=0)return null;const at=input.at||new Date().toISOString(),sig=String(input.signature||"");if(!sig)return null;const rows=read(),same=rows.filter(x=>x.signature===sig||input.basketId&&x.basketId===input.basketId),last=same.at(-1);if(last&&day(last.at)===day(at)&&Math.round(Number(last.total)||0)===total)return last;const row={id:"bph_"+Date.now()+"_"+Math.random().toString(36).slice(2,7),basketId:input.basketId||null,name:String(input.name||"Корзина").slice(0,60),signature:sig,total,at,source:String(input.source||"basket")};rows.push(row);write(rows);return row}
+  function recordCurrent(input={}){const s=window.TDShoppingState?.get?.(),plan=s?.lastPlans?.[0];if(!s||!plan?.products?.length)return null;return record({basketId:input.basketId||null,name:input.name||"Текущая корзина",signature:signature(s,plan.products),total:plan.total,source:input.source||"current"})}
+  function entries(ref){const rows=read();if(!ref)return clone(rows);return clone(rows.filter(x=>x.basketId===ref||x.signature===ref))}
+  function stats(ref){const rows=entries(ref).sort((a,b)=>new Date(a.at)-new Date(b.at));if(!rows.length)return{count:0,first:null,latest:null,min:null,max:null,delta:0,deltaPct:0,entries:[]};const first=rows[0],latest=rows.at(-1),totals=rows.map(x=>Number(x.total)||0),delta=(Number(latest.total)||0)-(Number(first.total)||0),deltaPct=Number(first.total)?Math.round(delta/Number(first.total)*1000)/10:0;return{count:rows.length,first,latest,min:Math.min(...totals),max:Math.max(...totals),delta,deltaPct,entries:rows}}
+  function removeBasket(id){if(!id)return false;const rows=read(),next=rows.filter(x=>x.basketId!==id);if(next.length===rows.length)return false;write(next);return true}
+  window.TDBasketPriceHistory={signature,record,recordCurrent,entries,stats,removeBasket};
+})();
