@@ -16,6 +16,7 @@ assert.match(cinema,/body \.td-account/);assert.match(cinema,/grid-template-colu
 assert.match(life,/micro-blink/);assert.match(html,/bai-life\.js\?v=/);
 assert.match(mobileDock,/Мобильная навигация/);assert.match(html,/v2-mobile-dock\.js\?v=/);
 assert.match(mobileDock,/document\.querySelectorAll\("\.v2-bottom-nav"\)/);assert.match(mobileDock,/dock!==nav\)dock\.remove\(\)/);
+assert.match(mobileDock,/aria-current/);assert.match(mobileDock,/type="button"/);
 assert.doesNotMatch(mobileDock,/MutationObserver/);
 assert.match(ui,/демонстрационные и не участвуют в честном рейтинге/);assert.match(ui,/Подтверждённые и предполагаемые цены всегда разделены/);
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
@@ -23,4 +24,4 @@ assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Б�
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
-console.log("V2 UI contract passed: responsive shell, honest data labels and a single mobile navigation dock are wired.");
+console.log("V2 UI contract passed: responsive shell, honest data labels and an accessible single mobile navigation dock are wired.");
