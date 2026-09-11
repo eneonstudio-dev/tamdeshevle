@@ -4,6 +4,7 @@ import fs from "node:fs";
 const html=fs.readFileSync("index.html","utf8"),ui=fs.readFileSync("v2-shell.js","utf8"),css=fs.readFileSync("v2-shell.css","utf8"),cinema=fs.readFileSync("v2-cinematic.css","utf8"),bai=fs.readFileSync("bai-assistant.js","utf8");
 const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.readFileSync("smart-substitutions.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
+const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8");
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
@@ -11,6 +12,9 @@ for(const action of ["tdV2Search","tdV2Quick","tdV2Menu","tdV2About"])assert.mat
 assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/grid-template-columns:minmax\(0,1fr\) 310px/);
 assert.match(css,/\.phone\{max-width:none!important\}/);
 assert.match(cinema,/--v2-canvas:#06110c/);assert.match(cinema,/\.v2-hero-bai/);assert.match(cinema,/\.v2-bottom-nav/);
+assert.match(cinema,/body \.td-account/);assert.match(cinema,/grid-template-columns:60px minmax\(0,1fr\) auto/);
+assert.match(life,/micro-blink/);assert.match(html,/bai-life\.js\?v=/);
+assert.match(mobileDock,/Мобильная навигация/);assert.match(html,/v2-mobile-dock\.js\?v=/);
 assert.match(ui,/демонстрационные и не участвуют в честном рейтинге/);assert.match(ui,/Подтверждённые и предполагаемые цены всегда разделены/);
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);
