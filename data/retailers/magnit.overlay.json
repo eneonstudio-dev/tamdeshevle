@@ -3,11 +3,35 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-10T07:19:22.379Z",
+  "checked_at": "2026-09-11T07:18:04.812Z",
   "prices": {
-    "eggs_c1": 75.89
+    "buckwheat": 59.99,
+    "eggs_c1": 75.89,
+    "tea_black": 289.99
   },
   "matched": [
+    {
+      "sku": "buckwheat",
+      "name": "Крупа гречневая ядрица Семейные секреты/Магнит 800г в ассортименте",
+      "retailer_product_id": "1000303406",
+      "price_rub": 59.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000303406-krupa_grechnevaya_magnit_yadritsa_bystrogo_prigotovleniya_900g?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/9-XJaT2oKB8pH9it3tnbt0HeaImoZ-wQdcB4fwK2ApM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b69/b69c94f85ac3657082e74896cb4bf2f2/95360d9b7b1bd528ac16e1aa0d8e5483.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 800,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 800,
+        "unit": "g"
+      },
+      "availability": "in_stock"
+    },
     {
       "sku": "eggs_c1",
       "name": "Куриное яйцо C1 10шт в ассортименте",
@@ -29,27 +53,34 @@
         "unit": "pcs"
       },
       "availability": "in_stock"
+    },
+    {
+      "sku": "tea_black",
+      "name": "Чай черный Greenfield Earl Grey Fantasy 100пак",
+      "retailer_product_id": "1000096309",
+      "price_rub": 289.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000096309-chay_chernyy_greenfield_earl_grey_fantasy_100pak?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/IlE4d0E1Jrwfmkygwx-Yj6pIG6v_IGwEO0MRXni8Zvk/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/db9/db9ec94c360427c0a2c48832b4318087/bc77b765294a6894af2eaeefa86ee06e.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 100,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 100,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [
     {
-      "name": "Макароны Makfa Спагетти гречневые 500г",
-      "retailer_product_id": "1000167333",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Куриное яйцо С2 10шт в ассортименте",
       "retailer_product_id": "2047000007",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Куриное яйцо C1 30шт в ассортименте",
-      "retailer_product_id": "2047000010",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Куриное яйцо СО 10шт в ассортименте",
-      "retailer_product_id": "2047000014",
       "reason": "no_rule_match"
     },
     {
@@ -58,58 +89,33 @@
       "reason": "no_rule_match"
     },
     {
+      "name": "Сметана Павловское 20% 330г",
+      "retailer_product_id": "1000495986",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Макароны Makfa Спагетти гречневые 500г",
+      "retailer_product_id": "1000167333",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батон Летний дар Краснодарский хлебозавод №6 350г",
+      "retailer_product_id": "1000027433",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Forest Dream 20пир",
+      "retailer_product_id": "1000000187",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Куриное яйцо СО 10шт в ассортименте",
+      "retailer_product_id": "2047000014",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Молоко Коровка из Кореновки отборное пастеризованное 3.4-6% 900мл",
       "retailer_product_id": "1000017714",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
-      "retailer_product_id": "1000143304",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Кубанский молочник пастеризованное 3.4-6% 720г",
-      "retailer_product_id": "1000172832",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
-      "retailer_product_id": "1000304495",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко сгущенное Рогачевъ цельное 8.5% 270г",
-      "retailer_product_id": "1000383833",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко сгущенное Рогачевъ с кофе 7% 270г",
-      "retailer_product_id": "1000426691",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
-      "retailer_product_id": "1000427388",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Павловское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000495985",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
-      "retailer_product_id": "1000568396",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Коровка из Кореновки пастеризованное 2.7% 900г",
-      "retailer_product_id": "1829990260",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко безлактозное ультрапастеризованное Neo High Protein 0.5% 950г",
-      "retailer_product_id": "8000104060",
       "reason": "no_rule_match"
     },
     {
@@ -118,17 +124,121 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Сметана Ключевское 20% 360г",
-      "retailer_product_id": "1000507218",
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
+      "retailer_product_id": "1000027434",
       "reason": "no_rule_match"
     },
     {
-      "name": "Сметана Ключевское 20% 180г",
-      "retailer_product_id": "1000544222",
+      "name": "Сметана Ключевское 20% 360г",
+      "retailer_product_id": "1000507218",
       "reason": "no_rule_match"
     }
   ],
   "alternatives": [
+    {
+      "sku": "pasta",
+      "name": "Макароны Barilla спагетти Баветте 450-500г",
+      "retailer_product_id": "1000166506",
+      "source_url": "https://magnit.ru/product/1000166506-makarony_barilla_spagetti_bavette_450_500g?shopCode=770105&shopType=1",
+      "price_rub": 99.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "banana",
+      "name": "Бананы",
+      "retailer_product_id": "9072651501",
+      "source_url": "https://magnit.ru/product/9072651501-banany?shopCode=770105&shopType=1",
+      "price_rub": 149.99,
+      "eligible": false,
+      "reason": "pack_missing"
+    },
+    {
+      "sku": "potato",
+      "name": "Пирожок жареный с картофельной начинкой 100г",
+      "retailer_product_id": "1000142375",
+      "source_url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1",
+      "price_rub": 49.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 100,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "onion",
+      "name": "Лук репчатый",
+      "retailer_product_id": "9072651204",
+      "source_url": "https://magnit.ru/product/9072651204-luk_repchatyy?shopCode=770105&shopType=1",
+      "price_rub": 39.89,
+      "eligible": false,
+      "reason": "pack_missing"
+    },
+    {
+      "sku": "carrot",
+      "name": "Хлеб Злаковый с морковью ржано-пшеничный Краснодарский хлебозавод №6 250г",
+      "retailer_product_id": "1000207769",
+      "source_url": "https://magnit.ru/product/1000207769-khleb_zlakovyy_s_morkovyu_rzhan_pshen_250g_p_up_krasnodarkhz_6?shopCode=770105&shopType=1",
+      "price_rub": 81.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 250,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "pasta",
+      "name": "Макароны Спагетти Магнит 500г в ассортименте",
+      "retailer_product_id": "1000166929",
+      "source_url": "https://magnit.ru/product/1000166929-makarony_magnit_spagetti_500g?shopCode=770105&shopType=1",
+      "price_rub": 36.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "potato",
+      "name": "Картофель фасованный",
+      "retailer_product_id": "1445100062",
+      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
+      "price_rub": 198.37,
+      "eligible": false,
+      "reason": "pack_missing"
+    },
+    {
+      "sku": "carrot",
+      "name": "Морковь",
+      "retailer_product_id": "9072651201",
+      "source_url": "https://magnit.ru/product/9072651201-morkov?shopCode=770105&shopType=1",
+      "price_rub": 25.05,
+      "eligible": false,
+      "reason": "pack_missing"
+    },
     {
       "sku": "milk",
       "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
@@ -147,54 +257,20 @@
       }
     },
     {
-      "sku": "milk",
-      "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000166913",
-      "source_url": "https://magnit.ru/product/1000166913-zdorove_iz_predgorya_moloko_past_2_5_900ml_pl_but_abinsk_6?shopCode=770105&shopType=1",
-      "price_rub": 89.99,
+      "sku": "pasta",
+      "name": "Макароны Makfa Длинные 500г",
+      "retailer_product_id": "1000167334",
+      "source_url": "https://magnit.ru/product/1000167334-makarony_makfa_dlinnye_500g?shopCode=770105&shopType=1",
+      "price_rub": 64.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 900,
-        "unit": "ml"
+        "value": 500,
+        "unit": "g"
       },
       "requested_pack": {
-        "value": 1000,
-        "unit": "ml"
-      }
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000304501",
-      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
-      "price_rub": 79.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 900,
-        "unit": "ml"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "ml"
-      }
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко Простоквашино пастеризованное 2.5% 930мл",
-      "retailer_product_id": "1899800733",
-      "source_url": "https://magnit.ru/product/1899800733-moloko_prostokvashino_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1",
-      "price_rub": 83.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 930,
-        "unit": "ml"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "ml"
+        "value": 450,
+        "unit": "g"
       }
     }
   ],
