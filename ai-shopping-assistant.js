@@ -1,5 +1,6 @@
 (function(){
   "use strict";
+  import("./bai-checkout.js?v=20260911-checkout-v1").catch(e=>console.warn("[Bai Checkout] load failed",e));
   let root=null,messages=[],recognition=null,brainLoad=null,plannerLoad=null,selfCheckLoad=null,memoryLoad=null,voiceActive=false,voiceFinal="",voiceInterim="",talkMode=false,silenceTimer=null,lastSuggestions=[],lastStrategies=[];
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const money=v=>Math.round(Number(v)||0).toLocaleString("ru-RU")+" ₽";
