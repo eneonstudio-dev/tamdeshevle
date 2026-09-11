@@ -46,6 +46,7 @@
   function HeroSearch() {
     return `<section class="v2-hero">
       <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> сравниваем корзину целиком</div><h1>Где <em>дешевле?</em></h1><p>Один поиск. Все магазины рядом. Честно показываем, где данные подтверждены, а где это только оценка.</p></div>
+      <div class="v2-hero-bai" aria-hidden="true"><span>Я найду,<br>где дешевле</span><img src="assets/bai/bai-peek.webp" alt=""></div>
       <form class="v2-search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input name="query" autocomplete="off" value="${esc(state.q || "")}" placeholder="Что хочешь купить?" aria-label="Поиск товара"><button type="submit">Найти</button></form>
       <div class="v2-categories" aria-label="Быстрые категории">${["Молоко","Яйца","Курица","Сыр","Хлеб","Яблоки","Для дома"].map(label => `<button type="button" onclick="tdV2Quick('${label}')">${label}</button>`).join("")}</div>
       <div class="v2-hero-proof"><span>✓ Проверяем источник</span><span>✓ Считаем всю корзину</span><span>✓ Не продаём первое место</span></div>
@@ -82,7 +83,11 @@
   }
 
   function Home() {
-    return `${Header()}<main class="v2-main"><div class="v2-content">${HeroSearch()}${StoreStrip()}${ProductGrid()}</div>${ShoppingList()}</main>${Footer()}${typeof window.saleEasterEgg === "function" ? `<div class="v2-easter">${window.saleEasterEgg()}</div>` : ""}`;
+    return `${Header()}<main class="v2-main"><div class="v2-content">${HeroSearch()}${StoreStrip()}${ProductGrid()}</div>${ShoppingList()}</main>${Footer()}${typeof window.saleEasterEgg === "function" ? `<div class="v2-easter">${window.saleEasterEgg()}</div>` : ""}${MobileDock()}`;
+  }
+
+  function MobileDock() {
+    return `<nav class="v2-bottom-nav" aria-label="Мобильная навигация"><button class="is-active" onclick="go('home')"><i>⌂</i><span>Главная</span></button><button onclick="go('catalog')"><i>⌕</i><span>Поиск</span></button><button onclick="go('cart')"><i>☷</i><span>Список</span></button><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')"><i>⌖</i><span>Карта</span></button><button class="td-profile-btn"><i>○</i><span>Профиль</span></button></nav>`;
   }
 
   function enhanceScreen() {
@@ -98,7 +103,7 @@
   window.tdV2Quick = label => { state.q = label === "Для дома" ? "" : label; state.category = label === "Для дома" ? "Бакалея" : "Все"; go("catalog"); };
   window.tdV2Menu = button => { const menu = document.querySelector(".v2-mobile-nav"); if (!menu) return; menu.hidden = !menu.hidden; button.setAttribute("aria-expanded", String(!menu.hidden)); };
   window.tdV2About = () => { if (state.screen !== "home") { go("home"); requestAnimationFrame(() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })); } else document.getElementById("about")?.scrollIntoView({ behavior: "smooth" }); };
-  window.TDV2Components = { Header, HeroSearch, StoreStrip, ProductGrid, ProductCard, ShoppingList, Footer, Home };
+  window.TDV2Components = { Header, HeroSearch, StoreStrip, ProductGrid, ProductCard, ShoppingList, Footer, MobileDock, Home };
 
   const previous = window.render;
   window.render = function () { previous(); enhanceScreen(); };
