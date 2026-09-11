@@ -32,10 +32,11 @@
     else if(ids.length){const cont=/^(а|и|еще|тогда|ладно|ок)\b/.test(t)||Boolean(s.products?.length);if(!cont||fresh(t))ops.push({type:"CLEAR_ONLY"},{type:"SET_INTENT",value:"build"});ids.forEach(id=>ops.push({type:"REQUIRE",value:id}));memory.lastIntent=cont?"refine":"build"}
     else if(/собери|подбери|корзин|что купить|чего взять|хочу еды|нужна еда/.test(t)){ops.push({type:"CLEAR_ONLY"},{type:"SET_INTENT",value:"build"})}
     if(!remove(t))amountList.forEach(x=>{if(!ops.some(o=>(o.type==="REQUIRE"||o.type==="ADD_PRODUCT")&&o.value===x.id))ops.push({type:"REQUIRE",value:x.id});ops.push({type:"SET_PRODUCT_AMOUNT",value:x})});
-    if(/не знаю что хочу|сам реши|на твой вкус|предложи сам/.test(t)&&!ids.length&&!b&&!p&&!d)return simpleProposal("Могу предложить простой вариант или самый дешёвый.",["Простой вариант","Самый дешёвый"]);
-    if(!ops.length)return simpleProposal("Не понял, что изменить.",["Добавить товар","Убрать товар","Собрать заново"]);
+    if(/не знаю что хочу|сам реши|на твой вкус|предложи сам|простой вариант/.test(t)&&!ids.length){ops.push({type:"CLEAR_ONLY"},{type:"SET_INTENT",value:"build"},{type:"ADD_PREFERENCE",value:"balanced"})}
+    if(/самый дешев|максимально дешев/.test(t)){ops.push({type:"SET_MODE",value:"multi"},{type:"ADD_PREFERENCE",value:"budget"})}
+    if(!ops.length)return simpleProposal("Не понял, что изменить.",["Собрать заново"]);
     if(!ops.some(o=>o.type==="REOPTIMIZE"))ops.push({type:"REOPTIMIZE"});mergeGoal(ops,t);
-    let reply="Готово.";if(ops.some(o=>o.type==="REMOVE_PRODUCT"))reply="Убрал.";else if(ops.some(o=>o.type==="REPLACE_PRODUCT"))reply="Заменил.";else if(ops.some(o=>o.type==="ADD_PRODUCT"))reply="Добавил.";else if(ops.some(o=>o.type==="SET_ONLY_PRODUCTS"))reply="Оставил только это.";else if(ops.some(o=>o.type==="SET_MODE"&&o.value==="one"))reply="Собираю в одном магазине.";else if(b&&!ids.length)reply=`Бюджет ${b} ₽.`;else if(p&&!ids.length)reply=`На ${p}.`;else if(d&&!ids.length)reply=`На ${d} дн.`;
+    let reply="Готово.";if(ops.some(o=>o.type==="REMOVE_PRODUCT"))reply="Убрал.";else if(ops.some(o=>o.type==="REPLACE_PRODUCT"))reply="Заменил.";else if(ops.some(o=>o.type==="ADD_PRODUCT"))reply="Добавил.";else if(ops.some(o=>o.type==="SET_ONLY_PRODUCTS"))reply="Оставил только это.";else if(ops.some(o=>o.type==="SET_MODE"&&o.value==="one"))reply="Собираю в одном магазине.";else if(b&&!ids.length)reply=`Бюджет ${b} ₽.`;else if(p&&!ids.length)reply=`На ${p}.`;else if(d&&!ids.length)reply=`На ${d} дн.`;else if(/не знаю что хочу|сам реши|на твой вкус|предложи сам|простой вариант/.test(t))reply="Собрал простой вариант.";else if(/самый дешев|максимально дешев/.test(t))reply="Собрал максимально дёшево.";
     return{ok:true,provider:"bai-brain-simple",operations:dedupeOps(ops),reply,suggestions:[],expectsAnswer:false,goal:JSON.parse(JSON.stringify(memory.goal))}
   }
   function reset(){memory={pending:null,lastIntent:"build",turns:0,goal:emptyGoal()}}
