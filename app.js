@@ -97,7 +97,7 @@ function logoSvg(size = 36) {
 function header(title, sub, back) {
   return `<header class="app">
     <div class="row">
-      ${back ? `<button class="back" onclick="go('${back}')">←</button>` : logoSvg()}
+      ${back ? `<button class="back" onclick="go('${back}')">←</button>` : `<button class="brand-home" onclick="go('home')" aria-label="На главную">${logoSvg()}</button>`}
       <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
       <button class="city" onclick="toggleCity()">${cityName()}</button>
     </div>
@@ -210,6 +210,11 @@ function planHint(p) {
   if (p.channel === "bring") return "товар доставки сети " + p.goods + " ₽ · тариф доставки не заложен";
   return "сходить, полка · без адреса";
 }
+function comparisonLead(plans) {
+  const winner = plans.find(plan => plan.rankable && Number.isFinite(plan.total));
+  if (!winner) return `<section class="v2-verdict v2-verdict-wait"><div><span>ЧЕСТНЫЙ РЕЗУЛЬТАТ</span><h2>Победителя пока нет</h2><p>Для всей корзины недостаточно подтверждённых цен конкретных магазинов. Оценки покажем ниже, но не назовём их фактом.</p></div><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')">Найти магазин на карте →</button></section>`;
+  return `<section class="v2-verdict"><div><span>ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ</span><h2>${winner.name}</h2><strong>${Math.round(winner.total)} ₽</strong><p>${winner.save>0?`Экономия ${Math.round(winner.save)} ₽ относительно текущего выбора.`:"Полная корзина подтверждена для сравнения."}</p></div><button onclick="choosePlan('${winner.id}')">Выбрать этот магазин →</button></section>`;
+}
 function screenCompare() {
   const origin = storeBy(state.storeId);
   const plans = scenarios();
@@ -220,6 +225,7 @@ function screenCompare() {
         <button class="${state.mode==="walk"?"on":""}" onclick="state.mode='walk';render()">Сходить</button>
         <button class="${state.mode==="delivery"?"on":""}" onclick="state.mode='delivery';render()">Привезти</button>
       </div>
+      ${comparisonLead(plans)}
       ${plans.map((p,i) => `
         <div class="plan ${i===0&&p.rankable?"best":""}">
           <div class="row"><h3 class="grow">${p.same ? p.name + ", как есть" : p.channel==="bring" && p.kind!=="delivery" ? p.name + ", привезти" : p.name}</h3>${i===0&&p.rankable?"<span class='badge'>лучший</span>":""}</div>
@@ -232,6 +238,7 @@ function screenCompare() {
       <p class="hint">«Привезти» — цена товара в доставке сети. Тариф доставки заложен только у Лавки и Впрока. Тамдешевле сам ничего не везёт.</p>
     </div>`;
 }
+function choosePlan(storeId) { if (!storeBy(storeId)) return; state.storeId=storeId; persist(); go("catalog"); }
 function whyBlock(p) {
   const originCh = defaultChannel(state.storeId);
   const rows = cartEntries().map(x => {
@@ -253,7 +260,7 @@ function render() {
   document.getElementById("app").innerHTML = (map[state.screen] || screenHome)();
   updateSaleTimer();
 }
-window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render;
+window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.choosePlan = choosePlan; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render;
 render();
 setInterval(updateSaleTimer, 1000);
 loadPrices();
