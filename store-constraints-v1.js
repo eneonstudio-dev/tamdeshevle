@@ -40,7 +40,7 @@
       const c=derive(s?.userNotes),all=typeof STORES!=="undefined"?STORES:[],city=root.state?.city||"msk";
       let allowed=all.filter(x=>x.kind!=="delivery"&&(!x.city||x.city.includes(city))).map(x=>x.id);
       if(c.allowed?.length)allowed=allowed.filter(id=>c.allowed.includes(id));allowed=allowed.filter(id=>!c.excluded.includes(id));if(!allowed.length)return[];
-      const prefScore=plan=>Number(plan.total)||Infinity-(plan.stores||[]).filter(id=>c.preferred.includes(id)).length*35;
+      const prefScore=plan=>(Number(plan?.total)||Infinity)-(plan?.stores||[]).filter(id=>c.preferred.includes(id)).length*35;
       const onePlans=allowed.map(id=>planOne(s,id)).filter(x=>x?.products?.length);onePlans.sort((a,b)=>prefScore(a)-prefScore(b));const bestOne=onePlans[0]||null;
       if(s.mode==="one")return bestOne?[bestOne]:[];
       const original=all.slice(),limit=Math.max(1,Math.min(Number(c.maxStores)||allowed.length,allowed.length));let bestMulti=null;
@@ -53,7 +53,7 @@
   function installBrain(){
     const B=root?.TDBaiBrain;if(!B||B.__storeConstraintsV1)return false;const original=B.route.bind(B);B.route=async function(raw,history){const parsed=parse(raw);if(!parsed)return original(raw,history);const notes=notesFor(parsed),ops=notes.map(value=>({type:"NOTE",value}));if(parsed.kind==="max"||parsed.kind==="allowed")ops.push({type:"SET_MODE",value:parsed.kind==="allowed"&&parsed.stores.length===1?"one":"multi"});const replies={reset:"Снял ограничения по магазинам.",max:`Ок, максимум ${parsed.maxStores} магазина.`,exclude:"Ок, эти магазины не использую.",include:"Ок, снова можно использовать.",prefer:"Ок, буду предпочитать их, если цена рядом.",allowed:"Ок, ищу только в этих магазинах."};return{ok:true,provider:"store-constraints-v1",operations:ops,reply:replies[parsed.kind]||"Готово.",suggestions:[],expectsAnswer:false}};B.__storeConstraintsV1=true;return true;
   }
-  function install(){if(!root||root.window!==root)return;let tries=0;const timer=setInterval(()=>{const a=installOptimizer(),b=installBrain();if((a||root.TDShoppingOptimizer?.__storeConstraintsV1)&&(b||root.TDBaiBrain?.__storeConstraintsV1)||tries++>80)clearInterval(timer)},100)}
+  function install(){if(!root||root.window!==root)return;let tries=0;const timer=setInterval(()=>{const a=installOptimizer(),b=installBrain();if(((a||root.TDShoppingOptimizer?.__storeConstraintsV1)&&(b||root.TDBaiBrain?.__storeConstraintsV1))||tries++>80)clearInterval(timer)},100)}
   install();
   return{parse,derive,notesFor,combinations};
 });
