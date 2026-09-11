@@ -8,29 +8,24 @@
     {"id":"add-03","text":"еще бананы","has":[{"type":"ADD_PRODUCT","value":"banana"}]},
     {"id":"add-04","text":"плюс творог","has":[{"type":"ADD_PRODUCT","value":"cottage"}]},
     {"id":"add-05","text":"положи макароны","has":[{"type":"ADD_PRODUCT","value":"pasta"}]},
-
     {"id":"remove-01","text":"убери курицу","has":[{"type":"REMOVE_PRODUCT","value":"chicken"}]},
     {"id":"remove-02","text":"удали вафли","has":[{"type":"REMOVE_PRODUCT","value":"waffles"}]},
     {"id":"remove-03","text":"без сметаны","has":[{"type":"REMOVE_PRODUCT","value":"sour"}]},
     {"id":"remove-04","text":"выкинь ветчину","has":[{"type":"REMOVE_PRODUCT","value":"ham"}]},
     {"id":"remove-05","text":"не, курицу убери","has":[{"type":"REMOVE_PRODUCT","value":"chicken"}]},
-
     {"id":"replace-01","text":"замени курицу на яйца","has":[{"type":"REPLACE_PRODUCT","value":{"from":"chicken","to":"eggs"}}]},
     {"id":"replace-02","text":"вместо гречки макароны","has":[{"type":"REPLACE_PRODUCT","value":{"from":"buck","to":"pasta"}}]},
     {"id":"replace-03","text":"поменяй бананы на яблоки","has":[{"type":"REPLACE_PRODUCT","value":{"from":"banana","to":"apple"}}]},
-
     {"id":"only-01","text":"только бананы","has":[{"type":"SET_ONLY_PRODUCTS","value":["banana"]}]},
     {"id":"only-02","text":"оставь только яйца и хлеб","has":[{"type":"SET_ONLY_PRODUCTS","value":["eggs","bread"]}]},
     {"id":"only-03","text":"корзина из макарон и воды","has":[{"type":"SET_ONLY_PRODUCTS","value":["pasta","water"]}]},
-
     {"id":"qty-01","text":"10 яиц","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"eggs","amount":10,"unit":"pcs"}}]},
     {"id":"qty-02","text":"два литра молока","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"milk","amount":2,"unit":"l"}}]},
     {"id":"qty-03","text":"3 пачки макарон","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"pasta","amount":3,"unit":"pack"}}]},
     {"id":"qty-04","text":"500 грамм творога","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"cottage","amount":500,"unit":"g"}}]},
-    {"id":"qty-05","text":"полтора литра молока","expectsAnswer":true,"notHas":[{"type":"SET_PRODUCT_AMOUNT"}]},
+    {"id":"qty-05","text":"полтора литра молока","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"milk","amount":1.5,"unit":"l"}}]},
     {"id":"qty-06","text":"2 кг яблок","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"apple","amount":2,"unit":"kg"}}]},
     {"id":"qty-07","text":"пять бананов","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"banana","amount":5,"unit":"pcs"}}]},
-
     {"id":"budget-01","text":"до 2000 рублей","has":[{"type":"CHANGE_BUDGET","value":2000}]},
     {"id":"budget-02","text":"бюджет 3500 ₽","has":[{"type":"CHANGE_BUDGET","value":3500}]},
     {"id":"budget-03","text":"собери на 1700 руб","has":[{"type":"CHANGE_BUDGET","value":1700}]},
@@ -38,18 +33,15 @@
     {"id":"budget-05","state":{"budget":3000},"text":"на косарь дешевле","has":[{"type":"CHANGE_BUDGET","value":2000}]},
     {"id":"budget-06","state":{"budget":2000},"text":"дешевле на 10%","has":[{"type":"CHANGE_BUDGET","value":1800}]},
     {"id":"budget-07","state":{"budget":2000},"text":"сделай подешевле","has":[{"type":"CHANGE_BUDGET","value":1700}]},
-
     {"id":"people-01","text":"на двоих","has":[{"type":"SET_PEOPLE","value":2}]},
     {"id":"people-02","text":"нас трое","has":[{"type":"SET_PEOPLE","value":3}]},
     {"id":"people-03","text":"для четырех человек","has":[{"type":"SET_PEOPLE","value":4}]},
     {"id":"days-01","text":"на 3 дня","has":[{"type":"SET_DURATION","value":3}]},
     {"id":"days-02","text":"примерно на пять дней","has":[{"type":"SET_DURATION","value":5}]},
-
     {"id":"store-01","text":"только в пятерочке","has":[{"type":"CHANGE_STORE","value":"pyat"},{"type":"SET_MODE","value":"one"}]},
     {"id":"store-02","text":"собери в одном магазине в магните","has":[{"type":"CHANGE_STORE","value":"magnit"},{"type":"SET_MODE","value":"one"}]},
     {"id":"store-03","text":"где дешевле по разным магазинам","has":[{"type":"SET_MODE","value":"multi"}]},
     {"id":"store-04","text":"давай перекресток","has":[{"type":"CHANGE_STORE","value":"perek"}]},
-
     {"id":"pref-01","text":"без готовки","has":[{"type":"SET_COOKING","value":"minimal"}]},
     {"id":"pref-02","text":"хочу сытно","has":[{"type":"ADD_PREFERENCE","value":"hearty"}]},
     {"id":"pref-03","text":"нужен перекус","has":[{"type":"ADD_PREFERENCE","value":"snacks"}]},
@@ -57,37 +49,23 @@
     {"id":"pref-05","text":"сделай бюджетно","has":[{"type":"ADD_PREFERENCE","value":"budget"}]},
     {"id":"pref-06","text":"нужен завтрак","has":[{"type":"ADD_PREFERENCE","value":"breakfast"}]},
     {"id":"pref-07","text":"что-нибудь на вечер","has":[{"type":"ADD_PREFERENCE","value":"dinner"}]},
-
     {"id":"build-01","text":"собери корзину","has":[{"type":"SET_INTENT","value":"build"}]},
     {"id":"build-02","text":"подбери что купить","has":[{"type":"SET_INTENT","value":"build"}]},
     {"id":"build-03","text":"сам реши","has":[{"type":"ADD_PREFERENCE","value":"balanced"}]},
     {"id":"build-04","text":"простой вариант","has":[{"type":"ADD_PREFERENCE","value":"balanced"}]},
     {"id":"build-05","text":"максимально дешево","has":[{"type":"SET_MODE","value":"multi"},{"type":"ADD_PREFERENCE","value":"budget"}]},
-
     {"id":"reset-01","text":"собери заново","has":[{"type":"RESET_BASKET"}]},
     {"id":"reset-02","text":"начнем с нуля","has":[{"type":"RESET_BASKET"}]},
     {"id":"undo-01","text":"отмени последнее","has":[{"type":"UNDO"}]},
     {"id":"undo-02","text":"верни как было","has":[{"type":"UNDO"}]},
-
     {"id":"combo-01","text":"добавь 2 литра молока и хлеб","has":[{"type":"ADD_PRODUCT","value":"milk"},{"type":"ADD_PRODUCT","value":"bread"},{"type":"SET_PRODUCT_AMOUNT","value":{"id":"milk","amount":2,"unit":"l"}}]},
     {"id":"combo-02","text":"убери вафли и добавь яблоки","has":[{"type":"REMOVE_PRODUCT","value":"waffles"},{"type":"ADD_PRODUCT","value":"apple"}]},
     {"id":"combo-03","text":"на двоих на 4 дня до 3000 рублей","has":[{"type":"SET_PEOPLE","value":2},{"type":"SET_DURATION","value":4},{"type":"CHANGE_BUDGET","value":3000}]},
     {"id":"combo-04","text":"только 2 кг яблок","has":[{"type":"SET_ONLY_PRODUCTS","value":["apple"]},{"type":"SET_PRODUCT_AMOUNT","value":{"id":"apple","amount":2,"unit":"kg"}}]},
     {"id":"combo-05","text":"2 литра молока и 3 пачки макарон, остальное сам","has":[{"type":"SET_PRODUCT_AMOUNT","value":{"id":"milk","amount":2,"unit":"l"}},{"type":"SET_PRODUCT_AMOUNT","value":{"id":"pasta","amount":3,"unit":"pack"}}]},
-
-    {"id":"context-01","steps":[
-      {"text":"добавь курицу","has":[{"type":"ADD_PRODUCT","value":"chicken"}]},
-      {"text":"а вместо этого макароны","has":[{"type":"REPLACE_PRODUCT","value":{"from":"chicken","to":"pasta"}}]}
-    ]},
-    {"id":"context-02","steps":[
-      {"text":"бюджет 3000 рублей","has":[{"type":"CHANGE_BUDGET","value":3000}]},
-      {"text":"сделай на тысячу дешевле","has":[{"type":"CHANGE_BUDGET","value":2000}]}
-    ]},
-    {"id":"context-03","steps":[
-      {"text":"только бананы","has":[{"type":"SET_ONLY_PRODUCTS","value":["banana"]}]},
-      {"text":"а еще яблоки","has":[{"type":"ADD_PRODUCT","value":"apple"}]}
-    ]},
-
+    {"id":"context-01","steps":[{"text":"добавь курицу","has":[{"type":"ADD_PRODUCT","value":"chicken"}]},{"text":"а вместо этого макароны","has":[{"type":"REPLACE_PRODUCT","value":{"from":"chicken","to":"pasta"}}]}]},
+    {"id":"context-02","steps":[{"text":"бюджет 3000 рублей","has":[{"type":"CHANGE_BUDGET","value":3000}]},{"text":"сделай на тысячу дешевле","has":[{"type":"CHANGE_BUDGET","value":2000}]}]},
+    {"id":"context-03","steps":[{"text":"только бананы","has":[{"type":"SET_ONLY_PRODUCTS","value":["banana"]}]},{"text":"а еще яблоки","has":[{"type":"ADD_PRODUCT","value":"apple"}]}]},
     {"id":"unclear-01","text":"сделай нормально","expectsAnswer":true},
     {"id":"unclear-02","text":"ну это самое","expectsAnswer":true},
     {"id":"unclear-03","text":"переделай как-нибудь","expectsAnswer":true}
