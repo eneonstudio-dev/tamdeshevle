@@ -1,0 +1,18 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const source=fs.readFileSync(require('path').join(__dirname,'..','bai-fallback-bridge.js'),'utf8').replace(/\n\s*import\("\.\/bai-brain[^\n]+/,'');
+let state={budget:3000,selectionMode:'only',onlyProducts:['banana'],requiredProducts:['banana'],quantityTargets:{banana:{amount:5,unit:'pcs'}},lastPlans:[]};
+const seen=[];
+const TDShoppingState={get:()=>state,commit:(type,fn)=>{fn(state);seen.push(type)}};
+const original={apply:(raw,ops)=>({raw,ops:ops||null,message:'delegated'})};
+const context={window:{TDShoppingConversation:original,TDShoppingState},console};context.window.window=context.window;
+vm.createContext(context);vm.runInContext(source,context);
+const bridge=context.window.TDBaiFallbackBridge,apply=context.window.TDShoppingConversation.apply;
+assert(bridge,'bridge should mount');
+let r=apply('дешевле на 500');assert.deepStrictEqual(JSON.parse(JSON.stringify(r.ops[0])),{type:'CHANGE_BUDGET',value:2500});
+r=apply('полтора литра молока');assert(r.ops.some(x=>x.type==='SET_PRODUCT_AMOUNT'&&x.value.id==='milk'&&x.value.amount===1.5&&x.value.unit==='l'));
+r=apply('пять бананов');assert(r.ops.some(x=>x.type==='SET_PRODUCT_AMOUNT'&&x.value.id==='banana'&&x.value.amount===5&&x.value.unit==='pcs'));
+r=apply('убери вафли и добавь яблоки');assert(r.ops.some(x=>x.type==='REMOVE_PRODUCT'&&x.value==='waffles'));assert(r.ops.some(x=>x.type==='ADD_PRODUCT'&&x.value==='apple'));
+r=apply('молока побольше');assert.strictEqual(r.needsClarification,true);
+r=apply('оставь как есть');assert.strictEqual(r.message,'Оставил как есть.');
+apply('собери корзину',[{type:'CLEAR_ONLY'},{type:'SET_INTENT',value:'build'}]);assert.strictEqual(state.selectionMode,'auto');assert.deepStrictEqual(state.onlyProducts,[]);assert(!state.requiredProducts.includes('banana'));assert(!state.quantityTargets.banana);assert(seen.includes('CLEAR_ONLY_SCOPE'));
+console.log('Bai fallback bridge smoke: ok');
