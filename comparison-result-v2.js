@@ -5,9 +5,23 @@
   const money=v=>`${Math.round(Number(v)||0).toLocaleString("ru-RU")} ₽`;
   const storeName=id=>(typeof STORES!=="undefined"?STORES:[]).find(x=>x.id===id)?.name||id||"магазин";
   const plans=()=>window.TDShoppingState?.get?.().lastPlans||[];
-  const storeCount=p=>new Set((p?.products||[]).map(x=>x.storeId).filter(Boolean)).size;
+  const storeIds=p=>[...new Set((p?.products||[]).map(x=>x.storeId).filter(Boolean))];
+  const storeCount=p=>storeIds(p).length;
   const title=p=>p?.type==="multi"?"По разным магазинам":"В одном магазине";
   const date=v=>{if(!v)return"";const d=new Date(v);return Number.isNaN(d.getTime())?"":d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric"})};
+  const clone=v=>JSON.parse(JSON.stringify(v));
+  function canonicalPlan(plan){
+    if(!plan||!Array.isArray(plan.products)||!plan.products.length)return null;
+    const products=clone(plan.products);
+    const stores=storeIds({products});
+    if(!stores.length)return null;
+    if(plan.type==="one"&&stores.length!==1)return null;
+    const goods=products.reduce((sum,line)=>sum+(Number(line.price)||0)*(Number(line.quantity)||1),0);
+    const convenienceCost=plan.type==="multi"?Math.max(0,Number(plan.convenienceCost)||0):0;
+    const total=goods+convenienceCost;
+    if(!Number.isFinite(total)||total<=0)return null;
+    return{...clone(plan),products,stores,goods,total,convenienceCost};
+  }
   function metaFor(line){
     const id=line?.id,store=line?.storeId;if(!id||!store)return{kind:"unknown",label:"Не подтверждена",detail:"Источник цены не найден"};
     const real=window.TDPriceMeta?.get?.(id,store,"shelf")||null;
@@ -46,18 +60,28 @@
     const baseline=all.find(x=>x.type==="one");if(!baseline||chosen.id===baseline.id)return null;
     const saving=Math.round((Number(baseline.total)||0)-(Number(chosen.total)||0));if(saving<=0)return null;
     const trust=trustFor(chosen),verified=trust.total>0&&trust.good===trust.total;if(!verified)return null;
-    return window.TDSavingsLedger?.record?.({saving,total:chosen.total,baselineTotal:baseline.total,verified:true,storeId:(chosen.stores||[]).join("+")||chosen.type,storeName:title(chosen),channel:"comparison",planType:chosen.type,cart:savingsCart(chosen)})||null;
+    return window.TDSavingsLedger?.record?.({saving,total:chosen.total,baselineTotal:baseline.total,verified:true,storeId:storeIds(chosen).join("+")||chosen.type,storeName:title(chosen),channel:"comparison",planType:chosen.type,cart:savingsCart(chosen)})||null;
+  }
+  function refreshAssistantSummary(){
+    const best=window.TDShoppingState?.get?.().lastPlans?.[0],summary=document.querySelector(".td-ai-summary");
+    if(!best||!summary)return;
+    summary.innerHTML=`<div class="td-ai-summary-head"><b>Корзина · ${(best.products||[]).length}</b></div>${(best.products||[]).map(p=>`<div class="td-ai-line"><span>${esc(p.emoji)} ${esc(p.name)}<small>${esc(p.pack)} · ${esc(storeName(p.storeId))}</small></span><b>${money((p.price||0)*(p.quantity||1))}</b></div>`).join("")}<div class="td-ai-total"><span>Итого</span><strong>≈ ${money(best.total)}</strong></div>`;
   }
   function applyPlan(id){
-    const all=plans(),chosen=all.find(x=>x.id===id);if(!chosen)return;
+    const raw=plans(),all=raw.map(canonicalPlan).filter(Boolean),chosen=all.find(x=>x.id===id);if(!chosen)return{ok:false,reason:"invalid_plan"};
     const saved=recordSavings(chosen,all);
-    window.TDShoppingState?.commit?.("SELECT_COMPARISON_PLAN",s=>{s.products=JSON.parse(JSON.stringify(chosen.products||[]));s.currentTotal=chosen.total;s.mode=chosen.type==="multi"?"multi":"one";s.stores=chosen.type==="one"?[chosen.stores?.[0]].filter(Boolean):[];s.lastPlans=[chosen,...all.filter(x=>x.id!==chosen.id)]},`Выбран вариант ${title(chosen)}`);
-    window.TDShoppingState?.syncCart?.();close();window.TDBaiCheckout?.scan?.();
+    const ordered=[chosen,...all.filter(x=>x.id!==chosen.id)];
+    window.TDShoppingState?.commit?.("SELECT_COMPARISON_PLAN",s=>{s.products=clone(chosen.products);s.currentTotal=chosen.total;s.mode=chosen.type==="multi"?"multi":"one";s.stores=chosen.type==="one"?[chosen.stores[0]]:[];s.lastPlans=clone(ordered)},`Выбран вариант ${title(chosen)}`);
+    window.TDShoppingState?.syncCart?.();
+    refreshAssistantSummary();
+    close();window.TDBaiCheckout?.refresh?.();window.TDBaiCheckout?.scan?.();
+    window.dispatchEvent(new CustomEvent("td:comparison-plan-applied",{detail:{id:chosen.id,type:chosen.type,total:chosen.total,stores:chosen.stores.slice()}}));
     if(saved)window.dispatchEvent(new CustomEvent("td:savings-proof",{detail:saved}));
+    return{ok:true,plan:chosen,saved:Boolean(saved)};
   }
   function close(){document.querySelector(".td-compare-v2")?.remove()}
   function open(){
-    close();const all=plans();if(!all.length)return;
+    close();const all=plans().map(canonicalPlan).filter(Boolean);if(!all.length)return;
     const sorted=[...all].sort((a,b)=>a.total-b.total),best=sorted[0],baseline=sorted.find(x=>x.type==="one")||sorted[sorted.length-1],saved=Math.max(0,(baseline?.total||0)-(best?.total||0)),moves=explain(best,baseline);
     const root=document.createElement("section");root.className="td-compare-v2";
     root.innerHTML=`<div class="td-compare-v2-shell"><header><button data-compare-close>←</button><div><small>Сравнение корзины</small><b>Где действительно дешевле</b></div></header><main>
@@ -69,5 +93,5 @@
     </main></div>`;
     document.body.appendChild(root);root.querySelector("[data-compare-close]").onclick=close;root.onclick=e=>{if(e.target===root)close()};root.querySelectorAll("[data-compare-apply]").forEach(b=>b.onclick=()=>applyPlan(b.dataset.compareApply));
   }
-  window.TDComparisonResultV2={open,close,applyPlan,trustFor};
+  window.TDComparisonResultV2={open,close,applyPlan,trustFor,canonicalPlan};
 })();
