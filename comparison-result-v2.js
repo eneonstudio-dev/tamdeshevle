@@ -41,10 +41,19 @@
     const byId=new Map((other.products||[]).map(x=>[x.id,x]));
     return(best.products||[]).map(x=>{const prev=byId.get(x.id);if(!prev||prev.storeId===x.storeId)return null;const diff=((prev.price||0)-(x.price||0))*(x.quantity||1);return{...x,from:prev.storeId,diff};}).filter(Boolean).sort((a,b)=>b.diff-a.diff);
   }
+  function savingsCart(plan){return Object.fromEntries((plan?.products||[]).map(x=>[x.id,Number(x.quantity)||1]).sort((a,b)=>a[0].localeCompare(b[0])))}
+  function recordSavings(chosen,all){
+    const baseline=all.find(x=>x.type==="one");if(!baseline||chosen.id===baseline.id)return null;
+    const saving=Math.round((Number(baseline.total)||0)-(Number(chosen.total)||0));if(saving<=0)return null;
+    const trust=trustFor(chosen),verified=trust.total>0&&trust.good===trust.total;if(!verified)return null;
+    return window.TDSavingsLedger?.record?.({saving,total:chosen.total,baselineTotal:baseline.total,verified:true,storeId:(chosen.stores||[]).join("+")||chosen.type,storeName:title(chosen),channel:"comparison",planType:chosen.type,cart:savingsCart(chosen)})||null;
+  }
   function applyPlan(id){
     const all=plans(),chosen=all.find(x=>x.id===id);if(!chosen)return;
+    const saved=recordSavings(chosen,all);
     window.TDShoppingState?.commit?.("SELECT_COMPARISON_PLAN",s=>{s.products=JSON.parse(JSON.stringify(chosen.products||[]));s.currentTotal=chosen.total;s.mode=chosen.type==="multi"?"multi":"one";s.stores=chosen.type==="one"?[chosen.stores?.[0]].filter(Boolean):[];s.lastPlans=[chosen,...all.filter(x=>x.id!==chosen.id)]},`Выбран вариант ${title(chosen)}`);
     window.TDShoppingState?.syncCart?.();close();window.TDBaiCheckout?.scan?.();
+    if(saved)window.dispatchEvent(new CustomEvent("td:savings-proof",{detail:saved}));
   }
   function close(){document.querySelector(".td-compare-v2")?.remove()}
   function open(){
@@ -56,7 +65,7 @@
       ${trustHTML(best)}
       <div class="td-compare-grid">${sorted.map((p,i)=>`<article class="td-compare-plan ${i===0?"best":""}"><div><small>${i===0?"Выгоднее":"Альтернатива"}</small><b>${title(p)}</b></div><strong>${money(p.total)}</strong><span>${(p.products||[]).length} товаров · ${storeCount(p)} ${storeCount(p)===1?"магазин":"магаз."}${p.convenienceCost?` · +${money(p.convenienceCost)} за разбиение`:""}</span><button data-compare-apply="${esc(p.id)}">${i===0?"Применить этот вариант":"Выбрать вариант"}</button></article>`).join("")}</div>
       <section class="td-compare-why"><h3>Почему так дешевле</h3>${moves.length?moves.slice(0,6).map(x=>`<div><span>${esc(x.emoji||"•")} ${esc(x.name)}<small>${esc(storeName(x.from))} → ${esc(storeName(x.storeId))}</small></span><b>${x.diff>0?`−${money(x.diff)}`:"выгоднее здесь"}</b></div>`).join(""):`<p>Разница получается из общей стоимости корзины и количества магазинов. Ничего лишнего Бай не добавлял.</p>`}</section>
-      <div class="td-compare-note">Trust Layer показывает качество уже имеющихся цен и не меняет расчёт. Оценочные и неподтверждённые позиции лучше проверить перед покупкой.</div>
+      <div class="td-compare-note">Trust Layer показывает качество уже имеющихся цен и не меняет расчёт. Подтверждённая экономия попадёт в профиль только если весь выбранный вариант состоит из свежих подтверждённых цен.</div>
     </main></div>`;
     document.body.appendChild(root);root.querySelector("[data-compare-close]").onclick=close;root.onclick=e=>{if(e.target===root)close()};root.querySelectorAll("[data-compare-apply]").forEach(b=>b.onclick=()=>applyPlan(b.dataset.compareApply));
   }
