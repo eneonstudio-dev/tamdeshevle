@@ -94,6 +94,7 @@
     const cart = options && options.cart || {};
     const city = options && options.city || "msk";
     const mode = options && options.mode || "walk";
+    const extraStopCost = Number(options && options.extraStopCost);
     const one = oneStoreOptions(stores, products, cart, city, mode);
     const bestOne = one[0] || null;
     const eligible = eligibleStores(stores, city, mode);
@@ -109,8 +110,11 @@
     pairs.sort((a, b) => a.total - b.total);
     const bestTwo = pairs[0] || null;
     const extraSaving = bestOne && bestTwo ? Math.max(0, bestOne.total - bestTwo.total) : null;
-    const worthSplitting = Boolean(bestOne && bestTwo && bestTwo.total < bestOne.total);
-    return { bestOne, bestTwo, extraSaving, worthSplitting, netSaving: worthSplitting && bestOne.operationalKnown && bestTwo.operationalKnown ? extraSaving : null, pairCount: pairs.length };
+    const travelKnown = mode === "delivery" || Number.isFinite(extraStopCost) && extraStopCost >= 0;
+    const operationalCost = mode === "delivery" ? 0 : travelKnown ? extraStopCost : null;
+    const netSaving = bestOne && bestTwo && operationalCost != null ? bestOne.total-bestTwo.total-operationalCost : null;
+    const worthSplitting = Boolean(bestOne && bestTwo && (netSaving == null ? bestTwo.total < bestOne.total : netSaving > 0));
+    return { bestOne, bestTwo, extraSaving, operationalCost, travelKnown, worthSplitting, netSaving:worthSplitting?netSaving:null, pairCount: pairs.length };
   }
 
   function fromWindow() {

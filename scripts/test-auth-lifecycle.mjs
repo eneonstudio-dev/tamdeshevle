@@ -7,7 +7,7 @@ async function setup({sdkFailure=false,rows={profiles:{display_name:'Облач�
   const events=[],writes=[],storage=new Map();
   let callback,locked=false,created=0,attempts=0,rendered=0;
   const session={user:{id:uid,user_metadata:{}}};
-  const client={auth:{getSession:async()=>({data:{session},error:null}),onAuthStateChange:fn=>{callback=fn;},signInWithOtp:async()=>({error:null})},from(table){
+  const client={auth:{getSession:async()=>({data:{session},error:null}),getUser:async()=>({data:{user:session.user},error:null}),onAuthStateChange:fn=>{callback=fn;},signInWithOtp:async()=>({error:null})},from(table){
     assert.equal(locked,false,'Network request must run outside auth callback lock');
     let row;const q={};
     for(const method of ['select','eq','order','limit','maybeSingle'])q[method]=()=>q;
