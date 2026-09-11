@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   const STYLE_ID="td-ui-layer-coordinator-style";
-  const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap";
+  const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap,.td-account";
 
   function injectStyles(){
     if(document.getElementById(STYLE_ID))return;
@@ -10,7 +10,7 @@
     s.textContent=`
       .bai-assistant[data-ui-parked="true"]{opacity:0!important;pointer-events:none!important;transform:translateY(125%) rotate(4deg)!important}
       body[data-td-overlay-open="true"] .dock{pointer-events:none}
-      .td-map-sheet,.td-point-detail,.td-one-tap{overscroll-behavior:contain}
+      .td-map-sheet,.td-point-detail,.td-one-tap,.td-account{overscroll-behavior:contain}
       @media(max-width:430px){
         .td-one-tap{max-height:calc(100dvh - 24px - env(safe-area-inset-top));overflow:auto}
         .td-point-panel{padding-bottom:calc(16px + env(safe-area-inset-bottom))}
