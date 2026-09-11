@@ -1,6 +1,7 @@
 (()=>{
   "use strict";
   if(!document.querySelector('link[data-bai-checkout-css]')){const l=document.createElement('link');l.rel='stylesheet';l.href='bai-checkout.css?v=20260911-checkout-v1';l.dataset.baiCheckoutCss='1';document.head.appendChild(l)}
+  import("./comparison-result-v2.js?v=20260911-v2").catch(e=>console.warn("[Comparison Result v2] load failed",e));
   let statusTimer=null;
   const state=()=>window.TDShoppingState?.get?.()||{};
   const storeName=id=>(typeof STORES!=="undefined"?STORES:[]).find(x=>x.id===id)?.name||id||"магазин";
@@ -67,6 +68,7 @@
     const plan=best();
     if(!plan?.products?.length)return;
     const stores=new Set(plan.products.map(p=>p.storeId).filter(Boolean)).size;
+    const canCompare=(state().lastPlans||[]).length>1;
     const card=document.createElement("section");
     card.className="td-ai-checkout";
     card.innerHTML=`
@@ -74,6 +76,7 @@
         <div><small>Следующий шаг</small><b>Что делаем с корзиной?</b></div>
         <span>${stores>1?`${stores} магаз.`:"1 магазин"}</span>
       </div>
+      ${canCompare?`<button type="button" class="td-ai-checkout-compare" data-bai-checkout-compare>Сравнить варианты и увидеть экономию →</button>`:""}
       <div class="td-ai-checkout-mode">
         <button type="button" data-bai-checkout-mode="one"><b>В одном магазине</b><small>Проще забрать</small></button>
         <button type="button" data-bai-checkout-mode="multi"><b>Максимально выгодно</b><small>Можно разделить корзину</small></button>
@@ -87,6 +90,7 @@
       <div class="td-ai-checkout-note">Заказы в магазины пока не отправляются автоматически — Бай готовит корзину и следующий шаг, ничего не оформляя без тебя.</div>
       <div class="td-ai-checkout-status" data-bai-checkout-status hidden></div>`;
     summary.insertAdjacentElement("afterend",card);
+    card.querySelector('[data-bai-checkout-compare]')?.addEventListener("click",()=>window.TDComparisonResultV2?.open?.());
     card.querySelector('[data-bai-checkout-mode="one"]').onclick=()=>chooseMode("one");
     card.querySelector('[data-bai-checkout-mode="multi"]').onclick=()=>chooseMode("multi");
     card.querySelector('[data-bai-checkout-action="pickup"]').onclick=()=>copy(listText("pickup"),"Список для самовывоза скопирован");
