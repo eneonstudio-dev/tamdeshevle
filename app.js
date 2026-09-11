@@ -23,20 +23,22 @@ const PRODUCTS = [
 
 let PRICE_BOOK = null;
 const saved = JSON.parse(localStorage.getItem("td") || "{}");
+const savedCartIsExplicit = saved.cartTouched === true && saved.cart && typeof saved.cart === "object" && !Array.isArray(saved.cart);
 const state = {
   screen: saved.screen || "home",
   city: saved.city || "msk",
   filter: "Все",
   mode: "any",
   storeId: saved.storeId || "pyat",
-  cart: saved.cart || { milk: 1, bread: 1, chicken: 1, banana: 1, oil: 1, eggs: 1 },
+  cart: savedCartIsExplicit ? saved.cart : {},
+  cartTouched: savedCartIsExplicit,
   q: "",
   address: saved.address || "",
   openWhy: null
 };
 function persist() {
   localStorage.setItem("td", JSON.stringify({
-    screen: state.screen, city: state.city, storeId: state.storeId, cart: state.cart, address: state.address
+    screen: state.screen, city: state.city, storeId: state.storeId, cart: state.cart, cartTouched: state.cartTouched === true, address: state.address
   }));
 }
 function applyCityPrices() {
@@ -63,7 +65,6 @@ async function loadPrices() {
 }
 const cityName = () => state.city === "msk" ? "Москва" : "Санкт-Петербург";
 const EASTER_EGG_DEADLINE = Date.UTC(2026, 8, 13, 20, 59, 59);
-// Add the owner's public Telegram username here, without @.
 const EASTER_EGG_TELEGRAM = "kaipovich";
 const storeBy = id => STORES.find(s => s.id === id);
 const cartEntries = () => TDCompare.cartEntries(PRODUCTS, state.cart || {});
@@ -85,6 +86,7 @@ function scenarios() {
 function setQty(id, d) {
   const n = Math.max(0, (state.cart[id] || 0) + d);
   if (n === 0) delete state.cart[id]; else state.cart[id] = n;
+  state.cartTouched = true;
   persist(); render();
 }
 function logoSvg(size = 36) {
