@@ -3,8 +3,8 @@
 html{background:var(--v2-canvas)}
 body{background:radial-gradient(circle at 20% 0,rgba(20,116,69,.22),transparent 34%),var(--v2-canvas)!important;color:var(--v2-text)}
 .phone{background:transparent!important}
-.v2-header{background:rgba(5,17,11,.82);border-color:var(--v2-hairline);color:#fff}
-.v2-header.td-scrolled{background:rgba(5,17,11,.96)!important;box-shadow:0 12px 40px rgba(0,0,0,.3)!important}
+header.app.v2-header{background:rgba(5,17,11,.82);border-color:var(--v2-hairline);color:#fff}
+header.app.v2-header.td-scrolled{background:rgba(5,17,11,.96)!important;box-shadow:0 12px 40px rgba(0,0,0,.3)!important}
 .v2-header .v2-brand,.v2-header .v2-brand span b{color:#fff}.v2-header .v2-brand span b{color:var(--v2-mint)}
 .v2-nav button{color:#a8b9ae}.v2-nav button:hover{background:rgba(255,255,255,.07);color:#fff}
 .v2-city,.v2-favorite,.v2-menu,.v2-header .v2-profile{border-color:var(--v2-hairline)!important;background:rgba(255,255,255,.06)!important;color:#fff!important}
@@ -15,7 +15,7 @@ body{background:radial-gradient(circle at 20% 0,rgba(20,116,69,.22),transparent 
 .v2-eyebrow{color:#97b8a4}.v2-eyebrow i{background:var(--v2-mint)}.v2-hero h1 em{color:var(--v2-mint)}
 .v2-hero-bai{position:absolute;z-index:1;right:18px;bottom:-20px;width:42%;height:94%;pointer-events:none;display:flex;align-items:flex-end;justify-content:center}
 .v2-hero-bai img{width:min(390px,100%);height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 30px 28px rgba(0,0,0,.4))}
-.v2-hero-bai span{position:absolute;top:64px;left:3%;color:rgba(232,255,240,.76);font:700 15px/1.25 Manrope;letter-spacing:-.03em;transform:rotate(-8deg)}
+.v2-hero-bai span{position:absolute;top:78px;left:42%;color:rgba(232,255,240,.76);font:700 14px/1.25 Manrope;letter-spacing:-.03em;transform:rotate(-8deg)}
 .v2-search{max-width:730px;margin-top:38px}.v2-search button{background:linear-gradient(135deg,var(--v2-mint),#28d67c);color:#062012;box-shadow:0 8px 24px rgba(41,223,126,.25)}
 .v2-categories{max-width:720px}.v2-hero-proof{color:#9eb3a6}
 .v2-section-head span,.v2-basket-top span,.v2-section-head>button{color:var(--v2-mint)}.v2-section-head h2{color:#f7faf8}.v2-section-head>small{color:var(--v2-text-muted)}
