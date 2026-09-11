@@ -14,4 +14,5 @@ for(const state of ["idle","greeting","peek","curious","checking","thinking","su
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
+assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
 console.log("V2 UI contract passed: responsive shell, honest data labels and edge-dwelling Bai states are wired.");

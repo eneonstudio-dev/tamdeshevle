@@ -97,7 +97,7 @@ function logoSvg(size = 36) {
 function header(title, sub, back) {
   return `<header class="app">
     <div class="row">
-      ${back ? `<button class="back" onclick="go('${back}')">←</button>` : logoSvg()}
+      ${back ? `<button class="back" onclick="go('${back}')">←</button>` : `<button class="brand-home" onclick="go('home')" aria-label="На главную">${logoSvg()}</button>`}
       <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
       <button class="city" onclick="toggleCity()">${cityName()}</button>
     </div>
