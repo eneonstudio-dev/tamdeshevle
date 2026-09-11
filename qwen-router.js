@@ -1,28 +1,40 @@
 (() => {
   "use strict";
 
-  const STORAGE = {
-    enabled: "td_qwen_enabled",
-    endpoint: "td_qwen_endpoint",
-    model: "td_qwen_model"
+  const STORAGE={
+    enabled:"td_qwen_enabled",
+    provider:"td_qwen_provider",
+    endpoint:"td_qwen_endpoint",
+    model:"td_qwen_model"
   };
-  const DEFAULT_ENDPOINT = "http://127.0.0.1:11434/v1/chat/completions";
-  const DEFAULT_MODEL = "qwen3:4b";
-  const ALLOWED = new Set([
+  const DEFAULT_ENDPOINT="http://127.0.0.1:11434/v1/chat/completions";
+  const DEFAULT_MODEL="qwen3:4b";
+  const BROWSER_MODEL="onnx-community/Qwen3-0.6B-ONNX";
+  const ALLOWED=new Set([
     "UNDO","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING",
     "ADD_PREFERENCE","CHANGE_STORE","SET_MODE","REMOVE_PRODUCT","REQUIRE",
     "PREFER","EXCLUDE_BRAND","HAS_AT_HOME","EXCLUDE_TAG","NOTE"
   ]);
 
-  const get = key => { try { return localStorage.getItem(key); } catch { return null; } };
-  const set = (key,value) => { try { localStorage.setItem(key,value); } catch {} };
-  const remove = key => { try { localStorage.removeItem(key); } catch {} };
-  const enabled = () => get(STORAGE.enabled) === "1";
-  const config = () => ({
-    enabled: enabled(),
-    endpoint: get(STORAGE.endpoint) || DEFAULT_ENDPOINT,
-    model: get(STORAGE.model) || DEFAULT_MODEL
+  let browserWorker=null,browserSeq=0;
+  const browserPending=new Map();
+  const get=key=>{try{return localStorage.getItem(key)}catch{return null}};
+  const set=(key,value)=>{try{localStorage.setItem(key,value)}catch{}};
+  const remove=key=>{try{localStorage.removeItem(key)}catch{}};
+  const enabled=()=>get(STORAGE.enabled)==="1";
+  const provider=()=>enabled()?(get(STORAGE.provider)||"ollama"):"rules";
+  const config=()=>({
+    enabled:enabled(),
+    provider:provider(),
+    endpoint:get(STORAGE.endpoint)||DEFAULT_ENDPOINT,
+    model:get(STORAGE.model)||DEFAULT_MODEL,
+    browserModel:BROWSER_MODEL,
+    webgpu:Boolean(navigator.gpu)
   });
+
+  function emit(state,extra={}){
+    window.dispatchEvent(new CustomEvent("td:qwen-status",{detail:{state,...config(),...extra}}));
+  }
 
   function cleanJson(text){
     const raw=String(text||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,"");
@@ -53,24 +65,26 @@
     };
   }
 
-  async function callLocalQwen(text){
-    const cfg=config();
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),4500);
-    const system=`Ты языковой маршрутизатор ассистента покупок «Бай» сервиса «Там дешевле».\nТвоя задача — только понять команду пользователя и вернуть JSON без пояснений.\nФормат: {"operations":[{"type":"...","value":...}]}\nРазрешённые type: CHANGE_BUDGET, SET_PEOPLE, SET_DURATION, SET_COOKING, ADD_PREFERENCE, CHANGE_STORE, SET_MODE, REMOVE_PRODUCT, REQUIRE, PREFER, EXCLUDE_BRAND, HAS_AT_HOME, EXCLUDE_TAG, NOTE, UNDO.\nИзвестные id магазинов: pyat, magnit, perek, lenta, dixy, lavka, vprok.\nИзвестные id базовых продуктов: milk, bread, chicken, banana, oil, eggs, buck, sour, sugar, pasta, water, apple, ham, dumplings, noodles, waffles, cottage.\nНе придумывай цены. Не выбирай конкретную цену. Не меняй корзину сам. Если смысл не укладывается в операции — NOTE с исходным смыслом. Возвращай только JSON.`;
+  function systemPrompt(){
+    return `Ты языковой маршрутизатор ассистента покупок «Бай» сервиса «Там дешевле».\nТвоя задача — только понять команду пользователя и вернуть JSON без пояснений. Не показывай рассуждения.\nФормат: {"operations":[{"type":"...","value":...}]}\nРазрешённые type: CHANGE_BUDGET, SET_PEOPLE, SET_DURATION, SET_COOKING, ADD_PREFERENCE, CHANGE_STORE, SET_MODE, REMOVE_PRODUCT, REQUIRE, PREFER, EXCLUDE_BRAND, HAS_AT_HOME, EXCLUDE_TAG, NOTE, UNDO.\nИзвестные id магазинов: pyat, magnit, perek, lenta, dixy, lavka, vprok.\nИзвестные id базовых продуктов: milk, bread, chicken, banana, oil, eggs, buck, sour, sugar, pasta, water, apple, ham, dumplings, noodles, waffles, cottage.\nНе придумывай цены. Не выбирай конкретную цену. Не меняй корзину сам. Если смысл не укладывается в операции — NOTE с исходным смыслом. Возвращай только JSON.`;
+  }
+
+  function messages(text){
+    return [
+      {role:"system",content:systemPrompt()},
+      {role:"user",content:`Текущее состояние: ${JSON.stringify(stateContext())}\nКоманда: ${text}\n/no_think`}
+    ];
+  }
+
+  async function callOllama(text){
+    const cfg=config(),controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),5000);
+    emit("thinking",{provider:"ollama"});
     try{
       const response=await fetch(cfg.endpoint,{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model:cfg.model,
-          messages:[
-            {role:"system",content:system},
-            {role:"user",content:`Текущее состояние: ${JSON.stringify(stateContext())}\nКоманда: ${text}`}
-          ],
-          temperature:0.1,
-          stream:false
-        }),
+        body:JSON.stringify({model:cfg.model,messages:messages(text),temperature:0.1,stream:false}),
         signal:controller.signal
       });
       if(!response.ok)throw new Error(`Qwen HTTP ${response.status}`);
@@ -78,34 +92,104 @@
       const parsed=cleanJson(data?.choices?.[0]?.message?.content);
       const operations=validateOperations(parsed.operations);
       if(!operations)throw new Error("Qwen returned invalid operations");
-      return {ok:true,provider:"local-qwen",model:cfg.model,operations};
-    } finally { clearTimeout(timer); }
+      emit("ready",{provider:"ollama"});
+      return {ok:true,provider:"ollama",model:cfg.model,operations};
+    }finally{clearTimeout(timer)}
+  }
+
+  function ensureBrowserWorker(){
+    if(!navigator.gpu)throw new Error("WebGPU unavailable");
+    if(browserWorker)return browserWorker;
+    browserWorker=new Worker(new URL("qwen-browser-worker.js",location.href),{type:"module"});
+    browserWorker.onmessage=event=>{
+      const data=event.data||{};
+      if(data.type==="progress"){
+        const pct=Number(data.data?.progress);
+        emit("loading",{provider:"browser",progress:Number.isFinite(pct)?Math.round(pct*100):null,file:data.data?.file||null});
+        return;
+      }
+      const pending=browserPending.get(data.id);
+      if(!pending)return;
+      browserPending.delete(data.id);
+      if(data.type==="result")pending.resolve(data.text);
+      else pending.reject(new Error(data.error||"Browser Qwen failed"));
+    };
+    browserWorker.onerror=error=>{
+      for(const pending of browserPending.values())pending.reject(new Error(error.message||"Browser worker failed"));
+      browserPending.clear();
+      browserWorker?.terminate();
+      browserWorker=null;
+    };
+    return browserWorker;
+  }
+
+  async function callBrowser(text){
+    emit("loading",{provider:"browser"});
+    const worker=ensureBrowserWorker(),id=++browserSeq;
+    const output=await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>{
+        browserPending.delete(id);
+        reject(new Error("Browser Qwen timeout"));
+      },90000);
+      browserPending.set(id,{
+        resolve:value=>{clearTimeout(timer);resolve(value)},
+        reject:error=>{clearTimeout(timer);reject(error)}
+      });
+      worker.postMessage({type:"generate",id,messages:messages(text)});
+    });
+    const parsed=cleanJson(output),operations=validateOperations(parsed.operations);
+    if(!operations)throw new Error("Browser Qwen returned invalid operations");
+    emit("ready",{provider:"browser"});
+    return {ok:true,provider:"browser",model:BROWSER_MODEL,operations};
+  }
+
+  async function probe(){
+    const cfg=config();
+    if(cfg.provider==="browser")return {ok:Boolean(navigator.gpu),provider:"browser",reason:navigator.gpu?null:"WebGPU unavailable"};
+    if(cfg.provider!=="ollama")return {ok:true,provider:"rules"};
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),1800);
+    try{
+      const base=cfg.endpoint.replace(/\/v1\/chat\/completions\/?$/,"");
+      const response=await fetch(base,{signal:controller.signal});
+      return {ok:response.ok,provider:"ollama",status:response.status};
+    }catch(error){return {ok:false,provider:"ollama",reason:String(error?.message||error)}}
+    finally{clearTimeout(timer)}
   }
 
   async function route(text){
-    if(!enabled())return {ok:true,provider:"rules",operations:null};
-    try{return await callLocalQwen(text)}
-    catch(error){
+    const mode=provider();
+    if(mode==="rules")return {ok:true,provider:"rules",operations:null};
+    try{
+      if(mode==="browser")return await callBrowser(text);
+      return await callOllama(text);
+    }catch(error){
       console.warn("[TD Qwen] fallback to local rules:",error);
+      emit("fallback",{provider:mode,error:String(error?.message||error)});
       return {ok:true,provider:"rules",operations:null,error:String(error?.message||error)};
     }
   }
 
   window.TDQwenRouter={
-    route,
-    status:config,
-    enable(options={}){
+    route,probe,status:config,
+    enableBrowser(){
+      if(!navigator.gpu)return {ok:false,...config(),reason:"WebGPU unavailable"};
+      set(STORAGE.enabled,"1");set(STORAGE.provider,"browser");emit("enabled",{provider:"browser"});
+      return {ok:true,...config()};
+    },
+    enableOllama(options={}){
       if(options.endpoint)set(STORAGE.endpoint,options.endpoint);
       if(options.model)set(STORAGE.model,options.model);
-      set(STORAGE.enabled,"1");
-      return config();
+      set(STORAGE.enabled,"1");set(STORAGE.provider,"ollama");emit("enabled",{provider:"ollama"});
+      return {ok:true,...config()};
     },
-    disable(){remove(STORAGE.enabled);return config();},
+    enable(options={}){return this.enableOllama(options)},
+    disable(){remove(STORAGE.enabled);remove(STORAGE.provider);emit("disabled",{provider:"rules"});return config()},
     configure(options={}){
       if(options.endpoint)set(STORAGE.endpoint,options.endpoint);
       if(options.model)set(STORAGE.model,options.model);
+      if(options.provider)set(STORAGE.provider,options.provider);
       return config();
     },
-    reset(){Object.values(STORAGE).forEach(remove);return config();}
+    reset(){Object.values(STORAGE).forEach(remove);browserWorker?.terminate();browserWorker=null;emit("reset",{provider:"rules"});return config()}
   };
 })();
