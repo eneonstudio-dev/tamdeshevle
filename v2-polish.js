@@ -3,6 +3,7 @@
   const products=()=>typeof PRODUCTS!=="undefined"?PRODUCTS:[];
   const count=()=>products().reduce((sum,p)=>sum+Number(window.state&&state.cart&&state.cart[p.id]||0),0);
   const items=()=>products().filter(p=>window.state&&state.cart&&state.cart[p.id]>0);
+  let headerScrollFrame=0;
 
   function ensureMobileCart(){
     if(!window.state||state.screen!=="home") return removeMobileCart();
@@ -42,11 +43,23 @@
     if(returnFocus) button.focus();
   }
 
+  function syncHeaderScrollState(){
+    const header=document.querySelector(".v2-header");
+    if(header) header.classList.toggle("td-scrolled",window.scrollY>8);
+  }
+
+  function queueHeaderScrollState(){
+    if(headerScrollFrame) return;
+    headerScrollFrame=requestAnimationFrame(()=>{
+      headerScrollFrame=0;
+      syncHeaderScrollState();
+    });
+  }
+
   function hydrate(){
     ensureMobileCart();
     enhanceMobileMenu();
-    const header=document.querySelector(".v2-header");
-    if(header) header.classList.toggle("td-scrolled",window.scrollY>8);
+    syncHeaderScrollState();
   }
 
   document.addEventListener("click",function(event){
@@ -81,10 +94,7 @@
     if(event.key==="Escape") closeMobileMenu(true);
   });
 
-  window.addEventListener("scroll",function(){
-    const header=document.querySelector(".v2-header");
-    if(header) header.classList.toggle("td-scrolled",window.scrollY>8);
-  },{passive:true});
+  window.addEventListener("scroll",queueHeaderScrollState,{passive:true});
 
   window.addEventListener("td:v2-rendered",hydrate);
   window.addEventListener("pageshow",hydrate);
