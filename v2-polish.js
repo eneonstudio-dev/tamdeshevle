@@ -24,23 +24,62 @@
 
   function removeMobileCart(){ document.querySelector(".v2-mobile-cartbar")?.remove(); }
 
+  function enhanceMobileMenu(){
+    const button=document.querySelector(".v2-menu");
+    const menu=document.querySelector(".v2-mobile-nav");
+    if(!button||!menu) return;
+    if(!menu.id) menu.id="v2-mobile-menu";
+    button.setAttribute("aria-controls",menu.id);
+    button.setAttribute("aria-expanded",String(!menu.hidden));
+  }
+
+  function closeMobileMenu(returnFocus){
+    const button=document.querySelector(".v2-menu");
+    const menu=document.querySelector(".v2-mobile-nav");
+    if(!button||!menu||menu.hidden) return;
+    menu.hidden=true;
+    button.setAttribute("aria-expanded","false");
+    if(returnFocus) button.focus();
+  }
+
   function hydrate(){
     ensureMobileCart();
+    enhanceMobileMenu();
     const header=document.querySelector(".v2-header");
     if(header) header.classList.toggle("td-scrolled",window.scrollY>8);
   }
 
   document.addEventListener("click",function(event){
-    const add=event.target.closest(".v2-add");
-    if(!add) return;
-    const card=add.closest(".v2-product-card");
-    if(card){
-      card.classList.remove("td-added");
-      requestAnimationFrame(()=>card.classList.add("td-added"));
-      setTimeout(()=>card.classList.remove("td-added"),450);
+    const target=event.target instanceof Element?event.target:null;
+    const add=target&&target.closest(".v2-add");
+    if(add){
+      const card=add.closest(".v2-product-card");
+      if(card){
+        card.classList.remove("td-added");
+        requestAnimationFrame(()=>card.classList.add("td-added"));
+        setTimeout(()=>card.classList.remove("td-added"),450);
+      }
+      requestAnimationFrame(ensureMobileCart);
+      return;
     }
-    requestAnimationFrame(ensureMobileCart);
-  },{passive:true});
+
+    const menuButton=target&&target.closest(".v2-menu");
+    if(menuButton){
+      requestAnimationFrame(()=>{
+        enhanceMobileMenu();
+        const menu=document.querySelector(".v2-mobile-nav");
+        if(menu&&!menu.hidden) menu.querySelector("button")?.focus();
+      });
+      return;
+    }
+
+    const header=document.querySelector(".v2-header");
+    if(header&&target&&!header.contains(target)) closeMobileMenu(false);
+  });
+
+  document.addEventListener("keydown",function(event){
+    if(event.key==="Escape") closeMobileMenu(true);
+  });
 
   window.addEventListener("scroll",function(){
     const header=document.querySelector(".v2-header");
