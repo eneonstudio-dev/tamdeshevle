@@ -51,7 +51,7 @@
 
     for (const product of entries) {
       const quantity = Number(cart[product.id]);
-      if (!Number.isFinite(quantity) || !Number.isInteger(quantity) || quantity <= 0) { missingProductIds.push(product.id); continue; }
+      if (!Number.isFinite(quantity) || !Number.isInteger(quantity) || quantity <= 0 || quantity > 99) { missingProductIds.push(product.id); continue; }
       const price = unitPrice(product, storeId, channel);
       if (!Number.isFinite(price)) {
         missingProductIds.push(product.id);
@@ -98,6 +98,32 @@
     return Number.isFinite(value) && value >= 0 ? { known: true, value } : { known: false, value: null };
   }
 
+  function minimumQuote(store, channel, goods) {
+    if (channel !== "bring") return { known: true, value: 0, met: true, shortfall: 0 };
+    const raw = store && store.minOrder;
+    const value = typeof raw === "number" && Number.isFinite(raw) && raw >= 0 ? raw : null;
+    const known = value != null;
+    const met = known && Number.isFinite(goods) && goods >= value;
+    return {
+      known,
+      value,
+      met,
+      shortfall: known && Number.isFinite(goods) ? Math.max(0, value - goods) : null
+    };
+  }
+
+  function deliveryTerms(store, channel, goods) {
+    const fee = feeQuote(store, channel);
+    const minimum = minimumQuote(store, channel, goods);
+    const operationalKnown = channel !== "bring" || (fee.known && minimum.known);
+    const eligible = operationalKnown && minimum.met;
+    let reason = null;
+    if (channel === "bring" && !fee.known) reason = "fee_unknown";
+    else if (channel === "bring" && !minimum.known) reason = "minimum_unknown";
+    else if (channel === "bring" && !minimum.met) reason = "minimum_unmet";
+    return { fee, minimum, operationalKnown, eligible, reason };
+  }
+
   function compare(options) {
     const stores = Array.isArray(options && options.stores) ? options.stores : [];
     const products = Array.isArray(options && options.products) ? options.products : [];
@@ -116,28 +142,37 @@
     const referenceAvailable = Boolean(requestedOrigin);
     const originChannel = mode === "delivery" ? "bring" : mode === "walk" ? "shelf" : defaultChannel(origin);
     const originQuote = basketQuote(products, cart, origin.id, originChannel);
-    const originFee = feeQuote(origin, originChannel);
-    const originComplete = originQuote.complete && originFee.known;
-    const originTotal = originComplete ? originQuote.goods + originFee.value : null;
+    const originTerms = deliveryTerms(origin, originChannel, originQuote.goods);
+    const originComplete = originQuote.complete && originTerms.eligible;
+    const originTotal = originComplete ? originQuote.goods + originTerms.fee.value : null;
 
     return eligible.map(store => {
       const channel = mode === "delivery" ? "bring" : mode === "walk" ? "shelf" : defaultChannel(store);
       const quote = basketQuote(products, cart, store.id, channel);
-      const fee = feeQuote(store, channel);
-      const complete = quote.complete && fee.known;
+      const terms = deliveryTerms(store, channel, quote.goods);
+      const pricedComplete = quote.complete && terms.fee.known;
+      const indicativeTotal = pricedComplete ? quote.goods + terms.fee.value : null;
+      const complete = quote.complete && terms.eligible;
       const verifiedComplete = complete && quote.verifiedComplete;
-      const total = complete ? quote.goods + fee.value : null;
+      const total = complete ? indicativeTotal : null;
       const verifiedSavings = referenceAvailable && originTotal != null && total != null && originQuote.verifiedComplete && quote.verifiedComplete;
       return Object.assign({}, store, {
         channel,
         goods: quote.goods,
         partialGoods: quote.partialGoods,
-        delivery: fee.value,
-        feeKnown: fee.known,
+        delivery: terms.fee.value,
+        feeKnown: terms.fee.known,
+        minimumOrder: terms.minimum.value,
+        minimumKnown: terms.minimum.known,
+        minimumMet: terms.minimum.met,
+        minimumShortfall: terms.minimum.shortfall,
+        operationalKnown: terms.operationalKnown,
+        operationalReason: terms.reason,
+        indicativeTotal,
         total,
         complete,
         verifiedComplete,
-        // Only a complete price set that passes the explicit trust gate may rank.
+        // A plan ranks only when prices AND the operational delivery terms are known and satisfied.
         rankable: verifiedComplete,
         coveredItems: quote.coveredItems,
         verifiedItems: quote.verifiedItems,
@@ -184,6 +219,8 @@
     basketQuote,
     goodsTotal,
     feeQuote,
+    minimumQuote,
+    deliveryTerms,
     compare,
     fromWindow
   };
