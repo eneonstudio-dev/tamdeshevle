@@ -3,6 +3,7 @@
   const VERSION="price-freshness-v2";
   const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const shortDate=v=>{if(!v)return"";const d=new Date(v);return Number.isNaN(d.getTime())?"":d.toLocaleDateString("ru-RU",{day:"2-digit",month:"2-digit"})};
+  const safeUrl=v=>{try{const u=new URL(String(v||""),location.href);return u.protocol==="https:"?u.href:""}catch{return""}};
   const storeName=id=>(typeof STORES!=="undefined"?STORES:[]).find(x=>x.id===id)?.name||id||"магазин";
   function style(){if(document.querySelector(`style[data-${VERSION}]`))return;const s=document.createElement("style");s.dataset[VERSION.replace(/-/g,"")]="1";s.textContent=`
     .td-freshness{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;font:800 9px/1.2 Manrope,sans-serif}
@@ -21,7 +22,7 @@
     if(lineQuality==="UNKNOWN")return{kind:"unknown",label:"Не подтверждена",detail:"проверь перед покупкой",url:""};
     return{kind:"estimated",label:"Оценочная",detail:"ориентировочная цена",url:""};
   }
-  function html(x){return `<span class="td-freshness-pill ${esc(x.kind)}">${esc(x.label)}</span><span>${esc(x.detail)}</span>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">источник ↗</a>`:""}`}
+  function html(x){const url=safeUrl(x.url);return `<span class="td-freshness-pill ${esc(x.kind)}">${esc(x.label)}</span><span>${esc(x.detail)}</span>${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">источник ↗</a>`:""}`}
   function decorateBai(){const plan=window.TDShoppingState?.get?.().lastPlans?.[0];if(!plan?.products?.length)return;document.querySelectorAll(".td-ai-summary .td-ai-line").forEach((row,i)=>{if(row.querySelector(".td-freshness"))return;const line=plan.products[i];if(!line)return;const box=document.createElement("div");box.className="td-freshness";box.innerHTML=html(info(line.id,line.storeId,line.quality));const span=row.querySelector("span");span?.appendChild(box)})}
   function productIdFromCard(card){const title=card.querySelector(".title,.sku-name");if(!title||typeof PRODUCTS==="undefined")return null;const name=title.textContent.trim();return PRODUCTS.find(p=>p.name===name)?.id||null}
   function decorateCatalog(){if(!window.state)return;const storeId=window.state.storeId;document.querySelectorAll(".item,.product-card").forEach(card=>{if(card.querySelector(".td-item-freshness"))return;const id=productIdFromCard(card);if(!id||!storeId)return;const box=document.createElement("div");box.className="td-freshness td-item-freshness";box.innerHTML=html(info(id,storeId));card.appendChild(box)})}

@@ -10,6 +10,7 @@
     "Лавка": "https://unsplash.com/photos/M_6XyaoPjyE/download?force=true&w=900",
     "Впрок": "https://unsplash.com/photos/1t-mONY1Vbk/download?force=true&w=900"
   };
+  const esc=value=>String(value==null?"":value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
 
   function ensureStyles() {
     if (document.getElementById("td-home-refresh-styles")) return;
@@ -102,7 +103,7 @@
         <button class="home-primary" onclick="go('stores')">Найти магазин дешевле →</button>
         <button class="home-cart" aria-label="Открыть корзину" onclick="go('cart')">🛒</button>
       </div>
-      <input class="addr home-address" placeholder="Адрес — скоро учтём ближайшие магазины" value="${state.address || ""}" onchange="state.address=this.value;persist()" />
+      <input class="addr home-address" placeholder="Адрес — скоро учтём ближайшие магазины" value="${esc(state.address || "")}" onchange="state.address=this.value;persist()" />
       <div class="home-section-title">Популярные сети <span>быстрый вход</span></div>
       <div class="home-nets">
         ${homeNet("perek", "Перекрёсток", "сравнить корзину")}

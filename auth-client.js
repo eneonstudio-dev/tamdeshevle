@@ -1,6 +1,7 @@
 (function(){
   "use strict";
-  const CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  const CDN="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0/dist/umd/supabase.min.js";
+  const CDN_INTEGRITY="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp";
   let client=null, session=null, initPromise=null, busy=false, cloudState={status:"idle",message:"Облачная копия ещё не проверена"};
   const config=()=>window.TD_SUPABASE||null;
   const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
@@ -8,7 +9,7 @@
   const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}};
 
   function configured(){const c=config();return !!(c&&/^https:\/\/.+\.supabase\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}
-  function loadSdk(){return new Promise((resolve,reject)=>{if(window.supabase&&window.supabase.createClient)return resolve();const s=document.createElement("script");s.src=CDN;s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Supabase SDK failed to load"));document.head.appendChild(s);});}
+  function loadSdk(){return new Promise((resolve,reject)=>{if(window.supabase&&window.supabase.createClient)return resolve();const s=document.createElement("script");s.src=CDN;s.integrity=CDN_INTEGRITY;s.crossOrigin="anonymous";s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Supabase SDK failed to load"));document.head.appendChild(s);});}
   function setCloudState(status,message){cloudState={status,message};emit("td:cloud-state",cloudState);}
   function assertUser(uid){if(user()?.id!==uid)throw new Error("ACCOUNT_CHANGED");}
   async function cloudOperation(action){

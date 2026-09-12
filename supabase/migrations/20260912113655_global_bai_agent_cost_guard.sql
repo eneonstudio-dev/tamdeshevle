@@ -1,26 +1,5 @@
--- Bai Agent Core v1: minimal abuse/cost guard telemetry only.
--- No prompts, messages, basket contents, email, or raw user IDs are persisted here.
-
-create table if not exists public.bai_agent_usage (
-  id bigint generated always as identity primary key,
-  actor_hash text not null check (char_length(actor_hash) = 64),
-  outcome text not null check (outcome in ('ok','fallback','error')),
-  model text,
-  latency_ms integer not null default 0 check (latency_ms >= 0 and latency_ms <= 120000),
-  created_at timestamptz not null default now()
-);
-
-create index if not exists bai_agent_usage_actor_created_idx
-  on public.bai_agent_usage (actor_hash, created_at desc);
-
-alter table public.bai_agent_usage enable row level security;
-revoke all on table public.bai_agent_usage from public, anon, authenticated;
-grant select, insert, update, delete on table public.bai_agent_usage to service_role;
-revoke all on sequence public.bai_agent_usage_id_seq from public, anon, authenticated;
-grant usage, select on sequence public.bai_agent_usage_id_seq to service_role;
-
--- Atomic reservation prevents concurrent requests from racing past the hourly
--- cost guard before any usage row is recorded.
+-- Add a project-wide circuit breaker on top of the per-account limiter so a
+-- swarm of accounts cannot consume an unbounded model budget.
 create or replace function public.reserve_bai_agent_request(
   p_actor_hash text,
   p_limit integer default 30
@@ -54,11 +33,11 @@ begin
   if global_hour_count >= 300 or global_day_count >= 2000 then
     return null;
   end if;
+
   select count(*) into usage_count
   from public.bai_agent_usage
   where actor_hash = p_actor_hash
     and created_at >= now() - interval '1 hour';
-
   if usage_count >= p_limit then
     return null;
   end if;

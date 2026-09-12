@@ -20,6 +20,10 @@ assert.equal(serverSource.includes('service_role'),false,'Edge source must not e
 assert.ok(serverSource.includes('unknown_or_invalid_tool'),'server must fail closed on invalid tools');
 assert.ok(serverSource.includes('clarification_mixed_with_mutation'),'clarification cannot be mixed with mutations');
 assert.ok(serverSource.includes('MAX_PER_HOUR = 30'),'server must keep a per-user abuse/cost guard');
+assert.ok(serverSource.includes('reserve_bai_agent_request'),'server must reserve paid requests atomically');
+assert.ok(schemaSource.includes('pg_advisory_xact_lock'),'rate limiting must serialize concurrent requests per actor');
+assert.ok(schemaSource.includes("hashtextextended('bai-agent-global-v1'")&&schemaSource.includes('global_day_count >= 2000'),'server must keep a global hourly/daily cost circuit breaker');
+assert.ok(schemaSource.includes('revoke all on function public.reserve_bai_agent_request'),'browser roles must not execute the reservation function');
 assert.equal(/prompt|message|basket/i.test(schemaSource.match(/create table[\s\S]*?\);/i)?.[0]?.replace(/bai_agent_usage/i,'')||''),false,'usage telemetry must not persist prompt/message/basket');
 assert.ok(schemaSource.includes('enable row level security'),'usage table must keep RLS');
 assert.ok(publicConfig.includes('/functions/v1/bai-agent-core'),'public config must keep the Agent Core endpoint');
