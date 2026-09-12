@@ -1,0 +1,38 @@
+name: Continuous security monitoring
+
+on:
+  pull_request:
+    paths:
+      - ".github/dependabot.yml"
+      - ".github/workflows/security-monitor.yml"
+      - "scripts/test-production-security.mjs"
+      - "scripts/test-security-hardening.mjs"
+  push:
+    branches: [main]
+    paths:
+      - ".github/dependabot.yml"
+      - ".github/workflows/security-monitor.yml"
+      - "scripts/test-production-security.mjs"
+      - "scripts/test-security-hardening.mjs"
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-monitor-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify repository security invariants
+        run: node scripts/test-security-hardening.mjs
+      - name: Probe production security boundaries
+        run: node scripts/test-production-security.mjs
+
