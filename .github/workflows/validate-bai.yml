@@ -6,6 +6,10 @@ on:
       - "ai-shopping-assistant.js"
       - "bai-*.js"
       - "shopping-*.js"
+      - "pickup-flow-v1.js"
+      - "courier-handoff-v1.js"
+      - "continue-in-stores-v1.js"
+      - "real-store-integration-v1.js"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -14,6 +18,10 @@ on:
       - "ai-shopping-assistant.js"
       - "bai-*.js"
       - "shopping-*.js"
+      - "pickup-flow-v1.js"
+      - "courier-handoff-v1.js"
+      - "continue-in-stores-v1.js"
+      - "real-store-integration-v1.js"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -43,3 +51,7 @@ jobs:
           node --check shopping-conversation.js
           node --check shopping-optimizer.js
           node --check shopping-state.js
+          node --check pickup-flow-v1.js
+          node --check courier-handoff-v1.js
+          node --check continue-in-stores-v1.js
+          node --check real-store-integration-v1.js
