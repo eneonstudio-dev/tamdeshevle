@@ -131,6 +131,7 @@ function priceNotice() {
 const cityName = () => state.city === "msk" ? "Москва" : "Санкт-Петербург";
 const EASTER_EGG_DEADLINE = Date.UTC(2026, 8, 13, 20, 59, 59);
 const EASTER_EGG_TELEGRAM = "kaipovich";
+let saleTimer = 0;
 const storeBy = id => STORES.find(s => s.id === id);
 const cartEntries = () => TDCompare.cartEntries(PRODUCTS, state.cart || {});
 const cartCount = () => cartEntries().reduce((a, p) => a + Number(state.cart[p.id] || 0), 0);
@@ -213,15 +214,29 @@ function saleEasterEgg() {
     ${contact}
   </section>`;
 }
+function stopSaleTimer() {
+  if (saleTimer) clearTimeout(saleTimer);
+  saleTimer = 0;
+}
 function updateSaleTimer() {
   const node = document.querySelector("[data-sale-timer]");
-  if (!node) return;
+  if (!node || document.hidden) return false;
   const left = Math.max(0, EASTER_EGG_DEADLINE - Date.now());
   const seconds = Math.floor(left / 1000);
   const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
   const minutes = String(Math.floor(seconds % 3600 / 60)).padStart(2, "0");
   const secs = String(seconds % 60).padStart(2, "0");
   node.textContent = `${hours}:${minutes}:${secs}`;
+  return left > 0;
+}
+function scheduleSaleTimer() {
+  stopSaleTimer();
+  if (!updateSaleTimer()) return;
+  saleTimer = setTimeout(scheduleSaleTimer, 1000);
+}
+function syncSaleTimer() {
+  if (document.hidden || !document.querySelector("[data-sale-timer]")) return stopSaleTimer();
+  scheduleSaleTimer();
 }
 function screenStores() {
   const stores = STORES.filter(s => s.city.includes(state.city));
@@ -351,14 +366,16 @@ function toggleCity() {
 function render() {
   const map = { home: screenHome, stores: screenStores, catalog: screenCatalog, cart: screenCart, compare: screenCompare };
   document.getElementById("app").innerHTML = (map[state.screen] || screenHome)();
-  updateSaleTimer();
+  syncSaleTimer();
 }
 window.addEventListener("popstate", event => {
   const target = event.state && event.state.tdScreen;
   if (SCREENS.has(target)) navigate(target, { fromPop: true });
 });
+document.addEventListener("visibilitychange", () => document.hidden ? stopSaleTimer() : syncSaleTimer());
+window.addEventListener("pagehide", stopSaleTimer);
+window.addEventListener("pageshow", syncSaleTimer);
 window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.choosePlan = choosePlan; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render; window.loadPrices = loadPrices;
 if (window.history && typeof history.replaceState === "function") history.replaceState({ ...(history.state || {}), tdScreen: state.screen }, "");
 render();
-setInterval(updateSaleTimer, 1000);
 loadPrices();
