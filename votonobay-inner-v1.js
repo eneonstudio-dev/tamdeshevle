@@ -54,6 +54,17 @@
     if(dock)dock.setAttribute("aria-label","Действия с корзиной");
   }
 
+  function deliveryConstraint(plan){
+    if(!plan||plan.channel!=="bring"||plan.operationalReason==null)return"";
+    if(plan.operationalReason==="fee_unknown")return"Тариф доставки сети не подтверждён — вариант вне рейтинга.";
+    if(plan.operationalReason==="minimum_unknown")return"Минимальный заказ сети не подтверждён — вариант вне рейтинга.";
+    if(plan.operationalReason==="minimum_unmet"){
+      const gap=Number(plan.minimumShortfall);
+      return Number.isFinite(gap)&&gap>0?`До минимального заказа не хватает ${Math.ceil(gap)} ₽ — вариант вне рейтинга.`:"Минимальный заказ сети не достигнут — вариант вне рейтинга.";
+    }
+    return"Условия доставки пока не подтверждены — вариант вне рейтинга.";
+  }
+
   function tuneCompare(){
     const toggle=document.querySelector(".toggle");
     if(toggle){
@@ -61,9 +72,20 @@
       toggle.setAttribute("aria-label","Способ покупки");
       toggle.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.classList.contains("on"))));
     }
-    document.querySelectorAll(".plan").forEach(plan=>{
+    const rows=window.TDCompare?.fromWindow?.()||[];
+    document.querySelectorAll(".plan").forEach((plan,index)=>{
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
+      plan.querySelector(".voto-delivery-constraint")?.remove();
+      const copy=deliveryConstraint(rows[index]);
+      if(copy){
+        const note=document.createElement("div");
+        note.className="voto-delivery-constraint";
+        note.setAttribute("role","status");
+        note.textContent=copy;
+        const hint=plan.querySelector(".hint");
+        (hint||plan.querySelector(".sum")||plan).insertAdjacentElement("afterend",note);
+      }
     });
     document.querySelectorAll(".wrap > .hint").forEach(note=>{
       if(note.textContent.includes("Тамдешевле сам ничего не везёт")){
@@ -97,5 +119,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",decorate,{once:true});
   else decorate();
 
-  window.TDVotonobayInner={decorate};
+  window.TDVotonobayInner={decorate,deliveryConstraint};
 })();
