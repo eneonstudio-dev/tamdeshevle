@@ -25,6 +25,13 @@ assert(productUI.includes("function retryImages"), "product images need an expli
 assert(productUI.includes('window.addEventListener("online",retryImages)'), "failed image sources must retry after the browser comes back online");
 assert(productUI.includes("delete card.dataset.productUiSignature") && productUI.includes("delete img.dataset.tdPreparedSource"), "online recovery must invalidate stale image/decorator signatures before retrying");
 
+assert(productUI.includes("Подтверждено"), "verified price provenance must use clear text without decorative status glyphs");
+assert(productUI.includes("Данные устаревают"), "stale price provenance must explain the state in words");
+assert(!productUI.includes("✓") && !productUI.includes("⚠"), "product trust UI must not use checkmark or warning glyph badges");
+assert(productUI.includes("rgba(43,228,135,.11)"), "verified product trust must use the Votonobay mint-on-dark treatment");
+assert(productUI.includes("background:#111d16"), "retailer product photography must sit on a dark Votonobay mat");
+assert(productUI.includes("Базовая оценка для сравнения вариантов"), "unverified product copy must support option comparison rather than cheapest-only framing");
+
 assert(cards.includes("grid-template-columns:76px minmax(0,1fr) auto"), "product text column must be allowed to shrink instead of overflowing");
 assert(cards.includes("overflow-wrap:anywhere"), "long product names and price text must wrap safely");
 assert(cards.includes("@media (max-width:380px)"), "very narrow Android product cards need an explicit layout guard");
@@ -35,4 +42,4 @@ assert(cards.includes("object-fit:contain"), "product imagery must remain contai
 assert(!productUI.includes("TDBai") && !productUI.includes("bai-"), "product image resilience must stay independent from Bai");
 assert(!cards.includes("bai-"), "product card layout must stay independent from Bai");
 
-console.log("Product card resilience checks passed: aspect-safe images, multi-stage fallback, connectivity retry, BFCache resume and 360px layout guards are wired.");
+console.log("Product card resilience checks passed: dark trust UI without status glyphs, aspect-safe images, recovery lifecycle and 360px layout guards are wired.");
