@@ -3,22 +3,40 @@
   const CSS="votonobay-bay-first-v3.css?v=20260912-v3";
   let decorateRaf=0;
   const esc=value=>String(value==null?"":value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]);
+  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 
   function ensureCss(){
     if(document.querySelector('link[data-votonobay-bay-first-v3]'))return;
     const link=document.createElement("link");link.rel="stylesheet";link.href=CSS;link.dataset.votonobayBayFirstV3="1";document.head.appendChild(link);
   }
 
+  function tuneAssistant(){
+    const root=document.querySelector(".td-ai");if(!root)return false;
+    const title=root.querySelector(".td-ai-bai h2"),copy=root.querySelector(".td-ai-bai p"),area=root.querySelector("textarea");
+    if(title)title.textContent="Что хочешь решить?";
+    if(copy)copy.textContent="Расскажи своими словами. Я уточню только то, что реально влияет на решение.";
+    if(area)area.placeholder="Например: собери ужин на четверых до 2500 ₽ или помоги выбрать наушники";
+    return true;
+  }
+
+  async function waitForAssistant(){
+    for(let i=0;i<12;i++){
+      if(window.TDShoppingAssistant?.open)return window.TDShoppingAssistant;
+      await delay(80);
+    }
+    return null;
+  }
+
   async function openBay(prompt=""){
     window.TDBai?.setState?.("curious","Рассказывай. Разберёмся, как лучше.",1700,false);
-    if(!window.TDShoppingAssistant?.open){
-      window.dispatchEvent(new CustomEvent("bai:hint",{detail:{state:"curious",text:"Я почти готов. Попробуй ещё раз через секунду.",ms:1800}}));
-      return false;
+    const assistant=await waitForAssistant();
+    if(!assistant){
+      window.dispatchEvent(new CustomEvent("bai:hint",{detail:{state:"suspicious",text:"Помощник не загрузился. Поиск вручную всё ещё работает.",ms:2300}}));
+      focusSelfSearch();return false;
     }
-    await window.TDShoppingAssistant.open();
-    if(prompt){
-      setTimeout(()=>window.TDShoppingAssistant?.submit?.(prompt),90);
-    }
+    await assistant.open();
+    tuneAssistant();
+    if(prompt)setTimeout(()=>assistant.submit?.(prompt),90);
     return true;
   }
 
@@ -70,6 +88,7 @@
   function queue(){cancelAnimationFrame(decorateRaf);decorateRaf=requestAnimationFrame(decorateHome)}
   window.tdBayFirstAsk=openBay;
   window.tdBayFirstSelfSearch=focusSelfSearch;
+  window.tdBayFirstTuneAssistant=tuneAssistant;
   window.addEventListener("td:v2-rendered",queue);
   window.addEventListener("pageshow",queue);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",queue,{once:true});else queue();
