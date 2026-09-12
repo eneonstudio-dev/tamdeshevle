@@ -118,9 +118,10 @@ function rubles(value: number) {
   return `${Math.round(value * 100) / 100}`.replace(".", ",") + " ₽";
 }
 
-function sourceLabel(kind: "official" | "aggregator" | "unknown") {
+function sourceLabel(kind: "official" | "aggregator" | "partner" | "unknown") {
   if (kind === "official") return "официальный каталог";
   if (kind === "aggregator") return "публичный агрегатор";
+  if (kind === "partner") return "партнёрский источник";
   return "публичный источник";
 }
 
