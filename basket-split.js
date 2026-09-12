@@ -15,12 +15,27 @@
 
   function rublesFromKopecks(value) { return value / 100; }
 
+  function validCartEntries(products, cart) {
+    const entries = window.TDCompare.cartEntries(products, cart || {});
+    const valid = [];
+    for (const product of entries) {
+      const quantity = Number(cart && cart[product.id]);
+      if (!Number.isFinite(quantity) || !Number.isInteger(quantity) || quantity < 1 || quantity > 99) return null;
+      valid.push({ product, quantity });
+    }
+    return valid;
+  }
+
   function deliveryTerms(store, channel, subtotal) {
     const fee = window.TDCompare.feeQuote(store, channel);
-    const minimum = Number(store && store.minOrder);
-    const minimumKnown = channel !== "bring" || Number.isFinite(minimum);
-    const meetsMinimum = channel !== "bring" || !minimumKnown || subtotal >= minimum;
-    return { fee, minimum: minimumKnown ? minimum : null, minimumKnown, meetsMinimum, operationalKnown: fee.known && minimumKnown };
+    if (channel !== "bring") {
+      return { fee, minimum: 0, minimumKnown: true, meetsMinimum: true, operationalKnown: fee.known };
+    }
+    const rawMinimum = store && store.minOrder;
+    const minimum = typeof rawMinimum === "number" && Number.isFinite(rawMinimum) && rawMinimum >= 0 ? rawMinimum : null;
+    const minimumKnown = minimum != null;
+    const meetsMinimum = minimumKnown ? subtotal >= minimum : false;
+    return { fee, minimum, minimumKnown, meetsMinimum, operationalKnown: fee.known && minimumKnown };
   }
 
   function oneStoreOptions(stores, products, cart, city, mode) {
@@ -28,7 +43,7 @@
       const channel = channelFor(store, mode);
       const quote = window.TDCompare.basketQuote(products, cart, store.id, channel);
       const terms = deliveryTerms(store, channel, quote.goods);
-      const total = quote.verifiedComplete && terms.fee.known && terms.meetsMinimum ? quote.goods + terms.fee.value : null;
+      const total = quote.verifiedComplete && terms.operationalKnown && terms.meetsMinimum ? quote.goods + terms.fee.value : null;
       return {
         type: "one",
         stores: [store],
@@ -41,19 +56,19 @@
   }
 
   function pairOption(a, b, products, cart, mode) {
-    const entries = window.TDCompare.cartEntries(products, cart || {});
+    const entries = validCartEntries(products, cart);
+    if (!entries || !entries.length) return null;
     const allocations = { [a.id]: [], [b.id]: [] };
     const channels = { [a.id]: channelFor(a, mode), [b.id]: channelFor(b, mode) };
     let goodsKopecks = 0;
 
-    for (const product of entries) {
-      const quantity = Number(cart[product.id] || 0);
+    for (const { product, quantity } of entries) {
       const candidates = [a, b].map(store => {
         const channel = channels[store.id];
         const price = window.TDCompare.unitPrice(product, store.id, channel);
         const verified = window.TDCompare.isVerifiedPrice(product, store.id, channel);
         return { store, price, verified };
-      }).filter(candidate => candidate.verified && Number.isFinite(candidate.price));
+      }).filter(candidate => candidate.verified && Number.isFinite(candidate.price) && candidate.price > 0);
 
       if (!candidates.length) return null;
       candidates.sort((x, y) => x.price - y.price);
@@ -70,7 +85,7 @@
     for (const store of [a, b]) {
       const subtotal = allocations[store.id].reduce((sum, line) => sum + line.lineTotal, 0);
       const terms = deliveryTerms(store, channels[store.id], subtotal);
-      if (!terms.fee.known || !terms.meetsMinimum) return null;
+      if (!terms.operationalKnown || !terms.meetsMinimum) return null;
       totalKopecks += Math.round(terms.fee.value * 100);
       operationalKnown = operationalKnown && terms.operationalKnown;
     }
@@ -78,7 +93,9 @@
     return {
       type: "two",
       stores: [a, b],
-      channels, total: rublesFromKopecks(totalKopecks), goods: rublesFromKopecks(goodsKopecks),
+      channels,
+      total: rublesFromKopecks(totalKopecks),
+      goods: rublesFromKopecks(goodsKopecks),
       rankable: true,
       operationalKnown,
       allocations,
@@ -88,13 +105,14 @@
   }
 
   function optimize(options) {
-    if (!window.TDCompare) return { bestOne: null, bestTwo: null, extraSaving: null, worthSplitting: false, pairCount: 0 };
+    if (!window.TDCompare) return { bestOne: null, bestTwo: null, extraSaving: null, operationalCost: null, travelKnown: false, worthSplitting: false, netSaving: null, pairCount: 0 };
     const stores = options && options.stores || [];
     const products = options && options.products || [];
     const cart = options && options.cart || {};
     const city = options && options.city || "msk";
     const mode = options && options.mode || "walk";
-    const extraStopCost = Number(options && options.extraStopCost);
+    const rawExtraStopCost = options && options.extraStopCost;
+    const extraStopCost = typeof rawExtraStopCost === "number" && Number.isFinite(rawExtraStopCost) && rawExtraStopCost >= 0 ? rawExtraStopCost : null;
     const one = oneStoreOptions(stores, products, cart, city, mode);
     const bestOne = one[0] || null;
     const eligible = eligibleStores(stores, city, mode);
@@ -110,21 +128,22 @@
     pairs.sort((a, b) => a.total - b.total);
     const bestTwo = pairs[0] || null;
     const extraSaving = bestOne && bestTwo ? Math.max(0, bestOne.total - bestTwo.total) : null;
-    const travelKnown = mode === "delivery" || Number.isFinite(extraStopCost) && extraStopCost >= 0;
+    const travelKnown = mode === "delivery" || extraStopCost != null;
     const operationalCost = mode === "delivery" ? 0 : travelKnown ? extraStopCost : null;
-    const netSaving = bestOne && bestTwo && operationalCost != null ? bestOne.total-bestTwo.total-operationalCost : null;
+    const netSaving = bestOne && bestTwo && operationalCost != null ? bestOne.total - bestTwo.total - operationalCost : null;
     const worthSplitting = Boolean(bestOne && bestTwo && (netSaving == null ? bestTwo.total < bestOne.total : netSaving > 0));
-    return { bestOne, bestTwo, extraSaving, operationalCost, travelKnown, worthSplitting, netSaving:worthSplitting?netSaving:null, pairCount: pairs.length };
+    return { bestOne, bestTwo, extraSaving, operationalCost, travelKnown, worthSplitting, netSaving: worthSplitting ? netSaving : null, pairCount: pairs.length };
   }
 
   function fromWindow() {
     if (typeof STORES === "undefined" || typeof PRODUCTS === "undefined" || !window.state) {
-      return { bestOne: null, bestTwo: null, extraSaving: null, worthSplitting: false, pairCount: 0 };
+      return { bestOne: null, bestTwo: null, extraSaving: null, operationalCost: null, travelKnown: false, worthSplitting: false, netSaving: null, pairCount: 0 };
     }
-    const mode=state.mode || "walk";
-    const extraStopCost=mode==="delivery"?0:window.TDAssemblyPreferences?.extraStopCost();
+    const mode = state.mode || "walk";
+    const configured = mode === "delivery" || window.TDAssemblyPreferences?.hasConfiguredCost?.() === true;
+    const extraStopCost = mode === "delivery" ? 0 : configured ? window.TDAssemblyPreferences.extraStopCost() : null;
     return optimize({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city || "msk", mode, extraStopCost });
   }
 
-  window.TDBasketSplit = { channelFor, eligibleStores, oneStoreOptions, pairOption, optimize, fromWindow };
+  window.TDBasketSplit = { channelFor, eligibleStores, validCartEntries, deliveryTerms, oneStoreOptions, pairOption, optimize, fromWindow };
 })();
