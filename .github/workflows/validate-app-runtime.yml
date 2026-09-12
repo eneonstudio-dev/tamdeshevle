@@ -25,6 +25,7 @@ jobs:
           node --check price-history.js
           node --check v2-polish.js
           node --check gsap-motion.js
+          node --check bai-life.js
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
       - name: Test app runtime resilience
