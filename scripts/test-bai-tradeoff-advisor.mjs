@@ -62,13 +62,16 @@ assert.equal(delivery.choice,"split","meaningful delivery saving should survive 
 
 assert.equal(api.isTradeoffPrompt("Что лучше выбрать — один магазин или два?"),true);
 assert.equal(api.isTradeoffPrompt("добавь молоко"),false);
-assert.deepEqual(Array.from(api.suggestions(convenienceWins)),["Собрать в одном магазине","Покажи вариант дешевле"]);
+assert.deepEqual(Array.from(api.suggestions(convenienceWins)),["Собрать в одном магазине","Разнести покупки"],"tradeoff quick actions should be explicit decisions so user intent can be learned safely");
+assert.equal(api.explicitChoice("Разнести покупки"),"split");
+assert.equal(api.explicitChoice("Что лучше выбрать — один магазин или два?"),null,"comparison questions must not count as learning signals");
 
 const life=fs.readFileSync("bai-life.js","utf8");
 assert.match(life,/bai-tradeoff-advisor-v1\.js\?v=/,"Bay lifecycle must load the tradeoff advisor");
 const source=fs.readFileSync("bai-tradeoff-advisor-v1.js","utf8");
 assert.match(source,/td-ai-tradeoff-card/,"tradeoff advice must have an in-assistant decision card");
 assert.match(source,/__tdTradeoffWrapped/,"advisor must attach to existing Bay submit paths without replacing the brain");
+assert.match(source,/noteTradeoffChoice/,"explicit tradeoff actions must feed the existing Bai memory instead of a parallel learning store");
 assert.doesNotMatch(source,/convenienceCost:120/,"tradeoff advisor must not hard-code the legacy stop heuristic");
 
-console.log("Bay tradeoff advisor passed: price, time, travel cost, preferences and confidence produce a human decision instead of cheapest-only advice.");
+console.log("Bay tradeoff advisor passed: price, time, travel cost, explicit choices, preferences and confidence produce a human decision instead of cheapest-only advice.");
