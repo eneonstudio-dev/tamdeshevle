@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   const WALK_KMH=4.5,ROUTE_FACTOR=1.25,MIN_SAVINGS_RUB=150,MIN_RUB_PER_TRAVEL_MIN=8;
-  let activePointIndex=null;
+  let activePointIndex=null,raf=0,started=false;
 
   function evaluate(input){
     const distanceKm=Number(input&&input.distanceKm),savings=Number(input&&input.savings),verified=Boolean(input&&input.verified);
@@ -14,9 +14,15 @@
     return{state:worth?"worth":"marginal",worth,walkMinutes,roundTripMinutes,rubPerMinute,title:worth?"Стоит идти":"Экономия есть, но крюк спорный",text:worth?`Экономия ${Math.round(savings)} ₽ · около ${walkMinutes} мин пешком в одну сторону · ${rubPerMinute} ₽ экономии за минуту дороги.`:`Экономия ${Math.round(savings)} ₽ · около ${walkMinutes} мин пешком в одну сторону. Для рекомендации нужно хотя бы ${MIN_SAVINGS_RUB} ₽ и ${MIN_RUB_PER_TRAVEL_MIN} ₽ за минуту дороги.`};
   }
 
+  function referenceStore(point){
+    const selected=point&&point.referenceStoreId,current=window.state&&state.storeId,chain=point&&point.chainId;
+    if(selected&&selected!==chain)return selected;
+    if(current&&current!==chain)return current;
+    return null;
+  }
   function basketFor(point){
     if(!point||!window.TDStoreIdBridge||typeof TDStoreIdBridge.basket!=="function")return null;
-    return TDStoreIdBridge.basket(point,{products:typeof PRODUCTS!=="undefined"?PRODUCTS:[],cart:window.state&&state.cart||{},stores:typeof STORES!=="undefined"?STORES:[],referenceStoreId:window.state&&state.storeId});
+    try{return TDStoreIdBridge.basket(point,{products:typeof PRODUCTS!=="undefined"?PRODUCTS:[],cart:window.state&&state.cart||{},stores:typeof STORES!=="undefined"?STORES:[],referenceStoreId:referenceStore(point)});}catch{return null;}
   }
   function forPoint(point){const b=basketFor(point);return evaluate({distanceKm:point&&point.distanceKm,savings:b&&b.savings,verified:Boolean(b&&b.verified)});}
   function ensureCss(){if(document.getElementById("td-worth-style"))return;const s=document.createElement("style");s.id="td-worth-style";s.textContent='.td-worth{margin-top:7px;border-radius:11px;padding:7px 9px;font-size:10px;font-weight:850;line-height:1.35;background:#f1ede6;color:#5f584e}.td-worth.worth{background:#e7f6ec;color:#0f7b4a}.td-worth.marginal{background:#fff4d6;color:#7a5900}.td-worth-detail{margin:0 0 12px;border-radius:15px;padding:12px;background:#fff}.td-worth-detail b{display:block;font-size:13px;margin-bottom:4px}.td-worth-detail p{font-size:11px;line-height:1.45;color:#6b6458;margin:0}.td-worth-detail.worth{background:#e7f6ec}.td-worth-detail.marginal{background:#fff4d6}';document.head.appendChild(s);}
@@ -26,10 +32,21 @@
   function decorateDetail(){
     ensureCss();const panel=document.querySelector('.td-point-panel');if(!panel||panel.querySelector('.td-worth-detail')||activePointIndex==null||!window.TDGeo)return;const point=TDGeo.nearby[activePointIndex];if(!point)return;const v=forPoint(point);if(v.state==='unknown')return;const el=document.createElement('div');el.className=`td-worth-detail ${v.state}`;el.innerHTML=`<b>${v.title}</b><p>${v.text}</p>`;const summary=panel.querySelector('.td-point-summary');if(summary)summary.insertAdjacentElement('afterend',el);else panel.prepend(el);
   }
+  function scheduleDecorate(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{raf=0;decorateList();decorateDetail();});}
   document.addEventListener('click',e=>{const btn=e.target&&e.target.closest&&e.target.closest('[data-point-index]');if(btn)activePointIndex=Number(btn.dataset.pointIndex);},true);
-  const obs=new MutationObserver(()=>{requestAnimationFrame(()=>{decorateList();decorateDetail();});});
-  function start(){ensureCss();obs.observe(document.body,{childList:true,subtree:true});decorateList();}
+  const obs=new MutationObserver(scheduleDecorate);
+  function start(){
+    if(started)return;started=true;ensureCss();
+    const root=document.getElementById('app')||document.body;if(root)obs.observe(root,{childList:true,subtree:true});
+    scheduleDecorate();
+  }
+  function stop(){if(!started)return;started=false;obs.disconnect();cancelAnimationFrame(raf);raf=0;}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
-  window.addEventListener('td:retailer-prices-applied',decorateList);
-  window.TDWorthIt={evaluate,forPoint,policy:{walkKmh:WALK_KMH,routeFactor:ROUTE_FACTOR,minSavingsRub:MIN_SAVINGS_RUB,minRubPerTravelMin:MIN_RUB_PER_TRAVEL_MIN}};
+  window.addEventListener('pagehide',stop);
+  window.addEventListener('pageshow',start);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){cancelAnimationFrame(raf);raf=0;}else if(started)scheduleDecorate();else start();});
+  window.addEventListener('td:retailer-prices-applied',scheduleDecorate);
+  window.addEventListener('td:selected-store-point',scheduleDecorate);
+  window.addEventListener('td:selected-store-point-cleared',scheduleDecorate);
+  window.TDWorthIt={evaluate,forPoint,referenceStore,policy:{walkKmh:WALK_KMH,routeFactor:ROUTE_FACTOR,minSavingsRub:MIN_SAVINGS_RUB,minRubPerTravelMin:MIN_RUB_PER_TRAVEL_MIN}};
 })();
