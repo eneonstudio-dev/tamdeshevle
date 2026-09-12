@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@langchain/langgraph": "npm:@langchain/langgraph@1.4.14",
+    "@langchain/core": "npm:@langchain/core@1.2.11",
+    "@supabase/server": "npm:@supabase/server@1.6.0"
+  }
+}

@@ -11,3 +11,11 @@ window.TD_BAI_LEARNING = window.TD_BAI_LEARNING || {
   endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-ingest",
   adminEndpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-admin"
 };
+
+// Brain 2.0 reasoning runs server-side. The browser only knows the public function URL;
+// model provider credentials stay in Edge Function secrets/environment variables.
+window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
+  endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-agent-core"
+};
+
+import("./bai-agent-client.js?v=20260912-agent-core-v1").catch(error=>console.warn("[Bai Agent] client load failed",error));
