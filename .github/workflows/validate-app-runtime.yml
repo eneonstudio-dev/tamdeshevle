@@ -30,11 +30,14 @@ jobs:
           node --check gsap-motion.js
           node --check bai-life.js
           node --check account-auth-ui.js
+          node --check purchase-flow.js
+          node --check comparison-result-v2.js
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
           node --check scripts/test-static-assets.mjs
           node --check scripts/test-mobile-runtime.mjs
           node --check scripts/test-account-modal-resilience.mjs
+          node --check scripts/test-purchase-comparison-resilience.mjs
       - name: Test app runtime resilience
         run: node scripts/test-app-runtime-resilience.mjs
       - name: Test catalog interaction resilience
@@ -45,5 +48,7 @@ jobs:
         run: node scripts/test-mobile-runtime.mjs
       - name: Test account modal resilience
         run: node scripts/test-account-modal-resilience.mjs
+      - name: Test purchase and comparison resilience
+        run: node scripts/test-purchase-comparison-resilience.mjs
       - name: Test static asset integrity
         run: node scripts/test-static-assets.mjs
