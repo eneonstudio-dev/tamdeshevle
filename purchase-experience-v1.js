@@ -3,9 +3,10 @@
   if(window.__TDVotonobayPurchaseExperienceV1)return;
   window.__TDVotonobayPurchaseExperienceV1=true;
 
-  const STYLE_HREF="purchase-experience-v1.css?v=20260912-purchase-v1";
+  const STYLE_HREF="purchase-experience-v1.css?v=20260912-purchase-v2";
   const compareSelector=".td-compare-v2";
   const continueSelector=".td-continue-stores";
+  const STORE_LABELS={pyat:"Пятёрочка",perek:"Перекрёсток",magnit:"Магнит",lenta:"Лента",dixy:"Дикси",okey:"О’КЕЙ",vkusvill:"ВкусВилл",auchan:"Ашан",metro:"METRO"};
   let followTimer=0,lastChoiceId="";
 
   function ensureStyle(){
@@ -20,9 +21,51 @@
   const state=()=>window.TDShoppingState?.get?.()||{};
   const plans=()=>Array.isArray(state().lastPlans)?state().lastPlans:[];
   const activePlan=()=>plans()[0]||null;
-  const uniqueStores=plan=>[...new Set((plan?.products||[]).map(x=>String(x?.storeId||"").split("_")[0]).filter(Boolean))];
+  const retailerId=value=>String(value||"").split("_")[0];
+  const uniqueStores=plan=>[...new Set((plan?.products||[]).map(x=>retailerId(x?.storeId)).filter(Boolean))];
   const productCount=plan=>(plan?.products||[]).reduce((sum,x)=>sum+Math.max(1,Number(x?.quantity)||1),0);
   const money=value=>`${Math.round(Number(value)||0).toLocaleString("ru-RU")} ₽`;
+  const storeLabel=id=>STORE_LABELS[retailerId(id)]||retailerId(id)||"Магазин";
+  const storeItems=(plan,storeId)=>(plan?.products||[]).filter(item=>retailerId(item?.storeId)===retailerId(storeId));
+
+  function formatStoreList(plan,storeId){
+    const items=storeItems(plan,storeId);
+    if(!items.length)return"";
+    const lines=items.map((item,index)=>{
+      const qty=Math.max(1,Number(item?.quantity)||1);
+      const pack=String(item?.pack||"").trim();
+      const name=String(item?.name||item?.title||item?.productName||item?.id||"Товар").trim();
+      return `${index+1}. ${name}${pack?` · ${pack}`:""} — ${qty} шт.`;
+    });
+    return `Votonobay · ${storeLabel(storeId)}\n${lines.join("\n")}\n\nЦена и наличие подтверждаются магазином.`;
+  }
+
+  async function copyText(text){
+    if(!text)return false;
+    try{
+      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);return true}
+    }catch{}
+    try{
+      const textarea=document.createElement("textarea");
+      textarea.value=text;
+      textarea.setAttribute("readonly","");
+      textarea.style.position="fixed";
+      textarea.style.opacity="0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const ok=document.execCommand?.("copy")===true;
+      textarea.remove();
+      return ok;
+    }catch{return false}
+  }
+
+  async function copyStoreList(storeId,plan=activePlan()){
+    const text=formatStoreList(plan,storeId);
+    if(!text){feedback("Не удалось собрать список для этого магазина.","error");return false}
+    const ok=await copyText(text);
+    feedback(ok?`Список для «${storeLabel(storeId)}» скопирован.`:"Не получилось скопировать автоматически — список остаётся в Votonobay.",ok?"success":"warn");
+    return ok;
+  }
 
   function decisionForPlan(plan,{online=navigator.onLine!==false}={}){
     if(!plan||!Array.isArray(plan.products)||!plan.products.length)return{action:"none",label:"Корзина сохранена"};
@@ -110,17 +153,38 @@
     if(note)note.textContent="Цена — только часть решения. Перед переходом Votonobay показывает надёжность данных; финальные наличие и сумма подтверждаются магазином.";
   }
 
+  function addCopyButtons(root){
+    const plan=activePlan();
+    if(!plan)return;
+    root.querySelectorAll?.(".td-continue-store-row").forEach(row=>{
+      const trigger=row.querySelector("[data-open-store]");
+      const storeId=trigger?.dataset?.openStore;
+      const controls=row.querySelector(".td-store-progress-controls");
+      if(!storeId||!controls||controls.querySelector("[data-copy-store]")||!storeItems(plan,storeId).length)return;
+      const button=document.createElement("button");
+      button.type="button";
+      button.dataset.copyStore=retailerId(storeId);
+      button.className="td-copy-store-list";
+      button.textContent="Скопировать список";
+      button.setAttribute("aria-label",`Скопировать список товаров для ${storeLabel(storeId)}`);
+      controls.appendChild(button);
+    });
+  }
+
   function enhanceContinue(root){
-    if(!root||root.dataset.tdPurchaseEnhanced==="1")return;
-    root.dataset.tdPurchaseEnhanced="1";
-    const card=root.querySelector(".td-continue-stores-card");
-    if(!card)return;
-    copy(card.querySelector(":scope>small"),"Следующий шаг");
-    copy(card.querySelector("h2"),"Забираем корзину по магазинам");
-    const intro=card.querySelector("h2+p");
-    if(intro)intro.textContent="Votonobay уже разложил покупки. Открывай магазины по очереди и отмечай только то, что действительно добавил на стороне сети.";
-    const note=card.querySelector(".td-continue-stores-note");
-    if(note)note.textContent="Votonobay не притворяется кассой магазина: прогресс — твоя отметка, а наличие, цена и фактическое добавление подтверждаются самой сетью.";
+    if(!root)return;
+    if(root.dataset.tdPurchaseEnhanced!=="1"){
+      root.dataset.tdPurchaseEnhanced="1";
+      const card=root.querySelector(".td-continue-stores-card");
+      if(!card)return;
+      copy(card.querySelector(":scope>small"),"Следующий шаг");
+      copy(card.querySelector("h2"),"Забираем корзину по магазинам");
+      const intro=card.querySelector("h2+p");
+      if(intro)intro.textContent="Votonobay уже разложил покупки. Открывай магазины по очереди и отмечай только то, что действительно добавил на стороне сети.";
+      const note=card.querySelector(".td-continue-stores-note");
+      if(note)note.textContent="Votonobay не притворяется кассой магазина: прогресс — твоя отметка, а наличие, цена и фактическое добавление подтверждаются самой сетью.";
+    }
+    addCopyButtons(root);
   }
 
   function enhanceSplit(root=document){
@@ -154,6 +218,12 @@
 
   document.addEventListener("click",event=>{
     const target=event.target instanceof Element?event.target:null;
+    const copyButton=target?.closest?.("[data-copy-store]");
+    if(copyButton){
+      event.preventDefault();
+      copyStoreList(copyButton.dataset.copyStore);
+      return;
+    }
     const choice=target?.closest?.("[data-compare-apply][data-td-purchase-continue]");
     if(choice)followChoice(choice);
   },true);
@@ -173,5 +243,5 @@
   window.addEventListener("pagehide",()=>{clearTimeout(followTimer);observer.disconnect()},{once:true});
   hydrate();
 
-  window.TDPurchaseExperienceV1={hydrate,enhanceComparison,enhanceContinue,decisionForPlan,continuePlan,uniqueStores,productCount,money};
+  window.TDPurchaseExperienceV1={hydrate,enhanceComparison,enhanceContinue,decisionForPlan,continuePlan,uniqueStores,productCount,money,storeItems,formatStoreList,copyStoreList};
 })();
