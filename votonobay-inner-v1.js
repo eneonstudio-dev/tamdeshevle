@@ -4,10 +4,10 @@
   import("./app-store-guard.js?v=20260912-v1").catch(error=>console.warn("[Votonobay store guard] load failed",error));
 
   const SCREEN_COPY={
-    stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
-    catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
-    cart:{title:"Корзина",compare:"Сравнить варианты"},
-    compare:{title:"Сравнение вариантов",sub:"Одна корзина · цена, способ покупки и подтверждённость данных"}
+    stores:{title:"Магазины",sub:"Выбери привычный магазин — дальше сравним весь сценарий"},
+    catalog:{sub:"Собери нужное — дальше сравним цену, способ покупки и удобство"},
+    cart:{title:"Корзина",sub:"Проверим цену, удобство и следующий шаг",compare:"Решить, как лучше купить"},
+    compare:{title:"Лучший вариант",sub:"Одна корзина · цена, удобство и подтверждённость данных"}
   };
 
   function setText(node,text){if(node&&node.textContent!==text)node.textContent=text;}
@@ -29,12 +29,25 @@
     if(home)home.setAttribute("aria-label","Votonobay — на главную");
   }
 
+  function tuneDock(){
+    const dock=document.querySelector(".dock");
+    if(!dock)return;
+    dock.classList.add("voto-shopping-dock");
+    const shortcut=dock.querySelector(".btn.yellow");
+    if(shortcut){
+      shortcut.classList.add("voto-cart-shortcut");
+      const spans=shortcut.querySelectorAll("span");
+      if(spans.length>=2)setText(spans[1],"Проверить →");
+    }
+  }
+
   function tuneStores(){
     document.querySelectorAll(".wrap > .store").forEach((button,index)=>{
       button.classList.add("voto-store-choice");
       const name=button.querySelector("b")?.textContent?.trim()||`Магазин ${index+1}`;
       button.setAttribute("aria-label",`Выбрать ${name}`);
     });
+    tuneDock();
   }
 
   function tuneCatalog(){
@@ -44,9 +57,16 @@
       input.setAttribute("aria-label","Поиск товара в выбранном магазине");
       input.setAttribute("enterkeyhint","search");
       input.setAttribute("autocomplete","off");
+      input.classList.add("voto-catalog-search");
     }
     const products=document.querySelector(".products");
     if(products)products.setAttribute("aria-label","Товары");
+    document.querySelectorAll(".products > .item").forEach(item=>{
+      item.classList.add("voto-product-row");
+      const title=item.querySelector(".title")?.textContent?.trim();
+      if(title)item.setAttribute("aria-label",title);
+    });
+    tuneDock();
   }
 
   function deliveryConstraint(plan){
@@ -65,16 +85,41 @@
     return rows.find(row=>row.same)||rows.find(row=>row.id===state.storeId)||null;
   }
 
+  function tuneEmptyCart(){
+    document.querySelectorAll(".wrap > .hint").forEach(note=>{
+      if(!note.textContent.includes("Корзина пока пустая"))return;
+      note.classList.add("voto-empty-cart");
+      const text=note.querySelector("span");
+      if(text)setText(text,"Добавь нужные товары — Votonobay сравнит цену, способ покупки и удобство.");
+    });
+  }
+
   function tuneCart(){
     const primary=document.querySelector(".dock .btn.dark");
-    if(primary)setText(primary,SCREEN_COPY.cart.compare);
+    if(primary){
+      setText(primary,SCREEN_COPY.cart.compare);
+      primary.classList.add("voto-cart-primary");
+    }
     const dock=document.querySelector(".dock");
-    if(dock)dock.setAttribute("aria-label","Действия с корзиной");
+    if(dock){
+      dock.classList.add("voto-shopping-dock","voto-cart-actions");
+      dock.setAttribute("aria-label","Действия с корзиной");
+      const summary=dock.querySelector(":scope > div");
+      if(summary)summary.classList.add("voto-cart-summary");
+      Array.from(dock.children).forEach(node=>{
+        if(!(node instanceof Element)||node===summary)return;
+        const match=node.textContent.match(/дешевле на\s+([\d\s]+)\s*₽/i);
+        if(!match)return;
+        node.classList.add("voto-cart-opportunity");
+        node.textContent=`Есть вариант с экономией ${match[1].trim()} ₽ — проверим, стоит ли переключаться.`;
+      });
+    }
+    tuneEmptyCart();
     document.querySelector(".voto-cart-constraint")?.remove();
     const plan=currentPlan();
     const copy=deliveryConstraint(plan);
     if(copy&&dock){
-      const summary=dock.querySelector(":scope > div");
+      const summary=dock.querySelector(".voto-cart-summary")||dock.querySelector(":scope > div");
       const spans=summary?.querySelectorAll("span");
       if(spans?.length>=2){
         spans[0].textContent="Оценка здесь";
@@ -97,6 +142,7 @@
     }
     const rows=window.TDCompare?.fromWindow?.()||[];
     document.querySelectorAll(".plan").forEach((plan,index)=>{
+      plan.classList.add("voto-comparison-plan");
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
       plan.querySelector(".voto-delivery-constraint")?.remove();
@@ -142,5 +188,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",decorate,{once:true});
   else decorate();
 
-  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan};
+  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan,tuneDock,tuneEmptyCart};
 })();
