@@ -4,10 +4,12 @@ import vm from "node:vm";
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 
 const purchaseSource = fs.readFileSync("purchase-flow.js", "utf8");
+const savingsSource = fs.readFileSync("savings-ledger.js", "utf8");
 const comparisonSource = fs.readFileSync("comparison-result-v2.js", "utf8");
 const pickupSource = fs.readFileSync("pickup-flow-v1.js", "utf8");
 const courierSource = fs.readFileSync("courier-handoff-v1.js", "utf8");
 new Function(purchaseSource);
+new Function(savingsSource);
 new Function(comparisonSource);
 new Function(pickupSource);
 new Function(courierSource);
@@ -38,6 +40,63 @@ new Function(courierSource);
   window.TDCompare.fromWindow = () => [];
   assert(window.TDPurchase.start("missing", "shelf") === false, "missing/incomplete plan must be rejected");
   assert(events.some(event => event.type === "td:purchase-blocked" && event.detail?.reason === "incomplete"), "incomplete block must be observable");
+}
+
+{
+  let stored = null;
+  const events = [];
+  const localStorage = {
+    getItem: () => stored,
+    setItem: (_key, value) => { stored = value; }
+  };
+  class CustomEvent { constructor(type, options={}) { this.type = type; this.detail = options.detail; } }
+  const window = { dispatchEvent: event => { events.push(event); return true; } };
+  const context = vm.createContext({ window, localStorage, CustomEvent, Date, Math, Number, String, JSON, Object, Array, console });
+  vm.runInContext(savingsSource, context, { filename: "savings-ledger.js" });
+  const input = { verified:true, saving:25, total:175, storeId:"pyat", storeName:"Пятёрочка", channel:"bring", cart:{ bread:2.9, milk:1, bad:0 } };
+  const first = window.TDSavingsLedger.record(input);
+  const second = window.TDSavingsLedger.record(input);
+  assert(first && first.id, "verified saving must be persisted");
+  assert(second?.id === first.id, "same-day duplicate saving must return the existing ledger row");
+  assert(first.cart.bread === 2 && first.cart.milk === 1 && first.cart.bad == null, "ledger cart snapshot must normalize quantities");
+  assert(events.filter(event => event.type === "td:savings-recorded").length === 1, "duplicate saving must not emit a second recorded event");
+  const stats = window.TDSavingsLedger.stats();
+  assert(stats.purchases === 1 && stats.confirmed === 25, "persisted saving must be reflected in ledger stats");
+}
+
+{
+  let events = 0;
+  const localStorage = {
+    getItem: () => null,
+    setItem: () => { throw new Error("quota"); }
+  };
+  class CustomEvent { constructor(type, options={}) { this.type = type; this.detail = options.detail; } }
+  const window = { dispatchEvent: () => { events += 1; return true; } };
+  const quietConsole = { ...console, warn() {} };
+  const context = vm.createContext({ window, localStorage, CustomEvent, Date, Math, Number, String, JSON, Object, Array, console:quietConsole });
+  vm.runInContext(savingsSource, context, { filename: "savings-ledger.js" });
+  const row = window.TDSavingsLedger.record({ verified:true, saving:10, total:100, storeId:"pyat", channel:"shelf", cart:{ milk:1 } });
+  assert(row === null, "ledger must fail closed when storage rejects a write");
+  assert(events === 0, "failed persistence must not emit a false savings-recorded event");
+  assert(window.TDSavingsLedger.stats().purchases === 0, "failed persistence must not appear in ledger stats");
+}
+
+{
+  let opens = 0;
+  const validPlan = { id:"pyat", channel:"bring", rankable:true, total:123, save:12, verifiedComplete:true, name:"Пятёрочка" };
+  class CustomEvent { constructor(type, options={}) { this.type = type; this.detail = options.detail; } }
+  const window = {
+    TDCompare: { fromWindow: () => [validPlan] },
+    state: { cart: { a: 1 } },
+    TDSavingsLedger: { record: () => { throw new Error("storage unavailable"); } },
+    dispatchEvent: () => true,
+    open: () => { opens += 1; return {}; }
+  };
+  const quietConsole = { ...console, warn() {} };
+  const context = vm.createContext({ window, CustomEvent, Date, console:quietConsole });
+  vm.runInContext(purchaseSource, context, { filename: "purchase-flow.js" });
+  assert(window.TDPurchase.start("pyat", "bring") === true, "retailer handoff must continue when savings persistence fails");
+  assert(opens === 1, "storage failure must not block the retailer handoff");
 }
 
 {
@@ -96,10 +155,11 @@ assert(courierText.includes("Товары: итог уточняется"),"cour
 assert(!courierText.includes("Молоко — 2 шт. · 0 ₽"),"courier handoff must never serialize an unknown price as 0 ₽");
 
 assert(purchaseSource.includes("LOCK_MS") && purchaseSource.includes("td:purchase-blocked"), "purchase flow must keep its own duplicate/incomplete guard");
+assert(savingsSource.includes("Savings ledger storage unavailable") && savingsSource.includes("if(!write(rows))return null"), "savings ledger must fail closed when persistence is unavailable");
 assert(comparisonSource.includes("APPLY_LOCK_MS"), "comparison apply action must be double-tap guarded");
 assert(comparisonSource.includes('setAttribute("role","dialog")') && comparisonSource.includes('setAttribute("aria-modal","true")'), "comparison overlay must be an accessible dialog");
 assert(comparisonSource.includes("trapTab") && comparisonSource.includes('event.key==="Escape"'), "comparison dialog must trap focus and support Escape");
 assert(comparisonSource.includes("не считаем отсутствующую цену как 0 ₽"), "comparison UI must explain missing-price safety");
 assert(pickupSource.includes("knownMoney")&&courierSource.includes("knownMoney"),"MVP handoffs must explicitly distinguish known money from missing prices");
 
-console.log("Purchase/comparison resilience checks passed: incomplete baskets and MVP handoffs cannot fake zero-price totals, duplicate handoffs are blocked, and comparison modal lifecycle is guarded.");
+console.log("Purchase/comparison resilience checks passed: verified savings survive storage failures honestly, incomplete baskets and MVP handoffs cannot fake zero-price totals, duplicate handoffs are blocked, and comparison modal lifecycle is guarded.");
