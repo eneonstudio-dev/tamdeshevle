@@ -1,3 +1,5 @@
+import { getSberPriceQuotes } from "./sber-price-intelligence.mjs";
+
 export type BasketProductId = "milk" | "bread" | "chicken" | "banana" | "oil" | "eggs" | "buck" | "sour" | "sugar" | "pasta";
 
 export type LiveQuote = {
@@ -8,8 +10,10 @@ export type LiveQuote = {
   price: number;
   checkedAt: string;
   sourceUrl: string | null;
-  sourceKind: "official" | "aggregator" | "unknown";
+  sourceKind: "official" | "aggregator" | "partner" | "unknown";
   confidence: number;
+  sourceProvider?: string;
+  verifiedBy?: string;
 };
 
 export type LiveComparison = {
@@ -138,6 +142,7 @@ export function overlayFresh(checkedAt: string, kind: LiveQuote["sourceKind"], c
     if (age <= MAX_AGE_VALID_CATALOG_MS && catalogWindowActive(context, nowMs)) return true;
     return age <= MAX_AGE_AGGREGATOR_MS;
   }
+  if (kind === "partner") return age <= 6 * 60 * 60_000;
   return age <= 12 * 60 * 60_000;
 }
 
@@ -247,12 +252,41 @@ function quoteFromOverlay(productId: BasketProductId, overlay: Overlay, storeId:
   };
 }
 
+function acceptedPartnerQuote(value: unknown): LiveQuote | null {
+  const quote = value as Partial<LiveQuote>;
+  const productId = quote?.productId as BasketProductId;
+  if (!PRODUCT_TO_SKU[productId]) return null;
+  const price = Number(quote.price);
+  const checkedAt = String(quote.checkedAt || "");
+  const confidence = Number(quote.confidence);
+  if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(confidence) || confidence < 0.8) return null;
+  if (!checkedAt || !overlayFresh(checkedAt, "partner")) return null;
+  return {
+    productId,
+    sku: String(quote.sku || PRODUCT_TO_SKU[productId]),
+    storeId: String(quote.storeId || "kuper"),
+    storeName: String(quote.storeName || "Купер"),
+    price,
+    checkedAt,
+    sourceUrl: quote.sourceUrl ? String(quote.sourceUrl) : null,
+    sourceKind: "partner",
+    confidence,
+    sourceProvider: quote.sourceProvider ? String(quote.sourceProvider) : "kuper",
+    ...(quote.verifiedBy ? { verifiedBy: String(quote.verifiedBy) } : {})
+  };
+}
+
 export async function getLiveComparison(basket: BasketProductId[], city: "msk" | "spb"): Promise<LiveComparison> {
   const uniqueBasket = [...new Set(basket)];
-  const [pairs, genericBread] = await Promise.all([
+  const [pairs, genericBread, rawSberQuotes] = await Promise.all([
     Promise.all(OVERLAYS.map(async source => ({ source, overlay: await fetchOverlay(source.url) }))),
-    uniqueBasket.includes("bread") ? magnitGenericBreadQuote(city) : Promise.resolve(null)
+    uniqueBasket.includes("bread") ? magnitGenericBreadQuote(city) : Promise.resolve(null),
+    getSberPriceQuotes(uniqueBasket, city).catch(() => [])
   ]);
+  const sberQuotes = (Array.isArray(rawSberQuotes) ? rawSberQuotes : []).flatMap(value => {
+    const quote = acceptedPartnerQuote(value);
+    return quote ? [quote] : [];
+  });
   const quotesByProduct: Record<string, LiveQuote[]> = {};
 
   for (const productId of uniqueBasket) {
@@ -263,6 +297,7 @@ export async function getLiveComparison(basket: BasketProductId[], city: "msk" |
       if (quote) quotes.push(quote);
     }
     if (productId === "bread" && genericBread) quotes.push(genericBread);
+    quotes.push(...sberQuotes.filter(item => item.productId === productId));
     quotes.sort((a, b) => a.price - b.price || b.confidence - a.confidence);
     quotesByProduct[productId] = quotes;
   }
@@ -271,16 +306,18 @@ export async function getLiveComparison(basket: BasketProductId[], city: "msk" |
   const missing = uniqueBasket.filter(productId => !quotesByProduct[productId]?.length);
   const splitTotal = missing.length ? null : bestByProduct.reduce((sum, quote) => sum + quote.price, 0);
 
+  const stores = new Map<string, string>(OVERLAYS.map(source => [source.storeId, source.storeName]));
+  for (const quote of sberQuotes) stores.set(quote.storeId, quote.storeName);
   const singleStoreTotals: Array<{ storeId: string; storeName: string; total: number }> = [];
-  for (const source of OVERLAYS) {
+  for (const [storeId, storeName] of stores) {
     let total = 0;
     let complete = true;
     for (const productId of uniqueBasket) {
-      const quote = quotesByProduct[productId]?.find(item => item.storeId === source.storeId);
+      const quote = quotesByProduct[productId]?.find(item => item.storeId === storeId);
       if (!quote) { complete = false; break; }
       total += quote.price;
     }
-    if (complete && uniqueBasket.length) singleStoreTotals.push({ storeId: source.storeId, storeName: source.storeName, total });
+    if (complete && uniqueBasket.length) singleStoreTotals.push({ storeId, storeName, total });
   }
   singleStoreTotals.sort((a, b) => a.total - b.total);
 
