@@ -76,7 +76,8 @@
     const operations=mergeOps(explicit,chosen.operations);if(!operations.length)return routed;
     const explicitKeys=new Set(explicit.map(opKey)),generated=operations.filter(op=>!explicitKeys.has(opKey(op))),assumed=assumptions(scenario,routed),why=planner.explain?.(pack,scenario)||"";
     const productIds=uniq([...(chosen.productIds||[]),...generated.filter(o=>o.type==="REQUIRE").map(o=>String(o.value||""))]);
-    return {...routed,provider:"bai-shopping-journey",operations,reply:why||routed?.reply||"Собрал лучший вариант.",suggestions:[],expectsAnswer:false,journey:{autoApplied:true,strategy:chosen.id,title:chosen.title,assumptions:assumed,explicitOperations:explicit,generatedOperations:generated,recommendation:{strategy:chosen.id,title:chosen.title,productIds},mealPlan:chosen.mealPlan||null,sufficiency:chosen.sufficiency||null,alternatives:(pack.strategies||[]).slice(0,3).map(x=>({id:x.id,total:x.total,stores:x.stores,score:x.score}))}};
+    const suppressChooser=/сам реши|реши сам|на тво[её] усмотрение/.test(low(text));
+    return {...routed,provider:"bai-shopping-journey",operations,reply:why||routed?.reply||"Собрал лучший вариант.",suggestions:[],expectsAnswer:suppressChooser,journey:{autoApplied:true,strategy:chosen.id,title:chosen.title,assumptions:assumed,explicitOperations:explicit,generatedOperations:generated,recommendation:{strategy:chosen.id,title:chosen.title,productIds},mealPlan:chosen.mealPlan||null,sufficiency:chosen.sufficiency||null,alternatives:(pack.strategies||[]).slice(0,3).map(x=>({id:x.id,total:x.total,stores:x.stores,score:x.score}))}};
   }
 
   function wrapBrain(brain){
