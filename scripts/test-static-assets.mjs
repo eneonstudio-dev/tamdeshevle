@@ -77,6 +77,22 @@ function visitScript(file){
 }
 localScripts.forEach(visitScript);
 
+const reachableStyles=new Set();
+function visitStyle(file){
+  if(reachableStyles.has(file))return;
+  reachableStyles.add(file);
+  const source=read(file);
+  for(const match of source.matchAll(/@import\s+(?:url\(\s*)?["']([^"']+)["']\s*\)?/gi)){
+    const imported=requireFrom(match[1],file);
+    if(imported&&/\.css$/i.test(imported))visitStyle(imported);
+  }
+}
+localLinks.filter(file=>/\.css$/i.test(file)).forEach(visitStyle);
+dynamicStyles.forEach(visitStyle);
+for(const canonical of ["votonobay-bay-first.css","votonobay-design-system-v2.css","votonobay-final-polish-v3.css"]){
+  assert.ok(reachableStyles.has(canonical),`${canonical} must remain reachable from the production CSS graph`);
+}
+
 const runtimeWorkflow=read(".github/workflows/validate-app-runtime.yml");
 const checkedRuntimeScripts=[...runtimeWorkflow.matchAll(/node --check\s+([^\s]+\.js)\b/g)]
   .map(match=>match[1])
@@ -110,7 +126,7 @@ for(const file of files){
   if(/\.css$/i.test(file)){
     for(const match of source.matchAll(/url\(([^)]+)\)/gi)){
       const ref=normalize(match[1]);
-      if(!ref||ref.startsWith("var("))continue;
+      if(!ref||ref.startsWith("var(")||/\.css$/i.test(ref))continue;
       cssRefs+=1;
       const resolved=path.posix.normalize(path.posix.join(path.posix.dirname(rel),ref));
       assert.ok(exists(resolved),`${rel} references missing CSS asset: ${resolved}`);
@@ -118,4 +134,4 @@ for(const file of files){
   }
 }
 
-console.log(`Static runtime integrity passed: ${localScripts.length} direct scripts, ${reachableScripts.size} reachable scripts, ${dynamicStyles.size} dynamic styles, ${localLinks.length} direct links, ${assetRefs} asset refs, ${cssRefs} CSS urls.`);
+console.log(`Static runtime integrity passed: ${localScripts.length} direct scripts, ${reachableScripts.size} reachable scripts, ${reachableStyles.size} reachable styles, ${dynamicStyles.size} dynamic styles, ${localLinks.length} direct links, ${assetRefs} asset refs, ${cssRefs} CSS urls.`);
