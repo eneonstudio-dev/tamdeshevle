@@ -1,0 +1,26 @@
+(()=>{"use strict";
+const statusEl=document.getElementById("bla-status"),listEl=document.getElementById("bla-list");
+const cfg=window.TD_SUPABASE,learning=window.TD_BAI_LEARNING;let client=null,session=null,busy=false;
+const setStatus=(text,state="")=>{statusEl.textContent=text;if(state)statusEl.dataset.state=state;else delete statusEl.dataset.state};
+const node=(tag,className,text)=>{const el=document.createElement(tag);if(className)el.className=className;if(text!=null)el.textContent=String(text);return el};
+function configured(){return Boolean(cfg?.url&&cfg?.anonKey&&learning?.adminEndpoint&&window.supabase?.createClient)}
+async function getSession(){if(!configured())throw new Error("CONFIG_MISSING");if(!client)client=window.supabase.createClient(cfg.url,cfg.anonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});const{data,error}=await client.auth.getSession();if(error)throw error;session=data?.session||null;return session}
+async function api(method="GET",body=null){const s=session||await getSession();if(!s?.access_token)throw new Error("SIGN_IN_REQUIRED");const headers={Authorization:`Bearer ${s.access_token}`,apikey:cfg.anonKey};if(body)headers["Content-Type"]="application/json";const response=await fetch(learning.adminEndpoint,{method,headers,body:body?JSON.stringify(body):undefined});let data={};try{data=await response.json()}catch{}if(!response.ok){const err=new Error(data.error||`HTTP_${response.status}`);err.status=response.status;throw err}return data}
+function badge(text,kind=""){const b=node("span","bla-badge",text);if(kind)b.dataset.kind=kind;return b}
+function fmtSpan(ms){const h=Math.floor(Number(ms||0)/3600000);return h?`${h} ч`:`${Math.floor(Number(ms||0)/60000)} мин`}
+function render(items){listEl.replaceChildren();listEl.hidden=false;if(!items.length){listEl.append(node("div","bla-empty","Очередь пустая. Сейчас нет паттернов, которые прошли консенсус до review."));return}
+  for(const item of items){const card=node("article","bla-card"),top=node("div","bla-row"),badges=node("div","bla-badges");
+    badges.append(badge(item.status==="approval_eligible"?"Готов к regression":"Review ready",item.status==="approval_eligible"?"eligible":""),badge(`${item.independent_actors} пользователей`),badge(`trust ${item.median_score}`));
+    const decision=item.admin_decision?.decision||"";if(decision==="rejected")badges.append(badge("Отклонено","rejected"));if(decision==="approved_for_regression")badges.append(badge("Одобрено для regression","approved"));if(decision==="reopened")badges.append(badge("Возвращено в review"));top.append(badges,badge(item.intent_key));card.append(top);
+    const ex=node("div","bla-example"),left=node("div","bla-box"),right=node("div","bla-box");left.append(node("div","bla-label","Запрос"),node("div","bla-text",item.sample?.input_sanitized||"Нет примера"),node("div","bla-label","Исправление"),node("div","bla-text",item.sample?.correction_sanitized||"—"));right.append(node("div","bla-label","Операции"),node("div","bla-ops",JSON.stringify(item.sample?.operations||[],null,2)));ex.append(left,right);card.append(ex);
+    const meta=node("div","bla-meta");meta.append(node("span","",`доля согласия ${Math.round(Number(item.actor_share||0)*100)}%`),node("span","",`конфликтов ${item.conflict_actors}`),node("span","",`наблюдаем ${fmtSpan(item.observation_span_ms)}`));card.append(meta);
+    const actions=node("div","bla-actions"),note=node("input","bla-note");note.type="text";note.maxLength=300;note.placeholder="Комментарий ревьюера (необязательно)";actions.append(note);
+    const addButton=(action,label)=>{const b=node("button","bla-btn",label);b.type="button";b.dataset.action=action;b.addEventListener("click",()=>decide(item.intent_key,action,note.value,b));actions.append(b)};
+    if(decision==="rejected")addButton("reopen","Вернуть в review");else{if(decision!=="approved_for_regression")addButton("approve","В regression");addButton("reject","Отклонить")}
+    card.append(actions);listEl.append(card);
+  }
+}
+async function decide(intentKey,action,note,button){if(busy)return;busy=true;button.disabled=true;try{await api("POST",{intentKey,action,note});setStatus(action==="approve"?"Кейс одобрен для regression. Он НЕ активирован глобально.":action==="reject"?"Кейс отклонён.":"Кейс возвращён в review.","ok");await load()}catch(err){setStatus(err.status===403?"Нет доступа: аккаунт не входит в список доверенных ревьюеров.":"Не удалось сохранить решение: "+(err.message||err),"error")}finally{busy=false;button.disabled=false}}
+async function load(){listEl.hidden=true;setStatus("Проверяем доступ…");try{await getSession();if(!session){setStatus("Сначала войдите в аккаунт на основном сайте, затем вернитесь на эту страницу.","error");return}const data=await api();setStatus(`Доступ подтверждён · в очереди ${data.items?.length||0}`,"ok");render(Array.isArray(data.items)?data.items:[])}catch(err){if(err.status===403)setStatus("Доступ закрыт. Панель доступна только доверенным ревьюерам.","error");else if(err.status===401||err.message==="SIGN_IN_REQUIRED")setStatus("Сессия не найдена. Войдите на основном сайте и обновите страницу.","error");else setStatus("Не удалось загрузить панель: "+(err.message||err),"error")}}
+load();
+})();
