@@ -34,6 +34,13 @@ type OverlayMatch = {
   availability?: string;
 };
 
+type CatalogContext = {
+  valid_from?: string;
+  valid_to?: string;
+  price_scope?: string;
+  store_verified?: boolean;
+};
+
 type Overlay = {
   schema?: string;
   retailer?: string;
@@ -42,6 +49,7 @@ type Overlay = {
   checked_at?: string;
   prices?: Record<string, number>;
   matched?: OverlayMatch[];
+  catalog_context?: CatalogContext;
 };
 
 const BASE = "https://eneonstudio-dev.github.io/tamdeshevle/data/retailers";
@@ -55,7 +63,7 @@ const OVERLAYS = [
 
 const PRODUCT_TO_SKU: Record<BasketProductId, string> = {
   milk: "milk",
-  bread: "bread_dark",
+  bread: "bread_generic",
   chicken: "chicken_fil",
   banana: "banana",
   oil: "oil_sunflower",
@@ -71,6 +79,7 @@ const cache = new Map<string, { at: number; value: Overlay | null }>();
 const CACHE_MS = 5 * 60_000;
 const MAX_AGE_OFFICIAL_MS = 72 * 60 * 60_000;
 const MAX_AGE_AGGREGATOR_MS = 24 * 60 * 60_000;
+const MAX_AGE_VALID_CATALOG_MS = 7 * 24 * 60 * 60_000;
 
 function sourceKind(url: string | null): LiveQuote["sourceKind"] {
   if (!url) return "unknown";
@@ -82,13 +91,35 @@ function sourceKind(url: string | null): LiveQuote["sourceKind"] {
   return "unknown";
 }
 
-function isFresh(checkedAt: string, kind: LiveQuote["sourceKind"]) {
+function catalogBoundary(value: string | undefined, endOfDay: boolean) {
+  if (!value) return null;
+  const raw = String(value).trim();
+  const isoDate = /^\d{4}-\d{2}-\d{2}$/.test(raw)
+    ? `${raw}T${endOfDay ? "23:59:59.999" : "00:00:00"}+03:00`
+    : raw;
+  const ts = Date.parse(isoDate);
+  return Number.isFinite(ts) ? ts : null;
+}
+
+export function catalogWindowActive(context: CatalogContext | undefined, nowMs = Date.now()) {
+  const from = catalogBoundary(context?.valid_from, false);
+  const to = catalogBoundary(context?.valid_to, true);
+  if (from == null && to == null) return false;
+  if (from != null && nowMs < from) return false;
+  if (to != null && nowMs > to) return false;
+  return true;
+}
+
+export function overlayFresh(checkedAt: string, kind: LiveQuote["sourceKind"], context?: CatalogContext, nowMs = Date.now()) {
   const ts = Date.parse(checkedAt);
   if (!Number.isFinite(ts)) return false;
-  const age = Date.now() - ts;
+  const age = nowMs - ts;
   if (age < -10 * 60_000) return false;
   if (kind === "official") return age <= MAX_AGE_OFFICIAL_MS;
-  if (kind === "aggregator") return age <= MAX_AGE_AGGREGATOR_MS;
+  if (kind === "aggregator") {
+    if (age <= MAX_AGE_VALID_CATALOG_MS && catalogWindowActive(context, nowMs)) return true;
+    return age <= MAX_AGE_AGGREGATOR_MS;
+  }
   return age <= 12 * 60 * 60_000;
 }
 
@@ -123,7 +154,7 @@ function quoteFromOverlay(productId: BasketProductId, overlay: Overlay, storeId:
   const checkedAt = String(overlay.checked_at || "");
   const sourceUrl = match?.source_url ? String(match.source_url) : null;
   const kind = sourceKind(sourceUrl);
-  if (!Number.isFinite(price) || price <= 0 || !checkedAt || !isFresh(checkedAt, kind)) return null;
+  if (!Number.isFinite(price) || price <= 0 || !checkedAt || !overlayFresh(checkedAt, kind, overlay.catalog_context)) return null;
   const confidence = Math.max(0, Math.min(1, Number(match?.confidence ?? 0.7)));
   if (confidence < 0.75) return null;
   return {
