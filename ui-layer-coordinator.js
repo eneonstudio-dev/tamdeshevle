@@ -1,5 +1,7 @@
 (function(){
   "use strict";
+  if(window.__TDUILayerCoordinatorInitialized)return;
+  window.__TDUILayerCoordinatorInitialized=true;
   const STYLE_ID="td-ui-layer-coordinator-style";
   const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap,.td-account,.td-ai,.bai-panel,.td-pickup-backdrop,.td-courier-backdrop,.td-continue-stores,.td-retailer-handoff";
   const HISTORY_OVERLAYS=[
@@ -126,7 +128,6 @@
       if(screen&&window.state&&screen!==window.state.screen){baseGo(screen);requestAnimationFrame(decorateFlow)}
     });
   }
-
   function isOnline(){return typeof navigator==="undefined"||navigator.onLine!==false}
 
   function ensureLiveRegion(){
@@ -311,31 +312,92 @@
     purchase.__tdDuplicateGuard=true;
   }
 
-  let raf=0;
-  const observer=new MutationObserver(()=>{
-    cancelAnimationFrame(raf);
-    raf=requestAnimationFrame(()=>{sync();syncOverlayHistory();decorateFlow();installPurchaseGuard();installQuantityA11y()});
+  let raf=0,pendingOverlay=false,pendingFlow=false,observing=false;
+  const overlayObserver=new MutationObserver(()=>queueWork(true,true));
+
+  function elementTouchesOverlay(node){
+    return node instanceof Element&&Boolean(node.matches(BLOCKING_SELECTOR)||node.querySelector(BLOCKING_SELECTOR));
+  }
+
+  function recordTouchesApp(record){
+    const target=record.target instanceof Element?record.target:null;
+    return Boolean(target&&(target.id==="app"||target.closest("#app")));
+  }
+
+  function observeOverlayAttributes(){
+    overlayObserver.disconnect();
+    document.querySelectorAll(BLOCKING_SELECTOR).forEach(node=>overlayObserver.observe(node,{attributes:true,attributeFilter:["hidden","aria-hidden","class","style"]}));
+  }
+
+  function flushWork(){
+    raf=0;
+    const overlay=pendingOverlay,flow=pendingFlow;
+    pendingOverlay=false;pendingFlow=false;
+    if(document.hidden)return;
+    if(overlay){sync();syncOverlayHistory();observeOverlayAttributes()}
+    if(flow||overlay){decorateFlow();installPurchaseGuard();installQuantityA11y()}
+  }
+
+  function queueWork(overlay,flow){
+    pendingOverlay=pendingOverlay||Boolean(overlay);
+    pendingFlow=pendingFlow||Boolean(flow);
+    if(document.hidden||raf)return;
+    raf=requestAnimationFrame(flushWork);
+  }
+
+  const observer=new MutationObserver(records=>{
+    if(document.hidden)return;
+    let overlay=false,flow=false;
+    for(const record of records){
+      if(recordTouchesApp(record))flow=true;
+      for(const node of record.addedNodes){if(elementTouchesOverlay(node)){overlay=true;break}}
+      if(!overlay)for(const node of record.removedNodes){if(elementTouchesOverlay(node)){overlay=true;break}}
+      if(overlay&&flow)break;
+    }
+    if(overlay)observeOverlayAttributes();
+    if(overlay||flow)queueWork(overlay,flow);
   });
+
+  function resumeObservers(){
+    if(document.hidden||observing||!document.body)return;
+    observer.observe(document.body,{childList:true,subtree:true});
+    observeOverlayAttributes();
+    observing=true;
+  }
+
+  function pauseObservers(){
+    observer.disconnect();overlayObserver.disconnect();observing=false;
+    if(raf)cancelAnimationFrame(raf);
+    raf=0;pendingOverlay=false;pendingFlow=false;
+  }
+
+  function resumeRuntime(){
+    resumeObservers();
+    queueWork(true,true);
+  }
 
   function start(){
     networkWasOffline=!isOnline();
     sync();installScreenHistory();installPurchaseGuard();installQuantityA11y();syncOverlayHistory();decorateFlow();
-    observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden","aria-hidden","class","style"]});
-    ["td:v2-rendered","td:data-health","td:retailer-health","td:collector-health"].forEach(name=>window.addEventListener(name,()=>requestAnimationFrame(decorateFlow)));
+    resumeObservers();
+    ["td:v2-rendered","td:data-health","td:retailer-health","td:collector-health"].forEach(name=>window.addEventListener(name,()=>queueWork(false,true)));
     window.addEventListener("offline",()=>{
       networkWasOffline=true;
       announce("Сеть пропала. Корзина продолжает работать локально.");
-      requestAnimationFrame(decorateFlow);
+      queueWork(false,true);
     });
     window.addEventListener("online",()=>{
       const shouldRefresh=networkWasOffline;
       networkWasOffline=false;
       announce("Сеть восстановлена. Обновляем цены.");
-      requestAnimationFrame(decorateFlow);
+      queueWork(false,true);
       if(shouldRefresh&&typeof window.loadPrices==="function")window.loadPrices();
     });
+    document.addEventListener("visibilitychange",()=>document.hidden?pauseObservers():resumeRuntime());
+    window.addEventListener("pagehide",pauseObservers);
+    window.addEventListener("pageshow",resumeRuntime);
   }
 
-  window.TDUILayers={refresh:()=>{sync();syncOverlayHistory();decorateFlow()},get blocked(){return Boolean(activeOverlay());},get active(){return activeOverlay();},get dataState(){return dataState()}};
+  window.TDUILayers={refresh:()=>queueWork(true,true),get blocked(){return Boolean(activeOverlay());},get active(){return activeOverlay();},get dataState(){return dataState()}};
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
