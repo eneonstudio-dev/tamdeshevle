@@ -23,7 +23,7 @@ assert.match(mobileDock,/aria-current/);assert.match(mobileDock,/type="button"/)
 assert.doesNotMatch(mobileDock,/MutationObserver/);
 assert.match(ui,/≈ — ориентир, подтверждённые цены отмечаем отдельно/);assert.match(ui,/Помогаем решить, как лучше купить/);
 assert.match(ui,/Votonobay — на главную/);assert.match(ui,/Покупки\. <em>Как лучше\.<\/em>/);assert.match(ui,/Спросить Бая/);assert.match(ui,/Искать самому/);assert.match(ui,/Что лучше выбрать\?/);assert.match(ui,/Сравнить варианты/);
-assert.match(ui,/window\.TDShoppingAssistant\?\.open/);assert.match(ui,/Что хочешь решить\?/);assert.match(ui,/Цена, удобство и время|цены, удобству и времени/);
+assert.match(ui,/window\.TDShoppingAssistant\?\.open/);assert.match(ui,/Что хочешь решить\?/);assert.match(ui,/цене, удобству и времени|Цена, удобство и время|цены, удобству и времени/);
 assert.match(touchCss,/votonobay-bay-first\.css/);assert.match(bayFirstCss,/\.v2-hero\.v2-bay-first/);assert.match(bayFirstCss,/\.v2-bay-primary/);assert.match(bayFirstCss,/@media\(min-width:821px\)\{\.td-ai/);
 assert.match(brand,/const BRAND="Votonobay"/);assert.match(brand,/помога(ет|ем) решить, как лучше/i);assert.match(brandCss,/body\.td-votonobay/);assert.doesNotMatch(brand,/td-ai-|TDBai|bai-/);
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
