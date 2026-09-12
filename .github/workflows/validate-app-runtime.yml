@@ -18,6 +18,11 @@ jobs:
         with:
           node-version: 22
       - name: Check app syntax
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check ui-layer-coordinator.js
+          node --check scripts/test-catalog-resilience.mjs
       - name: Test app runtime resilience
         run: node scripts/test-app-runtime-resilience.mjs
+      - name: Test catalog interaction resilience
+        run: node scripts/test-catalog-resilience.mjs
