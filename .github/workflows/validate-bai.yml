@@ -1,0 +1,45 @@
+name: Validate Bai assistant
+
+on:
+  pull_request:
+    paths:
+      - "ai-shopping-assistant.js"
+      - "bai-*.js"
+      - "shopping-*.js"
+      - ".github/workflows/validate-bai.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "ai-shopping-assistant.js"
+      - "bai-*.js"
+      - "shopping-*.js"
+      - ".github/workflows/validate-bai.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Bai and shopping JavaScript syntax
+        run: |
+          node --check ai-shopping-assistant.js
+          node --check bai-assistant.js
+          node --check bai-voice.js
+          node --check bai-brain.js
+          node --check bai-checkout.js
+          node --check bai-fallback-bridge.js
+          node --check bai-food-knowledge.js
+          node --check bai-life.js
+          node --check bai-memory.js
+          node --check bai-planner.js
+          node --check bai-self-check.js
+          node --check shopping-conversation.js
+          node --check shopping-optimizer.js
+          node --check shopping-state.js
