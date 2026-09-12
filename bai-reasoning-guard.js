@@ -7,11 +7,20 @@
   const LABEL={milk:"молоко",bread:"хлеб",chicken:"курица",banana:"банан",oil:"масло",eggs:"яйца",buck:"гречка",sour:"сметана",sugar:"сахар",pasta:"макароны",water:"вода",apple:"яблоки",ham:"ветчина",dumplings:"пельмени",noodles:"лапша",waffles:"вафли",cottage:"творог"};
   const NUM={"один":1,"одного":1,"одна":1,"одну":1,"два":2,"две":2,"двое":2,"двоих":2,"три":3,"трое":3,"троих":3,"четыре":4,"четверо":4,"четверых":4,"пять":5,"шесть":6,"семь":7,"восемь":8,"девять":9,"десять":10};
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
+  const uniq=a=>[...new Set((a||[]).filter(Boolean))];
+  const clone=v=>JSON.parse(JSON.stringify(v));
   const original=brain.route.bind(brain);
   const originalReset=brain.reset?.bind(brain);
   const originalStatus=brain.status?.bind(brain);
   const trailingExclusion=/(?:не\s+надо(?:\s+(?:добавлять|класть|брать))?|не\s+нуж(?:но|ен|на|ны)|не\s+(?:клади|добавляй))(?:\s*[.!?])?$/;
-  let peopleShadow=Number(originalStatus?.()?.goal?.people)||null;
+  const initialGoal=clone(originalStatus?.()?.goal||{});
+  let peopleShadow=Number(initialGoal.people)||null;
+  let productGoalShadow={
+    requiredProducts:uniq(initialGoal.requiredProducts),
+    excludedProducts:uniq(initialGoal.excludedProducts),
+    onlyProducts:uniq(initialGoal.onlyProducts),
+    quantityTargets:{...(initialGoal.quantityTargets||{})}
+  };
 
   function mentions(raw){
     const t=low(raw),out=[];
@@ -85,6 +94,56 @@
     return{from,to,rewrite:`замени ${from.stem} на ${to.stem}`};
   }
 
+  function applyProductGoalOps(operations){
+    for(const op of operations||[]){
+      const value=op?.value;
+      if(op?.type==="RESET_BASKET"){
+        productGoalShadow={requiredProducts:[],excludedProducts:[],onlyProducts:[],quantityTargets:{}};
+      }else if(op?.type==="CLEAR_ONLY"){
+        productGoalShadow.onlyProducts=[];
+      }else if(op?.type==="SET_ONLY_PRODUCTS"){
+        const ids=uniq(value||[]);
+        productGoalShadow.onlyProducts=ids;
+        productGoalShadow.requiredProducts=ids;
+        productGoalShadow.excludedProducts=productGoalShadow.excludedProducts.filter(id=>!ids.includes(id));
+      }else if(op?.type==="ADD_PRODUCT"||op?.type==="REQUIRE"){
+        const id=String(value||"");
+        if(!id)continue;
+        productGoalShadow.requiredProducts=uniq([...productGoalShadow.requiredProducts,id]);
+        productGoalShadow.excludedProducts=productGoalShadow.excludedProducts.filter(x=>x!==id);
+      }else if(op?.type==="REMOVE_PRODUCT"){
+        const id=String(value||"");
+        if(!id)continue;
+        productGoalShadow.excludedProducts=uniq([...productGoalShadow.excludedProducts,id]);
+        productGoalShadow.requiredProducts=productGoalShadow.requiredProducts.filter(x=>x!==id);
+        productGoalShadow.onlyProducts=productGoalShadow.onlyProducts.filter(x=>x!==id);
+        delete productGoalShadow.quantityTargets[id];
+      }else if(op?.type==="REPLACE_PRODUCT"&&value?.from&&value?.to){
+        const from=String(value.from),to=String(value.to);
+        productGoalShadow.excludedProducts=uniq([...productGoalShadow.excludedProducts.filter(x=>x!==to),from]);
+        productGoalShadow.requiredProducts=uniq([...productGoalShadow.requiredProducts.filter(x=>x!==from),to]);
+        if(productGoalShadow.onlyProducts.includes(from))productGoalShadow.onlyProducts=uniq(productGoalShadow.onlyProducts.map(x=>x===from?to:x));
+        if(productGoalShadow.quantityTargets[from]&&!productGoalShadow.quantityTargets[to])productGoalShadow.quantityTargets[to]=productGoalShadow.quantityTargets[from];
+        delete productGoalShadow.quantityTargets[from];
+      }else if(op?.type==="SET_PRODUCT_AMOUNT"&&value?.id){
+        productGoalShadow.quantityTargets[String(value.id)]={amount:Number(value.amount),unit:value.unit};
+      }
+    }
+  }
+
+  function guardGoalConsistency(result){
+    if(!result||typeof result!=="object")return result;
+    const operations=Array.isArray(result.operations)?result.operations:[];
+    applyProductGoalOps(operations);
+    if(!result.goal||typeof result.goal!=="object")return result;
+    const goal={...result.goal,...clone(productGoalShadow)};
+    const changed=JSON.stringify(result.goal.requiredProducts||[])!==JSON.stringify(goal.requiredProducts)||
+      JSON.stringify(result.goal.excludedProducts||[])!==JSON.stringify(goal.excludedProducts)||
+      JSON.stringify(result.goal.onlyProducts||[])!==JSON.stringify(goal.onlyProducts)||
+      JSON.stringify(result.goal.quantityTargets||{})!==JSON.stringify(goal.quantityTargets||{});
+    return changed?{...result,goal,provider:`${result.provider||"bai-brain"}+goal-guard`}:{...result,goal};
+  }
+
   function guardPeople(raw,result){
     if(!result||typeof result!=="object")return result;
     const parsed=explicitPeople(raw);
@@ -115,7 +174,7 @@
     const ambiguous=ambiguousReplacementChoice(normalized);
     if(ambiguous){
       const left=LABEL[ambiguous.left.id]||ambiguous.left.stem,right=LABEL[ambiguous.right.id]||ambiguous.right.stem;
-      return{ok:true,provider:"bai-reasoning-guard+clarification",operations:[],reply:`Вижу два варианта через «или». Уточни один товар для замены: ${left} или ${right}.`,suggestions:[left,right],expectsAnswer:true};
+      return{ok:true,provider:"bai-reasoning-guard+clarification",operations:[],reply:`Вижу два варианта через «или». Уточни один товар для замены: ${left} или ${right}.`,suggestions:[left,right],expectsAnswer:true,goal:{...(originalStatus?.()?.goal||{}),people:peopleShadow,...clone(productGoalShadow)}};
     }
     const replacement=directionalReplacement(normalized);
     let result;
@@ -126,20 +185,21 @@
       result=await original(replacement.rewrite,...rest);
       result={...result,provider:`${result?.provider||"bai-brain"}+direction-guard`,interpretedAs:{type:"replace",from:replacement.from.id,to:replacement.to.id}};
     }
-    return guardPeople(raw,result);
+    return guardGoalConsistency(guardPeople(raw,result));
   };
 
   if(originalReset)brain.reset=function(...args){
     const result=originalReset(...args);
     peopleShadow=null;
+    productGoalShadow={requiredProducts:[],excludedProducts:[],onlyProducts:[],quantityTargets:{}};
     return result;
   };
 
   if(originalStatus)brain.status=function(){
     const status=originalStatus();
     if(!status?.goal)return status;
-    return{...status,goal:{...status.goal,people:peopleShadow}};
+    return{...status,goal:{...status.goal,people:peopleShadow,...clone(productGoalShadow)}};
   };
 
-  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice,explicitPeople,guardPeople};
+  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice,explicitPeople,guardPeople,guardGoalConsistency};
 })();
