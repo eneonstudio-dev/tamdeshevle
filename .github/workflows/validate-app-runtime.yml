@@ -35,6 +35,7 @@ jobs:
           node --check bai-life.js
           node --check bai-runtime-states-v1.js
           node --check unified-cart-state-v1.js
+          node --check bai-change-intelligence-v1.js
           node --check account-auth-ui.js
           node --check purchase-flow.js
           node --check first-shopping-journey.js
@@ -60,6 +61,7 @@ jobs:
           node --check scripts/test-mobile-bay-first-e2e.mjs
           node --check scripts/test-bay-runtime-states.mjs
           node --check scripts/test-unified-cart-state.mjs
+          node --check scripts/test-bai-change-intelligence.mjs
           node --check scripts/test-price-trust-quality.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
@@ -111,6 +113,8 @@ jobs:
         run: node scripts/test-bay-runtime-states.mjs
       - name: Test unified cart state
         run: node scripts/test-unified-cart-state.mjs
+      - name: Test Bay change intelligence
+        run: node scripts/test-bai-change-intelligence.mjs
       - name: Test price trust quality
         run: node scripts/test-price-trust-quality.mjs
       - name: Test account modal resilience
