@@ -7,6 +7,7 @@
   const cityName = () => window.state && state.city === "spb" ? "Санкт-Петербург" : "Москва";
   const storeById = id => typeof STORES !== "undefined" ? STORES.find(store => store.id === id) : null;
   const products = () => typeof PRODUCTS !== "undefined" ? PRODUCTS : [];
+  const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   const IMAGE_BY_ID = {
     milk:"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=max&w=420&h=320&q=76",
     eggs_c1:"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=max&w=420&h=320&q=76",
@@ -46,12 +47,13 @@
   }
 
   function HeroSearch() {
-    return `<section class="v2-hero">
-      <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> одна корзина — несколько вариантов</div><h1>Покупки. <em>Как лучше.</em></h1><p>Собери корзину один раз. Сравним варианты по цене, удобству и подтверждённости данных — решение остаётся за тобой.</p></div>
-      <div class="v2-hero-bai" aria-hidden="true"><span>Я найду,<br>где дешевле</span><img src="assets/bai/bai-peek.webp" alt=""></div>
-      <form class="v2-search" role="search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input type="search" name="query" autocomplete="off" enterkeyhint="search" autocapitalize="none" spellcheck="false" value="${esc(state.q || "")}" placeholder="Например: молоко, яйца, хлеб" aria-label="Поиск товара"><button type="submit">Собрать</button></form>
-      <div class="v2-categories" aria-label="Быстрые категории">${["Молоко","Яйца","Курица","Сыр","Хлеб","Яблоки","Для дома"].map(label => `<button type="button" onclick="tdV2Quick('${label}')">${label}</button>`).join("")}</div>
-      <div class="v2-hero-proof"><span>✓ Видно, откуда цена</span><span>✓ Считаем всю корзину</span><span>✓ Показываем варианты, а не рекламу</span></div>
+    const categories=["Молоко","Яйца","Курица","Сыр","Хлеб","Яблоки","Для дома"];
+    return `<section class="v2-hero v2-bay-first" data-bay-first="true" aria-label="Решить покупку с Баем или самостоятельно">
+      <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> Бай — умный помощник покупок</div><h1>Покупки. <em>Как лучше.</em></h1><p>Скажи Баю, что хочешь решить. Он уточнит только важное, сравнит варианты по цене, удобству и времени и объяснит, что лучше именно в твоей ситуации.</p></div>
+      <button class="v2-hero-bai" type="button" onclick="tdBayFirstAsk()" aria-label="Спросить Бая"><span>Расскажи задачу.<br>Я разберусь.</span><img src="assets/bai/bai-peek.webp" alt="Бай — помощник Votonobay"></button>
+      <div class="v2-bay-actions"><button class="v2-bay-primary" type="button" onclick="tdBayFirstAsk()">Спросить Бая</button><button class="v2-bay-secondary" type="button" onclick="tdBayFirstSelfSearch()">Искать самому</button><div class="v2-bay-scenarios" aria-label="Быстрые задачи для Бая"><button type="button" onclick="tdBayFirstAsk('Помоги собрать корзину под мой бюджет')">Собрать корзину</button><button type="button" onclick="tdBayFirstAsk('Сравни варианты и скажи, какой лучше выбрать')">Что лучше выбрать?</button><button type="button" onclick="tdBayFirstAsk('Проверь, настоящая ли скидка и стоит ли покупать сейчас')">Проверить скидку</button><button type="button" onclick="tdBayFirstAsk('Найди лучший вариант с учётом цены, удобства и времени')">Найти лучший вариант</button></div></div>
+      <div class="v2-self-search"><div class="v2-self-label">Или выбери сам</div><form class="v2-search" role="search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input type="search" name="query" autocomplete="off" enterkeyhint="search" autocapitalize="none" spellcheck="false" value="${esc(state.q || "")}" placeholder="Найти товар самому" aria-label="Поиск товара"><button type="submit">Найти</button></form><div class="v2-categories" aria-label="Быстрые категории">${categories.map(label => `<button type="button" onclick="tdV2Quick('${label}')">${label}</button>`).join("")}</div></div>
+      <div class="v2-hero-proof"><span>✓ Бай объясняет почему</span><span>✓ Сравнивает весь сценарий</span><span>✓ Можно пользоваться без Бая</span></div>
     </section>`;
   }
 
@@ -72,16 +74,16 @@
   }
 
   function ProductGrid() {
-    return `<section class="v2-section"><div class="v2-section-head"><div><span>ПОПУЛЯРНОЕ</span><h2>Добавь нужное</h2></div><small>≈ — ориентир, подтверждённые цены отмечаем отдельно</small></div><div class="v2-product-grid">${products().slice(0, 8).map(ProductCard).join("")}</div></section>`;
+    return `<section class="v2-section"><div class="v2-section-head"><div><span>ПОПУЛЯРНОЕ</span><h2>Если хочешь выбирать сам</h2></div><small>≈ — ориентир, подтверждённые цены отмечаем отдельно</small></div><div class="v2-product-grid">${products().slice(0, 8).map(ProductCard).join("")}</div></section>`;
   }
 
   function ShoppingList() {
     const items = products().filter(product => state.cart && state.cart[product.id] > 0);
-    return `<aside class="v2-basket-card"><div class="v2-basket-top"><span>ТВОЙ СПИСОК</span><b>${cartCount()} шт.</b></div><h2>${items.length ? "Корзина готова. Сравним варианты." : "Добавь нужные товары"}</h2><div class="v2-basket-lines">${items.slice(0, 5).map(product => `<div><span>${esc(product.name)}</span><div><button onclick="setQty('${product.id}',-1)">−</button><b>${state.cart[product.id]}</b><button onclick="setQty('${product.id}',1)">+</button></div></div>`).join("") || "<p>Нажимай «+» у товаров — список появится здесь.</p>"}</div>${items.length > 5 ? `<div class="v2-more">Ещё ${items.length - 5} поз.</div>` : ""}<button class="v2-compare" onclick="go('compare')" ${items.length ? "" : "disabled"}>Сравнить варианты <span>→</span></button><button class="v2-edit" onclick="go('cart')">Открыть список</button></aside>`;
+    return `<aside class="v2-basket-card"><div class="v2-basket-top"><span>ТВОЙ СПИСОК</span><b>${cartCount()} шт.</b></div><h2>${items.length ? "Корзина готова. Сравним варианты." : "Добавь нужные товары"}</h2><div class="v2-basket-lines">${items.slice(0, 5).map(product => `<div><span>${esc(product.name)}</span><div><button onclick="setQty('${product.id}',-1)">−</button><b>${state.cart[product.id]}</b><button onclick="setQty('${product.id}',1)">+</button></div></div>`).join("") || "<p>Можно добавить товары самому или попросить Бая собрать список.</p>"}</div>${items.length > 5 ? `<div class="v2-more">Ещё ${items.length - 5} поз.</div>` : ""}<button class="v2-compare" onclick="go('compare')" ${items.length ? "" : "disabled"}>Сравнить варианты <span>→</span></button><button class="v2-edit" onclick="go('cart')">Открыть список</button></aside>`;
   }
 
   function Footer() {
-    return `<footer class="v2-footer" id="about"><div>${Brand()}<p>Помогаем понять, как лучше собрать корзину: по цене, удобству и подтверждённости данных.</p></div><div><b>Главное</b><button onclick="go('catalog')">Товары</button><button onclick="go('stores')">Магазины</button><button onclick="go('cart')">Моя корзина</button></div><div><b>Доверие</b><span>Откуда цена</span><span>Когда проверили</span><span>Без платных первых мест</span></div></footer>`;
+    return `<footer class="v2-footer" id="about"><div>${Brand()}<p>Помогаем решить, как лучше купить: учитываем цену, удобство, время и подтверждённость данных.</p></div><div><b>Главное</b><button onclick="tdBayFirstAsk()">Спросить Бая</button><button onclick="go('catalog')">Товары</button><button onclick="go('cart')">Моя корзина</button></div><div><b>Доверие</b><span>Откуда цена</span><span>Когда проверили</span><span>Без платных первых мест</span></div></footer>`;
   }
 
   function Home() {
@@ -89,7 +91,45 @@
   }
 
   function MobileDock() {
-    return `<nav class="v2-bottom-nav" aria-label="Мобильная навигация"><button class="is-active" onclick="go('home')"><i>⌂</i><span>Главная</span></button><button onclick="go('catalog')"><i>⌕</i><span>Поиск</span></button><button onclick="go('cart')"><i>☷</i><span>Список</span></button><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')"><i>⌖</i><span>Карта</span></button><button class="td-profile-btn"><i>○</i><span>Профиль</span></button></nav>`;
+    return `<nav class="v2-bottom-nav" aria-label="Мобильная навигация"><button class="is-active" onclick="go('home')"><i>⌂</i><span>Главная</span></button><button onclick="tdBayFirstAsk()"><i>✦</i><span>Бай</span></button><button onclick="go('catalog')"><i>⌕</i><span>Поиск</span></button><button onclick="go('cart')"><i>☷</i><span>Список</span></button><button class="td-profile-btn"><i>○</i><span>Профиль</span></button></nav>`;
+  }
+
+  function tuneAssistant() {
+    const root=document.querySelector(".td-ai");
+    if(!root)return false;
+    const title=root.querySelector(".td-ai-bai h2"),copy=root.querySelector(".td-ai-bai p"),area=root.querySelector("textarea");
+    if(title)title.textContent="Что хочешь решить?";
+    if(copy)copy.textContent="Расскажи своими словами. Я уточню только то, что реально влияет на решение.";
+    if(area)area.placeholder="Например: собери ужин на четверых до 2500 ₽ или помоги выбрать наушники";
+    return true;
+  }
+
+  async function waitForAssistant() {
+    for(let i=0;i<14;i++){
+      if(window.TDShoppingAssistant?.open)return window.TDShoppingAssistant;
+      await delay(80);
+    }
+    return null;
+  }
+
+  async function openBay(prompt="") {
+    window.TDBai?.setState?.("curious","Рассказывай. Разберёмся, как лучше.",1700,false);
+    const assistant=await waitForAssistant();
+    if(!assistant){
+      window.dispatchEvent(new CustomEvent("bai:hint",{detail:{state:"suspicious",text:"Помощник не загрузился. Можно продолжить через обычный поиск.",ms:2300}}));
+      focusSelfSearch();
+      return false;
+    }
+    await assistant.open();
+    tuneAssistant();
+    if(prompt)setTimeout(()=>assistant.submit?.(prompt),90);
+    return true;
+  }
+
+  function focusSelfSearch() {
+    const input=document.querySelector(".v2-self-search .v2-search input,.v2-search input");
+    input?.focus({preventScroll:true});
+    input?.scrollIntoView({behavior:"smooth",block:"center"});
   }
 
   function enhanceScreen() {
@@ -101,6 +141,9 @@
     window.dispatchEvent(new CustomEvent("td:v2-rendered", { detail: { screen: state.screen } }));
   }
 
+  window.tdBayFirstAsk = openBay;
+  window.tdBayFirstSelfSearch = focusSelfSearch;
+  window.tdBayFirstTuneAssistant = tuneAssistant;
   window.tdV2Search = event => { event.preventDefault(); const query = new FormData(event.currentTarget).get("query"); state.q = String(query || "").trim(); window.dispatchEvent(new CustomEvent("bai:checking")); go("catalog"); };
   window.tdV2Quick = label => { state.q = label === "Для дома" ? "" : label; state.category = label === "Для дома" ? "Бакалея" : "Все"; go("catalog"); };
   window.tdV2Menu = button => { const menu = document.querySelector(".v2-mobile-nav"); if (!menu) return; menu.hidden = !menu.hidden; button.setAttribute("aria-expanded", String(!menu.hidden)); };
