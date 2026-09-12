@@ -4,16 +4,20 @@ import fs from "node:fs";
 const html=fs.readFileSync("index.html","utf8");
 const js=fs.readFileSync("votonobay-inner-v1.js","utf8");
 const css=fs.readFileSync("votonobay-inner-v1.css","utf8");
+const polish=fs.readFileSync("votonobay-inner-polish-v2.css","utf8");
+const touch=fs.readFileSync("touch-layout-fix.css","utf8");
 
 new Function(js);
 
 assert.match(html,/votonobay-inner-v1\.css\?v=/,"inner screen styles must load from the document head");
 assert.match(html,/votonobay-inner-v1\.js\?v=/,"inner screen runtime must load after the shopping shell");
+assert.match(touch,/votonobay-inner-polish-v2\.css\?v=/,"final touch layer must load the inner polish after legacy visual layers");
 assert.match(js,/app-store-guard\.js/,"inner runtime must load the non-Bai store-state guard");
 assert.match(js,/td:v2-rendered/,"inner screen layer must follow the existing render lifecycle");
 assert.doesNotMatch(js,/MutationObserver/,"inner screen layer must not add a DOM observer loop");
 assert.doesNotMatch(js,/TDBai|bai:|bai-|\.td-ai|assets\/bai/,"inner screen layer must not modify Bai");
 assert.doesNotMatch(css,/\.td-ai|bai-|assets\/bai/,"inner screen styles must not target Bai");
+assert.doesNotMatch(polish,/TDBai|bai:|bai-|\.td-ai|assets\/bai/,"inner polish must remain visually isolated from Bai");
 
 assert.match(js,/Как лучше купить/,"comparison screen must use a purchase-decision heading instead of cheaper-only framing");
 assert.match(js,/Собери нужное — дальше сравним цену, способ покупки и удобство/,"catalog must explain the full purchase decision");
@@ -66,4 +70,16 @@ assert.match(css,/env\(safe-area-inset-bottom\)/,"mobile shopping dock must resp
 assert.match(css,/min-width:44px!important/,"mobile quantity controls must keep touch targets usable");
 assert.match(css,/prefers-reduced-motion:reduce/,"inner screen motion must respect reduced-motion preferences");
 
-console.log("Votonobay inner UI tests passed: dark decision-first self-service, catalog/cart recovery states, trust metadata, mobile-safe controls, truthful delivery constraints and no Bai coupling.");
+assert.match(polish,/--voto-mint:#45eda0/,"polish must align self-service with the current mint system");
+assert.match(polish,/body\.td-votonobay-inner \.voto-screen-intro/,"polish must preserve a strong decision-first intro hierarchy");
+assert.match(polish,/body\.td-votonobay-inner \.voto-cart-item/,"polish must cover cart rows, not only catalog cards");
+assert.match(polish,/body\.td-votonobay-inner \.dock/,"polish must unify the cart action dock");
+assert.match(polish,/html body \.td-compare-v2-shell/,"polish must visually unify the comparison surface opened from Bay or self-service");
+assert.match(polish,/html body \.td-compare-hero/,"comparison recommendation must use the same dark premium hierarchy instead of a bright isolated card");
+assert.match(polish,/height:min\(94dvh,860px\)!important/,"mobile comparison must behave as a bounded bottom sheet");
+assert.match(polish,/padding-bottom:env\(safe-area-inset-bottom\)!important/,"mobile comparison must respect bottom safe area");
+assert.match(polish,/grid-template-columns:58px minmax\(0,1fr\)!important/,"narrow product and cart rows must stop squeezing quantity controls into the title column");
+assert.match(polish,/min-height:44px!important/,"comparison and recovery actions must keep usable touch targets");
+assert.match(polish,/prefers-reduced-motion:reduce/,"polish must continue respecting reduced-motion preferences");
+
+console.log("Votonobay inner UI tests passed: dark decision-first self-service, unified catalog/cart/comparison hierarchy, mobile-safe controls, truthful delivery constraints and no Bai coupling.");
