@@ -23,6 +23,8 @@
     const clause=homeClause(text);
     for(const op of operations||[])if(op?.type==="HAS_AT_HOME")add(op.value,"explicit");
     for(const [stem,id] of Object.entries(STEMS))if(clause.includes(stem))add(id,"explicit");
+    for(const [stem,id] of Object.entries(STEMS))if(!clause.includes(stem)&&new RegExp(`(?:нужн|хочу|хотел|добав)[^.!?]{0,80}${stem}`).test(text))remove(id);
+    for(const op of operations||[])if(["REQUIRE","ADD_PRODUCT"].includes(op?.type)){const id=idFrom(op.value),belongs=id&&Object.entries(STEMS).some(([stem,x])=>x===id&&clause.includes(stem));if(id&&!belongs)remove(id)}
     return list();
   }
   function list(){prune();return Object.values(state.items).map(clone)}
