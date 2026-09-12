@@ -4,10 +4,10 @@
   import("./app-store-guard.js?v=20260912-v1").catch(error=>console.warn("[Votonobay store guard] load failed",error));
 
   const SCREEN_COPY={
-    stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
-    catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
-    cart:{title:"Корзина",compare:"Сравнить варианты"},
-    compare:{title:"Сравнение вариантов",sub:"Одна корзина · цена, способ покупки и подтверждённость данных"}
+    stores:{title:"Магазины",sub:"Выбери магазин — товары останутся в одной корзине"},
+    catalog:{sub:"Собери список — Votonobay оценит корзину целиком"},
+    cart:{title:"Корзина",compare:"Решить по корзине"},
+    compare:{title:"Решение по корзине",sub:"Цена, удобство, способ покупки и качество данных"}
   };
 
   function setText(node,text){if(node&&node.textContent!==text)node.textContent=text;}
@@ -41,6 +41,7 @@
     const input=document.querySelector(".wrap .addr");
     if(input){
       input.type="search";
+      input.placeholder="Найти товар";
       input.setAttribute("aria-label","Поиск товара в выбранном магазине");
       input.setAttribute("enterkeyhint","search");
       input.setAttribute("autocomplete","off");
@@ -67,7 +68,10 @@
 
   function tuneCart(){
     const primary=document.querySelector(".dock .btn.dark");
-    if(primary)setText(primary,SCREEN_COPY.cart.compare);
+    if(primary){
+      setText(primary,SCREEN_COPY.cart.compare);
+      primary.setAttribute("aria-label","Получить решение по корзине");
+    }
     const dock=document.querySelector(".dock");
     if(dock)dock.setAttribute("aria-label","Действия с корзиной");
     document.querySelector(".voto-cart-constraint")?.remove();
