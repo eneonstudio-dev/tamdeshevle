@@ -133,7 +133,13 @@ jobs:
           node --check scripts/test-bai-decision-quality.mjs
           node --check scripts/test-bai-literal-basket.mjs
           node --check scripts/test-bai-speech-lifecycle.mjs
-      - name: Test Bai conversation regressions
+      - name: Test Shopping Intelligence core
+        run: node scripts/test-bai-shopping-intelligence.mjs
+      - name: Test Shopping Intelligence corpus
+        run: node scripts/test-bai-shopping-intelligence-corpus.mjs
+      - name: Test Shopping Intelligence sequential E2E
+        run: node scripts/test-bai-shopping-intelligence-e2e.mjs
+      - name: Test existing Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
           node scripts/test-bai-brain.mjs
@@ -152,9 +158,6 @@ jobs:
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
           node scripts/test-bai-shopping-journey.mjs
-          node scripts/test-bai-shopping-intelligence.mjs
-          node scripts/test-bai-shopping-intelligence-corpus.mjs
-          node scripts/test-bai-shopping-intelligence-e2e.mjs
           node scripts/test-bai-sufficiency.mjs
           node scripts/test-bai-smart-substitutions.mjs
           node scripts/test-bai-meal-brain.mjs
