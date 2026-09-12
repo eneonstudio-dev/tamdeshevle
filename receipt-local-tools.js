@@ -4,6 +4,13 @@
   const STORAGE_KEY = "td:receipt-drafts:v1";
   const EXPORT_SCHEMA = "td.receipt_drafts_export";
   const EXPORT_VERSION = 1;
+  let storageError = null;
+
+  function emitChanged(count) {
+    try {
+      window.dispatchEvent(new CustomEvent("td:receipt-drafts-changed", { detail: { count } }));
+    } catch (_) {}
+  }
 
   function loadDrafts() {
     try {
@@ -16,8 +23,15 @@
 
   function saveDrafts(drafts) {
     const safe = Array.isArray(drafts) ? drafts.slice(0, 100) : [];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
-    window.dispatchEvent(new CustomEvent("td:receipt-drafts-changed", { detail: { count: safe.length } }));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safe));
+      storageError = null;
+    } catch (error) {
+      storageError = error || new Error("local storage unavailable");
+      console.warn("Receipt draft storage unavailable", storageError);
+      return null;
+    }
+    emitChanged(safe.length);
     return safe;
   }
 
@@ -68,7 +82,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `tamdeshevle-receipts-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `votonobay-receipts-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -120,7 +134,15 @@
       seen.add(id);
       return true;
     });
-    saveDrafts([...fresh, ...existing]);
+
+    if (fresh.length && !saveDrafts([...fresh, ...existing])) {
+      return {
+        ok: false,
+        imported: 0,
+        rejected: candidates.length,
+        errors: [...errors, "local receipt storage unavailable"]
+      };
+    }
 
     return {
       ok: fresh.length > 0 && errors.length === 0,
@@ -146,8 +168,16 @@
   }
 
   function clearDrafts() {
-    localStorage.removeItem(STORAGE_KEY);
-    window.dispatchEvent(new CustomEvent("td:receipt-drafts-changed", { detail: { count: 0 } }));
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      storageError = null;
+    } catch (error) {
+      storageError = error || new Error("local storage unavailable");
+      console.warn("Receipt draft storage clear failed", storageError);
+      return false;
+    }
+    emitChanged(0);
+    return true;
   }
 
   window.TDReceiptLocal = {
@@ -162,6 +192,7 @@
     downloadExport,
     importPayload,
     importFile,
-    clearDrafts
+    clearDrafts,
+    get storageError() { return storageError; }
   };
 })();
