@@ -1,5 +1,3 @@
-await import("./bai-food-knowledge.js?v=20260911-food-v2").catch(()=>{});
-await import("./bai-sufficiency.js?v=20260912-sufficiency-v1").catch(()=>{});
 (()=>{
   "use strict";
   if(window.TDBaiAutopilot)return;
