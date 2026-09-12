@@ -15,6 +15,7 @@
     node.textContent=`
       .item{position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.item:has(.td-product-trust.real){border-color:#cce7d6;box-shadow:0 12px 28px rgba(15,123,74,.09)}
       .thumb.td-retailer-photo{background:#fff;border:1px solid #eee7dc;padding:5px}.thumb.td-retailer-photo img{object-fit:contain;background:#fff}.td-photo-tag{position:absolute;left:18px;top:18px;background:rgba(22,20,16,.84);color:#fff;border-radius:999px;padding:3px 6px;font-size:8px;font-weight:800;letter-spacing:.02em;z-index:2}
+      .thumb.td-image-fallback,.sku-plate.td-image-fallback{background:linear-gradient(145deg,#faf8f3,#f0ece4);border:1px solid #e7e0d5}.td-image-fallback-mark{display:grid;place-items:center;width:100%;height:100%;min-height:44px;font-size:30px;line-height:1;color:#9b9285;text-align:center}
       .td-product-trust{grid-column:2/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:-5px;padding-top:8px;border-top:1px solid #eee8de;font-size:10px;font-weight:800;color:#756d61}.td-product-trust.real{color:#116c45}
       .td-product-trust .verified{display:inline-flex;align-items:center;gap:5px;background:#e7f6ec;border-radius:999px;padding:5px 8px;color:#0f7b4a}.td-product-trust .verified.stale{background:#fff1cf;color:#7b5700}.td-product-trust .estimated{background:#f1ede6;border-radius:999px;padding:5px 8px}.td-product-trust .promo{background:#fff0b8;color:#765700;border-radius:999px;padding:5px 8px}.td-product-trust a{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;opacity:.9}
       .td-retailer-name{grid-column:2/-1;margin-top:-6px;color:#4e493f;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.td-retailer-name strong{color:#161410}.td-old-price{text-decoration:line-through;color:#8a8277;font-size:12px;font-weight:700;margin-left:6px}.td-match-note{grid-column:2/-1;font-size:10px;color:#777064;font-weight:700;margin-top:-5px}
@@ -26,6 +27,19 @@
   function product(card){const title=card.querySelector(".title");if(!title||typeof PRODUCTS==="undefined")return null;return PRODUCTS.find(item=>item.name===title.textContent.trim())||null;}
   function date(value){if(!value)return"";const parsed=new Date(value);if(Number.isNaN(parsed.getTime()))return"";return parsed.toLocaleDateString("ru-RU",{day:"numeric",month:"short"}).replace(".","");}
   function safeImage(value){if(!value)return null;try{const url=new URL(String(value),location.href);return url.protocol==="https:"?url.toString():null;}catch{return null;}}
+  function normalizeImageUrl(value){
+    const safe=safeImage(value);if(!safe)return null;
+    try{
+      const url=new URL(safe);
+      if(url.hostname==="images.unsplash.com"){
+        url.searchParams.set("fit","max");
+        url.searchParams.set("w",String(Math.max(320,Number(url.searchParams.get("w"))||0)));
+        url.searchParams.set("h",String(Math.max(320,Number(url.searchParams.get("h"))||0)));
+        if(!url.searchParams.has("q"))url.searchParams.set("q","68");
+      }
+      return url.toString();
+    }catch{return safe;}
+  }
   function clearDecor(card){card.querySelectorAll(".td-retailer-name,.td-product-trust,.td-match-note,.td-photo-tag").forEach(node=>node.remove());card.querySelectorAll(".td-old-price").forEach(node=>node.remove());}
 
   function prepareImage(img){
@@ -34,26 +48,63 @@
     img.setAttribute("fetchpriority","low");
   }
 
-  function applyImage(card,meta){
+  function clearFallback(holder,img){
+    holder.classList.remove("td-image-fallback");
+    holder.querySelector(".td-image-fallback-mark")?.remove();
+    if(img){img.hidden=false;img.removeAttribute("aria-hidden");}
+  }
+
+  function showImageFallback(holder,img,item){
+    if(!holder)return;
+    holder.classList.remove("td-retailer-photo");
+    holder.classList.add("td-image-fallback");
+    if(img){img.hidden=true;img.setAttribute("aria-hidden","true");}
+    let mark=holder.querySelector(".td-image-fallback-mark");
+    if(!mark){mark=document.createElement("span");mark.className="td-image-fallback-mark";holder.appendChild(mark);}
+    const label=item&&item.name?`Изображение товара «${item.name}» недоступно`:"Изображение товара недоступно";
+    mark.setAttribute("role","img");mark.setAttribute("aria-label",label);mark.textContent=item&&item.emoji?item.emoji:"◻";
+    holder.closest(".item")?.querySelector(".td-photo-tag")?.remove();
+  }
+
+  function setImageSource({img,holder,card,item,source,fallback=null,retailer=false}){
+    if(!img||!holder||!source){showImageFallback(holder,img,item);return false;}
+    prepareImage(img);clearFallback(holder,img);
+    img.onerror=()=>{
+      if(retailer){holder.classList.remove("td-retailer-photo");card?.querySelector(".td-photo-tag")?.remove();}
+      if(fallback&&fallback!==source){setImageSource({img,holder,card,item,source:fallback,fallback:null,retailer:false});return;}
+      showImageFallback(holder,img,item);
+    };
+    img.onload=()=>clearFallback(holder,img);
+    if(img.getAttribute("src")!==source)img.src=source;
+    return true;
+  }
+
+  function applyImage(card,meta,item){
     const thumb=card.querySelector(".thumb"),img=thumb&&thumb.querySelector("img");
     if(!thumb||!img)return;
-    prepareImage(img);
-    const retailerImage=safeImage(meta&&meta.imageUrl);
+    const rawBase=img.dataset.tdOriginalSrc||img.getAttribute("src")||img.src;
+    if(!img.dataset.tdOriginalSrc&&rawBase)img.dataset.tdOriginalSrc=rawBase;
+    const baseImage=normalizeImageUrl(img.dataset.tdOriginalSrc||rawBase);
+    const retailerImage=normalizeImageUrl(meta&&meta.imageUrl);
+    card.querySelector(".td-photo-tag")?.remove();
     if(!retailerImage){
-      if(img.dataset.tdOriginalSrc&&img.src!==img.dataset.tdOriginalSrc)img.src=img.dataset.tdOriginalSrc;
       thumb.classList.remove("td-retailer-photo");
+      setImageSource({img,holder:thumb,card,item,source:baseImage});
       return;
     }
-    if(!img.dataset.tdOriginalSrc)img.dataset.tdOriginalSrc=img.src;
-    img.onerror=()=>{
-      img.onerror=null;
-      if(img.dataset.tdOriginalSrc)img.src=img.dataset.tdOriginalSrc;
-      thumb.classList.remove("td-retailer-photo");
-      card.querySelector(".td-photo-tag")?.remove();
-    };
-    if(img.src!==retailerImage)img.src=retailerImage;
     thumb.classList.add("td-retailer-photo");
+    setImageSource({img,holder:thumb,card,item,source:retailerImage,fallback:baseImage,retailer:true});
     const tag=document.createElement("span");tag.className="td-photo-tag";tag.textContent="фото сети";card.appendChild(tag);
+  }
+
+  function prepareTileImage(img){
+    const holder=img.closest(".sku-plate");if(!holder)return;
+    const raw=img.dataset.tdOriginalSrc||img.getAttribute("src")||img.src;
+    if(!img.dataset.tdOriginalSrc&&raw)img.dataset.tdOriginalSrc=raw;
+    const source=normalizeImageUrl(img.dataset.tdOriginalSrc||raw);
+    if(img.dataset.tdPreparedSource===source&&!img.hidden)return;
+    img.dataset.tdPreparedSource=source||"";
+    setImageSource({img,holder,item:null,source});
   }
 
   function decorateCard(card){
@@ -63,7 +114,7 @@
     const signature=[storeId,slot,meta&&meta.checkedAt,meta&&meta.price,meta&&meta.imageUrl,meta&&meta.promo,meta&&meta.freshness].join("|");
     if(card.dataset.productUiSignature===signature)return;
     card.dataset.productUiSignature=signature;
-    clearDecor(card);applyImage(card,meta);
+    clearDecor(card);applyImage(card,meta,item);
     const price=card.querySelector(".price");
     const name=document.createElement("div");name.className="td-retailer-name";
     if(meta&&meta.retailerName)name.innerHTML=`В каталоге: <strong>${esc(meta.retailerName)}</strong>`;else name.textContent="Базовый товар для сравнения";
@@ -83,6 +134,7 @@
   function decorate(){
     style();
     document.querySelectorAll("#app .item").forEach(decorateCard);
+    document.querySelectorAll("#app .sku-plate img").forEach(prepareTileImage);
   }
 
   function queueDecorate(){
@@ -90,8 +142,8 @@
     frame=requestAnimationFrame(()=>{frame=0;decorate();});
   }
 
-  function containsItem(node){return node&&node.nodeType===1&&(node.matches?.(".item")||node.querySelector?.(".item"));}
-  function needsDecorate(records){return records.some(record=>[...record.addedNodes].some(containsItem));}
+  function containsProductVisual(node){return node&&node.nodeType===1&&(node.matches?.(".item,.sku")||node.querySelector?.(".item,.sku"));}
+  function needsDecorate(records){return records.some(record=>[...record.addedNodes].some(containsProductVisual));}
 
   const observer=new MutationObserver(records=>{if(needsDecorate(records))queueDecorate();});
   function observe(){
