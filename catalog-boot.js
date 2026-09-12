@@ -31,6 +31,9 @@
   const rub = n => Math.max(9, Math.round(n));
   let POINTS = [];
   let BOOK = null;
+  const esc=value=>String(value==null?"":value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[char]);
+  const plain=(value,max)=>String(value==null?"":value).replace(/[\u0000-\u001f\u007f]/g," ").replace(/\s+/g," ").trim().slice(0,max);
+  const safeId=value=>/^[a-z0-9_-]{1,64}$/.test(String(value||""));
   function pic(p) { return (p && (SKU_IMG[p.id] || CAT_IMG[p.category])) || ""; }
   function packClass(p) {
     const c = (p && p.category) || "";
@@ -72,7 +75,8 @@
   function chipRow(items, current, fnName) {
     const d = document.createElement("div");
     d.className = "chips extra-chips";
-    d.innerHTML = items.map(x => `<button class="chip ${x === current ? "on" : ""}" onclick="${fnName}('${x}')">${x}</button>`).join("");
+    const handler=fnName==="setRadiusLabel"?window.setRadiusLabel:fnName==="setCat"?window.setCat:null;
+    items.forEach(item=>{const button=document.createElement("button");button.type="button";button.className=`chip ${item===current?"on":""}`;button.textContent=String(item);if(handler)button.addEventListener("click",()=>handler(item));d.appendChild(button);});
     return d;
   }
   function sumStore(id) {
@@ -101,7 +105,7 @@
         thumb.className = "thumb product-packaging " + packClass(p);
         thumb.style.padding = "0";
         if (src) {
-          thumb.innerHTML = `<img alt="${p.name}" src="${src}" onerror="this.parentNode.textContent='${p.emoji || ""}'">`;
+          const img=document.createElement("img");img.alt=p.name;img.src=src;img.addEventListener("error",()=>{thumb.textContent=p.emoji||""},{once:true});thumb.replaceChildren(img);
         } else {
           thumb.textContent = p.emoji || "";
           thumb.style.fontSize = "32px";
@@ -163,8 +167,8 @@
       : "Без места — сети города";
     const tiles = (cart.length ? cart : PRODUCTS).slice(0, 6).map(p => {
       const src = pic(p);
-      const plate = src ? `<img alt="" src="${src}">` : (p.emoji || "");
-      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}">${plate}</span><span class="sku-name">${p.name}</span><span class="sku-meta">${p.pack} · ${p.prices[sid] || "—"} ₽</span></button>`;
+      const plate = src ? `<img alt="" src="${src}">` : esc(p.emoji || "");
+      return `<button class="sku" onclick="go('catalog')"><span class="sku-plate ${packClass(p)}">${plate}</span><span class="sku-name">${esc(p.name)}</span><span class="sku-meta">${esc(p.pack)} · ${p.prices[sid] || "—"} ₽</span></button>`;
     }).join("");
     const nets = (typeof STORES === "undefined" ? [] : STORES.filter(s => s.city.includes(state.city))).slice(0, 4).map(s => {
       const total = n ? sumStore(s.id) + (s.kind === "delivery" ? (s.delivery || 0) : 0) : null;
@@ -240,7 +244,10 @@
         prices[sid] = rub(b * (mult[sid] || 1));
         bring[sid] = (sid === "lavka" || sid === "vprok") ? prices[sid] : rub(prices[sid] * bm);
       });
-      PRODUCTS.push({ id: m.id, emoji: m.emoji, name: m.name, pack: m.pack, category: m.category, prices: prices, bring: bring });
+      if(!safeId(m.id))return;
+      const name=plain(m.name,90),pack=plain(m.pack,50),category=plain(m.category,60),emoji=plain(m.emoji,12);
+      if(!name||!pack||!category)return;
+      PRODUCTS.push({ id: m.id, emoji, name, pack, category, prices: prices, bring: bring });
     });
     if (window.state && state.cart) {
       const next = {};

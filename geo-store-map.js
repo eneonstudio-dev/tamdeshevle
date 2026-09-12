@@ -36,12 +36,12 @@
     if(window.L&&typeof window.L.map==="function")return Promise.resolve();
     if(leafletPromise)return leafletPromise;
     leafletPromise=new Promise((resolve,reject)=>{
-      if(!document.querySelector('link[data-td-leaflet]')){const link=document.createElement("link");link.rel="stylesheet";link.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";link.dataset.tdLeaflet="1";document.head.appendChild(link);}
+      if(!document.querySelector('link[data-td-leaflet]')){const link=document.createElement("link");link.rel="stylesheet";link.href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";link.integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H";link.crossOrigin="anonymous";link.dataset.tdLeaflet="1";document.head.appendChild(link);}
       const existing=document.querySelector('script[data-td-leaflet]');
       const script=existing||document.createElement("script");
       const done=()=>window.L&&typeof window.L.map==="function"?resolve():reject(new Error("Leaflet unavailable"));
       if(existing){existing.addEventListener("load",done,{once:true});existing.addEventListener("error",()=>reject(new Error("Leaflet load failed")),{once:true});return;}
-      script.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";script.async=true;script.dataset.tdLeaflet="1";script.onload=done;script.onerror=()=>reject(new Error("Leaflet load failed"));document.head.appendChild(script);
+      script.src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";script.integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH";script.crossOrigin="anonymous";script.async=true;script.dataset.tdLeaflet="1";script.onload=done;script.onerror=()=>reject(new Error("Leaflet load failed"));document.head.appendChild(script);
     }).catch(err=>{leafletPromise=null;document.querySelector('script[data-td-leaflet]')?.remove();throw err;});
     return leafletPromise;
   }

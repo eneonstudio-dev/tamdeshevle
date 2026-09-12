@@ -13,8 +13,8 @@ jobs:
   validate-app-runtime:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
       - name: Check app syntax
@@ -48,6 +48,7 @@ jobs:
           node --check scripts/test-ui-lifecycle-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
           node --check scripts/test-static-assets.mjs
+          node --check scripts/test-security-hardening.mjs
           node --check scripts/test-mobile-runtime.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
@@ -95,3 +96,5 @@ jobs:
         run: node scripts/test-purchase-comparison-resilience.mjs
       - name: Test static asset integrity
         run: node scripts/test-static-assets.mjs
+      - name: Test security hardening contracts
+        run: node scripts/test-security-hardening.mjs

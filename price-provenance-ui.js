@@ -51,6 +51,34 @@
     return Number(value).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+  }
+
+  function safeUrl(value) {
+    try {
+      const url = new URL(String(value || ""), location.href);
+      return url.protocol === "https:" ? url.href : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setOrigin(holder, label, className, sourceUrl) {
+    const pill = document.createElement("span");
+    pill.className = `td-price-pill${className ? ` ${className}` : ""}`;
+    pill.textContent = label;
+    holder.replaceChildren(pill);
+    const href = safeUrl(sourceUrl);
+    if (!href) return;
+    const link = document.createElement("a");
+    link.href = href;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "источник ↗";
+    holder.appendChild(link);
+  }
+
   function productFromCard(card) {
     const title = card.querySelector(".title");
     if (!title || typeof PRODUCTS === "undefined") return null;
@@ -73,15 +101,15 @@
       holder.className = "td-price-origin";
       if (meta) {
         const checked = shortDate(meta.checkedAt);
-        holder.innerHTML = `<span class="td-price-pill real">● цена из магазина${checked ? ` · ${checked}` : ""}</span>${meta.sourceUrl ? `<a href="${meta.sourceUrl}" target="_blank" rel="noopener">источник ↗</a>` : ""}`;
+        setOrigin(holder, `● цена из магазина${checked ? ` · ${checked}` : ""}`, "real", meta.sourceUrl);
         holder.title = meta.retailerName || "Подтверждённая цена из публичного каталога сети";
       } else if (estimate) {
         const checked = shortDate(estimate.checkedAt);
         const region = estimate.catalogContext?.region || "регион";
-        holder.innerHTML = `<span class="td-price-pill estimate">≈ каталог · ${region}: ${money(estimate.price)} ₽${checked ? ` · ${checked}` : ""}</span>${estimate.sourceUrl ? `<a href="${estimate.sourceUrl}" target="_blank" rel="noopener">источник ↗</a>` : ""}`;
+        setOrigin(holder, `≈ каталог · ${region}: ${money(estimate.price)} ₽${checked ? ` · ${checked}` : ""}`, "estimate", estimate.sourceUrl);
         holder.title = "Ориентировочная цена регионального каталога. Не подтверждена для конкретного магазина и не участвует в рейтинге.";
       } else {
-        holder.innerHTML = `<span class="td-price-pill">учебная цена</span>`;
+        setOrigin(holder, "учебная цена", "", null);
       }
       price.insertAdjacentElement("afterend", holder);
     });
@@ -138,7 +166,7 @@
       if (complete) {
         box.textContent = `${coverageText(row, products.length)} · итог можно сравнивать`;
       } else if (missing.length) {
-        box.innerHTML = `${coverageText(row, products.length)} · итог пока нельзя сравнить<small>Нет подтверждённой цены: ${missing.slice(0, 3).join(", ")}${missing.length > 3 ? ` +${missing.length - 3}` : ""}</small>`;
+        box.innerHTML = `${coverageText(row, products.length)} · итог пока нельзя сравнить<small>Нет подтверждённой цены: ${missing.slice(0, 3).map(escapeHtml).join(", ")}${missing.length > 3 ? ` +${missing.length - 3}` : ""}</small>`;
       } else if (feeUnknown) {
         box.innerHTML = `Товары посчитаны, но итог пока нельзя сравнить<small>Неизвестна стоимость доставки</small>`;
       } else {
