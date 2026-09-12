@@ -4,7 +4,11 @@
   const FOCUSABLE='a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
   let accountRoot=null,authRoot=null,accountOpener=null,authOpener=null,lastProfileTrigger=null;
   let accountManualBack=false,authManualBack=false,suppressAccountRemoval=false,suppressAuthRemoval=false;
-  let authPreviousOverflow="",authActionBusy=false,cloudUiBusy=false;
+  let authPreviousOverflow="",authActionBusy=false,cloudUiBusy=false,domEnhancementEnabled=false;
+
+  function hasFullDom(){
+    return Boolean(document&&document.body&&document.head&&typeof document.createElement==='function'&&typeof document.getElementById==='function'&&typeof document.contains==='function'&&typeof history!=='undefined');
+  }
 
   function visibleFocusable(root){
     if(!root)return[];
@@ -22,12 +26,12 @@
   }
 
   function safeFocus(target){
-    if(!target||!document.contains(target)||typeof target.focus!=='function')return false;
+    if(!target||!document.contains?.(target)||typeof target.focus!=='function')return false;
     try{target.focus({preventScroll:true});return true}catch{try{target.focus();return true}catch{return false}}
   }
 
   function ensureResilienceCss(){
-    if(document.getElementById('td-account-auth-resilience-style'))return;
+    if(!hasFullDom()||document.getElementById('td-account-auth-resilience-style'))return;
     const style=document.createElement('style');
     style.id='td-account-auth-resilience-style';
     style.textContent=`.td-account{height:var(--td-vvh,100dvh);max-height:var(--td-vvh,100dvh);overscroll-behavior:contain}.td-auth-modal{height:var(--td-vvh,100dvh);max-height:var(--td-vvh,100dvh);overflow:auto;overscroll-behavior:contain;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.td-auth-card{max-height:calc(var(--td-vvh,100dvh) - 24px);overflow:auto;-webkit-overflow-scrolling:touch}body[data-td-keyboard-open] .td-auth-modal{padding-top:8px;padding-bottom:8px}body[data-td-keyboard-open] .td-auth-card{max-height:calc(var(--td-vvh,100dvh) - 16px)}`;
@@ -36,50 +40,54 @@
 
   function feedback(root,text){
     if(!root)return;
-    const button=root.querySelector('[data-auth]');
+    const button=root.querySelector?.('[data-auth]');
     if(!button)return;
-    let node=root.querySelector('.td-account-auth-feedback');
-    if(!node){node=document.createElement('div');node.className='td-account-auth-feedback';node.setAttribute('role','alert');node.style.cssText='margin-top:8px;font-size:10px;font-weight:800;line-height:1.4;color:#9b2c2c';button.insertAdjacentElement('afterend',node);}
+    let node=root.querySelector?.('.td-account-auth-feedback');
+    if(!node&&typeof document.createElement==='function'){
+      node=document.createElement('div');node.className='td-account-auth-feedback';node.setAttribute('role','alert');node.style.cssText='margin-top:8px;font-size:10px;font-weight:800;line-height:1.4;color:#9b2c2c';button.insertAdjacentElement?.('afterend',node);
+    }
+    if(!node)return;
     node.textContent=text||'';
     node.hidden=!text;
   }
 
   function apply(){
     if(!window.TDAuth)return;
-    const root=document.querySelector('.td-account');
+    const root=document.querySelector?.('.td-account');
     if(!root)return;
-    const status=root.querySelector('.td-account-status');
-    const button=root.querySelector('[data-auth]');
+    const status=root.querySelector?.('.td-account-status');
+    const button=root.querySelector?.('[data-auth]');
     if(!status||!button)return;
     const u=TDAuth.user();
     const nextStatus=u
       ? (u.email||'Аккаунт')+' · вход выполнен'
       : (TDAuth.configured()?'Гостевой режим · войди, чтобы синхронизировать данные':'Вход временно недоступен');
     const cloud=TDAuth.cloudStatus?.()||{status:'idle',message:'Облачная копия ещё не проверена'};
-    const cloudLabel=root.querySelector('.td-cloud-status');
+    const cloudLabel=root.querySelector?.('.td-cloud-status');
     if(cloudLabel){
       cloudLabel.textContent=u?cloud.message:'Войди, чтобы сохранить или восстановить корзину.';
-      cloudLabel.setAttribute('role',cloud.status==='error'?'alert':'status');
-      cloudLabel.setAttribute('aria-live',cloud.status==='error'?'assertive':'polite');
+      cloudLabel.setAttribute?.('role',cloud.status==='error'?'alert':'status');
+      cloudLabel.setAttribute?.('aria-live',cloud.status==='error'?'assertive':'polite');
     }
     const cloudBusy=cloud.status==='busy'||cloudUiBusy;
-    root.setAttribute('aria-busy',cloudBusy?'true':'false');
-    root.querySelector('.td-cloud-actions')?.setAttribute('aria-busy',cloudBusy?'true':'false');
+    root.setAttribute?.('aria-busy',cloudBusy?'true':'false');
+    root.querySelector?.('.td-cloud-actions')?.setAttribute?.('aria-busy',cloudBusy?'true':'false');
     for(const selector of ['[data-cloud-save]','[data-cloud-restore]']){
-      const action=root.querySelector(selector);
-      if(action){action.disabled=!u||cloudBusy;action.setAttribute('aria-disabled',action.disabled?'true':'false');}
+      const action=root.querySelector?.(selector);
+      if(action){action.disabled=!u||cloudBusy;action.setAttribute?.('aria-disabled',action.disabled?'true':'false');}
     }
     button.disabled=cloud.status==='busy'||authActionBusy;
-    button.setAttribute('aria-busy',authActionBusy?'true':'false');
+    button.setAttribute?.('aria-busy',authActionBusy?'true':'false');
     const nextButton=u?'Выйти из аккаунта':'Войти / создать аккаунт';
     const nextMode=u?'signout':'signin';
     if(status.textContent!==nextStatus)status.textContent=nextStatus;
     if(button.textContent!==nextButton)button.textContent=nextButton;
-    if(button.dataset.mode!==nextMode)button.dataset.mode=nextMode;
+    if(button.dataset&&button.dataset.mode!==nextMode)button.dataset.mode=nextMode;
   }
 
   function enhanceAccount(root){
-    if(!root||root.dataset.tdAccountEnhanced==='1')return;
+    if(!root||root.dataset?.tdAccountEnhanced==='1')return;
+    if(!root.dataset)return;
     root.dataset.tdAccountEnhanced='1';
     root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.tabIndex=-1;
     const title=root.querySelector('.td-account-title');
@@ -90,7 +98,8 @@
   }
 
   function enhanceAuth(root){
-    if(!root||root.dataset.tdAuthEnhanced==='1')return;
+    if(!root||root.dataset?.tdAuthEnhanced==='1')return;
+    if(!root.dataset)return;
     root.dataset.tdAuthEnhanced='1';
     authPreviousOverflow=document.body.style.overflow;
     document.body.style.overflow='hidden';
@@ -120,6 +129,7 @@
   }
 
   function syncLayers(){
+    if(!domEnhancementEnabled)return;
     const nextAccount=document.querySelector('.td-account');
     const nextAuth=document.querySelector('.td-auth-modal');
     if(nextAccount!==accountRoot){
@@ -134,12 +144,14 @@
     }
   }
 
-  document.addEventListener('pointerdown',e=>{
+  document.addEventListener?.('pointerdown',e=>{
+    if(!domEnhancementEnabled)return;
     const trigger=e.target.closest?.('.td-profile-btn');
     if(trigger)lastProfileTrigger=trigger;
   },true);
 
-  document.addEventListener('keydown',event=>{
+  document.addEventListener?.('keydown',event=>{
+    if(!domEnhancementEnabled)return;
     if(authRoot&&document.contains(authRoot)){
       if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();authRoot.querySelector('.td-auth-x')?.click();return;}
       trapTab(event,authRoot);return;
@@ -151,13 +163,14 @@
   },true);
 
   window.addEventListener('popstate',event=>{
+    if(!domEnhancementEnabled)return;
     if(authManualBack){authManualBack=false;return;}
     if(accountManualBack){accountManualBack=false;return;}
     if(authRoot&&!event.state?.tdAuth){suppressAuthRemoval=true;authRoot.querySelector('.td-auth-x')?.click();}
     if(accountRoot&&!event.state?.tdAccount){suppressAccountRemoval=true;window.TDAccountHub?.close?.(accountRoot);}
   });
 
-  document.addEventListener('click',async e=>{
+  document.addEventListener?.('click',async e=>{
     const b=e.target.closest&&e.target.closest('.td-account [data-auth]');
     if(!b||!window.TDAuth)return;
     if(b.dataset.mode==='signout'){
@@ -170,7 +183,7 @@
     }
   },true);
 
-  document.addEventListener('click',async e=>{
+  document.addEventListener?.('click',async e=>{
     const b=e.target.closest?.('[data-cloud-save],[data-cloud-restore]');
     if(!b||b.disabled||!window.TDAuth||cloudUiBusy)return;
     cloudUiBusy=true;apply();
@@ -184,13 +197,15 @@
     finally{cloudUiBusy=false;apply();}
   });
 
-  const observer=new MutationObserver(syncLayers);
+  const observer=typeof MutationObserver==='function'?new MutationObserver(syncLayers):null;
   function start(){
+    domEnhancementEnabled=hasFullDom();
+    if(!domEnhancementEnabled){apply();return;}
     ensureResilienceCss();
     if(!document.querySelector('.td-account')&&!document.querySelector('.td-auth-modal')&&(history.state?.tdAccount||history.state?.tdAuth)){
       try{const next={...history.state};delete next.tdAccount;delete next.tdAuth;history.replaceState(next,'');}catch{}
     }
-    observer.observe(document.body,{childList:true,subtree:true});
+    if(observer)observer.observe(document.body,{childList:true,subtree:true});
     syncLayers();apply();
   }
   window.addEventListener('td:cloud-state',apply);
@@ -198,8 +213,8 @@
   window.addEventListener('td:account-opened',()=>{syncLayers();apply();});
   window.addEventListener('td:cloud-synced',apply);
   window.addEventListener('td:cloud-hydrated',()=>{syncLayers();apply();});
-  window.addEventListener('pagehide',()=>observer.disconnect());
-  window.addEventListener('pageshow',()=>{observer.disconnect();observer.observe(document.body,{childList:true,subtree:true});syncLayers();});
+  window.addEventListener('pagehide',()=>{if(observer)observer.disconnect();});
+  window.addEventListener('pageshow',()=>{if(observer&&domEnhancementEnabled){observer.disconnect();observer.observe(document.body,{childList:true,subtree:true});syncLayers();}});
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
   window.TDAccountAuthUI={apply,syncLayers};
