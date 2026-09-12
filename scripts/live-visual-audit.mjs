@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 
 const BASE = "https://eneonstudio-dev.github.io/tamdeshevle/";
 const OUT = "audit-shots";
+const PREVIEW_CSS = "votonobay-live-audit-fixes-v1.css";
 await fs.mkdir(OUT, { recursive: true });
 const browser = await chromium.launch({ headless: true });
 const report = [];
@@ -17,6 +18,7 @@ async function openPage(name, viewport, action) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
   await page.waitForSelector(".v2-hero", { timeout: 30000 });
   await page.waitForTimeout(3500);
+  await page.addStyleTag({ path: PREVIEW_CSS });
   if (action) await action(page);
   await page.waitForTimeout(1200);
   const metrics = await page.evaluate(() => ({
@@ -26,8 +28,10 @@ async function openPage(name, viewport, action) {
     bodyScrollHeight: document.body.scrollHeight,
     hero: document.querySelector(".v2-hero")?.getBoundingClientRect().toJSON?.() || null,
     header: document.querySelector(".v2-header")?.getBoundingClientRect().toJSON?.() || null,
+    innerHeader: document.querySelector("header.app:not(.v2-header)")?.getBoundingClientRect().toJSON?.() || null,
     bottomNav: document.querySelector(".v2-bottom-nav")?.getBoundingClientRect().toJSON?.() || null,
     assistant: document.querySelector(".td-ai")?.getBoundingClientRect().toJSON?.() || null,
+    assistantShell: document.querySelector(".td-ai-shell")?.getBoundingClientRect().toJSON?.() || null,
     background: getComputedStyle(document.body).backgroundColor,
     color: getComputedStyle(document.body).color,
     overflowX: getComputedStyle(document.documentElement).overflowX,
