@@ -18,7 +18,7 @@ window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
   endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-agent-core"
 };
 
-import("./bai-autopilot.js?v=20260912-autopilot-v1").catch(error=>console.warn("[Bai Autopilot] load failed",error));
+import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
 import("./bai-agent-client.js?v=20260912-agent-core-v1")
-  .then(()=>import("./bai-shopping-journey.js?v=20260912-journey-v1"))
+  .then(()=>import("./bai-shopping-journey.js?v=20260912-journey-v2"))
   .catch(error=>console.warn("[Bai Agent/Journey] client load failed",error));

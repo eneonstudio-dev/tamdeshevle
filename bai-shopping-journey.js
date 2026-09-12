@@ -8,7 +8,7 @@
   const AUTO=/(?:^|[\s,])(собери|подбери|составь|сам реши|реши сам|сделай (?:мне )?(?:корзин|рацион)|на твое усмотрение|на твоё усмотрение)(?=$|[\s,.!?])/i;
   const COMPARE=/сравни|покажи\s+вариант|какие\s+вариант|что\s+лучше|что\s+выбрать/i;
   const NARROW=/\b(?:добав|убери|удали|замени|поменяй|оставь|только|отмени|верни)\b/i;
-  let plannerLoad=null,wrapped=false,descriptorInstalled=false;
+  let plannerLoad=null,memoryLoad=null,wrapped=false,descriptorInstalled=false;
 
   function opKey(op){return `${String(op?.type||"")}:${JSON.stringify(op?.value??null)}`}
   function mergeOps(base,extra){
@@ -18,7 +18,7 @@
       const key=opKey(op);if(seen.has(key))continue;seen.add(key);out.push(clone(op));
     }
     if(!out.some(op=>op.type==="REOPTIMIZE"))out.push({type:"REOPTIMIZE"});
-    return out.slice(0,24);
+    return out.slice(0,40);
   }
 
   function shouldAuto(text,routed){
@@ -31,10 +31,10 @@
   }
 
   function project(base,ops,text=""){
-    const s=clone(base);s.requiredProducts=uniq(s.requiredProducts||[]);s.preferredProducts=uniq(s.preferredProducts||[]);s.excludedProducts=uniq(s.excludedProducts||[]);s.preferences=uniq(s.preferences||[]);s.stores=uniq(s.stores||[]);
+    const s=clone(base);s.requiredProducts=uniq(s.requiredProducts||[]);s.preferredProducts=uniq(s.preferredProducts||[]);s.excludedProducts=uniq(s.excludedProducts||[]);s.preferences=uniq(s.preferences||[]);s.stores=uniq(s.stores||[]);s.quantityTargets=s.quantityTargets||{};
     for(const op of ops||[]){
       if(!op)continue;
-      if(op.type==="RESET_BASKET"){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.onlyProducts=[];s.preferences=[]}
+      if(op.type==="RESET_BASKET"){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.onlyProducts=[];s.preferences=[];s.quantityTargets={}}
       else if(op.type==="CHANGE_BUDGET")s.budget=Math.max(0,Number(op.value)||0);
       else if(op.type==="SET_PEOPLE")s.peopleCount=Math.max(1,Number(op.value)||1);
       else if(op.type==="SET_DURATION")s.duration=Math.max(1,Number(op.value)||1);
@@ -43,19 +43,21 @@
       else if(op.type==="CHANGE_STORE")s.stores=uniq([...s.stores,String(op.value||"")]);
       else if(op.type==="ADD_PREFERENCE")s.preferences=uniq([...s.preferences,String(op.value||"")]);
       else if(op.type==="REQUIRE"||op.type==="ADD_PRODUCT"){s.requiredProducts=uniq([...s.requiredProducts,String(op.value||"")]);s.excludedProducts=s.excludedProducts.filter(x=>x!==String(op.value||""))}
-      else if(op.type==="REMOVE_PRODUCT"){s.excludedProducts=uniq([...s.excludedProducts,String(op.value||"")]);s.requiredProducts=s.requiredProducts.filter(x=>x!==String(op.value||""))}
+      else if(op.type==="REMOVE_PRODUCT"){s.excludedProducts=uniq([...s.excludedProducts,String(op.value||"")]);s.requiredProducts=s.requiredProducts.filter(x=>x!==String(op.value||""));delete s.quantityTargets[String(op.value||"")]}
       else if(op.type==="PREFER")s.preferredProducts=uniq([...s.preferredProducts,String(op.value||"")]);
       else if(op.type==="SET_ONLY_PRODUCTS"){s.selectionMode="only";s.onlyProducts=uniq(op.value||[]);s.requiredProducts=uniq(op.value||[])}
+      else if(op.type==="SET_PRODUCT_AMOUNT"&&op.value?.id)s.quantityTargets[op.value.id]={amount:Number(op.value.amount)||1,unit:op.value.unit||"pack"};
       else if(op.type==="CLEAR_ONLY"){s.selectionMode="auto";s.onlyProducts=[]}
-      else if(op.type==="REPLACE_PRODUCT"&&op.value){const from=String(op.value.from||""),to=String(op.value.to||"");s.excludedProducts=uniq([...s.excludedProducts,from]);s.requiredProducts=uniq([...s.requiredProducts.filter(x=>x!==from),to])}
+      else if(op.type==="REPLACE_PRODUCT"&&op.value){const from=String(op.value.from||""),to=String(op.value.to||"");s.excludedProducts=uniq([...s.excludedProducts,from]);s.requiredProducts=uniq([...s.requiredProducts.filter(x=>x!==from),to]);if(s.quantityTargets[from]&&!s.quantityTargets[to])s.quantityTargets[to]=s.quantityTargets[from];delete s.quantityTargets[from]}
     }
     if(/\b(?:я\s+один|мне\s+одному|для\s+себя)\b/.test(low(text)))s.peopleCount=1;
     return s;
   }
 
+  async function ensureMemory(){if(window.TDBaiMemory)return window.TDBaiMemory;memoryLoad=memoryLoad||import("./bai-memory.js?v=20260912-memory-v4").catch(error=>{console.warn("[Bai Journey] memory load failed",error);return null});await memoryLoad;return window.TDBaiMemory||null}
   async function ensurePlanner(){
     if(window.TDBaiPlanner)return window.TDBaiPlanner;
-    plannerLoad=plannerLoad||import("./bai-planner.js?v=20260912-planner-v4").catch(error=>{console.warn("[Bai Journey] planner load failed",error);return null});
+    plannerLoad=plannerLoad||import("./bai-planner.js?v=20260912-meal-v1").catch(error=>{console.warn("[Bai Journey] planner load failed",error);return null});
     await plannerLoad;return window.TDBaiPlanner||null;
   }
 
@@ -68,12 +70,14 @@
 
   async function autoPlan(text,routed){
     if(!shouldAuto(text,routed))return routed;
-    const planner=await ensurePlanner();if(!planner?.build||!window.TDShoppingOptimizer)return routed;
-    const base=window.TDShoppingState?.get?.()||{},scenario=project(base,routed?.operations||[],text),pack=planner.build(scenario,text),chosen=pack?.recommended;
+    await ensureMemory();const planner=await ensurePlanner();if(!planner?.build||!window.TDShoppingOptimizer)return routed;
+    const explicit=clone(routed?.operations||[]),base=window.TDShoppingState?.get?.()||{},scenario=project(base,explicit,text),pack=planner.build(scenario,text),chosen=pack?.recommended;
     if(!chosen?.operations?.length)return routed;
-    const operations=mergeOps(routed?.operations,chosen.operations);if(!operations.length)return routed;
-    const assumed=assumptions(scenario,routed),why=planner.explain?.(pack,scenario)||"";
-    return {...routed,provider:"bai-shopping-journey",operations,reply:why||routed?.reply||"Собрал лучший вариант.",suggestions:[],expectsAnswer:/сам реши|реши сам|на тво[её] усмотрение/.test(low(text)),journey:{autoApplied:true,strategy:chosen.id,title:chosen.title,assumptions:assumed,alternatives:(pack.strategies||[]).slice(0,3).map(x=>({id:x.id,total:x.total,stores:x.stores,score:x.score}))}};
+    const operations=mergeOps(explicit,chosen.operations);if(!operations.length)return routed;
+    const explicitKeys=new Set(explicit.map(opKey)),generated=operations.filter(op=>!explicitKeys.has(opKey(op))),assumed=assumptions(scenario,routed),why=planner.explain?.(pack,scenario)||"";
+    const productIds=uniq([...(chosen.productIds||[]),...generated.filter(o=>o.type==="REQUIRE").map(o=>String(o.value||""))]);
+    const suppressChooser=/сам реши|реши сам|на тво[её] усмотрение/.test(low(text));
+    return {...routed,provider:"bai-shopping-journey",operations,reply:why||routed?.reply||"Собрал лучший вариант.",suggestions:[],expectsAnswer:suppressChooser,journey:{autoApplied:true,strategy:chosen.id,title:chosen.title,assumptions:assumed,explicitOperations:explicit,generatedOperations:generated,recommendation:{strategy:chosen.id,title:chosen.title,productIds},mealPlan:chosen.mealPlan||null,sufficiency:chosen.sufficiency||null,alternatives:(pack.strategies||[]).slice(0,3).map(x=>({id:x.id,total:x.total,stores:x.stores,score:x.score}))}};
   }
 
   function wrapBrain(brain){

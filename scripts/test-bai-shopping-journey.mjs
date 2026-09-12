@@ -22,12 +22,12 @@ let brainOutput={
 };
 
 const context={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise};
-context.window=context;context.globalThis=context;
-context.TDShoppingState={get:()=>({budget:0,peopleCount:1,duration:1,cookingPreference:'normal',mode:'multi',stores:[],preferences:[],requiredProducts:[],preferredProducts:[],excludedProducts:[],products:[]})};
+context.window=context;context.globalThis=context;context.TDBaiMemory={get:()=>({})};
+context.TDShoppingState={get:()=>({budget:0,peopleCount:1,duration:1,cookingPreference:'normal',mode:'multi',stores:[],preferences:[],requiredProducts:[],preferredProducts:[],excludedProducts:[],products:[],quantityTargets:{}})};
 context.TDShoppingOptimizer={optimize:()=>[]};
 context.TDBaiPlanner={
   build:(state,text)=>({
-    recommended:{id:'easy',title:'Без возни',total:2450,stores:2,score:94,operations:[{type:'SET_COOKING',value:'minimal'},{type:'REQUIRE',value:'eggs'},{type:'REQUIRE',value:'banana'},{type:'REOPTIMIZE'}]},
+    recommended:{id:'easy',title:'Без возни',total:2450,stores:2,score:94,productIds:['eggs','banana'],mealPlan:{days:7},sufficiency:{score:88},operations:[{type:'SET_COOKING',value:'minimal'},{type:'REQUIRE',value:'eggs'},{type:'REQUIRE',value:'banana'},{type:'SET_PRODUCT_AMOUNT',value:{id:'eggs',amount:2,unit:'pack'}},{type:'REOPTIMIZE'}]},
     strategies:[
       {id:'easy',title:'Без возни',total:2450,stores:2,score:94,operations:[{type:'SET_COOKING',value:'minimal'},{type:'REQUIRE',value:'eggs'},{type:'REQUIRE',value:'banana'},{type:'REOPTIMIZE'}]},
       {id:'economy',title:'Экономный',total:2200,stores:3,score:87,operations:[{type:'REQUIRE',value:'buck'},{type:'REOPTIMIZE'}]}
@@ -50,10 +50,15 @@ assert.equal(result.provider,'bai-shopping-journey','broad request should be upg
 const types=Array.from(result.operations,op=>op.type);
 assert.ok(types.includes('CHANGE_BUDGET')&&types.includes('SET_DURATION')&&types.includes('SET_COOKING'),'explicit user constraints must survive planning');
 assert.ok(result.operations.some(op=>op.type==='REQUIRE'&&op.value==='eggs'),'recommended plan operations must be applied automatically');
+assert.ok(result.operations.some(op=>op.type==='SET_PRODUCT_AMOUNT'&&op.value.id==='eggs'),'meal quantities must survive autonomous journey');
 assert.equal(types.filter(type=>type==='REOPTIMIZE').length,1,'journey must perform one bounded reoptimization request');
 assert.equal(result.journey.autoApplied,true,'journey metadata must record autonomous application');
 assert.equal(result.journey.strategy,'easy','recommended strategy should be selected');
 assert.equal(result.journey.alternatives.length,2,'journey may retain compact alternatives for diagnostics without blocking execution');
+assert.ok(result.journey.explicitOperations.some(op=>op.type==='CHANGE_BUDGET'),'outcome learning must know which operations came from the user');
+assert.ok(result.journey.generatedOperations.some(op=>op.type==='REQUIRE'&&op.value==='eggs'),'outcome learning must distinguish Bai-generated product choices');
+assert.deepEqual(Array.from(result.journey.recommendation.productIds),['eggs','banana'],'chosen products must be available for outcome learning');
+assert.equal(result.journey.mealPlan.days,7,'meal plan metadata must flow through journey');
 
 brainOutput={ok:true,provider:'rules',reply:'Вот варианты.',suggestions:[],expectsAnswer:false,operations:[{type:'SET_INTENT',value:'build'}]};
 result=await context.TDBaiBrain.route('сравни варианты, что лучше',[]);
@@ -70,12 +75,11 @@ result=await context.TDBaiBrain.route('убери молоко',[]);
 assert.equal(result.provider,'rules','direct basket mutation must stay deterministic');
 assert.equal(result.operations.length,1,'direct edit must not trigger planner mutations');
 
-// Compose with an accessor-based wrapper such as Bai Agent Client instead of replacing it.
 let stored=null,previousSetterCalls=0;
 const accessorContext={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise};
-accessorContext.window=accessorContext;accessorContext.globalThis=accessorContext;
+accessorContext.window=accessorContext;accessorContext.globalThis=accessorContext;accessorContext.TDBaiMemory={get:()=>({})};
 Object.defineProperty(accessorContext,'TDBaiBrain',{configurable:true,enumerable:true,get(){return stored},set(next){previousSetterCalls++;stored=next}});
-accessorContext.TDShoppingState={get:()=>({peopleCount:1,duration:1,requiredProducts:[],preferredProducts:[],excludedProducts:[],preferences:[],stores:[]})};
+accessorContext.TDShoppingState={get:()=>({peopleCount:1,duration:1,requiredProducts:[],preferredProducts:[],excludedProducts:[],preferences:[],stores:[],quantityTargets:{}})};
 accessorContext.TDShoppingOptimizer={};
 accessorContext.TDBaiPlanner={build:()=>({strategies:[],recommended:null})};
 vm.createContext(accessorContext);vm.runInContext(source,accessorContext);
@@ -83,4 +87,4 @@ accessorContext.TDBaiBrain={route:async()=>({provider:'rules',operations:[],repl
 assert.equal(previousSetterCalls,1,'journey must preserve the pre-existing TDBaiBrain setter');
 assert.equal(accessorContext.TDBaiBrain.__baiShoppingJourneyWrapped,true,'brain assigned through previous wrapper must still receive journey layer');
 
-console.log('Bai shopping journey passed: autonomous best-plan application, comparison/clarification guards, constraint preservation and wrapper composition.');
+console.log('Bai shopping journey passed: autonomous meal-plan application, comparison/clarification guards, outcome metadata and wrapper composition.');
