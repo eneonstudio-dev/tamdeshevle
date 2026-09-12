@@ -12,6 +12,7 @@ on:
       - "real-store-integration-v1.js"
       - "scripts/test-bai-brain.mjs"
       - "scripts/test-bai-self-check.mjs"
+      - "scripts/test-bai-learning-loop.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -26,6 +27,7 @@ on:
       - "real-store-integration-v1.js"
       - "scripts/test-bai-brain.mjs"
       - "scripts/test-bai-self-check.mjs"
+      - "scripts/test-bai-learning-loop.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -50,6 +52,7 @@ jobs:
           node --check bai-food-knowledge.js
           node --check bai-life.js
           node --check bai-memory.js
+          node --check bai-learning-loop.js
           node --check bai-planner.js
           node --check bai-self-check.js
           node --check shopping-conversation.js
@@ -61,7 +64,9 @@ jobs:
           node --check real-store-integration-v1.js
           node --check scripts/test-bai-brain.mjs
           node --check scripts/test-bai-self-check.mjs
+          node --check scripts/test-bai-learning-loop.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-brain.mjs
           node scripts/test-bai-self-check.mjs
+          node scripts/test-bai-learning-loop.mjs
