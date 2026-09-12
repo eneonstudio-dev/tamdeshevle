@@ -10,8 +10,27 @@
   function replacementPair(text,ordered){if(!Array.isArray(ordered)||ordered.length<2)return null;const t=low(text),i=t.indexOf("вместо");if(i>=0){const before=ordered.filter(p=>p.pos<i),after=ordered.filter(p=>p.pos>i);if(before.length&&after.length)return{from:after[0].id,to:before[before.length-1].id};if(after.length>=2)return{from:after[0].id,to:after[after.length-1].id}}return{from:ordered[0].id,to:ordered[ordered.length-1].id}}
   function stores(text){const t=low(text),out=[];for(const [stem,id] of Object.entries(STORES))if(t.includes(stem))out.push(id);return uniq(out)}
   function number(v){if(!v)return null;if(/^\d+(?:[.,]\d+)?$/.test(v))return Number(v.replace(",","."));return NUM[low(v)]||null}
-  function people(text){const m=low(text).match(/(?:нас|на|для|будет)\s+(\d+|[а-я]+)\s*(?:человек|чел|персон|едок|нас)?/);return m?number(m[1]):null}
-  function days(text){const t=low(text);if(/(?:на|примерно на)\s+(?:одну\s+)?недел(?:ю|и)(?=$|[\s,.!?])/.test(t))return 7;const week=t.match(/(?:на|примерно на)\s+(\d+|[а-я]+)\s+недел(?:ю|и|ь)(?=$|[\s,.!?])/);if(week){const n=number(week[1]);if(n)return n*7}const m=t.match(/(?:на|примерно на)\s+(\d+|[а-я]+)\s*(?:день|дня|дней|суток)/);return m?number(m[1]):null}
+  function people(text){
+    const t=low(text);let m=t.match(/(?:^|[^а-я])нас\s+(?:будет\s+)?(\d+|[а-я]+)(?=$|[\s,.!?])/);
+    if(m){const n=number(m[1]);if(n)return n}
+    m=t.match(/(?:^|[^а-я])(?:на|для|будет)\s+(\d+|[а-я]+)\s*(?:человек(?:а|у|ом|и)?|чел(?:\.|а)?|персон(?:ы|у)?|едок(?:а|ов)?)(?=$|[\s,.!?])/);
+    if(m){const n=number(m[1]);if(n)return n}
+    m=t.match(/(?:^|[^а-я])(?:на|для)\s+(одного|двоих|троих|четверых)(?=$|[\s,.!?])/);if(m)return number(m[1]);
+    m=t.match(/(?:^|[^а-я])будет\s+(двое|трое|четверо)(?=$|[\s,.!?])/);if(m)return number(m[1]);
+    if(/(?:^|[^а-я])мы\s+вдвоем(?=$|[\s,.!?])/.test(t))return 2;
+    if(/(?:^|[^а-я])мы\s+втроем(?=$|[\s,.!?])/.test(t))return 3;
+    if(/(?:^|[^а-я])мы\s+вчетвером(?=$|[\s,.!?])/.test(t))return 4;
+    return null;
+  }
+  function days(text){
+    const t=low(text);
+    if(/(?:^|[^а-я])(?:на|примерно на)\s+(?:сегодня|завтра|день|сутки)(?=$|[\s,.!?])/.test(t))return 1;
+    if(/(?:^|[^а-я])(?:на|примерно на)\s+пару\s+дн(?:я|ей)(?=$|[\s,.!?])/.test(t))return 2;
+    if(/(?:^|[^а-я])(?:на|примерно на)\s+выходные(?=$|[\s,.!?])/.test(t))return 2;
+    if(/(?:на|примерно на)\s+(?:одну\s+)?недел(?:ю|и)(?=$|[\s,.!?])/.test(t))return 7;
+    const week=t.match(/(?:на|примерно на)\s+(\d+|[а-я]+)\s+недел(?:ю|и|ь)(?=$|[\s,.!?])/);if(week){const n=number(week[1]);if(n)return n*7}
+    const m=t.match(/(?:на|примерно на)\s+(\d+|[а-я]+)\s*(?:день|дня|дней|сутки|суток)/);return m?number(m[1]):null;
+  }
   function budget(text){const t=low(text);let m=t.match(/(?:до|бюджет(?:ом)?|улож(?:ись|иться) в|не больше|примерно|около)\s*([\d\s.,]+)\s*(?:р|руб|₽)/);if(m)return Number(m[1].replace(/\D/g,""));m=t.match(/(?:на)\s*([\d\s.,]+)\s*(?:р|руб|₽)/);return m?Number(m[1].replace(/\D/g,"")):null}
   function relativeBudget(text,current){const t=low(text);if(!current)return null;let m=t.match(/(?:дешевле|снизь|уменьши)\s*(?:на)?\s*(\d+)\s*%/);if(m)return Math.max(1,Math.round(current*(1-Number(m[1])/100)));m=t.match(/(?:дешевле|меньше|снизь|уменьши)\s+на\s+(\d+)\s*(?:р|руб|₽)?/);if(m)return Math.max(1,current-Number(m[1]));m=t.match(/(?:на\s+)?(\d+)\s*(?:р|руб|₽)?\s*(?:дешевле|меньше)/);if(m)return Math.max(1,current-Number(m[1]));if(/(?:дешевле|меньше|снизь|уменьши)\s+на\s+(?:косарь|тысячу|тыщу)/.test(t)||/(?:на\s+)?(?:косарь|тысячу|тыщу)\s*(?:дешевле|меньше)/.test(t))return Math.max(1,current-1000);if(/подешевле|дешевле|сэконом/.test(t))return Math.max(1,Math.round(current*.85));return null}
   const token=(t,body)=>new RegExp(`(^|[^а-яa-z0-9_])(?:${body})(?=$|[^а-яa-z0-9_])`,`i`).test(t);
