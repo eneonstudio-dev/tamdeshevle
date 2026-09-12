@@ -14,7 +14,8 @@ assert.ok(admin.includes("apikey:apiKey"),"reviewer lookup must use the caller's
 assert.ok(!/user_metadata|raw_user_meta_data|email\s*===/i.test(admin),"user-editable metadata/email must not authorize learning admins");
 assert.ok(admin.includes("can_activate:false"),"admin v1 must not expose global activation");
 assert.ok(!admin.includes('from("bai_approved_patterns").insert'),"admin endpoint must not activate learned patterns directly");
-assert.ok(admin.includes('decision==="approved_for_regression"'),"approve must only move a case toward regression");
+assert.ok(/action\s*===?\s*["']approve["']\s*\?\s*["']approved_for_regression["']/.test(admin),"approve must only move a case toward regression");
+assert.ok(admin.includes('activation:false'),"admin decisions must explicitly remain non-activating");
 assert.ok(admin.includes('req.method==="OPTIONS"'),"cross-origin admin UI must handle CORS preflight");
 
 assert.ok(schema.includes("bai_learning_admin_decisions"));
