@@ -37,6 +37,8 @@ jobs:
           node --check basket-split.js
           node --check basket-split-ui.js
           node --check smart-assembly-settings.js
+          node --check continue-in-stores-v1.js
+          node --check real-store-integration-v1.js
           node --check brand-votonobay-v1.js
           node --check brand-prosche-v1.js
           node --check votonobay-inner-v1.js
@@ -53,6 +55,8 @@ jobs:
           node --check scripts/test-basket-split.mjs
           node --check scripts/test-basket-split-ui.mjs
           node --check scripts/test-smart-assembly-settings.mjs
+          node --check scripts/test-retailer-handoff.mjs
+          node --check tests/continue-in-stores-smoke.js
           node --check scripts/test-votonobay-brand.mjs
           node --check scripts/test-votonobay-inner-ui.mjs
       - name: Test app runtime resilience
@@ -73,6 +77,10 @@ jobs:
         run: node scripts/test-basket-split-ui.mjs
       - name: Test split travel-cost preferences
         run: node scripts/test-smart-assembly-settings.mjs
+      - name: Test explicit retailer handoff
+        run: node scripts/test-retailer-handoff.mjs
+      - name: Test continue-in-stores flow
+        run: node tests/continue-in-stores-smoke.js
       - name: Test Votonobay brand contract
         run: node scripts/test-votonobay-brand.mjs
       - name: Test Votonobay inner UI contract
