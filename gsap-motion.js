@@ -3,7 +3,8 @@
   if (window.__TDGsapMotionInitialized) return;
   window.__TDGsapMotionInitialized = true;
 
-  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+  let reduce = Boolean(motionQuery?.matches);
   let lastScreen = "";
   let playFrame = 0;
 
@@ -89,7 +90,7 @@
   }
 
   function queuePlay() {
-    if (document.hidden || playFrame) return;
+    if (document.hidden || reduce || playFrame) return;
     playFrame = requestAnimationFrame(() => {
       playFrame = 0;
       play();
@@ -101,15 +102,25 @@
     playFrame = 0;
   }
 
+  function onMotionPreference(event) {
+    reduce = Boolean(event?.matches);
+    cancelQueuedPlay();
+    lastScreen = "";
+    if (!reduce) queuePlay();
+  }
+
   loadV2Polish();
   const prev = window.render;
   window.render = function () {
-    if (typeof prev === "function") prev();
+    const result = typeof prev === "function" ? prev.apply(this, arguments) : undefined;
     queuePlay();
+    return result;
   };
   window.addEventListener("td:v2-rendered", queuePlay);
   document.addEventListener("visibilitychange", () => document.hidden ? cancelQueuedPlay() : queuePlay());
   window.addEventListener("pagehide", cancelQueuedPlay);
   window.addEventListener("pageshow", queuePlay);
+  if (motionQuery?.addEventListener) motionQuery.addEventListener("change", onMotionPreference);
+  else motionQuery?.addListener?.(onMotionPreference);
   queuePlay();
 })();
