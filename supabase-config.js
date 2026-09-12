@@ -6,7 +6,8 @@ window.TD_SUPABASE = window.TD_SUPABASE || {
 };
 
 // Bai learning data is isolated in a separate Supabase project.
-// The endpoint verifies the existing TD auth session server-side; no learning-project key is exposed here.
+// These Edge Functions verify the existing TD auth session server-side; no learning-project key is exposed here.
 window.TD_BAI_LEARNING = window.TD_BAI_LEARNING || {
-  endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-ingest"
+  endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-ingest",
+  adminEndpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-admin"
 };
