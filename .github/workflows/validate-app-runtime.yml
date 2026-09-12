@@ -31,9 +31,11 @@ jobs:
           node --check bai-life.js
           node --check account-auth-ui.js
           node --check purchase-flow.js
+          node --check first-shopping-journey.js
           node --check comparison-result-v2.js
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-product-card-resilience.mjs
+          node --check scripts/test-first-shopping-journey.mjs
           node --check scripts/test-runtime-performance.mjs
           node --check scripts/test-static-assets.mjs
           node --check scripts/test-mobile-runtime.mjs
@@ -46,6 +48,8 @@ jobs:
         run: node scripts/test-catalog-resilience.mjs
       - name: Test product card resilience
         run: node scripts/test-product-card-resilience.mjs
+      - name: Test first shopping journey
+        run: node scripts/test-first-shopping-journey.mjs
       - name: Test price sync resilience
         run: node scripts/test-price-sync-resilience.mjs
       - name: Test runtime performance guards
