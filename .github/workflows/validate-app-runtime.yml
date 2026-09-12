@@ -34,6 +34,9 @@ jobs:
           node --check purchase-flow.js
           node --check first-shopping-journey.js
           node --check comparison-result-v2.js
+          node --check basket-split.js
+          node --check basket-split-ui.js
+          node --check smart-assembly-settings.js
           node --check brand-votonobay-v1.js
           node --check brand-prosche-v1.js
           node --check votonobay-inner-v1.js
@@ -47,6 +50,9 @@ jobs:
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
           node --check scripts/test-price-sync-resilience.mjs
+          node --check scripts/test-basket-split.mjs
+          node --check scripts/test-basket-split-ui.mjs
+          node --check scripts/test-smart-assembly-settings.mjs
           node --check scripts/test-votonobay-brand.mjs
           node --check scripts/test-votonobay-inner-ui.mjs
       - name: Test app runtime resilience
@@ -61,6 +67,12 @@ jobs:
         run: node scripts/test-ui-lifecycle-resilience.mjs
       - name: Test price sync resilience
         run: node scripts/test-price-sync-resilience.mjs
+      - name: Test multi-store basket truthfulness
+        run: node scripts/test-basket-split.mjs
+      - name: Test multi-store comparison UI
+        run: node scripts/test-basket-split-ui.mjs
+      - name: Test split travel-cost preferences
+        run: node scripts/test-smart-assembly-settings.mjs
       - name: Test Votonobay brand contract
         run: node scripts/test-votonobay-brand.mjs
       - name: Test Votonobay inner UI contract
