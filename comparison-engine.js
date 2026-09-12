@@ -105,18 +105,19 @@
     const mode = options && options.mode || "any";
     const originStoreId = options && options.originStoreId;
 
-    const origin = stores.find(store => store.id === originStoreId) || stores[0] || null;
-    if (!origin) return [];
+    let eligible = stores.filter(store => Array.isArray(store.city) && store.city.includes(city));
+    if (mode === "walk") eligible = eligible.filter(store => store.kind !== "delivery");
+    if (mode === "delivery") eligible = eligible.filter(store => store.has_bring === true);
+    if (!eligible.length) return [];
 
+    const requestedOrigin = eligible.find(store => store.id === originStoreId) || null;
+    const origin = requestedOrigin || eligible[0];
+    const referenceAvailable = Boolean(requestedOrigin);
     const originChannel = mode === "delivery" ? "bring" : mode === "walk" ? "shelf" : defaultChannel(origin);
     const originQuote = basketQuote(products, cart, origin.id, originChannel);
     const originFee = feeQuote(origin, originChannel);
     const originComplete = originQuote.complete && originFee.known;
     const originTotal = originComplete ? originQuote.goods + originFee.value : null;
-
-    let eligible = stores.filter(store => Array.isArray(store.city) && store.city.includes(city));
-    if (mode === "walk") eligible = eligible.filter(store => store.kind !== "delivery");
-    if (mode === "delivery") eligible = eligible.filter(store => store.has_bring);
 
     return eligible.map(store => {
       const channel = mode === "delivery" ? "bring" : mode === "walk" ? "shelf" : defaultChannel(store);
@@ -125,7 +126,7 @@
       const complete = quote.complete && fee.known;
       const verifiedComplete = complete && quote.verifiedComplete;
       const total = complete ? quote.goods + fee.value : null;
-      const verifiedSavings = originTotal != null && total != null && originQuote.verifiedComplete && quote.verifiedComplete;
+      const verifiedSavings = referenceAvailable && originTotal != null && total != null && originQuote.verifiedComplete && quote.verifiedComplete;
       return Object.assign({}, store, {
         channel,
         goods: quote.goods,
@@ -145,9 +146,12 @@
         verifiedCoverage: quote.verifiedCoverage,
         missingProductIds: quote.missingProductIds,
         estimatedProductIds: quote.estimatedProductIds,
+        referenceStoreId: referenceAvailable ? origin.id : null,
+        referenceStoreName: referenceAvailable ? (origin.name || origin.id) : null,
+        referenceAvailable,
         save: verifiedSavings ? originTotal - total : null,
-        indicativeSave: originTotal != null && total != null ? originTotal - total : null,
-        same: store.id === origin.id && channel === originChannel
+        indicativeSave: referenceAvailable && originTotal != null && total != null ? originTotal - total : null,
+        same: referenceAvailable && store.id === origin.id && channel === originChannel
       });
     }).sort((a, b) => {
       if (a.rankable !== b.rankable) return a.rankable ? -1 : 1;
