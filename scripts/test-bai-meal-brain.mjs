@@ -21,14 +21,17 @@ assert.ok(plan.requiredProducts.some(id=>['banana','apple'].includes(id)),'meal 
 assert.ok(Object.values(plan.quantityTargets).some(x=>Number(x.amount)>1),'week plan must calculate multi-pack quantities instead of one of everything');
 assert.ok(plan.operations.some(x=>x.type==='SET_PRODUCT_AMOUNT'),'meal plan must convert quantities into existing safe shopping operations');
 assert.ok(plan.operations.every(x=>['REQUIRE','SET_PRODUCT_AMOUNT'].includes(x.type)),'meal brain must not invent new mutation types');
+assert.ok(!plan.estimatedGoods||plan.estimatedGoods<=state.budget,'fixed-budget planning must not scale quantities past the requested budget');
 
 const schedule=global.TDBaiMealBrain.makeSchedule(state,'готовить лень');
 const cooked=[...schedule.schedule].flatMap(day=>['breakfast','lunch','dinner'].map(meal=>day[meal])).filter(x=>x?.prep==='cook').length;
 assert.ok(cooked<=3,'minimal-cooking mode should strongly prefer ready/quick rotations across a week');
 
-const two=global.TDBaiMealBrain.plan({...state,peopleCount:2},'на неделю, готовить лень');
-const onePacks=Object.values(plan.quantityTargets).reduce((n,x)=>n+Number(x.amount||0),0);
-const twoPacks=Object.values(two.quantityTargets).reduce((n,x)=>n+Number(x.amount||0),0);
-assert.ok(twoPacks>onePacks,'quantities must scale when number of people increases');
+const unbounded={...state,budget:null};
+const oneUnbounded=global.TDBaiMealBrain.plan(unbounded,'на неделю, готовить лень');
+const twoUnbounded=global.TDBaiMealBrain.plan({...unbounded,peopleCount:2},'на неделю, готовить лень');
+const onePacks=Object.values(oneUnbounded.quantityTargets).reduce((n,x)=>n+Number(x.amount||0),0);
+const twoPacks=Object.values(twoUnbounded.quantityTargets).reduce((n,x)=>n+Number(x.amount||0),0);
+assert.ok(twoPacks>onePacks,'quantities must scale with people count when budget is not the limiting constraint');
 
-console.log('Bai meal brain passed: day plan, minimal-cooking rotation, exclusions and people-scaled package quantities.');
+console.log('Bai meal brain passed: day plan, budget cap, minimal-cooking rotation, exclusions and people-scaled package quantities.');
