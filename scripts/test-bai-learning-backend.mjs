@@ -47,11 +47,21 @@ const conflictDecision=assessConsensus(conflicted,good.intentKey);
 assert.equal(conflictDecision.status,"quarantine","meaningful conflicting behavior must block promotion");
 
 const sql=fs.readFileSync(new URL("../backend/bai-learning-supabase-schema.sql",import.meta.url),"utf8");
-for(const table of ["bai_learning_events","bai_learning_quarantine","bai_approved_patterns"]){
+for(const table of ["bai_learning_events","bai_learning_quarantine","bai_learning_review_queue","bai_approved_patterns"]){
   assert.ok(sql.includes(`alter table public.${table} enable row level security;`),`${table} must have RLS enabled`);
-  assert.ok(sql.includes(`revoke all on table public.${table} from anon, authenticated;`),`${table} must deny browser roles`);
+  assert.ok(sql.includes(`revoke all on table public.${table} from public, anon, authenticated;`),`${table} must deny public/browser roles`);
 }
 assert.ok(!/security\s+definer/i.test(sql),"learning schema must not introduce SECURITY DEFINER helpers");
 assert.ok(/grant select, insert, update, delete on table public\.bai_learning_events to service_role;/i.test(sql));
+assert.ok(/requires_regression boolean not null default true check \(requires_regression = true\)/i.test(sql),"review queue must never bypass regression");
 
-console.log("Bai learning backend consensus and schema checks passed");
+const edge=fs.readFileSync(new URL("../backend/bai-learning-ingest.ts",import.meta.url),"utf8");
+assert.ok(edge.includes('withSupabase({auth:"none"}')&&edge.includes("async function authenticate(req:Request)"),"external site auth must be explicitly verified inside the ingest function");
+assert.ok(edge.includes("/auth/v1/user"),"ingest must validate the existing Tamdeshevle user session with Auth");
+assert.ok(edge.includes("MAX_PER_HOUR = 20"),"server-side per-user rate limiting must remain enabled");
+assert.ok(edge.includes("ALLOWED_ORIGINS"),"browser origins must be constrained");
+assert.ok(edge.includes("ignoreDuplicates:true"),"one actor/variant must not be counted repeatedly");
+assert.ok(!edge.includes('.from("bai_approved_patterns").insert'),"ingest must never auto-approve global patterns");
+assert.ok(!edge.includes('.from("bai_approved_patterns").upsert'),"ingest must never auto-approve global patterns");
+
+console.log("Bai learning backend consensus, schema and live-ingest checks passed");

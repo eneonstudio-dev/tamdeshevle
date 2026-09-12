@@ -4,3 +4,9 @@ window.TD_SUPABASE = window.TD_SUPABASE || {
   url: "https://pdsxeddldrmehdqaaksl.supabase.co",
   anonKey: "sb_publishable_PDQ3o1sAFvGFw2MelUNw0g_Vr2Vd7vw"
 };
+
+// Bai learning data is isolated in a separate Supabase project.
+// The endpoint verifies the existing TD auth session server-side; no learning-project key is exposed here.
+window.TD_BAI_LEARNING = window.TD_BAI_LEARNING || {
+  endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-learning-ingest"
+};
