@@ -4,9 +4,11 @@ on:
   pull_request:
     paths:
       - 'retailers/product-identity.mjs'
+      - 'retailers/receipt-product-identity.mjs'
       - 'scripts/import-product-identities.mjs'
       - 'scripts/test-product-identity.mjs'
       - 'scripts/test-product-identity-importer.mjs'
+      - 'scripts/test-receipt-product-identity.mjs'
       - 'data/product-identity/**'
       - '.github/workflows/product-identity.yml'
   push:
@@ -14,9 +16,11 @@ on:
       - main
     paths:
       - 'retailers/product-identity.mjs'
+      - 'retailers/receipt-product-identity.mjs'
       - 'scripts/import-product-identities.mjs'
       - 'scripts/test-product-identity.mjs'
       - 'scripts/test-product-identity-importer.mjs'
+      - 'scripts/test-receipt-product-identity.mjs'
       - 'data/product-identity/**'
       - '.github/workflows/product-identity.yml'
 
@@ -34,10 +38,14 @@ jobs:
       - name: Check syntax
         run: |
           node --check retailers/product-identity.mjs
+          node --check retailers/receipt-product-identity.mjs
           node --check scripts/import-product-identities.mjs
           node --check scripts/test-product-identity.mjs
           node --check scripts/test-product-identity-importer.mjs
+          node --check scripts/test-receipt-product-identity.mjs
       - name: Test barcode identity cascade
         run: node scripts/test-product-identity.mjs
       - name: Test sharded identity importer
         run: node scripts/test-product-identity-importer.mjs
+      - name: Test receipt identity bridge
+        run: node scripts/test-receipt-product-identity.mjs
