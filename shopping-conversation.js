@@ -37,7 +37,7 @@
   function resetBasketState(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.excludedBrands=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.preferences=[];s.userNotes=[];s.shoppingIntelligence=null;}
   function rebuildProducts(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.lastPlans=[];s.currentTotal=0;}
   function apply(raw,providedOps){
-    const ops=Array.isArray(providedOps)&&providedOps.length?providedOps:parse(raw);
+    const ops=Array.isArray(providedOps)&&providedOps.length?providedOps:parse(raw),intelligencePatch=ops.find(op=>op?.type==="SET_SHOPPING_INTENT")?.value||null;
     if(ops[0]?.type==="UNDO")return TDShoppingState.undo();
     const clarification=ops.find(op=>op.type==="ASK_CLARIFICATION");
     if(clarification){const message=String(clarification.value||"Уточни, пожалуйста, что именно ты хочешь изменить в корзине.");return{ok:false,state:TDShoppingState.get(),plans:TDShoppingState.get().lastPlans||[],message,operations:ops,needsClarification:true};}
@@ -59,7 +59,7 @@
         if(op.type==="SET_MODE")s.mode=op.value;
         if(op.type==="CLEAR_ONLY"){s.selectionMode="auto";s.onlyProducts=[];}
         if(op.type==="SET_ONLY_PRODUCTS"){const ids=uniq(Array.isArray(op.value)?op.value:[op.value]);s.selectionMode="only";s.onlyProducts=ids;s.requiredProducts=[...ids];s.preferredProducts=[];s.excludedProducts=s.excludedProducts.filter(id=>!ids.includes(id));s.products=[];Object.keys(s.quantityTargets).forEach(id=>{if(!ids.includes(id))delete s.quantityTargets[id]});}
-        if(op.type==="SET_PRODUCT_AMOUNT"&&op.value?.id){const amount=Number(op.value.amount),unit=String(op.value.unit||"");if(amount>0&&unit)s.quantityTargets[op.value.id]={amount,unit};}
+        if(op.type==="SET_PRODUCT_AMOUNT"&&op.value?.id){let amount=Number(op.value.amount);const unit=String(op.value.unit||"");if(amount>0&&unit){const product=TDStoreAdapters.catalog().find(p=>p.id===op.value.id),cat=window.TDBaiShoppingIntelligence?.categoryId?.(product||{id:op.value.id}),weight=Number(intelligencePatch?.soft?.categoryWeights?.[cat]),current=Math.max(0,Number(s.products.find(x=>x.id===op.value.id)?.quantity)||0);if(unit==="pack"&&weight>1&&current>=amount)amount=Math.min(99,current+1);s.quantityTargets[op.value.id]={amount,unit};}}
         if(op.type==="ADD_PRODUCT"){const id=op.value;if(id&&!s.requiredProducts.includes(id))s.requiredProducts.push(id);if(s.selectionMode==="only"&&id&&!s.onlyProducts.includes(id))s.onlyProducts.push(id);s.excludedProducts=s.excludedProducts.filter(x=>x!==id);}
         if(op.type==="REMOVE_PRODUCT"){const id=op.value;if(id&&!s.excludedProducts.includes(id))s.excludedProducts.push(id);s.products=s.products.filter(x=>x.id!==id);s.requiredProducts=s.requiredProducts.filter(x=>x!==id);s.onlyProducts=s.onlyProducts.filter(x=>x!==id);delete s.quantityTargets[id];}
         if(op.type==="CHANGE_QUANTITY"&&op.value?.id){
