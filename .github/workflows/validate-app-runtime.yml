@@ -32,6 +32,7 @@ jobs:
           node --check v2-polish.js
           node --check gsap-motion.js
           node --check bai-life.js
+          node --check bai-runtime-states-v1.js
           node --check account-auth-ui.js
           node --check purchase-flow.js
           node --check first-shopping-journey.js
@@ -55,6 +56,7 @@ jobs:
           node --check scripts/test-security-hardening.mjs
           node --check scripts/test-mobile-runtime.mjs
           node --check scripts/test-mobile-bay-first-e2e.mjs
+          node --check scripts/test-bay-runtime-states.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
           node --check scripts/test-price-sync-resilience.mjs
@@ -101,6 +103,8 @@ jobs:
         run: node scripts/test-mobile-runtime.mjs
       - name: Test mobile Bay-first E2E
         run: node scripts/test-mobile-bay-first-e2e.mjs
+      - name: Test Bay runtime states
+        run: node scripts/test-bay-runtime-states.mjs
       - name: Test account modal resilience
         run: node scripts/test-account-modal-resilience.mjs
       - name: Test purchase and comparison resilience
