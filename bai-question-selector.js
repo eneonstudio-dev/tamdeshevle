@@ -8,11 +8,14 @@
   const hasType=(ops,type)=>(ops||[]).some(op=>op?.type===type);
   function candidateList({text,routed,state,goal,pantry}={}){
     if(noQuestions(text)||routed?.expectsAnswer)return[];
-    const explicit=routed?.operations||[],rec=goal?.recommend?.()||{},out=[];
-    if(!hasType(explicit,"SET_DURATION")&&!(rec.duration?.confidence>=.78)&&Math.max(1,Number(state?.duration)||1)<=1)out.push({id:"duration",score:95,expected:"SET_DURATION",question:"На сколько дней собираем корзину?",suggestions:["На 3 дня","На неделю","Сам реши"]});
-    if(!hasType(explicit,"CHANGE_BUDGET")&&!state?.budget&&!(rec.budget?.confidence>=.72))out.push({id:"budget",score:/дешев|эконом|бюджет|выгод/.test(low(text))?88:58,expected:"CHANGE_BUDGET",question:"Какой ориентир по бюджету?",suggestions:["До 2000 ₽","До 3000 ₽","Без лимита, сам реши"]});
-    if(!hasType(explicit,"SET_PEOPLE")&&!(rec.people?.confidence>=.78)&&Math.max(1,Number(state?.peopleCount)||1)===1&&!/\b(?:я\s+один|мне\s+одному|для\s+себя)\b/.test(low(text)))out.push({id:"people",score:54,expected:"SET_PEOPLE",question:"На сколько человек собираем?",suggestions:["На одного","На двоих","Сам реши"]});
-    if((pantry?.count?.()||0)===0&&/(дома|запас|лишн|не покупать повторно|что уже есть)/.test(low(text)))out.push({id:"pantry",score:72,expected:"HAS_AT_HOME",question:"Что из базовых продуктов уже есть дома?",suggestions:["Дома ничего нет","Дома есть масло и гречка","Сам реши"]});
+    const explicit=routed?.operations||[],t=low(text),out=[];
+    // Missing optional context is not a blocker. Build immediately with honest
+    // defaults (1 person, 1 day, no hard budget) and let the user refine it.
+    // Ask only when the user explicitly supplied an incomplete constraint.
+    if(!hasType(explicit,"SET_DURATION")&&/(?:на|примерно на)\s+(?:несколько|сколько-то|пару-тройку|пару)\s+(?:дней|недель)(?=$|[\s,.!?])/.test(t))out.push({id:"duration",score:95,expected:"SET_DURATION",question:"На сколько дней собираем корзину?",suggestions:["На 3 дня","На неделю","Сам реши"]});
+    if(!hasType(explicit,"CHANGE_BUDGET")&&/(?:бюджет|уложись|не дороже|максимум)\s*(?:не знаю|пока не знаю|без цифр)?\s*$/.test(t))out.push({id:"budget",score:90,expected:"CHANGE_BUDGET",question:"Какой максимум по бюджету?",suggestions:["До 2000 ₽","До 3000 ₽","Без лимита, сам реши"]});
+    if(!hasType(explicit,"SET_PEOPLE")&&/(?:на|для)\s+(?:компанию|семью|нас всех)(?=$|[\s,.!?])/.test(t))out.push({id:"people",score:85,expected:"SET_PEOPLE",question:"На сколько человек собираем?",suggestions:["На одного","На двоих","Сам реши"]});
+    if((pantry?.count?.()||0)===0&&/(?:дома|у меня)\s+(?:уже\s+)?(?:есть|осталось)\s*$/.test(t))out.push({id:"pantry",score:82,expected:"HAS_AT_HOME",question:"Что именно уже есть дома?",suggestions:["Дома ничего нет","Дома есть масло и гречка","Сам реши"]});
     return out.sort((a,b)=>b.score-a.score);
   }
   function choose(args={}){const best=candidateList(args)[0];if(!best)return null;pending={id:best.id,expected:best.expected,originalText:String(args.text||""),originalOperations:clone(args.routed?.operations||[]),at:Date.now()};return{...best}}
