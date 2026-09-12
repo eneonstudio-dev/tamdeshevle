@@ -3,12 +3,14 @@ import vm from "node:vm";
 
 const productUI=fs.readFileSync("product-ui.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8");
+const purchaseLifecycle=fs.readFileSync("purchase-experience-lifecycle-v1.js","utf8");
 const profileBasket=fs.readFileSync("profile-basket.js","utf8");
 
 function assert(condition,message){if(!condition)throw new Error(message);}
 
 new Function(productUI);
 new Function(polish);
+new Function(purchaseLifecycle);
 new Function(profileBasket);
 
 assert(productUI.includes('window.addEventListener("pagehide",pause)'),"product UI must pause on every pagehide");
@@ -22,6 +24,13 @@ assert(polish.includes('window.addEventListener("pageshow",hydrate)'),"V2 polish
 assert(polish.includes('window.addEventListener("pagehide",()=>{'),"V2 polish must clean up pending animation work on pagehide");
 assert(!polish.includes('}, {once:true})')&&!polish.includes('},{once:true})'),"V2 pagehide cleanup must remain active across repeated navigation cycles");
 assert(polish.includes("cancelAnimationFrame(headerScrollFrame)"),"V2 polish must cancel pending scroll animation work when hidden or leaving");
+assert(polish.includes('purchase-experience-lifecycle-v1.js'),"V2 polish must load the purchase lifecycle guard with the purchase experience");
+
+assert(purchaseLifecycle.includes('window.addEventListener("pagehide",stop)'),"purchase lifecycle must disconnect its observer on every pagehide");
+assert(purchaseLifecycle.includes('window.addEventListener("pageshow",start)'),"purchase lifecycle must reconnect after BFCache restore");
+assert(!purchaseLifecycle.includes('once:true'),"purchase lifecycle recovery must survive repeated navigation cycles");
+assert(purchaseLifecycle.includes('observer.observe(root,{childList:true,subtree:true})'),"purchase lifecycle must resume observing dynamically mounted comparison and handoff UI");
+assert(purchaseLifecycle.includes('window.TDPurchaseExperienceV1?.hydrate?.()'),"purchase lifecycle must immediately rehydrate current UI after returning");
 
 function profileContext({failWrites=false}={}){
   const data=new Map();let writes=0;
@@ -78,6 +87,7 @@ assert(profileBasket.includes("if(!writeJson(HISTORY_KEY,next.slice(-MAX_HISTORY
 
 assert(!productUI.includes("TDBai")&&!productUI.includes("bai-"),"product lifecycle recovery must remain independent from Bai");
 assert(!polish.includes("TDBai")&&!polish.includes("bai-"),"V2 lifecycle cleanup must remain independent from Bai");
+assert(!purchaseLifecycle.includes("TDBai")&&!purchaseLifecycle.includes("bai-"),"purchase lifecycle recovery must remain independent from Bay internals");
 assert(!profileBasket.includes("TDBai")&&!profileBasket.includes("bai-"),"profile resilience must remain independent from Bai");
 
-console.log("UI lifecycle resilience passed: product visuals, V2 polish and profile persistence recover safely across storage failures, repeated navigation and connectivity changes.");
+console.log("UI lifecycle resilience passed: product visuals, V2 polish, purchase handoff and profile persistence recover safely across storage failures, repeated navigation and connectivity changes.");
