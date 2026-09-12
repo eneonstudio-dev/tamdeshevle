@@ -16,6 +16,7 @@ on:
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-learning-safety.mjs"
+      - "scripts/test-bai-memory-undo.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - ".github/workflows/validate-bai.yml"
@@ -36,6 +37,7 @@ on:
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-learning-safety.mjs"
+      - "scripts/test-bai-memory-undo.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - ".github/workflows/validate-bai.yml"
@@ -78,6 +80,7 @@ jobs:
           node --check scripts/test-shopping-state-consistency.mjs
           node --check scripts/test-bai-learning-loop.mjs
           node --check scripts/test-bai-learning-safety.mjs
+          node --check scripts/test-bai-memory-undo.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
       - name: Test Bai conversation regressions
@@ -87,5 +90,6 @@ jobs:
           node scripts/test-shopping-state-consistency.mjs
           node scripts/test-bai-learning-safety.mjs
           node scripts/test-bai-learning-loop.mjs
+          node scripts/test-bai-memory-undo.mjs
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
