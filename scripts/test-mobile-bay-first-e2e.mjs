@@ -26,12 +26,14 @@ assert.match(dock,/tdBayFirstAsk/,"mobile Bay dock action must open Bay-first as
 assert.match(dock,/button\.dataset\.screen===screen/,"active dock state must follow the actual route");
 assert.doesNotMatch(dock,/data-screen="stores"/,"legacy Map slot must not replace Bay in the mobile dock");
 
-// 3) Keyboard/visual-viewport behavior: one runtime variable owns the real visible height.
+// 3) Keyboard/visual-viewport behavior and focused mobile composition.
 assert.match(runtime,/visualViewport/,"runtime must observe the mobile visual viewport");
 assert.match(runtime,/--td-vvh/,"runtime must publish the canonical visual viewport variable");
 assert.match(runtime,/data-td-keyboard-open/,"runtime must publish keyboard-open state");
-assert.match(bayCss,/height:min\(82dvh,var\(--td-vvh,82dvh\)\)/,"mobile Bay sheet must use the real visual viewport");
+assert.match(bayCss,/height:min\(94dvh,var\(--td-vvh,94dvh\)\)/,"mobile Bay sheet must be a near-full-height focused surface");
 assert.match(bayCss,/body\[data-td-keyboard-open\] \.td-ai\{height:var\(--td-vvh,100dvh\)/,"keyboard-open Bay sheet must expand only inside the visible viewport");
+assert.match(bayCss,/grid-template-columns:minmax\(0,1fr\) 48px 48px/,"mobile Bay composer must keep input, voice and send in one compact row");
+assert.match(bayCss,/td-ai\[data-keyboard-open\] \.td-ai-v3-prompts,\.td-ai\[data-keyboard-open\] \.td-ai-state-card\{display:none!important\}/,"keyboard focus must remove nonessential starter chrome");
 assert.doesNotMatch(bayCss,/td-ai-vvh/,"Bay sheet must not depend on a dead viewport variable");
 assert.match(androidCss,/data-td-keyboard-open/,"Android layout must react to keyboard state");
 
@@ -105,4 +107,4 @@ assert.match(overlay,/selector:"\.td-continue-stores"/,"browser Back stack must 
 assert.match(overlay,/selector:"\.td-retailer-handoff"/,"browser Back stack must include retailer detail handoff");
 assert.match(overlay,/window\.addEventListener\("popstate"/,"mobile Back must close the active overlay before leaving the journey");
 
-console.log("Mobile Bay-first E2E passed: Home → Bay → current decision → honest store handoff is keyboard-safe, stale-plan-safe, offline-safe and Back-safe.");
+console.log("Mobile Bay-first E2E passed: focused Home → Bay → current decision → honest store handoff is keyboard-safe, stale-plan-safe, offline-safe and Back-safe.");
