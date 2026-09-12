@@ -7,7 +7,11 @@
   .v2-main{display:block;width:100%;padding:14px max(14px,env(safe-area-inset-right)) 28px max(14px,env(safe-area-inset-left))}.v2-hero{min-height:420px;padding:35px 19px 22px;border-radius:25px}.v2-hero-copy{position:relative;z-index:3}.v2-hero h1{font-size:clamp(45px,13vw,58px)}.v2-hero p{max-width:88%;font-size:12px}.v2-hero-bai{right:-15px;bottom:95px;width:46%;height:50%}.v2-search{margin-top:112px}.v2-hero-proof{display:none}
   .v2-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.v2-product-grid>*{min-width:0}.v2-basket-card{display:none}.v2-footer{grid-template-columns:1fr;margin:0 14px calc(80px + env(safe-area-inset-bottom));padding:24px}.v2-footer>div:not(:first-child){display:none}
   .bai-assistant{width:62px;height:58px;bottom:calc(64px + env(safe-area-inset-bottom));z-index:72}.bai-character,.bai-image{width:66px;height:63px}.bai-character{right:-9px;bottom:-5px}
-  .bai-panel{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:calc(136px + env(safe-area-inset-bottom));width:auto;max-width:none;max-height:min(620px,calc(100dvh - 158px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:20px}
+  .bai-panel{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:calc(136px + env(safe-area-inset-bottom));width:auto;max-width:none;max-height:min(620px,calc(var(--td-vvh,100dvh) - 158px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:20px}
+  body[data-td-keyboard-open]{padding-bottom:0!important}
+  body[data-td-keyboard-open] .v2-bottom-nav,body[data-td-keyboard-open] .v2-mobile-cartbar,body[data-td-keyboard-open] .bai-assistant,body[data-td-keyboard-open] .v2-inner-screen .dock{display:none!important}
+  body[data-td-keyboard-open]>.bai-panel[data-bai-panel="true"]{bottom:max(8px,env(safe-area-inset-bottom))!important;max-height:calc(var(--td-vvh,100dvh) - 16px)!important}
+  body[data-td-keyboard-open] .td-account,body[data-td-keyboard-open] .td-map-sheet{max-height:var(--td-vvh,100dvh)!important}
 }
 @media(max-width:390px){
   .v2-main{padding-left:10px;padding-right:10px}.v2-hero{padding-left:15px;padding-right:15px}.v2-hero h1{font-size:clamp(40px,12vw,50px)}
