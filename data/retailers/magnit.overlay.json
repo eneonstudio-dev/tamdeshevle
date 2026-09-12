@@ -3,22 +3,23 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-12T07:10:02.767Z",
+  "checked_at": "2026-09-12T19:56:18.236Z",
   "prices": {
     "buckwheat": 59.99,
     "eggs_c1": 75.89,
-    "tea_black": 289.99
+    "pasta": 59,
+    "tea_black": 249.99
   },
   "matched": [
     {
       "sku": "buckwheat",
-      "name": "Крупа гречневая ядрица Семейные секреты/Магнит 800г в ассортименте",
-      "retailer_product_id": "1000303406",
+      "name": "Крупа Гречневая первый сорт фасованная 800г",
+      "retailer_product_id": "3152910002",
       "price_rub": 59.99,
       "old_price_rub": null,
       "promo": false,
-      "source_url": "https://magnit.ru/product/1000303406-krupa_grechnevaya_magnit_yadritsa_bystrogo_prigotovleniya_900g?shopCode=770105&shopType=1",
-      "image_url": "https://images-foodtech.magnit.ru/9-XJaT2oKB8pH9it3tnbt0HeaImoZ-wQdcB4fwK2ApM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b69/b69c94f85ac3657082e74896cb4bf2f2/95360d9b7b1bd528ac16e1aa0d8e5483.jpeg@webp",
+      "source_url": "https://magnit.ru/product/3152910002-krupa_grechnevaya_1_sort_fasovannaya_800g?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/jpeQFm3fdwNEn1OG7HzzPFgQQXvRKuEKYB7Ap9HGWy0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/9a7/9a763a0733f0b89cc22d86f3912af360/1483f8afe9311692b083f3adca98cd2b.jpeg@webp",
       "confidence": 0.9,
       "method": "conservative_rule",
       "comparison_eligible": true,
@@ -55,14 +56,36 @@
       "availability": "in_stock"
     },
     {
-      "sku": "tea_black",
-      "name": "Чай черный Greenfield Earl Grey Fantasy 100пак",
-      "retailer_product_id": "1000096309",
-      "price_rub": 289.99,
+      "sku": "pasta",
+      "name": "Макароны Makfa Спагетти №16 Группа А 450г",
+      "retailer_product_id": "1000425470",
+      "price_rub": 59,
       "old_price_rub": null,
       "promo": false,
-      "source_url": "https://magnit.ru/product/1000096309-chay_chernyy_greenfield_earl_grey_fantasy_100pak?shopCode=770105&shopType=1",
-      "image_url": "https://images-foodtech.magnit.ru/IlE4d0E1Jrwfmkygwx-Yj6pIG6v_IGwEO0MRXni8Zvk/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/db9/db9ec94c360427c0a2c48832b4318087/bc77b765294a6894af2eaeefa86ee06e.jpeg@webp",
+      "source_url": "https://magnit.ru/product/1000425470-makaronnye_izd_makfa_spagetti_dlinnaya_gruppa_a_450g?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/Tn28M_FdPDNWYtLskevHZVjeGk_UtXTtWPmYvlbRHD0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/0f7/0f7eaed1c67db42a71e9e47ea6d35a8d/0c406e3f69b311da754339a9691ef45c.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      },
+      "availability": "in_stock"
+    },
+    {
+      "sku": "tea_black",
+      "name": "Чай черный Richard Royal Earl Grey цейлон с ароматом бергамота 100пак",
+      "retailer_product_id": "1000203957",
+      "price_rub": 249.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000203957-chay_chernyy_richard_royal_earl_grey_100pak?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/aN-ThDCdwDtWbHwswVoZFQldDX2VR3BeBRhhIkRXAnU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/fd1/fd127f6de8133032d71863ac721b1723/92d6f8c6b1f7d6101d67da34c0816c17.jpeg@webp",
       "confidence": 0.9,
       "method": "conservative_rule",
       "comparison_eligible": true,
@@ -99,8 +122,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Батон Летний дар Краснодарский хлебозавод №6 350г",
-      "retailer_product_id": "1000027433",
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
+      "retailer_product_id": "1000027434",
       "reason": "no_rule_match"
     },
     {
@@ -124,13 +147,233 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
-      "retailer_product_id": "1000027434",
+      "name": "Хлеб Бородинский ржаной нарезанный 330г",
+      "retailer_product_id": "1000076773",
       "reason": "no_rule_match"
     },
     {
       "name": "Сметана Ключевское 20% 360г",
       "retailer_product_id": "1000507218",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лапша Imperial Cuisine гречневая Соба 400г",
+      "retailer_product_id": "1000572754",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
+      "retailer_product_id": "1000088181",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Blueberry Nights 25пак",
+      "retailer_product_id": "1000098747",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
+      "retailer_product_id": "1000143304",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Сметана Ключевское 20% 180г",
+      "retailer_product_id": "1000544222",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Ржано-пшеничный половина нарезанный 330г",
+      "retailer_product_id": "1000111868",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Sunrise 100пак 180г",
+      "retailer_product_id": "1000177162",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
+      "retailer_product_id": "1000143306",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Бородинский нарезанный ржано-пшеничный Краснодарский хлебозавод №6 450г",
+      "retailer_product_id": "1000134831",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Бородинский ржаной нарезанный 680г",
+      "retailer_product_id": "1000161751",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Thyme Hhyme 100пак 150г",
+      "retailer_product_id": "1000281642",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Кубанский молочник пастеризованное 3.4-6% 720г",
+      "retailer_product_id": "1000172832",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лапша гречневая соба Sonoko 300г",
+      "retailer_product_id": "8000114265",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Городской формовой Краснодарский хлебозавод №6 500г",
+      "retailer_product_id": "1000178961",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Ahmad Tea клубника-сливки 25пак 37.5г",
+      "retailer_product_id": "1000388022",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Агрокомплекс пастеризованное 3.4-6% 900мл",
+      "retailer_product_id": "1000253310",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
+      "retailer_product_id": "1000210710",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Ahmad Tea Малиновое лакомство 25пак",
+      "retailer_product_id": "1000389629",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "retailer_product_id": "1000304495",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "retailer_product_id": "1000294726",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Akbar Limited Edition крупнолистовой 200г",
+      "retailer_product_id": "1000475806",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "retailer_product_id": "1000295084",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черны Краснодарский Гост Ручной сбор Чабрец 100г",
+      "retailer_product_id": "1000551012",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко сгущенное Рогачевъ цельное 8.5% 270г",
+      "retailer_product_id": "1000383833",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310437",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Earl Grey Fantasy с бергамотом 100г",
+      "retailer_product_id": "1032420004",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко сгущенное Рогачевъ с кофе 7% 270г",
+      "retailer_product_id": "1000426691",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лаваш тонкий Хлеб Продукт 320г",
+      "retailer_product_id": "1000317473",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Golden Ceylon 100г",
+      "retailer_product_id": "1032420005",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
+      "retailer_product_id": "1000427388",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
+      "retailer_product_id": "1000335181",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
+      "retailer_product_id": "1039990273",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Павловское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000495985",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Порционный овсяный нарезанный Аютинский хлеб 300г",
+      "retailer_product_id": "1000421005",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Golden Ceylon 25пак",
+      "retailer_product_id": "1524200012",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000516518",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Альпийский пшенично-ржаной нарезанный Каравай Кубани 200г",
+      "retailer_product_id": "1000482300",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Earl Grey Fantasy 25пак",
+      "retailer_product_id": "1524200028",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
+      "retailer_product_id": "1000568396",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Кубанская лоза нарезанный Хлебозавод №6 300г",
+      "retailer_product_id": "1000516053",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Spring Melody 25пак",
+      "retailer_product_id": "1524200089",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Круассан со сгущенным молоком 75г",
+      "retailer_product_id": "1391400209",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батон Нарезной нарезанный Аютинский хлеб 380г",
+      "retailer_product_id": "1391400234",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
+      "retailer_product_id": "1524200094",
       "reason": "no_rule_match"
     }
   ],
@@ -163,20 +406,12 @@
     },
     {
       "sku": "potato",
-      "name": "Пирожок жареный с картофельной начинкой 100г",
-      "retailer_product_id": "1000142375",
-      "source_url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1",
-      "price_rub": 49.99,
+      "name": "Картофель фасованный",
+      "retailer_product_id": "1445100062",
+      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
+      "price_rub": 198.37,
       "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 100,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
-      }
+      "reason": "pack_missing"
     },
     {
       "sku": "onion",
@@ -223,10 +458,10 @@
     },
     {
       "sku": "potato",
-      "name": "Картофель фасованный",
-      "retailer_product_id": "1445100062",
-      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
-      "price_rub": 198.37,
+      "name": "Картофель",
+      "retailer_product_id": "9072651210",
+      "source_url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1",
+      "price_rub": 87.98,
       "eligible": false,
       "reason": "pack_missing"
     },
@@ -272,6 +507,108 @@
         "value": 450,
         "unit": "g"
       }
+    },
+    {
+      "sku": "pasta",
+      "name": "Спагетти Makfa шпинатные 500г",
+      "retailer_product_id": "1000373532",
+      "source_url": "https://magnit.ru/product/1000373532-makfa_makaronnye_izdeliya_spagetti_shpinatnye_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
+      "price_rub": 69.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "pasta",
+      "name": "Спагетти Makfa томатные 500г",
+      "retailer_product_id": "1000373535",
+      "source_url": "https://magnit.ru/product/1000373535-makfa_makaronnye_izdeliya_spagetti_tomatnaya_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
+      "price_rub": 69.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "buckwheat",
+      "name": "Гречневая крупа Агро-альянс Экстра 900г",
+      "retailer_product_id": "2400008418",
+      "source_url": "https://magnit.ru/product/2400008418-grechnevaya_krupa_agro_alyans_elitnaya_900g?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 800,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000166913",
+      "source_url": "https://magnit.ru/product/1000166913-zdorove_iz_predgorya_moloko_past_2_5_900ml_pl_but_abinsk_6?shopCode=770105&shopType=1",
+      "price_rub": 89.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
+      "sku": "pasta",
+      "name": "Макароны Federici Спагетти 400г",
+      "retailer_product_id": "1000443805",
+      "source_url": "https://magnit.ru/product/1000443805-federici_makaronnye_izdeliya_spagetti_400g?shopCode=770105&shopType=1",
+      "price_rub": 59.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 400,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
+      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
     }
   ],
   "channel": "delivery_catalog",
@@ -289,5 +626,5 @@
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
   "scope_verified": true,
-  "normalized_count": 24
+  "normalized_count": 80
 }
