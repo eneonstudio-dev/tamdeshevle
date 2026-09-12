@@ -36,5 +36,12 @@ assert(selectedStore.includes("previousStoreId"), "point selection must capture 
 assert(selectedStore.includes("point.referenceStoreId=previousStoreId"), "selected point metadata must retain the original comparison reference");
 assert(selectedStore.includes("referenceStoreId=point.referenceStoreId"), "point basket must compare against the preserved reference instead of the newly selected chain");
 assert(selectedStore.includes("previousStoreId!==point.chainId"), "same-chain point selection must not create fake self-savings");
+assert(selectedStore.includes('reason:"store_changed"'), "manual store changes must invalidate an old exact point instead of restoring it");
+assert(selectedStore.includes('reason:"city_changed"'), "selected point must be scoped to the active city");
+assert(selectedStore.includes("storeEligible(reference,city,mode)"), "comparison reference must be revalidated after mode/city changes");
+assert(selectedStore.includes("td:runtime-resume"), "selected point must reconcile again after page/runtime restore");
+assert(!selectedStore.includes("if(point&&window.state&&state.storeId!==point.chainId)persistCurrentChain(point)"), "startup reconciliation must never let stale point storage hijack the current store");
 
-console.log("Geo store map checks passed: provenance safety, abortable lookup, selected-point reference preservation, accessible dialogs and lifecycle-safe one-tap exits are wired.");
+await import("./test-selected-store-state.mjs");
+
+console.log("Geo store map checks passed: provenance safety, stale-point reconciliation, selected-point reference preservation, accessible dialogs and lifecycle-safe one-tap exits are wired.");
