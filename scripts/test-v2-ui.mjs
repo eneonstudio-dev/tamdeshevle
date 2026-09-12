@@ -5,6 +5,7 @@ const html=fs.readFileSync("index.html","utf8"),ui=fs.readFileSync("v2-shell.js"
 const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.readFileSync("smart-substitutions.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8");
+const cards=fs.readFileSync("cards.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
@@ -24,4 +25,6 @@ assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Б�
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
-console.log("V2 UI contract passed: responsive shell, honest data labels and an accessible single mobile navigation dock are wired.");
+assert.equal(manifest.name,"Там дешевле");assert.equal(manifest.short_name,"Там дешевле");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
+assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
+console.log("V2 UI contract passed: responsive shell, honest data labels, product packaging fit, correct PWA identity and an accessible single mobile navigation dock are wired.");
