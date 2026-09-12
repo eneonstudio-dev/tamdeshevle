@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 
 const context={console,JSON,Math,Number,String,Object,Array,Set};
 context.window=context;
-context.TDShoppingState={get:()=>({products:[],budget:null})};
+let shoppingState={products:[],budget:null};
+context.TDShoppingState={get:()=>shoppingState};
+const setProducts=(ids=[])=>{shoppingState={...shoppingState,products:ids.map(id=>({id}))}};
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(new URL('../bai-brain.js',import.meta.url),'utf8'),context);
 vm.runInContext(fs.readFileSync(new URL('../bai-reasoning-guard.js',import.meta.url),'utf8'),context);
@@ -122,6 +124,40 @@ result=await brain.route('убери это');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'pronoun removal must target last product');
 
 brain.reset();
+setProducts(['milk','bread','water']);
+result=await brain.route('убери второй');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'ordinal removal must target the second visible basket item');
+assert.equal(result.interpretedAs?.position,2,'ordinal interpretation must expose the resolved basket position');
+
+brain.reset();
+setProducts(['milk','bread','water']);
+result=await brain.route('замени второй на яблоки');
+assert.ok(hasOp(result,'REPLACE_PRODUCT',{from:'bread',to:'apple'}),'ordinal replacement must resolve source from basket order');
+assert.equal(result.interpretedAs?.from,'bread');
+assert.equal(result.interpretedAs?.to,'apple');
+
+brain.reset();
+setProducts(['milk','bread']);
+result=await brain.route('замени второй на воду или яблоки');
+assert.equal(result.operations.length,0,'ambiguous ordinal replacement must not mutate the basket');
+assert.equal(result.expectsAnswer,true,'ambiguous ordinal replacement must ask for one target');
+assert.equal(JSON.stringify(result.suggestions),JSON.stringify(['вода','яблоки']));
+
+brain.reset();
+setProducts(['milk']);
+result=await brain.route('убери второй');
+assert.equal(result.operations.length,0,'out-of-range ordinal must not mutate the basket');
+assert.equal(result.expectsAnswer,true,'out-of-range ordinal must ask what to change');
+
+brain.reset();
+setProducts([]);
+await brain.route('добавь молоко');
+await brain.route('добавь хлеб');
+result=await brain.route('убери первый');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','milk'),'ordinal reference must fall back to Bai goal context when live basket is not populated yet');
+
+brain.reset();
+setProducts([]);
 await brain.route('только молоко и хлеб');
 result=await brain.route('убери молоко');
 assert.deepEqual(Array.from(result.goal.onlyProducts),['bread'],'removing a product from only-mode must also remove it from onlyProducts');
@@ -149,4 +185,4 @@ result=await brain.route('замени молоко на воду');
 assert.equal(result.goal.quantityTargets.milk,undefined,'replacement must remove stale source quantity');
 assert.deepEqual({...result.goal.quantityTargets.water},{amount:2,unit:'l'},'replacement must transfer an explicit quantity to the target');
 
-console.log('Bai brain regression suite passed: mixed edits, scoped exclusions, negation, replacement clarification, quantities, budget, people, natural week durations, context and product-goal consistency.');
+console.log('Bai brain regression suite passed: mixed edits, scoped exclusions, negation, replacement clarification, quantities, budget, people, natural week durations, pronouns, ordinal basket references, context and product-goal consistency.');
