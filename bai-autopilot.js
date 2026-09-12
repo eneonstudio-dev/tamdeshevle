@@ -45,7 +45,7 @@
     score-=requiredMissing.length*35;
     score-=excludedHits.length*45;
     if(oneStoreMismatch)score-=35;
-    if(balance)score-=Math.max(0,Math.round((78-Number(balance.coverage?.score||0))*.45));
+    if(balance)score-=Math.max(foodMissing.length*8,Math.max(0,Math.round((78-Number(balance.coverage?.score||0))*.45)));
     if(minimalCookingMismatch)score-=18;
     if(understocked)score-=15;
     score=Math.max(0,Math.min(100,score));
