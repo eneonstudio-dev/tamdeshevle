@@ -10,7 +10,7 @@
     /^\s*привет[!.]?\s*👋?\s*я\s+бай[^.!?]*[.!?]?\s*/i
   ];
   const SERIOUS=/(?:списал(?:и|ось)?\s+деньг|деньги\s+(?:пропал|списал|не вернул)|оплат(?:а|ил|ила|или).*(?:не прош|нет заказ|ошиб)|возврат|банк|карт(?:а|ы|ой)|мошенн|обманул|здоров|аллерг|отрав|реб[её]н|безопас|травм|долг|кредит|последн(?:ие|их)\s+деньг)/i;
-  const USER_PROFANITY=/(?:\bбля|бляд|хуй|хуйн|пизд|еба|ёба|ебан|заеб|проеб|охуе|нихуя|нахуй)/i;
+  const USER_PROFANITY=/(?:бля|бляд|хуй|хуйн|пизд|еба|ёба|ебан|заеб|проеб|охуе|нихуя|нахуй)/i;
   const JOKE_ONLY=/(?:понюхаю интернет|не потрать всё сразу|не потрать все сразу|разработчики.*задум|разработчики.*нерв|я свою работу сделал|исторический документ)/i;
   const EMOJI=/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu;
   let brainWrapped=false,conversationWrapped=false;
@@ -49,12 +49,12 @@
     const original=String(reply??"").trim();if(!original)return original;
     let out=original.replace(EMOJI,"").replace(/\s+([,.!?])/g,"$1").replace(/!{2,}/g,"!");
     out=removeGenericOpeners(out)
-      .replace(/\bк\s+сожалению,?\s+произошла\s+техническая\s+ошибка[.!]?/ig,"Не получилось.")
-      .replace(/\bблагодарим\s+(?:вас\s+)?за\s+терпение[.!]?/ig,"")
+      .replace(/к\s+сожалению,?\s+произошла\s+техническая\s+ошибка[.!]?/ig,"Не получилось.")
+      .replace(/благодарим\s+(?:вас\s+)?за\s+терпение[.!]?/ig,"")
       .replace(/\s{2,}/g," ").trim();
     const hard=serious==null?isSerious(userText,out):Boolean(serious);
     if(hard)out=stripSeriousJokes(out);
-    if(!USER_PROFANITY.test(userText))out=out.replace(/\b(?:бля(?:дь)?|хуйня|проебал|нахуя|нахуй)\b/ig,match=>({"хуйня":"ерунда","проебал":"упустил","нахуя":"зачем","нахуй":""}[match.toLowerCase()]||""));
+    if(!USER_PROFANITY.test(userText))out=out.replace(/(?:бля(?:дь)?|хуйня|проебал|нахуя|нахуй)/ig,match=>({"хуйня":"ерунда","проебал":"упустил","нахуя":"зачем","нахуй":""}[match.toLowerCase()]||""));
     out=out.replace(/\s{2,}/g," ").trim();
     return out||original.replace(EMOJI,"").trim();
   }
