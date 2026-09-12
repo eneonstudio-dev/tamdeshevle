@@ -69,6 +69,80 @@
     status.textContent = text;
   }
 
+  function parseReceiptQr(rawValue) {
+    const raw = String(rawValue == null ? "" : rawValue).trim();
+    if (!raw) return { ok: false, error: "empty_qr" };
+
+    let query = raw;
+    const question = query.indexOf("?");
+    if (question >= 0) query = query.slice(question + 1);
+    if (query.startsWith("http://") || query.startsWith("https://")) return { ok: false, error: "unsupported_qr" };
+
+    const params = new URLSearchParams(query.replace(/^\?/, ""));
+    const t = String(params.get("t") || "").trim();
+    const sumText = String(params.get("s") || "").replace(",", ".").trim();
+    const fn = String(params.get("fn") || "").trim();
+    const fd = String(params.get("i") || params.get("fd") || "").trim();
+    const fp = String(params.get("fp") || "").trim();
+    const operation = String(params.get("n") || "").trim() || null;
+    const total = Number(sumText);
+
+    if (!/^\d{16}$/.test(fn) || !/^\d+$/.test(fd) || !/^\d+$/.test(fp) || !/^\d{8}T\d{4,6}$/.test(t) || !Number.isFinite(total) || total <= 0) {
+      return { ok: false, error: "invalid_fns_qr" };
+    }
+
+    const year = Number(t.slice(0, 4));
+    const month = Number(t.slice(4, 6));
+    const day = Number(t.slice(6, 8));
+    const hour = Number(t.slice(9, 11));
+    const minute = Number(t.slice(11, 13));
+    const second = t.length >= 15 ? Number(t.slice(13, 15)) : 0;
+    const date = new Date(year, month - 1, day, hour, minute, second, 0);
+    if (!Number.isFinite(date.getTime()) || date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day || date.getHours() !== hour || date.getMinutes() !== minute) {
+      return { ok: false, error: "invalid_fns_time" };
+    }
+
+    return {
+      ok: true,
+      raw,
+      fn,
+      fd,
+      fp,
+      operation,
+      total,
+      observed_at: date.toISOString(),
+      local_datetime: new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+      receipt_id: `fns:${fn}:${fd}:${fp}`
+    };
+  }
+
+  function applyReceiptQr(form, qrRaw, status) {
+    const parsed = parseReceiptQr(qrRaw);
+    form._receiptQr = parsed.ok ? parsed : null;
+    if (!parsed.ok) {
+      setStatus(status, "warn", "QR не похож на кассовый чек ФНС. Можно оставить поле пустым и сохранить чек вручную.");
+      return parsed;
+    }
+    if (form.elements.observed_at) form.elements.observed_at.value = parsed.local_datetime;
+    setStatus(status, "ok", `QR чека прочитан · сумма ${parsed.total.toFixed(2)} ₽. Он идентифицирует чек, но сам по себе не подтверждает товары и цены строк.`);
+    return parsed;
+  }
+
+  async function scanQrFromImage(file) {
+    if (!file) throw new Error("QR_IMAGE_MISSING");
+    if (typeof window.BarcodeDetector !== "function") throw new Error("BARCODE_DETECTOR_UNAVAILABLE");
+    const detector = new window.BarcodeDetector({ formats: ["qr_code"] });
+    const bitmap = await createImageBitmap(file);
+    try {
+      const codes = await detector.detect(bitmap);
+      const qr = (codes || []).find(code => code && code.rawValue);
+      if (!qr) throw new Error("QR_NOT_FOUND");
+      return String(qr.rawValue);
+    } finally {
+      if (bitmap && typeof bitmap.close === "function") bitmap.close();
+    }
+  }
+
   function openSheet() {
     if (document.querySelector(".receipt-entry-backdrop")) return false;
     const stateNow = currentState() || {};
@@ -84,12 +158,19 @@
     overlay.innerHTML = `
       <section class="receipt-entry-sheet" role="dialog" aria-modal="true" aria-labelledby="receipt-entry-title" tabindex="-1">
         <div class="receipt-entry-head">
-          <div><h2 id="receipt-entry-title">Добавить чек</h2><p>Пока сохраняем безопасный черновик. На сравнение цен он не влияет.</p></div>
+          <div><h2 id="receipt-entry-title">Добавить чек</h2><p>Сначала QR чека — он быстро заполнит реквизиты. На рейтинг чек без проверки не влияет.</p></div>
           <button class="receipt-entry-close" type="button" aria-label="Закрыть">×</button>
         </div>
         <div class="receipt-entry-note">${point ? `Чек будет привязан к выбранной точке: ${esc(point.address)}.` : "Точная точка не выбрана. Адрес можно сохранить в черновике, но он не подтверждает магазин — выбери точку на карте перед отправкой."}</div>
         <form class="receipt-entry-form">
           <div class="receipt-entry-grid">
+            <div class="receipt-entry-field full">
+              <label>QR кассового чека</label>
+              <input name="receipt_qr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="t=20260912T2147&s=1234.56&fn=...&i=...&fp=...&n=1">
+              <input name="receipt_qr_image" type="file" accept="image/*" capture="environment" hidden>
+              <button class="receipt-entry-submit receipt-qr-scan" type="button">Сканировать QR камерой</button>
+              <small>Если камера не поддерживает распознавание QR, вставь содержимое QR вручную. Данные остаются черновиком до проверки.</small>
+            </div>
             <div class="receipt-entry-field"><label>Магазин</label><select name="store_id" required>${storeOptions(selectedStore && selectedStore.id)}</select></div>
             <div class="receipt-entry-field"><label>Дата и время</label><input name="observed_at" type="datetime-local" value="${localDateTime}" required></div>
             <div class="receipt-entry-field full"><label>Адрес магазина</label><input name="address" autocomplete="street-address" placeholder="Москва, Кировоградская улица, 17" value="${esc(point && point.address || "")}"${point ? " readonly" : ""} required></div>
@@ -97,11 +178,11 @@
             <div class="receipt-entry-field"><label>Цена строки, ₽</label><input name="price" inputmode="decimal" type="number" min="0.01" step="0.01" required></div>
             <div class="receipt-entry-field"><label>Количество</label><input name="quantity" inputmode="decimal" type="number" min="0.001" step="0.001" value="1" required></div>
             <div class="receipt-entry-field full"><label>Товар в Votonobay</label><select name="product_id">${productOptions()}</select></div>
-            <div class="receipt-entry-field"><label>Штрихкод</label><input name="barcode" inputmode="numeric" placeholder="Необязательно"></div>
+            <div class="receipt-entry-field"><label>Штрихкод товара</label><input name="barcode" inputmode="numeric" placeholder="Необязательно"></div>
             <div class="receipt-entry-field"><label>Фото чека</label><div class="receipt-entry-file"><input name="photo" type="file" accept="image/*" capture="environment"></div></div>
           </div>
           <button class="receipt-entry-save" type="submit">Сохранить черновик</button>
-          <button class="receipt-entry-submit" type="button" disabled>Отправить фото на проверку</button>
+          <button class="receipt-entry-submit receipt-upload" type="button" disabled>Отправить фото на проверку</button>
           <div class="receipt-entry-status" role="status" aria-live="polite" hidden></div>
         </form>
       </section>`;
@@ -150,12 +231,53 @@
     overlay.addEventListener("click", event => { if (event.target === overlay) close(); });
     setTimeout(() => {
       if (closed) return;
-      const target = overlay.querySelector('[name="receipt_name"]') || overlay.querySelector(".receipt-entry-close") || sheet;
+      const target = overlay.querySelector('[name="receipt_qr"]') || overlay.querySelector(".receipt-entry-close") || sheet;
       if (target && typeof target.focus === "function") target.focus();
     }, 0);
 
     const form = overlay.querySelector(".receipt-entry-form");
-    const queueButton = form.querySelector(".receipt-entry-submit");
+    const queueButton = form.querySelector(".receipt-upload");
+    const qrInput = form.elements.receipt_qr;
+    const qrImage = form.elements.receipt_qr_image;
+    const qrScanButton = form.querySelector(".receipt-qr-scan");
+
+    qrInput.addEventListener("change", () => {
+      const value = String(qrInput.value || "").trim();
+      if (!value) {
+        form._receiptQr = null;
+        return;
+      }
+      applyReceiptQr(form, value, form.querySelector(".receipt-entry-status"));
+    });
+
+    qrScanButton.addEventListener("click", () => {
+      const status = form.querySelector(".receipt-entry-status");
+      if (typeof window.BarcodeDetector !== "function") {
+        setStatus(status, "warn", "Этот браузер не умеет распознавать QR камерой без дополнительной библиотеки. Вставь содержимое QR вручную или приложи фото чека.");
+        return;
+      }
+      qrImage.click();
+    });
+
+    qrImage.addEventListener("change", async () => {
+      const status = form.querySelector(".receipt-entry-status");
+      const file = qrImage.files && qrImage.files[0];
+      if (!file) return;
+      qrScanButton.disabled = true;
+      setStatus(status, "", "Читаю QR чека…");
+      try {
+        const raw = await scanQrFromImage(file);
+        qrInput.value = raw;
+        applyReceiptQr(form, raw, status);
+      } catch (error) {
+        const code = String(error && error.message || error);
+        setStatus(status, "warn", code === "QR_NOT_FOUND" ? "QR на снимке не найден. Попробуй приблизить код или вставь его содержимое вручную." : "Не удалось прочитать QR на этом устройстве. Можно продолжить с фото и ручными полями.");
+      } finally {
+        qrScanButton.disabled = false;
+        qrImage.value = "";
+      }
+    });
+
     form.addEventListener("submit", event => {
       event.preventDefault();
       const currentForm = event.currentTarget;
@@ -171,6 +293,8 @@
       const address = String(data.get("address") || "").trim();
       const matchMethod = productId ? (barcode ? "barcode" : "name") : "unmatched";
       const localPhoto = currentForm.elements.photo && currentForm.elements.photo.files && currentForm.elements.photo.files[0];
+      const qrRaw = String(data.get("receipt_qr") || "").trim();
+      const qr = qrRaw ? parseReceiptQr(qrRaw) : null;
       const observedDate = new Date(String(data.get("observed_at") || ""));
       const price = Number(data.get("price"));
       const quantity = Number(data.get("quantity"));
@@ -181,6 +305,10 @@
 
       if (!window.TDReceiptObservations || typeof window.TDReceiptObservations.create !== "function" || typeof window.TDReceiptObservations.validate !== "function") {
         setStatus(status, "warn", "Модуль чеков пока недоступен.");
+        return;
+      }
+      if (qrRaw && (!qr || !qr.ok)) {
+        setStatus(status, "warn", "QR чека заполнен, но не прошёл проверку формата. Исправь QR или очисти поле.");
         return;
       }
       if (!storeId || !receiptName || !address) {
@@ -203,9 +331,10 @@
       let observation;
       try {
         observation = window.TDReceiptObservations.create({
-          source: "manual_receipt",
-          receipt_id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          observed_at: observedDate.toISOString(),
+          source: qr && qr.ok ? "receipt" : "manual_receipt",
+          receipt_id: qr && qr.ok ? qr.receipt_id : `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          observed_at: qr && qr.ok ? qr.observed_at : observedDate.toISOString(),
+          fiscal_sign: qr && qr.ok ? qr.fp : null,
           store: {
             chain_id: store ? store.id : storeId,
             store_id: scopedPoint ? scopedPoint.storeId : storeId,
@@ -245,9 +374,10 @@
       currentForm._receiptObservation = observation;
       currentForm._receiptPhoto = localPhoto || null;
       queueButton.disabled = !(localPhoto && window.TDAuth && typeof window.TDAuth.submitReceiptEvidence === "function");
+      const qrPrefix = qr && qr.ok ? "QR чека привязан. " : "";
       setStatus(status, "ok", localPhoto
-        ? (queueButton.disabled ? "Черновик сохранён. Чтобы отправить фото на проверку, сначала войди в аккаунт." : "Черновик сохранён. Фото ещё не отправлено — нажми кнопку ниже.")
-        : "Черновик сохранён. Он не участвует в рейтинге до подтверждения чека.");
+        ? (queueButton.disabled ? `${qrPrefix}Черновик сохранён. Чтобы отправить фото на проверку, сначала войди в аккаунт.` : `${qrPrefix}Черновик сохранён. Фото ещё не отправлено — нажми кнопку ниже.`)
+        : `${qrPrefix}Черновик сохранён. Он не участвует в рейтинге до подтверждения чека.`);
       window.dispatchEvent(new CustomEvent("td:receipt-draft-saved", { detail: { observation } }));
     });
 
@@ -286,7 +416,7 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "receipt-entry-cta";
-    button.innerHTML = `<span>Есть чек? Помоги Баю сверить цену<small>Сохраним черновик, в рейтинг без проверки не пустим</small></span><b>＋</b>`;
+    button.innerHTML = `<span>Есть чек? Помоги Баю сверить цену<small>QR сначала: реквизиты сами, в рейтинг без проверки не пустим</small></span><b>＋</b>`;
     button.addEventListener("click", openSheet);
     const hero = wrap.querySelector(".hero");
     if (hero && hero.nextSibling) wrap.insertBefore(button, hero.nextSibling);
@@ -298,5 +428,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true });
   else mount();
 
-  window.TDReceiptEntry = { open: openSheet, loadDrafts, saveDraft };
+  window.TDReceiptEntry = { open: openSheet, loadDrafts, saveDraft, parseReceiptQr, scanQrFromImage };
 })();
