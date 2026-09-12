@@ -3,6 +3,7 @@ import vm from "node:vm";
 import assert from "node:assert/strict";
 
 const source=fs.readFileSync("app-store-guard.js","utf8");
+const index=fs.readFileSync("index.html","utf8");
 const storage=new Map([["td",JSON.stringify({storeId:"ghost",city:"msk",cart:{milk:1}})]]);
 const events=[];
 const calls={render:0,go:0,setQty:0,choose:0,toggle:0};
@@ -48,5 +49,11 @@ state.storeId="ghost";window.render();
 assert.equal(state.storeId,"perek");
 assert.equal(calls.render,1);
 
+const appIndex=index.indexOf('src="app.js');
+const guardIndex=index.indexOf('src="app-store-guard.js');
+const catalogIndex=index.indexOf('src="catalog-boot.js');
+assert.ok(appIndex>=0,"production index must load core app runtime");
+assert.ok(guardIndex>appIndex,"production index must load the store guard after app state exists");
+assert.ok(catalogIndex<0||guardIndex<catalogIndex,"store guard must install before downstream catalog enhancers");
 assert.doesNotMatch(source,/TDBai|bai:|\.td-ai|assets\/bai/,"store guard must remain independent from Bai");
-console.log("App store guard passed: stale runtime store IDs repair before render/actions, city changes stay valid and unrankable plans fail closed.");
+console.log("App store guard passed: stale runtime store IDs repair before render/actions, the guard ships in production, city changes stay valid and unrankable plans fail closed.");
