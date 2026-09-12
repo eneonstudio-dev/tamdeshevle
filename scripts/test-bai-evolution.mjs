@@ -3,9 +3,14 @@ import assert from 'node:assert/strict';
 import {scoreCase,scoreSuite,compareCandidate} from '../server/bai-evolution-policy.mjs';
 
 const cases=JSON.parse(fs.readFileSync(new URL('../backend/bai-evolution-cases.json',import.meta.url),'utf8'));
+const schema=fs.readFileSync(new URL('../backend/bai-evolution-schema.sql',import.meta.url),'utf8');
 assert.ok(cases.length>=12,'evolution suite must cover a meaningful grocery corpus');
 assert.equal(new Set(cases.map(x=>x.id)).size,cases.length,'evolution case ids must be unique');
 assert.ok(cases.filter(x=>x.critical).length>=8,'most core shopping safety cases should be critical');
+assert.ok(/enable row level security/i.test(schema),'evolution run ledger must use RLS');
+assert.ok(/revoke all on table public\.bai_evolution_runs from public, anon, authenticated/i.test(schema),'browser roles must not access evolution ledger directly');
+assert.ok(/auto_promote boolean not null default false check \(auto_promote = false\)/i.test(schema),'database must make direct auto-promotion impossible');
+assert.equal(/conversation|message|basket_payload|prompt_text/i.test(schema.replace(/comment on table[\s\S]*$/i,'')),false,'evolution ledger must not store raw conversations, prompts or baskets');
 
 const ambiguous=cases.find(x=>x.id==='ambiguous_replace');
 const unsafe=scoreCase(ambiguous,{operations:[{type:'REPLACE_PRODUCT',value:{from:'milk',to:'water'}}]});
