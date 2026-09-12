@@ -26,12 +26,17 @@ on:
       - "scripts/test-bai-learning-backend.mjs"
       - "scripts/test-bai-learning-admin.mjs"
       - "scripts/test-bai-memory-undo.mjs"
+      - "scripts/test-bai-memory-outcomes.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - "scripts/test-bai-agent-core.mjs"
       - "scripts/test-bai-evolution.mjs"
       - "scripts/test-bai-autopilot.mjs"
       - "scripts/test-bai-shopping-journey.mjs"
+      - "scripts/test-bai-sufficiency.mjs"
+      - "scripts/test-bai-smart-substitutions.mjs"
+      - "scripts/test-bai-meal-brain.mjs"
+      - "scripts/test-bai-meal-pipeline.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -60,12 +65,17 @@ on:
       - "scripts/test-bai-learning-backend.mjs"
       - "scripts/test-bai-learning-admin.mjs"
       - "scripts/test-bai-memory-undo.mjs"
+      - "scripts/test-bai-memory-outcomes.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - "scripts/test-bai-agent-core.mjs"
       - "scripts/test-bai-evolution.mjs"
       - "scripts/test-bai-autopilot.mjs"
       - "scripts/test-bai-shopping-journey.mjs"
+      - "scripts/test-bai-sufficiency.mjs"
+      - "scripts/test-bai-smart-substitutions.mjs"
+      - "scripts/test-bai-meal-brain.mjs"
+      - "scripts/test-bai-meal-pipeline.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -88,6 +98,9 @@ jobs:
           node --check bai-checkout.js
           node --check bai-fallback-bridge.js
           node --check bai-food-knowledge.js
+          node --check bai-sufficiency.js
+          node --check bai-smart-substitutions.js
+          node --check bai-meal-brain.js
           node --check bai-life.js
           node --check bai-memory.js
           node --check bai-learning-safety.js
@@ -118,12 +131,17 @@ jobs:
           node --check scripts/test-bai-learning-backend.mjs
           node --check scripts/test-bai-learning-admin.mjs
           node --check scripts/test-bai-memory-undo.mjs
+          node --check scripts/test-bai-memory-outcomes.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
           node --check scripts/test-bai-agent-core.mjs
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
           node --check scripts/test-bai-shopping-journey.mjs
+          node --check scripts/test-bai-sufficiency.mjs
+          node --check scripts/test-bai-smart-substitutions.mjs
+          node --check scripts/test-bai-meal-brain.mjs
+          node --check scripts/test-bai-meal-pipeline.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -135,9 +153,14 @@ jobs:
           node scripts/test-bai-learning-backend.mjs
           node scripts/test-bai-learning-admin.mjs
           node scripts/test-bai-memory-undo.mjs
+          node scripts/test-bai-memory-outcomes.mjs
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
           node scripts/test-bai-agent-core.mjs
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
           node scripts/test-bai-shopping-journey.mjs
+          node scripts/test-bai-sufficiency.mjs
+          node scripts/test-bai-smart-substitutions.mjs
+          node scripts/test-bai-meal-brain.mjs
+          node scripts/test-bai-meal-pipeline.mjs
