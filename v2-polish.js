@@ -1,5 +1,8 @@
 (function(){
   "use strict";
+  if(window.__TDV2PolishInitialized)return;
+  window.__TDV2PolishInitialized=true;
+
   const products=()=>typeof PRODUCTS!=="undefined"?PRODUCTS:[];
   const count=()=>products().reduce((sum,p)=>sum+Number(window.state&&state.cart&&state.cart[p.id]||0),0);
   const items=()=>products().filter(p=>window.state&&state.cart&&state.cart[p.id]>0);
@@ -49,7 +52,7 @@
   }
 
   function queueHeaderScrollState(){
-    if(headerScrollFrame) return;
+    if(document.hidden||headerScrollFrame) return;
     headerScrollFrame=requestAnimationFrame(()=>{
       headerScrollFrame=0;
       syncHeaderScrollState();
@@ -57,6 +60,7 @@
   }
 
   function hydrate(){
+    if(document.hidden)return;
     ensureMobileCart();
     enhanceMobileMenu();
     syncHeaderScrollState();
@@ -95,8 +99,19 @@
   });
 
   window.addEventListener("scroll",queueHeaderScrollState,{passive:true});
-
   window.addEventListener("td:v2-rendered",hydrate);
   window.addEventListener("pageshow",hydrate);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden&&headerScrollFrame){
+      cancelAnimationFrame(headerScrollFrame);
+      headerScrollFrame=0;
+      return;
+    }
+    if(!document.hidden)hydrate();
+  });
+  window.addEventListener("pagehide",()=>{
+    if(headerScrollFrame)cancelAnimationFrame(headerScrollFrame);
+    headerScrollFrame=0;
+  },{once:true});
   hydrate();
 })();
