@@ -36,6 +36,7 @@ jobs:
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-product-card-resilience.mjs
           node --check scripts/test-first-shopping-journey.mjs
+          node --check scripts/test-ui-lifecycle-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
           node --check scripts/test-static-assets.mjs
           node --check scripts/test-mobile-runtime.mjs
@@ -50,6 +51,8 @@ jobs:
         run: node scripts/test-product-card-resilience.mjs
       - name: Test first shopping journey
         run: node scripts/test-first-shopping-journey.mjs
+      - name: Test UI lifecycle resilience
+        run: node scripts/test-ui-lifecycle-resilience.mjs
       - name: Test price sync resilience
         run: node scripts/test-price-sync-resilience.mjs
       - name: Test runtime performance guards
