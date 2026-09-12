@@ -56,6 +56,7 @@ const source=fs.readFileSync("purchase-experience-v1.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8");
 const css=fs.readFileSync("purchase-experience-v1.css","utf8");
 const comparisonCss=fs.readFileSync("comparison-result-v2.css","utf8");
+const comparisonSource=fs.readFileSync("comparison-result-v2.js","utf8");
 assert.match(polish,/purchase-experience-v1\.js\?v=/,"generic V2 lifecycle must load the purchase experience");
 assert.doesNotMatch(source,/TDBai|bai-/i,"purchase journey must stay usable without Bay");
 assert.match(source,/Как лучше собрать эту корзину/);
@@ -72,6 +73,12 @@ assert.doesNotMatch(css,/#eef8f2/i,"purchase overlay must not reintroduce the ol
 assert.match(comparisonCss,/\.td-compare-why\{[^}]*background:linear-gradient\(160deg,rgba\(255,255,255,\.055\),rgba\(255,255,255,\.025\)\)/,"base comparison UI must stay dark even without the purchase overlay");
 assert.doesNotMatch(comparisonCss,/#f4f1e8/i,"base comparison UI must not fall back to the old beige rationale card");
 assert.match(comparisonCss,/\.td-compare-why>div b\{color:#6ff0a9\}/,"rationale savings must remain visually distinct on the dark card");
+assert.match(comparisonSource,/Решение по корзине/);
+assert.match(comparisonSource,/Как лучше купить/);
+assert.match(comparisonSource,/Рекомендую/);
+assert.match(comparisonSource,/Почему этот вариант/);
+assert.match(comparisonSource,/Votonobay не добавляет лишние товары/);
+assert.doesNotMatch(comparisonSource,/Где действительно дешевле|Почему так дешевле|Ничего лишнего Бай не добавлял/,"base comparison source must not fall back to cheapest-only or Bai-dependent copy");
 assert.ok(appended.some(x=>String(x._href||"").includes("purchase-experience-v1.css")),"purchase CSS must load with the runtime layer");
 
-console.log("Votonobay purchase experience passed: decision → trust → dark rationale → chosen plan → truthful store handoff includes an offline-safe, copyable per-store checklist fallback.");
+console.log("Votonobay purchase experience passed: source copy → decision → trust → dark rationale → chosen plan → truthful store handoff stays Votonobay-native without a cheapest-only fallback.");
