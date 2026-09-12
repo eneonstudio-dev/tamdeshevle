@@ -71,8 +71,29 @@ assert.ok(hasOp(result,'SET_INTENT','build'),'basket request must enter build in
 assert.equal(result.goal.budget,1500);
 
 brain.reset();
+result=await brain.route('собери корзину на 3 дня');
+assert.ok(hasOp(result,'SET_DURATION',3),'duration must be parsed');
+assert.equal(hasOp(result,'SET_PEOPLE'),false,'duration-only phrase must not be mistaken for people count');
+assert.equal(result.goal.days,3);
+assert.equal(result.goal.people,null);
+
+brain.reset();
+await brain.route('нас двое');
+result=await brain.route('собери на 3 дня');
+assert.ok(hasOp(result,'SET_DURATION',3),'follow-up duration must still be applied');
+assert.equal(hasOp(result,'SET_PEOPLE'),false,'duration follow-up must not overwrite existing people count');
+assert.equal(result.goal.people,2,'existing explicit people count must survive a duration-only follow-up');
+
+brain.reset();
+result=await brain.route('собери на 3 дня, нас двое');
+assert.ok(hasOp(result,'SET_DURATION',3),'combined request must retain duration');
+assert.ok(hasOp(result,'SET_PEOPLE',2),'explicit people phrase must win over ambiguous «на 3» parsing');
+assert.equal(result.goal.people,2);
+assert.equal(result.goal.days,3);
+
+brain.reset();
 await brain.route('добавь хлеб');
 result=await brain.route('убери это');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'pronoun removal must target last product');
 
-console.log('Bai brain regression suite passed: mixed edits, postpositive negation, replacement clarification, quantities, budget and context.');
+console.log('Bai brain regression suite passed: mixed edits, negation, replacement clarification, quantities, budget, people, duration and context.');
