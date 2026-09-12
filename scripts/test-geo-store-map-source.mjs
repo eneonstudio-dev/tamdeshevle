@@ -28,6 +28,15 @@ assert(source.includes("tdGeoMap") && source.includes("tdGeoPoint") && source.in
 assert(source.includes("td-map-state") && source.includes("data-retry-nearby"), "network failure must have a visible retry state");
 assert(!source.includes("TDBai") && !source.includes("bai-"), "geo lifecycle must stay independent from Bai internals");
 
+assert(source.includes("refreshMapMarkers"), "nearby results must update markers without rebuilding the sheet");
+assert(source.includes("renderMapSurface"), "Leaflet surface setup must be reusable after page restore");
+assert(source.includes('window.addEventListener("pageshow"'), "BFCache/Android return must restore an open map");
+assert(source.includes('window.addEventListener("pagehide"'), "background navigation must stop active map/network work");
+assert(source.includes("if(!lastPosition)return locate({opener})"), "first geolocation request must preserve the map opener for focus restoration");
+assert(!source.includes('if(mapSheet){closeMap({historyBack:false,restoreFocus:false})'), "nearby refresh must never close/reopen the visible map sheet");
+assert(!source.includes("suppressMapRemoval") && !source.includes("suppressPointRemoval"), "unused popstate suppression flags must not obscure overlay lifecycle");
+assert(source.includes('refreshMapMarkers({fit:false})'), "retailer price refresh must update visible marker popups in place");
+
 assert(oneTap.includes("closeMapFlow"), "one-tap compare must use centralized map teardown");
 assert(oneTap.includes("TDGeo?.closeMap") && oneTap.includes("TDGeo?.closePointDetails"), "one-tap navigation must call the geo lifecycle API instead of bypassing it");
 assert(oneTap.includes("clearGeoHistory"), "one-tap compare must not leave stale geo history state");
@@ -44,4 +53,4 @@ assert(!selectedStore.includes("if(point&&window.state&&state.storeId!==point.ch
 
 await import("./test-selected-store-state.mjs");
 
-console.log("Geo store map checks passed: provenance safety, stale-point reconciliation, selected-point reference preservation, accessible dialogs and lifecycle-safe one-tap exits are wired.");
+console.log("Geo store map checks passed: provenance safety, in-place marker refresh, BFCache restore, stale-point reconciliation and lifecycle-safe overlay exits are wired.");
