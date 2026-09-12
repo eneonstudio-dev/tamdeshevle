@@ -5,7 +5,7 @@ const html=fs.readFileSync("index.html","utf8"),ui=fs.readFileSync("v2-shell.js"
 const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.readFileSync("smart-substitutions.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8");
-const cards=fs.readFileSync("cards.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
+const cards=fs.readFileSync("cards.css","utf8"),brand=fs.readFileSync("brand-votonobay-v1.js","utf8"),brandCss=fs.readFileSync("votonobay-brand-v1.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
@@ -19,12 +19,14 @@ assert.match(mobileDock,/Мобильная навигация/);assert.match(ht
 assert.match(mobileDock,/document\.querySelectorAll\("\.v2-bottom-nav"\)/);assert.match(mobileDock,/dock!==nav\)dock\.remove\(\)/);
 assert.match(mobileDock,/aria-current/);assert.match(mobileDock,/type="button"/);
 assert.doesNotMatch(mobileDock,/MutationObserver/);
-assert.match(ui,/демонстрационные и не участвуют в честном рейтинге/);assert.match(ui,/Подтверждённые и предполагаемые цены всегда разделены/);
+assert.match(ui,/≈ — ориентир, подтверждённые цены отмечаем отдельно/);assert.match(ui,/Помогаем понять, как лучше собрать корзину/);
+assert.match(ui,/Votonobay — на главную/);assert.match(ui,/Покупки\. <em>Как лучше\.<\/em>/);assert.match(ui,/Сравнить варианты/);
+assert.match(brand,/const BRAND="Votonobay"/);assert.match(brandCss,/body\.td-votonobay/);assert.doesNotMatch(brand,/td-ai-|TDBai|bai-/);
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
-assert.equal(manifest.name,"Там дешевле");assert.equal(manifest.short_name,"Там дешевле");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
+assert.equal(manifest.name,"Votonobay");assert.equal(manifest.short_name,"Votonobay");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
 assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
-console.log("V2 UI contract passed: responsive shell, honest data labels, product packaging fit, correct PWA identity and an accessible single mobile navigation dock are wired.");
+console.log("V2 UI contract passed: responsive Votonobay shell, honest data labels, product packaging fit, correct PWA identity and an accessible single mobile navigation dock are wired.");
