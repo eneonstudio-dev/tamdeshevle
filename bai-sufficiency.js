@@ -54,8 +54,9 @@
       const wanted=Math.max(1,Number(target?.amount)||1),line=(plan?.products||[]).find(x=>x?.id===id),have=Math.max(0,Number(line?.quantity)||0);
       if(have<wanted)targetMiss.push({id,wanted,have});
     }
-    const weighted=ratios.protein*.32+ratios.base*.32+ratios.fruit*.18+ratios.drink*.18;
-    let score=Math.round(Math.min(1,weighted)*100)-Math.min(24,targetMiss.length*4);
+    const capped=role=>Math.min(1,ratios[role]||0);
+    const weighted=capped("protein")*.32+capped("base")*.32+capped("fruit")*.18+capped("drink")*.18;
+    let score=Math.round(weighted*100)-Math.min(24,targetMiss.length*4);
     score=Math.max(0,Math.min(100,score));
     return {
       score,demand:d,supply:s,ratios,gaps:gaps.sort((a,b)=>b.severity-a.severity),targetMiss,
