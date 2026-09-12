@@ -39,6 +39,7 @@ jobs:
           node --check bai-tradeoff-advisor-v1.js
           node --check account-auth-ui.js
           node --check purchase-flow.js
+          node --check purchase-experience-v1.js
           node --check first-shopping-journey.js
           node --check comparison-result-v2.js
           node --check basket-split.js
@@ -67,6 +68,7 @@ jobs:
           node --check scripts/test-price-trust-quality.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
+          node --check scripts/test-purchase-experience.mjs
           node --check scripts/test-price-sync-resilience.mjs
           node --check scripts/test-basket-split.mjs
           node --check scripts/test-basket-split-ui.mjs
@@ -125,6 +127,8 @@ jobs:
         run: node scripts/test-account-modal-resilience.mjs
       - name: Test purchase and comparison resilience
         run: node scripts/test-purchase-comparison-resilience.mjs
+      - name: Test Votonobay purchase journey
+        run: node scripts/test-purchase-experience.mjs
       - name: Test static asset integrity
         run: node scripts/test-static-assets.mjs
       - name: Test security hardening contracts
