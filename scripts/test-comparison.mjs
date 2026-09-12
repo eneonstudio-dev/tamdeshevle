@@ -37,6 +37,7 @@ assert(any.find(row => row.id === "delivery").total === 350, "delivery fee in an
 assert(any.find(row => row.id === "hyper").save === null, "estimated prices must not claim verified savings");
 assert(any.find(row => row.id === "hyper").indicativeSave === 30, "indicative savings should remain available");
 assert(any.find(row => row.id === "hyper").verifiedItems === 0, "educational prices must not count as verified");
+assert(any.every(row => row.referenceAvailable === true && row.referenceStoreId === "shop"), "eligible origin should be exposed as the comparison reference");
 
 const verifiedProducts = products.map(product => ({
   ...product,
@@ -106,3 +107,17 @@ assert(channelResult.find(x=>x.id==='shop').indicativeSave===0,'delivery origin 
 assert(!TDCompare.basketQuote(verifiedProducts,{a:Infinity},'shop','shelf').complete,'infinite quantity rejected');
 assert(!TDCompare.basketQuote(verifiedProducts,{a:0.5},'shop','shelf').complete,'half a packaged item cannot be bought');
 assert(TDCompare.goodsTotal([{id:'x',prices:{shop:0.1}}],{x:3},'shop','shelf')===0.3,'money accumulates in kopecks');
+
+const unavailableCityOrigin = TDCompare.compare({ stores, products, cart, city: "spb", mode: "any", originStoreId: "hyper" });
+assert(unavailableCityOrigin.length === 2 && unavailableCityOrigin.every(row => row.referenceAvailable === false), "origin outside the active city must not become a hidden savings baseline");
+assert(unavailableCityOrigin.every(row => row.referenceStoreId === null && row.save === null && row.indicativeSave === null), "unavailable-city origin must suppress relative savings");
+assert(unavailableCityOrigin.every(row => row.same === false), "fallback store must not be presented as the user's current choice");
+
+const unavailableModeOrigin = TDCompare.compare({ stores, products, cart, city: "msk", mode: "walk", originStoreId: "delivery" });
+assert(unavailableModeOrigin.length === 2 && unavailableModeOrigin.every(row => row.referenceAvailable === false), "delivery-only origin must not anchor walk-mode savings");
+assert(unavailableModeOrigin.every(row => row.save === null && row.indicativeSave === null && row.same === false), "walk mode must not claim savings against a store excluded from walk mode");
+
+const noBringStore = { id: "pickup", name: "Pickup only", kind: "shop", city: ["msk"], has_bring: false };
+const deliveryWithoutOrigin = TDCompare.compare({ stores: [noBringStore, stores[2]], products, cart, city: "msk", mode: "delivery", originStoreId: "pickup" });
+assert(deliveryWithoutOrigin.length === 1 && deliveryWithoutOrigin[0].id === "delivery", "delivery mode must exclude stores that cannot deliver");
+assert(deliveryWithoutOrigin[0].referenceAvailable === false && deliveryWithoutOrigin[0].same === false, "excluded pickup-only origin must not become an implicit delivery reference");
