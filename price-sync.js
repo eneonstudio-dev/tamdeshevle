@@ -1,5 +1,7 @@
 (function () {
   "use strict";
+  if (window.__TDPriceSyncInitialized) return;
+  window.__TDPriceSyncInitialized = true;
 
   const PRICE_ID_ALIASES = {
     bread_dark: "bread",
@@ -65,21 +67,101 @@
   }
 
   let attempts = 0;
-  const timer = setInterval(() => {
-    attempts += 1;
-    if (catalogLooksReady()) {
-      clearInterval(timer);
-      if (typeof loadPrices === "function") {
-        Promise.resolve(loadPrices()).finally(() => {
-          applyBook();
-          if (typeof render === "function") render();
-        });
-      } else {
-        applyBook();
-        if (typeof render === "function") render();
-      }
+  let retryTimer = 0;
+  let busy = false;
+  let deferred = true;
+
+  function isActive() {
+    return !document.hidden && navigator.onLine !== false;
+  }
+
+  function clearRetry() {
+    if (retryTimer) clearTimeout(retryTimer);
+    retryTimer = 0;
+  }
+
+  function renderIfActive() {
+    if (!document.hidden && typeof render === "function") render();
+  }
+
+  function applyAndRender() {
+    const applied = applyBook();
+    if (applied) renderIfActive();
+    return applied;
+  }
+
+  function schedule(delay = 100) {
+    clearRetry();
+    if (!isActive()) {
+      deferred = true;
       return;
     }
-    if (attempts >= 50) clearInterval(timer);
-  }, 100);
+    retryTimer = setTimeout(run, delay);
+  }
+
+  function run() {
+    retryTimer = 0;
+    if (!isActive()) {
+      deferred = true;
+      return;
+    }
+    if (!catalogLooksReady()) {
+      attempts += 1;
+      if (attempts < 50) schedule(100);
+      return;
+    }
+
+    attempts = 0;
+    if (typeof PRICE_BOOK !== "undefined" && PRICE_BOOK) {
+      deferred = false;
+      applyAndRender();
+      return;
+    }
+
+    if (typeof loadPrices !== "function" || busy) {
+      if (!busy) applyAndRender();
+      return;
+    }
+
+    busy = true;
+    deferred = false;
+    Promise.resolve(loadPrices())
+      .then(() => {
+        if (!isActive()) {
+          deferred = true;
+          return;
+        }
+        applyAndRender();
+      })
+      .catch(() => { deferred = true; })
+      .finally(() => {
+        busy = false;
+        if (deferred && isActive()) schedule(0);
+      });
+  }
+
+  function suspend() {
+    deferred = deferred || !window.TDPriceState;
+    clearRetry();
+  }
+
+  function resume() {
+    if (!isActive()) return;
+    if (typeof PRICE_BOOK !== "undefined" && PRICE_BOOK) {
+      deferred = false;
+      applyAndRender();
+      return;
+    }
+    if (deferred || !window.TDPriceState) schedule(0);
+  }
+
+  document.addEventListener("visibilitychange", () => document.hidden ? suspend() : resume());
+  window.addEventListener("pagehide", suspend);
+  window.addEventListener("pageshow", resume);
+  window.addEventListener("offline", suspend);
+  window.addEventListener("online", resume);
+  window.addEventListener("td:runtime-suspend", suspend);
+  window.addEventListener("td:runtime-resume", resume);
+
+  schedule(0);
 })();
