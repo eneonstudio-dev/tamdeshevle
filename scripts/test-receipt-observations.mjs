@@ -60,4 +60,53 @@ assert(api.toPriceCandidates(typedAddress)[0].scope_verified === false, 'typed a
 const invalid = api.create({ chain_id: 'pyat', items: [{ receipt_name: 'Сыр', price: 0 }] });
 assert(api.validate(invalid).ok === false, 'missing date / invalid price should fail validation');
 
+// QR-first capture is a UI input helper only. It must identify a fiscal receipt
+// without promoting proof/store scope or making the observation rankable.
+const entryCode = fs.readFileSync(new URL('../receipt-entry-ui.js', import.meta.url), 'utf8');
+const fakeStorage = new Map();
+const entryContext = {
+  window: {},
+  document: {
+    readyState: 'loading',
+    documentElement: {},
+    addEventListener() {},
+    querySelector() { return null; }
+  },
+  localStorage: {
+    getItem(key) { return fakeStorage.get(key) ?? null; },
+    setItem(key, value) { fakeStorage.set(key, value); }
+  },
+  MutationObserver: class { observe() {} },
+  CustomEvent: class {},
+  FormData: class {},
+  URLSearchParams,
+  Date,
+  console
+};
+entryContext.window = entryContext;
+vm.createContext(entryContext);
+vm.runInContext(entryCode, entryContext);
+const entry = entryContext.TDReceiptEntry;
+assert(typeof entry?.parseReceiptQr === 'function', 'receipt entry should expose FNS QR parser');
+
+const parsedQr = entry.parseReceiptQr('t=20260912T214700&s=1234.56&fn=9287440300123456&i=777&fp=1234567890&n=1');
+assert(parsedQr.ok === true, 'valid FNS QR should parse');
+assert(parsedQr.receipt_id === 'fns:9287440300123456:777:1234567890', 'FNS QR should create deterministic receipt id');
+assert(parsedQr.total === 1234.56, 'FNS QR total should parse');
+assert(Boolean(parsedQr.observed_at), 'FNS QR should expose observed_at');
+assert(entry.parseReceiptQr('https://example.com/qr').ok === false, 'arbitrary web QR must not be accepted');
+assert(entry.parseReceiptQr('t=20260912T2147&s=100&fn=bad&i=1&fp=2').ok === false, 'invalid fiscal number must fail');
+
+const qrBackedObservation = api.create({
+  receipt_id: parsedQr.receipt_id,
+  observed_at: parsedQr.observed_at,
+  source: 'receipt',
+  fiscal_sign: parsedQr.fp,
+  store: { chain_id: 'magnit', store_id: 'magnit', address: 'Москва, адрес руками' },
+  items: [{ receipt_name: 'Хлеб', price: 59 }]
+});
+assert(qrBackedObservation.proof.fiscal_sign === '1234567890', 'QR fiscal sign should be retained as receipt metadata');
+assert(qrBackedObservation.verification.store_scope_verified === false, 'QR alone must not verify exact store');
+assert(qrBackedObservation.verification.rankable === false, 'QR-backed draft must remain non-rankable');
+
 console.log('receipt observations: ok');
