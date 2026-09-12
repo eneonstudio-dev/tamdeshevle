@@ -15,5 +15,5 @@ function scoreStrategy(strategy){let delta=0,reasons=[];const id=strategy?.id,op
 function hint(){const b=[];if(p.cooking==="minimal")b.push("обычно без лишней готовки");if(p.usualPeople>1)b.push(`обычно на ${p.usualPeople}`);if(p.preferences.includes("budget"))b.push("цена важна");if(p.preferences.includes("hearty"))b.push("любишь сытнее");const n=avoidList().length;if(n)b.push(`${n} товар(а) больше не предлагаю автоматически`);return b.slice(0,3).join(", ")}
 function clear(){p=blank();try{localStorage.removeItem(K)}catch{}return p}
 window.TDBaiMemory={get:()=>JSON.parse(JSON.stringify(p)),learn,hint,clear,signal,shouldAvoid,avoidList,filterRequired,scoreStrategy};
-import("./bai-learning-loop.js?v=20260912-learning-v1").catch(()=>{});
+import("./bai-learning-safety.js?v=20260912-safety-v1").then(()=>import("./bai-learning-loop.js?v=20260912-learning-v2")).catch(()=>{});
 })();
