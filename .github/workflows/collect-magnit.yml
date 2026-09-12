@@ -6,6 +6,11 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/collect-magnit.yml"
+      - "data/retailers/magnit.collector.json"
+      - "retailers/magnit-collector.mjs"
+      - "retailers/magnit.mjs"
+      - "retailers/sku-matcher.mjs"
+      - "scripts/collect-magnit.mjs"
   schedule:
     - cron: "17 2 * * *"
 

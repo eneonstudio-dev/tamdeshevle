@@ -6,7 +6,7 @@
   "channel": "delivery_catalog",
   "source_url": "https://magnit.ru/",
   "delay_ms": 100,
-  "max_products": 24,
+  "max_products": 80,
   "expected_address_tokens": ["Чертановская", "47"],
   "store_context": {
     "shop_code": "770105",
@@ -21,14 +21,19 @@
     "grech",
     "maslo_podsol",
     "sahar",
+    "darnits",
     "khleb",
     "banan",
     "kartof",
     "luk_repchat",
     "morkov",
     "chay_chern",
-    "file_grudki",
-    "file_tsypl"
+    "file_grud",
+    "file_tsypl",
+    "file_kurin",
+    "kurinoe_file",
+    "grudka_tsypl",
+    "tsyplen"
   ],
   "product_urls": [
     "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20"
