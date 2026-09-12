@@ -45,7 +45,10 @@ function boot(savedValue) {
     },
     fetch() {
       fetchCount += 1;
-      return new Promise(() => {});
+      return new Promise(resolve => setTimeout(() => resolve({
+        ok: true,
+        json: async () => ({ flat: {}, flat_bring: {}, delivery_fee: {} })
+      }), 25));
     },
     AbortController,
     setTimeout,
