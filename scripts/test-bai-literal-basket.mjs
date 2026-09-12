@@ -9,8 +9,12 @@ const products=[
   {id:"water_still",name:"Вода б/г",pack:"1,5 л"},{id:"pasta",name:"Макароны",pack:"450 г"},{id:"chicken_fil",name:"Филе куриное",pack:"1 кг"},
   {id:"sugar",name:"Сахар",pack:"1 кг"}
 ];
-let innerCalls=0;
-const context={window:{TDStoreAdapters:{catalog:()=>products},TDBaiBrain:{async route(){innerCalls++;return{provider:"inner",operations:[],reply:"inner"}}}},console};
+let innerCalls=0,optimizedState=null;
+const context={window:{
+  TDStoreAdapters:{catalog:()=>products},
+  TDBaiBrain:{async route(){innerCalls++;return{provider:"inner",operations:[],reply:"inner"}}},
+  TDShoppingOptimizer:{optimize(state){optimizedState={...state};return[]}}
+},console};
 context.window.window=context.window;vm.createContext(context);vm.runInContext(code,context);
 const literal=context.window.TDBaiLiteralBasket;assert.ok(literal,"literal router should install");
 
@@ -19,6 +23,7 @@ function amounts(out){return out.operations.filter(x=>x.type==="SET_PRODUCT_AMOU
 
 let out=await context.window.TDBaiBrain.route("Свеклу 3 кг и бананы");
 assert.equal(out.provider,"bai-literal-basket");
+assert.equal(out.confirmedContext,true,"conservative literal parsing should survive generic self-check");
 assert.deepEqual(Array.from(op(out,"SET_ONLY_PRODUCTS").value),["beet","banana"],"literal basket must contain exactly requested products");
 assert.deepEqual({...amounts(out)[0]},{id:"beet",amount:3,unit:"kg"},"3 kg must stay attached to beet");
 assert.equal(amounts(out).some(x=>x.id==="banana"),false,"banana must not inherit beet quantity");
@@ -54,4 +59,13 @@ out=await context.window.TDBaiBrain.route("добавь свеклу и бана
 assert.equal(out.provider,"inner","explicit edit must continue through normal edit logic");
 assert.equal(innerCalls,2);
 
-console.log("Bai literal basket passed: exact products, local quantity binding and fail-closed unknowns.");
+context.window.TDShoppingOptimizer.optimize({intent:"literal",budget:3000,peopleCount:4,duration:7,requiredProducts:["beet","banana"]});
+assert.equal(optimizedState.budget,null,"old budget must not inflate literal quantities");
+assert.equal(optimizedState.peopleCount,1,"old people count must not inflate literal quantities");
+assert.equal(optimizedState.duration,1,"old duration must not inflate literal quantities");
+context.window.TDShoppingOptimizer.optimize({intent:"build",budget:3000,peopleCount:4,duration:7});
+assert.equal(optimizedState.budget,3000,"normal planning context must stay untouched");
+assert.equal(optimizedState.peopleCount,4);
+assert.equal(optimizedState.duration,7);
+
+console.log("Bai literal basket passed: exact products, local quantity binding, context isolation and fail-closed unknowns.");
