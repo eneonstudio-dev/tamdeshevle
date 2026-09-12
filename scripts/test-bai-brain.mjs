@@ -7,6 +7,7 @@ context.window=context;
 context.TDShoppingState={get:()=>({products:[],budget:null})};
 vm.createContext(context);
 vm.runInContext(fs.readFileSync(new URL('../bai-brain.js',import.meta.url),'utf8'),context);
+vm.runInContext(fs.readFileSync(new URL('../bai-reasoning-guard.js',import.meta.url),'utf8'),context);
 
 const brain=context.TDBaiBrain;
 assert.ok(brain?.route,'Bai brain must expose route()');
@@ -33,6 +34,17 @@ assert.ok(hasOp(result,'REMOVE_PRODUCT','milk'));
 assert.ok(hasOp(result,'ADD_PRODUCT','bread'));
 
 brain.reset();
+result=await brain.route('добавь молоко, сахар не надо');
+assert.ok(hasOp(result,'ADD_PRODUCT','milk'),'positive product must still be added');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','sugar'),'postpositive «не надо» must exclude sugar');
+assert.equal(byType(result,'ADD_PRODUCT').length,1,'postpositive exclusion must not add sugar by accident');
+
+brain.reset();
+result=await brain.route('добавь хлеб и молоко не нужно');
+assert.ok(hasOp(result,'ADD_PRODUCT','bread'),'positive product before conjunction must still be added');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','milk'),'postpositive «не нужно» must exclude milk');
+
+brain.reset();
 result=await brain.route('замени молоко на хлеб');
 assert.ok(hasOp(result,'REPLACE_PRODUCT',{from:'milk',to:'bread'}),'replacement direction must be milk -> bread');
 assert.equal(result.reply,'Заменил.');
@@ -57,4 +69,4 @@ await brain.route('добавь хлеб');
 result=await brain.route('убери это');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'pronoun removal must target last product');
 
-console.log('Bai brain regression suite passed: mixed edits, negation, replacement, quantities, budget and context.');
+console.log('Bai brain regression suite passed: mixed edits, postpositive negation, replacement, quantities, budget and context.');
