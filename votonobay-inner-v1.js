@@ -4,14 +4,18 @@
   import("./app-store-guard.js?v=20260912-v1").catch(error=>console.warn("[Votonobay store guard] load failed",error));
 
   const SCREEN_COPY={
-    stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
-    catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
-    cart:{title:"Корзина",compare:"Сравнить варианты"},
-    compare:{title:"Сравнение вариантов",sub:"Одна корзина · цена, способ покупки и подтверждённость данных"}
+    stores:{title:"Магазины",sub:"Выбери магазин — корзина останется той же"},
+    catalog:{sub:"Товары и цены · собираем одну корзину целиком"},
+    cart:{title:"Корзина",compare:"Решить, как купить"},
+    compare:{title:"Как лучше купить",sub:"Одна корзина · цена, удобство, способ покупки и надёжность данных"}
   };
 
   function setText(node,text){if(node&&node.textContent!==text)node.textContent=text;}
   function screen(){return window.state&&typeof state.screen==="string"?state.screen:"home";}
+  function cartQty(){
+    const cart=window.state&&state.cart&&typeof state.cart==="object"?state.cart:{};
+    return Object.values(cart).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+  }
 
   function tuneHeader(name){
     const header=document.querySelector("header.app:not(.v2-header)");
@@ -37,16 +41,49 @@
     });
   }
 
+  function catalogIntro(){
+    const wrap=document.querySelector(".wrap");
+    const input=wrap?.querySelector(".addr");
+    if(!wrap||!input)return;
+    wrap.querySelector(".voto-screen-intro")?.remove();
+    const intro=document.createElement("section");
+    intro.className="voto-screen-intro";
+    intro.setAttribute("aria-label","Как работает корзина Votonobay");
+    const qty=cartQty();
+    intro.innerHTML=`<div><span>СОБЕРИ КОРЗИНУ</span><h2>Добавляй то, что реально нужно</h2><p>Votonobay сравнит корзину целиком — без трюка с одной дешёвой позицией.</p></div><b class="voto-cart-count">${qty?`${qty} шт. в корзине`:"Корзина пуста"}</b>`;
+    input.insertAdjacentElement("beforebegin",intro);
+  }
+
   function tuneCatalog(){
     const input=document.querySelector(".wrap .addr");
     if(input){
       input.type="search";
+      input.placeholder="Найти товар";
       input.setAttribute("aria-label","Поиск товара в выбранном магазине");
       input.setAttribute("enterkeyhint","search");
       input.setAttribute("autocomplete","off");
     }
+    catalogIntro();
     const products=document.querySelector(".products");
-    if(products)products.setAttribute("aria-label","Товары");
+    if(!products)return;
+    products.setAttribute("aria-label","Товары");
+    products.querySelectorAll(".item").forEach((card,index)=>{
+      card.classList.add("voto-product-card");
+      const qty=Number(card.querySelector(".step b")?.textContent)||0;
+      card.classList.toggle("is-in-cart",qty>0);
+      const title=card.querySelector(".title")?.textContent?.trim()||`Товар ${index+1}`;
+      card.setAttribute("aria-label",qty>0?`${title}, в корзине ${qty}`:title);
+    });
+    document.querySelector(".voto-empty-state")?.remove();
+    const query=String(window.state?.q||"").trim();
+    if(query&&products.querySelectorAll(".item").length===0){
+      const empty=document.createElement("section");
+      empty.className="voto-empty-state";
+      empty.setAttribute("role","status");
+      empty.innerHTML=`<span>НИЧЕГО НЕ НАШЛИ</span><h2>Такого товара пока нет в этой витрине</h2><p>Сбрось поиск и продолжи собирать корзину. Состав не потеряется.</p><button type="button">Сбросить поиск</button>`;
+      empty.querySelector("button").onclick=()=>{state.q="";window.render?.();};
+      products.insertAdjacentElement("afterend",empty);
+    }
   }
 
   function deliveryConstraint(plan){
@@ -65,16 +102,38 @@
     return rows.find(row=>row.same)||rows.find(row=>row.id===state.storeId)||null;
   }
 
+  function tuneEmptyCart(){
+    const empty=[...document.querySelectorAll(".wrap > .hint")].find(node=>node.textContent.includes("Корзина пока пустая"));
+    if(!empty)return;
+    empty.classList.add("voto-empty-cart");
+    const copy=empty.querySelector("span");
+    if(copy)copy.textContent="Добавь товары — Votonobay сравнит всю корзину и покажет лучший способ купить.";
+    const button=empty.querySelector("button");
+    if(button)setText(button,"Добавить товары");
+  }
+
   function tuneCart(){
+    tuneEmptyCart();
+    document.querySelectorAll(".wrap > .item").forEach(card=>card.classList.add("voto-cart-item"));
     const primary=document.querySelector(".dock .btn.dark");
     if(primary)setText(primary,SCREEN_COPY.cart.compare);
     const dock=document.querySelector(".dock");
-    if(dock)dock.setAttribute("aria-label","Действия с корзиной");
+    if(!dock)return;
+    dock.setAttribute("aria-label","Действия с корзиной");
+    const summary=dock.firstElementChild;
+    if(summary)summary.classList.add("voto-cart-summary");
+    const insight=[...dock.children].find(node=>node!==summary&&/дешевле/i.test(node.textContent||""));
+    if(insight){
+      insight.classList.add("voto-cart-insight");
+      const saving=(insight.textContent.match(/([\d\s]+)\s*₽/)||[])[1]?.replace(/\s/g,"");
+      insight.textContent=saving?`Есть вариант лучше: экономия ${saving} ₽ без изменения состава корзины.`:"Есть вариант лучше для этой же корзины.";
+    }
+    const secondary=dock.querySelector(".ghost");
+    if(secondary)setText(secondary,"Другие магазины");
     document.querySelector(".voto-cart-constraint")?.remove();
     const plan=currentPlan();
     const copy=deliveryConstraint(plan);
-    if(copy&&dock){
-      const summary=dock.querySelector(":scope > div");
+    if(copy){
       const spans=summary?.querySelectorAll("span");
       if(spans?.length>=2){
         spans[0].textContent="Оценка здесь";
@@ -95,10 +154,16 @@
       toggle.setAttribute("aria-label","Способ покупки");
       toggle.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.classList.contains("on"))));
     }
+    document.querySelector(".v2-verdict")?.classList.add("voto-decision-lead");
     const rows=window.TDCompare?.fromWindow?.()||[];
     document.querySelectorAll(".plan").forEach((plan,index)=>{
+      plan.classList.add("voto-option-card");
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
+      const badge=plan.querySelector(".badge");
+      if(badge)setText(badge,"рекомендую");
+      const why=plan.querySelector(".ghost");
+      if(why&&/Почему/i.test(why.textContent))setText(why,"Почему этот вариант");
       plan.querySelector(".voto-delivery-constraint")?.remove();
       const copy=deliveryConstraint(rows[index]);
       if(copy){
@@ -142,5 +207,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",decorate,{once:true});
   else decorate();
 
-  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan};
+  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan,cartQty};
 })();
