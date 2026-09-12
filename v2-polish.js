@@ -19,9 +19,10 @@
   }
 
   function ensurePurchaseExperience(){
-    if(window.__TDVotonobayPurchaseExperienceV1)return Promise.resolve(window.TDPurchaseExperienceV1||true);
+    if(window.__TDVotonobayPurchaseExperienceV1&&window.__TDVotonobayPurchaseLifecycleV1)return Promise.resolve(window.TDPurchaseExperienceV1||true);
     if(purchaseLoadPromise)return purchaseLoadPromise;
-    purchaseLoadPromise=import("./purchase-experience-v1.js?v=20260912-purchase-v1")
+    purchaseLoadPromise=import("./purchase-experience-v1.js?v=20260912-purchase-v3")
+      .then(()=>import("./purchase-experience-lifecycle-v1.js?v=20260912-lifecycle-v1"))
       .then(()=>window.TDPurchaseExperienceV1||true)
       .catch(error=>{purchaseLoadPromise=null;console.warn("[Votonobay] purchase experience failed to load",error);return false});
     return purchaseLoadPromise;
