@@ -18,6 +18,16 @@
     document.head.appendChild(script);
   }
 
+  function ensureBayRuntimeStates(){
+    if(window.__TDBaiRuntimeStatesV1||document.querySelector('script[data-bai-runtime-states]'))return;
+    const script=document.createElement("script");
+    script.src="bai-runtime-states-v1.js?v=20260912-states-v1";
+    script.defer=true;
+    script.dataset.baiRuntimeStates="1";
+    script.onerror=()=>{script.remove();console.warn("[Votonobay] Bay runtime states failed to load")};
+    document.head.appendChild(script);
+  }
+
   function ensureMobileCart(){
     if(!window.state||state.screen!=="home") return removeMobileCart();
     let bar=document.querySelector(".v2-mobile-cartbar");
@@ -72,6 +82,7 @@
   function hydrate(){
     if(document.hidden)return;
     ensureDecisionHandoff();
+    ensureBayRuntimeStates();
     ensureMobileCart();
     enhanceMobileMenu();
     syncHeaderScrollState();
