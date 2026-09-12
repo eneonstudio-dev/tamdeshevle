@@ -31,6 +31,7 @@ on:
       - "scripts/test-bai-agent-core.mjs"
       - "scripts/test-bai-evolution.mjs"
       - "scripts/test-bai-autopilot.mjs"
+      - "scripts/test-bai-shopping-journey.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -64,6 +65,7 @@ on:
       - "scripts/test-bai-agent-core.mjs"
       - "scripts/test-bai-evolution.mjs"
       - "scripts/test-bai-autopilot.mjs"
+      - "scripts/test-bai-shopping-journey.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -93,6 +95,7 @@ jobs:
           node --check bai-learning-admin.js
           node --check bai-agent-client.js
           node --check bai-autopilot.js
+          node --check bai-shopping-journey.js
           node --check gemma-router.js
           node --check gemma-browser-worker.js
           node --check bai-planner.js
@@ -120,6 +123,7 @@ jobs:
           node --check scripts/test-bai-agent-core.mjs
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
+          node --check scripts/test-bai-shopping-journey.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -136,3 +140,4 @@ jobs:
           node scripts/test-bai-agent-core.mjs
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
+          node scripts/test-bai-shopping-journey.mjs
