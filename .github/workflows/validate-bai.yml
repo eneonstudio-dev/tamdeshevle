@@ -6,7 +6,7 @@ on:
       - "ai-shopping-assistant.js"
       - "ai-shopping-assistant.css"
       - "bai-*.js"
-      - "qwen-*.js"
+      - "gemma-*.js"
       - "bai-learning-admin.html"
       - "bai-learning-admin.css"
       - "shopping-*.js"
@@ -38,7 +38,7 @@ on:
       - "ai-shopping-assistant.js"
       - "ai-shopping-assistant.css"
       - "bai-*.js"
-      - "qwen-*.js"
+      - "gemma-*.js"
       - "bai-learning-admin.html"
       - "bai-learning-admin.css"
       - "shopping-*.js"
@@ -90,8 +90,8 @@ jobs:
           node --check bai-learning-loop.js
           node --check bai-learning-admin.js
           node --check bai-agent-client.js
-          node --check qwen-router.js
-          node --check qwen-browser-worker.js
+          node --check gemma-router.js
+          node --check gemma-browser-worker.js
           node --check bai-planner.js
           node --check bai-self-check.js
           node --check shopping-conversation.js
