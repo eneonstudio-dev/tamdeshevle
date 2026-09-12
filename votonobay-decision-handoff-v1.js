@@ -7,21 +7,63 @@
   let raf=0,pollTimer=0,pollCount=0;
 
   function storeKey(value){const raw=String(value||"");return KNOWN.find(id=>raw===id||raw.startsWith(`${id}_`))||raw.split("_")[0]||"unknown"}
-  function plan(){const current=window.TDShoppingState?.get?.(),best=current?.lastPlans?.[0];return best&&Array.isArray(best.products)&&best.products.length?best:null}
-  function signature(best){return(best?.products||[]).map(item=>`${storeKey(item.storeId)}:${item.id||item.productId||item.name||"?"}:${item.quantity||1}`).sort().join("|")}
+  function fallbackBasketSignature(products){
+    const map={};
+    for(const item of Array.isArray(products)?products:[]){
+      const id=String(item?.sourceId||item?.id||item?.productId||"").trim(),quantity=Math.min(99,Math.max(0,Math.floor(Number(item?.quantity)||0)));
+      if(!id||!quantity)return"";
+      map[id]=(map[id]||0)+quantity;
+    }
+    return Object.entries(map).sort(([a],[b])=>a.localeCompare(b)).map(([id,quantity])=>`${id}:${quantity}`).join("|");
+  }
+  function basketSignature(products){
+    try{const shared=window.TDShoppingState?.productSignature?.(products);if(shared)return shared}catch{}
+    return fallbackBasketSignature(products);
+  }
+  function matchesCurrent(best,current=window.TDShoppingState?.get?.()){
+    if(!best||!Array.isArray(best.products)||!best.products.length||!current||!Array.isArray(current.products)||!current.products.length)return false;
+    try{if(typeof window.TDShoppingState?.planMatchesProducts==="function")return window.TDShoppingState.planMatchesProducts(best,current.products)}catch{}
+    const expected=basketSignature(current.products),actual=basketSignature(best.products);
+    return Boolean(expected&&actual&&expected===actual);
+  }
+  function plan(){
+    const current=window.TDShoppingState?.get?.(),best=current?.lastPlans?.[0];
+    return best&&matchesCurrent(best,current)?best:null;
+  }
+  function signature(best){
+    const items=(best?.products||[]).map(item=>{
+      const id=item?.sourceId||item?.id||item?.productId||item?.name||"?",quantity=Number(item?.quantity)||1,price=Number(item?.price);
+      return`${storeKey(item.storeId)}:${id}:${quantity}:${Number.isFinite(price)?price:"?"}`;
+    }).sort().join("|");
+    const total=Number(best?.total);
+    return`${best?.id||best?.type||"plan"}|${items}|total:${Number.isFinite(total)?total:"?"}`;
+  }
+  function latestFor(expectedSignature){const current=plan();return current&&signature(current)===expectedSignature?current:null}
   function stores(best){return[...new Set((best?.products||[]).map(item=>storeKey(item.storeId)).filter(Boolean))]}
   function storePhrase(ids){if(ids.length===1)return NAMES[ids[0]]?`«${NAMES[ids[0]]}»`:"магазине";return`${ids.length} магазинах`}
   function remove(){document.querySelectorAll(".td-ai-decision-cta").forEach(node=>node.remove())}
   function emit(name,detail){try{window.dispatchEvent(new CustomEvent(name,{detail}))}catch{}}
+  function stale(status,expectedSignature){
+    if(status)status.textContent="Корзина изменилась — обновляю решение. Старый план не открываю.";
+    emit("td:bai-handoff-blocked",{reason:"stale_plan",signature:expectedSignature});
+    queue();
+    return false;
+  }
 
   async function continuePlan(best,status,button){
     if(!best||button?.disabled)return false;
+    const expectedSignature=signature(best);
+    let current=latestFor(expectedSignature);
+    if(!current)return stale(status,expectedSignature);
     if(navigator.onLine===false){if(status)status.textContent="Сейчас офлайн. План сохранён — продолжишь, когда появится сеть.";emit("td:bai-handoff-blocked",{reason:"offline"});return false}
     if(button)button.disabled=true;if(status)status.textContent="Готовлю пошаговый переход в магазины…";
     try{
       if(!window.TDContinueInStoresV1)await import("./continue-in-stores-v1.js?v=20260912-handoff-five-v2");
-      const opened=await window.TDContinueInStoresV1?.open?.(best);
-      if(opened){if(status)status.textContent="Открываю официальный путь по магазинам. Ничего не считаю добавленным без твоего подтверждения.";emit("td:bai-handoff-opened",{stores:stores(best),signature:signature(best)});window.TDBai?.setState?.("happy","План готов. Дальше — по магазинам, шаг за шагом.",2200);return true}
+      await Promise.resolve();
+      current=latestFor(expectedSignature);
+      if(!current)return stale(status,expectedSignature);
+      const opened=await window.TDContinueInStoresV1?.open?.(current);
+      if(opened){if(status)status.textContent="Открываю официальный путь по магазинам. Ничего не считаю добавленным без твоего подтверждения.";emit("td:bai-handoff-opened",{stores:stores(current),signature:signature(current)});window.TDBai?.setState?.("happy","План готов. Дальше — по магазинам, шаг за шагом.",2200);return true}
       if(status)status.textContent="Для этого плана пока нет подтверждённого прямого шага. Можно открыть обычное сравнение.";emit("td:bai-handoff-blocked",{reason:"unsupported_plan"});window.TDBai?.setState?.("suspicious","Не буду обещать автоперенос, которого нет. Покажу честный следующий шаг.",2600);return false;
     }catch(error){console.warn("[Votonobay Decision Handoff]",error);if(status)status.textContent="Не получилось открыть магазины. План не потерян — попробуй ещё раз или открой сравнение.";emit("td:bai-handoff-blocked",{reason:"handoff_error"});return false}finally{if(button)button.disabled=false}
   }
@@ -50,5 +92,5 @@
   `;document.head.appendChild(style)}
 
   window.addEventListener("td:shopping-state",()=>queue());window.addEventListener("td:v2-rendered",()=>{patchAssistant();queue()});window.addEventListener("pageshow",()=>{beginPolling();queue()});document.addEventListener("visibilitychange",()=>{if(!document.hidden){beginPolling();queue()}});css();beginPolling();
-  window.TDVotonobayDecisionHandoffV1={decorate,continuePlan,plan,signature,storeKey,patchAssistant};
+  window.TDVotonobayDecisionHandoffV1={decorate,continuePlan,plan,signature,basketSignature,matchesCurrent,storeKey,patchAssistant};
 })();

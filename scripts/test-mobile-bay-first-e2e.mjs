@@ -39,7 +39,8 @@ assert.match(androidCss,/data-td-keyboard-open/,"Android layout must react to ke
 assert.match(decision,/План готов — можно переходить к покупке/,"Bay result must end with a purchase-ready conclusion");
 assert.match(decision,/Продолжить в \$\{ids\.length\} магазинах/,"multi-store Bay result must expose the guided handoff CTA");
 assert.match(decision,/navigator\.onLine===false/,"retailer handoff must fail closed while offline");
-assert.match(decision,/TDContinueInStoresV1\?\.open\?\.\(best\)/,"Bay must pass the exact recommended plan into guided store handoff");
+assert.match(decision,/TDContinueInStoresV1\?\.open\?\.\(current\)/,"Bay must pass the freshly revalidated current plan into guided store handoff");
+assert.match(decision,/reason:"stale_plan"/,"Bay must explicitly block a captured plan that no longer matches the canonical basket");
 assert.match(decision,/Ничего не считаю добавленным без твоего подтверждения/,"Bay must not claim automatic retailer cart mutation");
 
 // Execute the handoff API: offline must not open a store, online must open the guided flow.
@@ -69,8 +70,8 @@ const context={
   clearTimeout
 };
 context.window={
-  TDShoppingState:{get:()=>({lastPlans:[best]})},
-  TDContinueInStoresV1:{open:async plan=>{assert.equal(plan,best,"handoff must receive the exact Bay plan");opened+=1;return true}},
+  TDShoppingState:{get:()=>({products:best.products,lastPlans:[best]})},
+  TDContinueInStoresV1:{open:async plan=>{assert.equal(plan,best,"handoff must receive the exact freshly revalidated Bay plan");opened+=1;return true}},
   TDShoppingAssistant:{open(){},submit(){},applyStrategy(){},refresh(){},newSession(){}},
   TDBai:{setState(){}},
   addEventListener(){},
@@ -104,4 +105,4 @@ assert.match(overlay,/selector:"\.td-continue-stores"/,"browser Back stack must 
 assert.match(overlay,/selector:"\.td-retailer-handoff"/,"browser Back stack must include retailer detail handoff");
 assert.match(overlay,/window\.addEventListener\("popstate"/,"mobile Back must close the active overlay before leaving the journey");
 
-console.log("Mobile Bay-first E2E passed: Home → Bay → decision → honest store handoff is keyboard-safe, offline-safe and Back-safe.");
+console.log("Mobile Bay-first E2E passed: Home → Bay → current decision → honest store handoff is keyboard-safe, stale-plan-safe, offline-safe and Back-safe.");
