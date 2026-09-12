@@ -1,5 +1,7 @@
 /* Android's “desktop site” mode often reports a desktop-width viewport.
    Coarse pointer detection keeps touch layout safe even in that mode. */
+@import url("./votonobay-bay-first.css?v=20260912-v4");
+
 html,body{max-width:100%;overflow-x:hidden}
 
 /* This file loads after the legacy inline bootstrap CSS. Keep the very first

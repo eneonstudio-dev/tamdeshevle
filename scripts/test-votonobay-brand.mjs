@@ -5,6 +5,7 @@ const shell = fs.readFileSync("v2-shell.js", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
 const legacy = fs.readFileSync("brand-prosche-v1.js", "utf8");
 const css = fs.readFileSync("votonobay-brand-v1.css", "utf8");
+const bayCss = fs.readFileSync("votonobay-bay-first.css", "utf8");
 const touchCss = fs.readFileSync("touch-layout-fix.css", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.json", "utf8"));
 const favicon = fs.readFileSync("favicon.svg", "utf8");
@@ -24,6 +25,7 @@ assert(/touch-layout-fix\.css\?v=/.test(html), "late bootstrap stylesheet must b
 assert(/html\{background:#050a07;color-scheme:dark\}/.test(touchCss), "document first paint must start on the approved dark canvas");
 assert(/body\{background:#050a07!important;color:#f5faf6\}/.test(touchCss), "legacy beige body paint must be overridden before runtime decoration");
 assert(/\.phone\{background:#050a07!important\}/.test(touchCss), "empty app shell must not flash the legacy light surface");
+assert(/votonobay-bay-first\.css/.test(touchCss), "canonical late stylesheet must load the native Bay-first layer");
 assert(/Votonobay помогает понять, как лучше собрать корзину/.test(html), "HTML metadata must carry the how-better positioning");
 assert(!/<title>[^<]*(Тамдешевле|Там дешевле|Проще)/.test(html), "legacy brand must not appear in the document title");
 assert(manifest.name === "Votonobay" && manifest.short_name === "Votonobay", "PWA identity must use Votonobay");
@@ -35,7 +37,14 @@ assert(/Votonobay — Бай/.test(favicon), "peeking Bay favicon must carry an 
 assert(/#4FF59A/.test(favicon) && /#07100B/.test(favicon), "app icon must use the Votonobay dark-and-mint palette");
 assert(/Votonobay — на главную/.test(shell), "shopping shell must expose the Votonobay wordmark");
 assert(/Покупки\. <em>Как лучше\.<\/em>/.test(shell), "hero must express the Bay-first 'how better' philosophy");
+assert(/Спросить Бая/.test(shell), "Bay must be the primary home action");
+assert(/Искать самому/.test(shell), "self-service search must remain available beside Bay-first");
+assert(/Что хочешь решить\?/.test(shell), "assistant surface must frame the interaction as solving a task");
+assert(/window\.TDShoppingAssistant\?\.open/.test(shell), "Bay-first entry must open the real shopping assistant");
 assert(/Сравнить варианты/.test(shell), "primary basket CTA must compare options rather than promise only the cheapest result");
+assert(/\.v2-hero\.v2-bay-first/.test(bayCss), "native Bay-first hero styling must exist");
+assert(/\.v2-bay-primary/.test(bayCss), "Bay-first primary CTA styling must exist");
+assert(/Скажи, что нужно — поможем решить, как лучше/.test(brand), "runtime brand copy must express the broader decision-assistant philosophy");
 assert(!/Там Дешевле|Тамдешевле|Проще/.test(shell), "shopping shell must not regress to legacy master brands");
 assert(!/fit=crop/.test(shell) && /fit=max/.test(shell), "home product imagery must not request server-side cropping");
 assert(/brand-votonobay-v1\.js/.test(shell), "Votonobay runtime must load independently from Bai checkout");
@@ -46,4 +55,4 @@ assert(/body\.td-votonobay/.test(css), "Votonobay visual foundation must be scop
 assert(!/[財财]/.test(brand + css + shell), "brand layer must not expose a visible Chinese easter egg");
 assert(!/content:\s*["']V["']/.test(css), "brand CSS must not invent an unapproved V monogram");
 
-console.log("Votonobay brand tests passed: dark first paint, peeking Bay PWA icon, one master brand and Bay-first positioning are protected.");
+console.log("Votonobay brand tests passed: native Bay-first entry, self-service fallback, dark first paint, peeking Bay PWA identity and one master brand are protected.");
