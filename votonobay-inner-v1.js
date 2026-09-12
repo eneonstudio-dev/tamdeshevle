@@ -1,6 +1,8 @@
 (()=>{
   "use strict";
 
+  import("./app-store-guard.js?v=20260912-v1").catch(error=>console.warn("[Votonobay store guard] load failed",error));
+
   const SCREEN_COPY={
     stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
     catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
@@ -47,13 +49,6 @@
     if(products)products.setAttribute("aria-label","Товары");
   }
 
-  function tuneCart(){
-    const primary=document.querySelector(".dock .btn.dark");
-    if(primary)setText(primary,SCREEN_COPY.cart.compare);
-    const dock=document.querySelector(".dock");
-    if(dock)dock.setAttribute("aria-label","Действия с корзиной");
-  }
-
   function deliveryConstraint(plan){
     if(!plan||plan.channel!=="bring"||plan.operationalReason==null)return"";
     if(plan.operationalReason==="fee_unknown")return"Тариф доставки сети не подтверждён — вариант вне рейтинга.";
@@ -63,6 +58,34 @@
       return Number.isFinite(gap)&&gap>0?`До минимального заказа не хватает ${Math.ceil(gap)} ₽ — вариант вне рейтинга.`:"Минимальный заказ сети не достигнут — вариант вне рейтинга.";
     }
     return"Условия доставки пока не подтверждены — вариант вне рейтинга.";
+  }
+
+  function currentPlan(){
+    const rows=window.TDCompare?.fromWindow?.()||[];
+    return rows.find(row=>row.same)||rows.find(row=>row.id===state.storeId)||null;
+  }
+
+  function tuneCart(){
+    const primary=document.querySelector(".dock .btn.dark");
+    if(primary)setText(primary,SCREEN_COPY.cart.compare);
+    const dock=document.querySelector(".dock");
+    if(dock)dock.setAttribute("aria-label","Действия с корзиной");
+    document.querySelector(".voto-cart-constraint")?.remove();
+    const plan=currentPlan();
+    const copy=deliveryConstraint(plan);
+    if(copy&&dock){
+      const summary=dock.querySelector(":scope > div");
+      const spans=summary?.querySelectorAll("span");
+      if(spans?.length>=2){
+        spans[0].textContent="Оценка здесь";
+        spans[1].textContent=Number.isFinite(plan?.indicativeTotal)?`≈ ${Math.round(plan.indicativeTotal)} ₽ · условия`:"условия уточняются";
+      }
+      const note=document.createElement("div");
+      note.className="voto-cart-constraint";
+      note.setAttribute("role","status");
+      note.textContent=copy.replace(" — вариант вне рейтинга.",".");
+      (summary||dock.firstElementChild)?.insertAdjacentElement("afterend",note);
+    }
   }
 
   function tuneCompare(){
@@ -119,5 +142,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",decorate,{once:true});
   else decorate();
 
-  window.TDVotonobayInner={decorate,deliveryConstraint};
+  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan};
 })();
