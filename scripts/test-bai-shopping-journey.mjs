@@ -10,6 +10,12 @@ assert.equal(source.includes('MutationObserver'),false,'journey must not add DOM
 assert.equal(source.includes('setInterval'),false,'journey must not add recurring loops');
 assert.ok(config.indexOf('bai-agent-client.js')<config.indexOf('bai-shopping-journey.js'),'journey must load after Agent Core so wrappers compose');
 
+const personalStubs=target=>{
+  target.TDBaiPantry={observe(){},operations:()=>[],applyToState:s=>s,list:()=>[],count:()=>0};
+  target.TDBaiGoalMemory={observe(){},defaultOperations:()=>[],recommend:()=>({})};
+  target.TDBaiQuestionSelector={resume:()=>null,choose:()=>null,askResult:(base,best)=>({...base,provider:'bai-question-selector',operations:[{type:'ASK_CLARIFICATION',value:best.question}],reply:best.question,suggestions:best.suggestions,expectsAnswer:true})};
+};
+
 let brainOutput={
   ok:true,provider:'rules',reply:'Собираю.',suggestions:[],expectsAnswer:false,
   operations:[
@@ -22,7 +28,7 @@ let brainOutput={
 };
 
 const context={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise};
-context.window=context;context.globalThis=context;context.TDBaiMemory={get:()=>({})};
+context.window=context;context.globalThis=context;context.TDBaiMemory={get:()=>({})};personalStubs(context);
 context.TDShoppingState={get:()=>({budget:0,peopleCount:1,duration:1,cookingPreference:'normal',mode:'multi',stores:[],preferences:[],requiredProducts:[],preferredProducts:[],excludedProducts:[],products:[],quantityTargets:{}})};
 context.TDShoppingOptimizer={optimize:()=>[]};
 context.TDBaiPlanner={
@@ -77,7 +83,7 @@ assert.equal(result.operations.length,1,'direct edit must not trigger planner mu
 
 let stored=null,previousSetterCalls=0;
 const accessorContext={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise};
-accessorContext.window=accessorContext;accessorContext.globalThis=accessorContext;accessorContext.TDBaiMemory={get:()=>({})};
+accessorContext.window=accessorContext;accessorContext.globalThis=accessorContext;accessorContext.TDBaiMemory={get:()=>({})};personalStubs(accessorContext);
 Object.defineProperty(accessorContext,'TDBaiBrain',{configurable:true,enumerable:true,get(){return stored},set(next){previousSetterCalls++;stored=next}});
 accessorContext.TDShoppingState={get:()=>({peopleCount:1,duration:1,requiredProducts:[],preferredProducts:[],excludedProducts:[],preferences:[],stores:[],quantityTargets:{}})};
 accessorContext.TDShoppingOptimizer={};
