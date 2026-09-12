@@ -18,9 +18,14 @@ assert.match(js,/Собери список — Votonobay сравнит вари
 assert.match(js,/Votonobay сам ничего не везёт/,"comparison disclaimer must use the current master brand");
 assert.match(js,/type="search"|input\.type="search"/,"catalog search must expose search semantics");
 assert.match(js,/aria-pressed/,"purchase mode toggle must expose its state accessibly");
+assert.match(js,/Минимальный заказ сети не подтверждён — вариант вне рейтинга/,"unknown delivery minimum must be explained visibly");
+assert.match(js,/Тариф доставки сети не подтверждён — вариант вне рейтинга/,"unknown delivery fee must be explained visibly");
+assert.match(js,/До минимального заказа не хватает/,"known minimum shortfall must be explained visibly");
+assert.match(js,/TDCompare\?\.fromWindow/,"delivery constraint copy must be driven by the same comparison result as ranking");
+assert.match(css,/\.voto-delivery-constraint/,"delivery constraint explanation must have a dedicated readable treatment");
 assert.match(css,/body\[data-votonobay-screen="stores"\] \.wrap\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"store choice must use a desktop grid");
 assert.match(css,/body\[data-votonobay-screen="catalog"\] \.products\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"catalog must use a desktop grid");
 assert.match(css,/@media\(max-width:780px\)/,"inner screen layer must collapse cleanly for mobile");
 assert.match(css,/prefers-reduced-motion:reduce/,"inner screen motion must respect reduced-motion preferences");
 
-console.log("Votonobay inner UI tests passed: responsive store/catalog/cart/compare styling, current brand copy, accessible controls and no Bai coupling.");
+console.log("Votonobay inner UI tests passed: responsive store/catalog/cart/compare styling, visible delivery constraints, current brand copy, accessible controls and no Bai coupling.");

@@ -11,7 +11,7 @@ if (!TDCompare) throw new Error("TDCompare was not exported");
 const stores = [
   { id: "shop", name: "Shop", kind: "shop", city: ["msk", "spb"], has_bring: true },
   { id: "hyper", name: "Hyper", kind: "hyper", city: ["msk"], has_bring: true },
-  { id: "delivery", name: "Delivery", kind: "delivery", city: ["msk", "spb"], has_bring: true, delivery: 50 }
+  { id: "delivery", name: "Delivery", kind: "delivery", city: ["msk", "spb"], has_bring: true, delivery: 50, minOrder: 0 }
 ];
 
 const products = [
@@ -34,6 +34,7 @@ const any = TDCompare.compare({ stores, products, cart, city: "msk", mode: "any"
 assert(any.length === 3, "any mode should include three stores");
 assert(any.every(row => row.rankable === false), "educational baskets must stay outside the ranking");
 assert(any.find(row => row.id === "delivery").total === 350, "delivery fee in any mode failed");
+assert(any.find(row => row.id === "delivery").minimumKnown === true, "explicit zero minimum must count as known");
 assert(any.find(row => row.id === "hyper").save === null, "estimated prices must not claim verified savings");
 assert(any.find(row => row.id === "hyper").indicativeSave === 30, "indicative savings should remain available");
 assert(any.find(row => row.id === "hyper").verifiedItems === 0, "educational prices must not count as verified");
@@ -69,6 +70,7 @@ const delivery = TDCompare.compare({ stores, products, cart, city: "msk", mode: 
 assert(delivery.length === 3, "delivery mode should include bring-capable stores");
 assert(delivery.every(row => row.channel === "bring"), "delivery mode channel failed");
 assert(delivery.find(row => row.id === "delivery").delivery === 50, "known delivery fee failed");
+assert(delivery.find(row => row.id === "delivery").minimumMet === true, "explicit zero minimum must be satisfied");
 assert(delivery.find(row => row.id === "shop").feeKnown === false, "shop bring mode must mark unknown delivery fee");
 assert(delivery.find(row => row.id === "shop").total === null, "unknown delivery fee must not produce a total");
 assert(delivery[0].id === "delivery", "known complete delivery scenario must rank before unknown-fee scenarios");
@@ -94,9 +96,10 @@ assert(spb.length === 2 && !spb.some(row => row.id === "hyper"), "city filtering
 const empty = TDCompare.compare({ stores: [], products, cart, city: "msk", mode: "any", originStoreId: "shop" });
 assert(Array.isArray(empty) && empty.length === 0, "empty stores case failed");
 
-console.log("Comparison engine tests passed: strict channels, coverage safety and verified-vs-estimated savings.");
-for (const delivery of [null, undefined, '', -1, NaN]) assert(!TDCompare.feeQuote({delivery},'bring').known, 'missing/invalid fee is not free delivery');
+for (const deliveryFee of [null, undefined, '', -1, NaN]) assert(!TDCompare.feeQuote({delivery:deliveryFee},'bring').known, 'missing/invalid fee is not free delivery');
 assert(TDCompare.feeQuote({delivery:0},'bring').known, 'explicit zero fee is valid');
+for (const minimum of [null, undefined, '', -1, NaN]) assert(!TDCompare.minimumQuote({minOrder:minimum},'bring',500).known, 'missing/invalid minimum is unknown, not zero');
+assert(TDCompare.minimumQuote({minOrder:0},'bring',1).known && TDCompare.minimumQuote({minOrder:0},'bring',1).met, 'explicit zero minimum is valid');
 const emptyQuote = TDCompare.basketQuote(verifiedProducts,{},'shop','shelf');
 assert(!emptyQuote.complete && !emptyQuote.verifiedComplete, 'empty cart cannot claim a complete or verified comparison');
 assert(emptyQuote.goods === null && emptyQuote.coverage === 0 && emptyQuote.verifiedCoverage === 0, 'empty cart must not expose a fake zero total or 100% coverage');
@@ -106,10 +109,11 @@ assert(!TDCompare.basketQuote(verifiedProducts,{a:1,deleted_sku:1},'shop','shelf
 const unsafe = {...verifiedProducts[0],priceMeta:{shop:{shelf:{kind:'retailer',freshness:'fresh'}}}};
 assert(!TDCompare.isVerifiedPrice(unsafe,'shop','shelf'), 'retailer name alone does not prove scope and equivalence');
 const channelsProduct = {id:'a',prices:{shop:100},bring:{shop:150,delivery:170}};
-const channelResult = TDCompare.compare({stores:[{...stores[0],delivery:0}, {...stores[2],delivery:0}],products:[channelsProduct],cart:{a:1},mode:'delivery',city:'msk',originStoreId:'shop'});
+const channelResult = TDCompare.compare({stores:[{...stores[0],delivery:0,minOrder:0}, {...stores[2],delivery:0,minOrder:0}],products:[channelsProduct],cart:{a:1},mode:'delivery',city:'msk',originStoreId:'shop'});
 assert(channelResult.find(x=>x.id==='shop').indicativeSave===0,'delivery origin must use delivery prices');
 assert(!TDCompare.basketQuote(verifiedProducts,{a:Infinity},'shop','shelf').complete,'infinite quantity rejected');
 assert(!TDCompare.basketQuote(verifiedProducts,{a:0.5},'shop','shelf').complete,'half a packaged item cannot be bought');
+assert(!TDCompare.basketQuote(verifiedProducts,{a:100},'shop','shelf').complete,'quantity above supported cart limit rejected');
 assert(TDCompare.goodsTotal([{id:'x',prices:{shop:0.1}}],{x:3},'shop','shelf')===0.3,'money accumulates in kopecks');
 
 const unavailableCityOrigin = TDCompare.compare({ stores, products, cart, city: "spb", mode: "any", originStoreId: "hyper" });
@@ -125,3 +129,24 @@ const noBringStore = { id: "pickup", name: "Pickup only", kind: "shop", city: ["
 const deliveryWithoutOrigin = TDCompare.compare({ stores: [noBringStore, stores[2]], products, cart, city: "msk", mode: "delivery", originStoreId: "pickup" });
 assert(deliveryWithoutOrigin.length === 1 && deliveryWithoutOrigin[0].id === "delivery", "delivery mode must exclude stores that cannot deliver");
 assert(deliveryWithoutOrigin[0].referenceAvailable === false && deliveryWithoutOrigin[0].same === false, "excluded pickup-only origin must not become an implicit delivery reference");
+
+const verifiedBringMeta = () => ({ kind:"retailer", scopeVerified:true, comparisonEligible:true, availability:"in_stock", freshness:"fresh" });
+const verifiedBringProducts = [
+  { id:"x", bring:{delivery:200}, priceMeta:{delivery:{bring:verifiedBringMeta()}} },
+  { id:"y", bring:{delivery:100}, priceMeta:{delivery:{bring:verifiedBringMeta()}} }
+];
+const unknownMinimum = TDCompare.compare({ stores:[{id:"delivery",name:"Delivery",kind:"delivery",city:["msk"],has_bring:true,delivery:50}], products:verifiedBringProducts, cart:{x:1,y:1}, city:"msk", mode:"delivery", originStoreId:"delivery" })[0];
+assert(unknownMinimum.indicativeTotal===350, 'known goods and fee may remain available diagnostically');
+assert(unknownMinimum.total===null && unknownMinimum.rankable===false && unknownMinimum.verifiedComplete===false, 'unknown delivery minimum must block confirmed total and ranking');
+assert(unknownMinimum.operationalKnown===false && unknownMinimum.operationalReason==='minimum_unknown', 'unknown minimum must expose an explicit operational reason');
+assert(unknownMinimum.save===null && unknownMinimum.indicativeSave===null, 'unknown delivery minimum must suppress savings claims');
+
+const belowMinimum = TDCompare.compare({ stores:[{id:"delivery",name:"Delivery",kind:"delivery",city:["msk"],has_bring:true,delivery:50,minOrder:500}], products:verifiedBringProducts, cart:{x:1,y:1}, city:"msk", mode:"delivery", originStoreId:"delivery" })[0];
+assert(belowMinimum.minimumKnown===true && belowMinimum.minimumMet===false && belowMinimum.minimumShortfall===200, 'minimum shortfall must be calculated from goods only');
+assert(belowMinimum.operationalReason==='minimum_unmet' && belowMinimum.total===null && !belowMinimum.rankable, 'basket below delivery minimum must stay outside ranking');
+
+const meetsMinimum = TDCompare.compare({ stores:[{id:"delivery",name:"Delivery",kind:"delivery",city:["msk"],has_bring:true,delivery:50,minOrder:250}], products:verifiedBringProducts, cart:{x:1,y:1}, city:"msk", mode:"delivery", originStoreId:"delivery" })[0];
+assert(meetsMinimum.operationalKnown===true && meetsMinimum.minimumMet===true, 'known satisfied minimum must unlock operational eligibility');
+assert(meetsMinimum.total===350 && meetsMinimum.rankable===true && meetsMinimum.verifiedComplete===true, 'fully verified delivery with known satisfied terms may rank');
+
+console.log("Comparison engine tests passed: strict channels, coverage safety, delivery operational constraints and verified-vs-estimated savings.");
