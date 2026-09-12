@@ -96,4 +96,32 @@ await brain.route('добавь хлеб');
 result=await brain.route('убери это');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'pronoun removal must target last product');
 
-console.log('Bai brain regression suite passed: mixed edits, negation, replacement clarification, quantities, budget, people, duration and context.');
+brain.reset();
+await brain.route('только молоко и хлеб');
+result=await brain.route('убери молоко');
+assert.deepEqual(Array.from(result.goal.onlyProducts),['bread'],'removing a product from only-mode must also remove it from onlyProducts');
+assert.equal(result.goal.requiredProducts.includes('milk'),false,'removed product must leave requiredProducts');
+assert.ok(result.goal.excludedProducts.includes('milk'),'removed product must be excluded');
+
+brain.reset();
+await brain.route('убери молоко');
+result=await brain.route('добавь молоко');
+assert.ok(result.goal.requiredProducts.includes('milk'),'re-added product must be required');
+assert.equal(result.goal.excludedProducts.includes('milk'),false,'re-added product must no longer stay excluded');
+
+brain.reset();
+await brain.route('только молоко и хлеб');
+result=await brain.route('замени молоко на воду');
+assert.deepEqual(Array.from(result.goal.onlyProducts),['water','bread'],'replacement in only-mode must swap the product instead of keeping a stale source');
+assert.ok(result.goal.requiredProducts.includes('water'),'replacement target must be required');
+assert.equal(result.goal.requiredProducts.includes('milk'),false,'replacement source must leave requiredProducts');
+assert.ok(result.goal.excludedProducts.includes('milk'),'replacement source must be excluded');
+assert.equal(result.goal.excludedProducts.includes('water'),false,'replacement target must not remain excluded');
+
+brain.reset();
+await brain.route('добавь 2 л молока');
+result=await brain.route('замени молоко на воду');
+assert.equal(result.goal.quantityTargets.milk,undefined,'replacement must remove stale source quantity');
+assert.deepEqual({...result.goal.quantityTargets.water},{amount:2,unit:'l'},'replacement must transfer an explicit quantity to the target');
+
+console.log('Bai brain regression suite passed: mixed edits, negation, replacement clarification, quantities, budget, people, duration, context and product-goal consistency.');
