@@ -9,7 +9,7 @@
     {id:"continue-stores",selector:".td-continue-stores",close:".td-continue-stores-x"},
     {id:"retailer-handoff",selector:".td-retailer-handoff",close:".td-retailer-x"}
   ];
-  let baseGo=null,historyOverlayId=null,closingFromPop=false,purchaseLockKey="",purchaseLockAt=0;
+  let baseGo=null,historyOverlayId=null,closingFromPop=false,purchaseLockKey="",purchaseLockAt=0,baseSetQty=null,networkWasOffline=false;
 
   function injectStyles(){
     if(document.getElementById(STYLE_ID))return;
@@ -21,8 +21,11 @@
       .td-map-sheet,.td-point-detail,.td-one-tap,.td-account,.td-ai,.bai-panel,.td-pickup-backdrop,.td-courier-backdrop,.td-continue-stores,.td-retailer-handoff{overscroll-behavior:contain}
       .td-flow-state{display:grid;justify-items:center;gap:8px;text-align:center;background:#fff;border:1px solid #e8e0d4;border-radius:20px;padding:26px 18px;margin:4px 0 12px;box-shadow:0 10px 30px rgba(22,20,16,.05)}
       .td-flow-state i{font-style:normal;font-size:30px;line-height:1}.td-flow-state b{font-size:18px;letter-spacing:-.03em}.td-flow-state p{max-width:390px;color:#6b6458;font-size:12px;line-height:1.5}.td-flow-state button{border:0;border-radius:13px;padding:11px 14px;background:#102018;color:#fff;font:800 12px Manrope,sans-serif;cursor:pointer}
-      .td-flow-status{display:grid;gap:3px;border-radius:15px;padding:11px 12px;margin:0 0 10px;background:#eef8f1;color:#176b47;border:1px solid rgba(15,123,74,.1);font-size:11px;line-height:1.4}.td-flow-status b{font-size:12px}.td-flow-status[data-tone="loading"]{background:#f3f5f3;color:#536158}.td-flow-status[data-tone="error"]{background:#fff4df;color:#835700;border-color:#f2dfb7}
+      .td-flow-status,.td-network-state{display:grid;gap:3px;border-radius:15px;padding:11px 12px;margin:0 0 10px;background:#eef8f1;color:#176b47;border:1px solid rgba(15,123,74,.1);font-size:11px;line-height:1.4}
+      .td-flow-status b,.td-network-state b{font-size:12px}.td-flow-status[data-tone="loading"]{background:#f3f5f3;color:#536158}.td-flow-status[data-tone="error"],.td-network-state{background:#fff4df;color:#835700;border-color:#f2dfb7}
       .td-flow-status[data-tone="loading"] b:before{content:"";display:inline-block;width:8px;height:8px;margin-right:7px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:td-flow-spin .8s linear infinite}
+      .td-live-region{position:fixed!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;pointer-events:none!important}
+      .step button:disabled{opacity:.35;cursor:not-allowed}
       @keyframes td-flow-spin{to{transform:rotate(360deg)}}
       @media(max-width:430px){
         .td-one-tap{max-height:calc(100dvh - 24px - env(safe-area-inset-top));overflow:auto}
@@ -124,6 +127,27 @@
     });
   }
 
+  function isOnline(){return typeof navigator==="undefined"||navigator.onLine!==false}
+
+  function ensureLiveRegion(){
+    let node=document.getElementById("td-live-region");
+    if(node)return node;
+    node=document.createElement("div");
+    node.id="td-live-region";
+    node.className="td-live-region";
+    node.setAttribute("role","status");
+    node.setAttribute("aria-live","polite");
+    node.setAttribute("aria-atomic","true");
+    document.body.appendChild(node);
+    return node;
+  }
+
+  function announce(message){
+    const node=ensureLiveRegion();
+    node.textContent="";
+    requestAnimationFrame(()=>{node.textContent=String(message||"")});
+  }
+
   function dataState(){
     if(window.TDDataHealth?.ok===false)return{level:"error",title:"Данные повреждены",text:"Часть каталога не прошла проверку. Корзина сохранена, но сравнение лучше повторить после обновления."};
     const retailers=window.TDRetailerPriceState;
@@ -142,8 +166,122 @@
     return `<section class="td-flow-state" data-td-flow-empty><i aria-hidden="true">${compare?"↙":"🧺"}</i><b>${compare?"Сравнивать пока нечего":"Корзина пустая"}</b><p>${compare?"Сначала добавь хотя бы один товар. После этого сравним одну и ту же корзину между магазинами.":"Добавь товары вручную или попроси Бая собрать список — здесь появятся позиции, сумма и следующий шаг."}</p><button type="button" onclick="go('catalog')">${compare?"Вернуться к товарам":"Добавить товары"}</button></section>`;
   }
 
+  function decorateNetworkState(){
+    const app=document.getElementById("app");if(!app)return;
+    const existing=app.querySelector("[data-td-network-state]");
+    if(isOnline()){existing?.remove();return}
+    if(existing)return;
+    const wrap=app.querySelector(".wrap");if(!wrap)return;
+    wrap.insertAdjacentHTML("afterbegin",`<section class="td-network-state" data-td-network-state role="status" aria-live="polite"><b>Офлайн-режим</b><span>Корзина и сохранённые оценки работают локально. Свежие цены обновим автоматически, когда сеть вернётся.</span></section>`);
+  }
+
+  function productCount(){return Array.isArray(window.TDData?.products?.())?window.TDData.products().length:0}
+
+  function applyCatalogFilter(input){
+    const app=document.getElementById("app");if(!app||!input)return;
+    const wrap=input.closest(".wrap");
+    const items=[...app.querySelectorAll(".products .item")];
+    const query=String(input.value||"").trim().toLocaleLowerCase("ru-RU");
+    let visible=0;
+    items.forEach(item=>{
+      const text=String(item.querySelector(".title")?.textContent||"").toLocaleLowerCase("ru-RU");
+      const match=!query||text.includes(query);
+      item.hidden=!match;
+      if(match)visible+=1;
+    });
+    let empty=wrap?.querySelector("[data-td-flow-search-empty]");
+    if(query&&visible===0){
+      if(!empty){
+        input.insertAdjacentHTML("afterend",`<section class="td-flow-state" data-td-flow-search-empty role="status"><i aria-hidden="true">⌕</i><b>Ничего не нашли</b><p>Попробуй короче: «молоко», «хлеб», «яйца». Или очисти поиск и выбери товар из списка.</p><button type="button" data-catalog-search-clear>Показать все товары</button></section>`);
+        empty=wrap?.querySelector("[data-td-flow-search-empty]");
+        empty?.querySelector("[data-catalog-search-clear]")?.addEventListener("click",()=>{
+          input.value="";
+          window.state.q="";
+          applyCatalogFilter(input);
+          input.focus({preventScroll:true});
+        });
+      }
+    }else empty?.remove();
+    input.setAttribute("aria-describedby",query&&visible===0?"td-catalog-search-status":"td-catalog-search-status");
+    let status=wrap?.querySelector("#td-catalog-search-status");
+    if(!status){
+      status=document.createElement("span");
+      status.id="td-catalog-search-status";
+      status.className="td-live-region";
+      status.setAttribute("aria-live","polite");
+      input.insertAdjacentElement("afterend",status);
+    }
+    status.textContent=query?(visible?`Найдено товаров: ${visible}`:"Товары не найдены"):"";
+  }
+
+  function installCatalogSearch(){
+    const app=document.getElementById("app");if(!app||window.state?.screen!=="catalog")return;
+    let input=app.querySelector('input[placeholder="Поиск товара"]');if(!input)return;
+    const total=productCount(),rendered=app.querySelectorAll(".products .item").length;
+    const query=String(window.state?.q||"");
+    if(query&&total&&rendered<total&&typeof window.render==="function"){
+      window.state.q="";
+      window.render();
+      window.state.q=query;
+      input=document.getElementById("app")?.querySelector('input[placeholder="Поиск товара"]');
+      if(!input)return;
+      input.value=query;
+    }
+    if(input.dataset.tdLocalSearch==="true"){applyCatalogFilter(input);return}
+    input.dataset.tdLocalSearch="true";
+    input.classList.add("search");
+    input.removeAttribute("oninput");
+    input.setAttribute("type","search");
+    input.setAttribute("aria-label","Поиск товаров");
+    input.setAttribute("autocomplete","off");
+    input.setAttribute("enterkeyhint","search");
+    input.addEventListener("input",()=>{
+      window.state.q=input.value;
+      applyCatalogFilter(input);
+    });
+    applyCatalogFilter(input);
+  }
+
+  function decorateQuantityControls(){
+    const app=document.getElementById("app");if(!app)return;
+    app.querySelectorAll(".step").forEach(step=>{
+      const value=Math.max(0,Number(step.querySelector("b")?.textContent)||0);
+      const buttons=step.querySelectorAll("button");
+      if(buttons[0])buttons[0].disabled=value<=0;
+      if(buttons[1])buttons[1].disabled=value>=99;
+      const valueNode=step.querySelector("b");
+      if(valueNode)valueNode.setAttribute("aria-label",`Количество: ${value}`);
+    });
+  }
+
+  function installQuantityA11y(){
+    if(baseSetQty||typeof window.setQty!=="function")return;
+    baseSetQty=window.setQty;
+    window.setQty=function(id,delta){
+      const catalogQuery=window.state?.screen==="catalog"?String(window.state?.q||""):"";
+      if(catalogQuery)window.state.q="";
+      const result=baseSetQty.apply(this,arguments);
+      if(catalogQuery)window.state.q=catalogQuery;
+      if(result===false)return result;
+      const qty=Math.max(0,Number(window.state?.cart?.[id])||0);
+      const name=window.TDData?.byProduct?.(id)?.name||"Товар";
+      announce(qty?`${name}: количество ${qty}`:`${name}: удалено из корзины`);
+      requestAnimationFrame(()=>{
+        installCatalogSearch();
+        const input=document.getElementById("app")?.querySelector('input[placeholder="Поиск товара"]');
+        if(input&&catalogQuery){input.value=catalogQuery;applyCatalogFilter(input)}
+        decorateQuantityControls();
+      });
+      return result;
+    };
+    window.setQty.__tdA11yGuard=true;
+  }
+
   function decorateFlow(){
     const app=document.getElementById("app");if(!app||!window.state)return;
+    decorateNetworkState();
+    installCatalogSearch();
+    decorateQuantityControls();
     const screen=window.state.screen;
     if(screen==="cart"||screen==="compare"){
       const wrap=app.querySelector(".wrap");if(!wrap)return;
@@ -153,16 +291,11 @@
         return;
       }
       wrap.querySelector("[data-td-flow-empty]")?.remove();
-      const health=dataState(),existing=wrap.querySelector("[data-td-flow-status]");
+      const existing=wrap.querySelector("[data-td-flow-status]");
+      if(!isOnline()){existing?.remove();return}
+      const health=dataState();
       if(health.level==="ready"){existing?.remove()}
       else if(!wrap.querySelector(".td-data-health")&&!existing){wrap.insertAdjacentHTML("afterbegin",statusMarkup(health))}
-      return;
-    }
-    if(screen==="catalog"){
-      const wrap=app.querySelector(".wrap"),search=wrap?.querySelector(".search");if(!wrap||!search)return;
-      const empty=wrap.querySelector("[data-td-flow-search-empty]"),hasItems=Boolean(wrap.querySelector(".item")),query=String(window.state.q||"").trim();
-      if(query&&!hasItems&&!empty){search.insertAdjacentHTML("afterend",`<section class="td-flow-state" data-td-flow-search-empty><i aria-hidden="true">⌕</i><b>Ничего не нашли</b><p>Попробуй короче: «молоко», «хлеб», «яйца». Или очисти поиск и выбери товар из списка.</p><button type="button" onclick="state.q='';render()">Показать все товары</button></section>`)}
-      else if((!query||hasItems)&&empty)empty.remove();
     }
   }
 
@@ -181,13 +314,26 @@
   let raf=0;
   const observer=new MutationObserver(()=>{
     cancelAnimationFrame(raf);
-    raf=requestAnimationFrame(()=>{sync();syncOverlayHistory();decorateFlow();installPurchaseGuard()});
+    raf=requestAnimationFrame(()=>{sync();syncOverlayHistory();decorateFlow();installPurchaseGuard();installQuantityA11y()});
   });
 
   function start(){
-    sync();installScreenHistory();installPurchaseGuard();syncOverlayHistory();decorateFlow();
+    networkWasOffline=!isOnline();
+    sync();installScreenHistory();installPurchaseGuard();installQuantityA11y();syncOverlayHistory();decorateFlow();
     observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden","aria-hidden","class","style"]});
-    ["td:v2-rendered","td:data-health","td:retailer-health","td:collector-health","online","offline"].forEach(name=>window.addEventListener(name,()=>requestAnimationFrame(decorateFlow)));
+    ["td:v2-rendered","td:data-health","td:retailer-health","td:collector-health"].forEach(name=>window.addEventListener(name,()=>requestAnimationFrame(decorateFlow)));
+    window.addEventListener("offline",()=>{
+      networkWasOffline=true;
+      announce("Сеть пропала. Корзина продолжает работать локально.");
+      requestAnimationFrame(decorateFlow);
+    });
+    window.addEventListener("online",()=>{
+      const shouldRefresh=networkWasOffline;
+      networkWasOffline=false;
+      announce("Сеть восстановлена. Обновляем цены.");
+      requestAnimationFrame(decorateFlow);
+      if(shouldRefresh&&typeof window.loadPrices==="function")window.loadPrices();
+    });
   }
 
   window.TDUILayers={refresh:()=>{sync();syncOverlayHistory();decorateFlow()},get blocked(){return Boolean(activeOverlay());},get active(){return activeOverlay();},get dataState(){return dataState()}};
