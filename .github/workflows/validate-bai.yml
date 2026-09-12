@@ -20,6 +20,7 @@ on:
       - "supabase-config.js"
       - "scripts/test-bai-*.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
+      - "tests/bai-shopping-intelligence-corpus.json"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -42,6 +43,7 @@ on:
       - "supabase-config.js"
       - "scripts/test-bai-*.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
+      - "tests/bai-shopping-intelligence-corpus.json"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -84,6 +86,7 @@ jobs:
           node --check bai-agent-client.js
           node --check bai-autopilot.js
           node --check bai-shopping-journey.js
+          node --check bai-shopping-intelligence.js
           node --check gemma-router.js
           node --check gemma-browser-worker.js
           node --check bai-planner.js
@@ -114,6 +117,9 @@ jobs:
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
           node --check scripts/test-bai-shopping-journey.mjs
+          node --check scripts/test-bai-shopping-intelligence.mjs
+          node --check scripts/test-bai-shopping-intelligence-corpus.mjs
+          node --check scripts/test-bai-shopping-intelligence-e2e.mjs
           node --check scripts/test-bai-sufficiency.mjs
           node --check scripts/test-bai-smart-substitutions.mjs
           node --check scripts/test-bai-meal-brain.mjs
@@ -127,7 +133,13 @@ jobs:
           node --check scripts/test-bai-decision-quality.mjs
           node --check scripts/test-bai-literal-basket.mjs
           node --check scripts/test-bai-speech-lifecycle.mjs
-      - name: Test Bai conversation regressions
+      - name: Test Shopping Intelligence core
+        run: node scripts/test-bai-shopping-intelligence.mjs
+      - name: Test Shopping Intelligence corpus
+        run: node scripts/test-bai-shopping-intelligence-corpus.mjs
+      - name: Test Shopping Intelligence sequential E2E
+        run: node scripts/test-bai-shopping-intelligence-e2e.mjs
+      - name: Test existing Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
           node scripts/test-bai-brain.mjs

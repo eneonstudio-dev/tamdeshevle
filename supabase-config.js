@@ -19,7 +19,7 @@ window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
 };
 
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
-import("./bai-agent-client.js?v=20260912-agent-core-v1")
+import("./bai-agent-client.js?v=20260913-agent-intent-v1")
   .then(()=>import("./bai-decision-quality.js?v=20260912-decision-v1"))
   .then(()=>import("./bai-shopping-journey.js?v=20260912-journey-v3"))
   .then(()=>import("./bai-system-prompt-v1.js?v=20260912-system-v1"))
@@ -27,4 +27,5 @@ import("./bai-agent-client.js?v=20260912-agent-core-v1")
   .then(()=>import("./bai-speech-lifecycle.js?v=20260912-speech-v1"))
   .then(()=>import("./bai-character.js?v=20260912-character-v2"))
   .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v2"))
-  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character] client load failed",error));
+  .then(()=>import("./bai-shopping-intelligence.js?v=20260913-intelligence-v1"))
+  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character/Execution/Intelligence] client load failed",error));
