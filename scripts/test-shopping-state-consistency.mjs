@@ -86,4 +86,10 @@ result=context.TDShoppingConversation.apply("добавь молоко обра�
 assert.equal(result.state.excludedProducts.includes("milk"),false,"requiring a product again must clear a stale exclusion");
 assert.equal(result.state.requiredProducts.includes("milk"),true,"re-required product must return to requiredProducts");
 
+result=context.TDShoppingConversation.apply("добавь ещё две упаковки молока",[{type:"CHANGE_QUANTITY",value:{id:"milk",delta:2}}]);
+assert.equal(result.state.products.find(x=>x.id==="milk").quantity,3,"relative quantity increase must use the live basket quantity");
+result=context.TDShoppingConversation.apply("убери одну упаковку молока",[{type:"CHANGE_QUANTITY",value:{id:"milk",delta:-1}}]);
+assert.equal(result.state.products.find(x=>x.id==="milk").quantity,2,"relative quantity decrease must not delete the entire product");
+assert.match(result.message,/Уменьшил: Молоко/,"reply must describe the operation that actually happened");
+
 console.log("Shopping state consistency passed: persisted-state recovery, duration parsing, selected-store scope and re-require behavior.");
