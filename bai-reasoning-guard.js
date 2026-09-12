@@ -6,6 +6,14 @@
   const PRODUCT={"молок":"milk","хлеб":"bread","куриц":"chicken","банан":"banana","масл":"oil","яйц":"eggs","яиц":"eggs","греч":"buck","сметан":"sour","сахар":"sugar","макарон":"pasta","вод":"water","яблок":"apple","ветчин":"ham","пельмен":"dumplings","лапш":"noodles","вафл":"waffles","творог":"cottage"};
   const LABEL={milk:"молоко",bread:"хлеб",chicken:"курица",banana:"банан",oil:"масло",eggs:"яйца",buck:"гречка",sour:"сметана",sugar:"сахар",pasta:"макароны",water:"вода",apple:"яблоки",ham:"ветчина",dumplings:"пельмени",noodles:"лапша",waffles:"вафли",cottage:"творог"};
   const NUM={"один":1,"одного":1,"одна":1,"одну":1,"два":2,"две":2,"двое":2,"двоих":2,"три":3,"трое":3,"троих":3,"четыре":4,"четверо":4,"четверых":4,"пять":5,"шесть":6,"семь":7,"восемь":8,"девять":9,"десять":10};
+  const ORDINAL=[
+    {index:0,re:/(^|[^а-я])(первый|первая|первую|первое|первого|первой)(?=$|[^а-я])/},
+    {index:1,re:/(^|[^а-я])(второй|вторая|вторую|второе|второго)(?=$|[^а-я])/},
+    {index:2,re:/(^|[^а-я])(третий|третья|третью|третье|третьего|третьей)(?=$|[^а-я])/},
+    {index:3,re:/(^|[^а-я])(четвертый|четвертая|четвертую|четвертое|четвертого|четвертой)(?=$|[^а-я])/},
+    {index:4,re:/(^|[^а-я])(пятый|пятая|пятую|пятое|пятого|пятой)(?=$|[^а-я])/},
+    {last:true,re:/(^|[^а-я])(последний|последняя|последнюю|последнее|последнего|последней)(?=$|[^а-я])/}
+  ];
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
   const uniq=a=>[...new Set((a||[]).filter(Boolean))];
   const clone=v=>JSON.parse(JSON.stringify(v));
@@ -106,6 +114,41 @@
     return{from,to,rewrite:`замени ${from.stem} на ${to.stem}`};
   }
 
+  function basketOrder(){
+    const live=window.TDShoppingState?.get?.()?.products;
+    const liveIds=uniq((Array.isArray(live)?live:[]).map(item=>typeof item==="string"?item:item?.id).filter(id=>LABEL[id]));
+    if(liveIds.length)return liveIds;
+    const only=uniq(productGoalShadow.onlyProducts);
+    return only.length?only:uniq(productGoalShadow.requiredProducts);
+  }
+
+  function ordinalCommand(raw){
+    const t=low(raw),ordinal=ORDINAL.find(x=>x.re.test(t));
+    if(!ordinal)return null;
+    const wantsRemove=/(^|[^а-я])(убери|удали|исключи|выкинь)(?=$|[^а-я])/.test(t);
+    const wantsReplace=/(^|[^а-я])(замени|поменяй)(?=$|[^а-я])/.test(t);
+    if(!wantsRemove&&!wantsReplace)return null;
+    const order=basketOrder(),index=ordinal.last?order.length-1:ordinal.index;
+    if(index<0||index>=order.length)return{kind:"clarify",reply:`В корзине нет ${ordinal.last?"последней":"такой"} позиции. Что именно изменить?`,suggestions:[]};
+    const source=order[index],items=mentions(raw);
+    if(wantsRemove){
+      if(items.length)return null;
+      return{kind:"remove",source,index,rewrite:`убери ${LABEL[source]||source}`};
+    }
+    const orPos=t.indexOf("или");
+    if(orPos>=0&&items.length>=2){
+      const left=items.filter(x=>x.pos<orPos).at(-1),right=items.find(x=>x.pos>orPos);
+      if(left&&right&&left.id!==right.id){
+        const leftLabel=LABEL[left.id]||left.stem,rightLabel=LABEL[right.id]||right.stem;
+        return{kind:"clarify",reply:`На что заменить эту позицию: ${leftLabel} или ${rightLabel}?`,suggestions:[leftLabel,rightLabel]};
+      }
+    }
+    if(!items.length)return{kind:"clarify",reply:`На что заменить ${index+1}-ю позицию? Назови товар.`,suggestions:[]};
+    const target=items.at(-1).id;
+    if(target===source)return{kind:"clarify",reply:`Эта позиция уже ${LABEL[source]||source}. Назови другой товар.`,suggestions:[]};
+    return{kind:"replace",source,target,index,rewrite:`замени ${LABEL[source]||source} на ${LABEL[target]||target}`};
+  }
+
   function applyProductGoalOps(operations){
     for(const op of operations||[]){
       const value=op?.value;
@@ -184,14 +227,21 @@
   brain.route=async function(raw,...rest){
     const trailingNormalized=normalizeTrailingExclusions(raw);
     const normalized=normalizeScopedWithoutAdd(trailingNormalized);
+    const ordinal=ordinalCommand(normalized);
+    if(ordinal?.kind==="clarify"){
+      return{ok:true,provider:"bai-reasoning-guard+ordinal-clarification",operations:[],reply:ordinal.reply,suggestions:(ordinal.suggestions||[]).slice(0,3),expectsAnswer:true,goal:{...(originalStatus?.()?.goal||{}),people:peopleShadow,...clone(productGoalShadow)}};
+    }
     const ambiguous=ambiguousReplacementChoice(normalized);
     if(ambiguous){
       const left=LABEL[ambiguous.left.id]||ambiguous.left.stem,right=LABEL[ambiguous.right.id]||ambiguous.right.stem;
       return{ok:true,provider:"bai-reasoning-guard+clarification",operations:[],reply:`Вижу два варианта через «или». Уточни один товар для замены: ${left} или ${right}.`,suggestions:[left,right],expectsAnswer:true,goal:{...(originalStatus?.()?.goal||{}),people:peopleShadow,...clone(productGoalShadow)}};
     }
-    const replacement=directionalReplacement(normalized);
+    const replacement=ordinal?null:directionalReplacement(normalized);
     let result;
-    if(!replacement){
+    if(ordinal?.rewrite){
+      result=await original(ordinal.rewrite,...rest);
+      result={...result,provider:`${result?.provider||"bai-brain"}+ordinal-guard`,interpretedAs:{type:ordinal.kind,position:ordinal.index+1,from:ordinal.source,to:ordinal.target||null}};
+    }else if(!replacement){
       result=await original(normalized,...rest);
       if(normalized!==String(raw||""))result={...result,provider:`${result?.provider||"bai-brain"}+negation-guard`};
     }else{
@@ -214,5 +264,5 @@
     return{...status,goal:{...status.goal,people:peopleShadow,...clone(productGoalShadow)}};
   };
 
-  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,normalizeScopedWithoutAdd,ambiguousReplacementChoice,explicitPeople,guardPeople,guardGoalConsistency};
+  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,normalizeScopedWithoutAdd,ambiguousReplacementChoice,ordinalCommand,explicitPeople,guardPeople,guardGoalConsistency};
 })();
