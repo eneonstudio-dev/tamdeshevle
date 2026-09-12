@@ -28,9 +28,12 @@ jobs:
           node --check bai-life.js
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
+          node --check scripts/test-static-assets.mjs
       - name: Test app runtime resilience
         run: node scripts/test-app-runtime-resilience.mjs
       - name: Test catalog interaction resilience
         run: node scripts/test-catalog-resilience.mjs
       - name: Test runtime performance guards
         run: node scripts/test-runtime-performance.mjs
+      - name: Test static asset integrity
+        run: node scripts/test-static-assets.mjs
