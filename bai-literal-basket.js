@@ -69,9 +69,9 @@
     return{items,unresolved,maps};
   }
   function isLiteral(text,parsed){
-    const t=low(text),count=parsed.items.length,hasAmount=parsed.items.some(x=>x.amount!=null);
-    if(!count)return false;if(EDIT.test(t)||PLAN.test(t))return false;if(CONTINUE.test(t)&&!EXACT.test(t))return false;
-    return count>=2||hasAmount||EXACT.test(t);
+    const t=low(text),count=parsed.items.length,hasAmount=parsed.items.some(x=>x.amount!=null),hasUnresolved=parsed.unresolved.length>0;
+    if(!count&&!hasUnresolved)return false;if(EDIT.test(t)||PLAN.test(t))return false;if(CONTINUE.test(t)&&!EXACT.test(t))return false;
+    return count>=2||hasAmount||hasUnresolved||EXACT.test(t);
   }
   function label(item){if(item.amount==null)return item.name;const unit={kg:"кг",g:"г",l:"л",ml:"мл",pack:"уп.",pcs:"шт."}[item.unit]||item.unit;return `${item.name} — ${item.amount} ${unit}`}
   function route(text){
