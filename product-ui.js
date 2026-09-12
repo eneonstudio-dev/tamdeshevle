@@ -158,9 +158,17 @@
     if(frame){cancelAnimationFrame(frame);frame=0;}
   }
   function start(){style();observe();queueDecorate();}
+  function retryImages(){
+    document.querySelectorAll("#app .item").forEach(card=>{delete card.dataset.productUiSignature;});
+    document.querySelectorAll("#app .sku-plate img").forEach(img=>{delete img.dataset.tdPreparedSource;});
+    queueDecorate();
+  }
+  function resume(){observe();queueDecorate();}
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
   window.addEventListener("td:retailer-prices-applied",queueDecorate);
-  document.addEventListener("visibilitychange",()=>{if(document.hidden)pause();else{observe();queueDecorate();}});
-  window.addEventListener("pagehide",pause,{once:true});
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)pause();else resume();});
+  window.addEventListener("pagehide",pause);
+  window.addEventListener("pageshow",resume);
+  window.addEventListener("online",retryImages);
 })();
