@@ -11,9 +11,67 @@
     buckwheat: "buck",
     smetana: "sour"
   };
+  const BASE_PRODUCT_PRICES = new Map();
+  const BASE_STORE_DELIVERY = new Map();
 
   function sourceId(productId) {
     return PRICE_ID_ALIASES[productId] || productId;
+  }
+
+  function rememberProductBase(product) {
+    if (!product || !product.id) return { prices: {}, bring: {} };
+    let base = BASE_PRODUCT_PRICES.get(product.id);
+    if (!base) {
+      base = {
+        prices: Object.assign({}, product.prices || {}),
+        bring: Object.assign({}, product.bring || {})
+      };
+      BASE_PRODUCT_PRICES.set(product.id, base);
+    }
+    return base;
+  }
+
+  function rememberStoreBase(store) {
+    if (!store || !store.id) return { hasDelivery: false, delivery: null };
+    let base = BASE_STORE_DELIVERY.get(store.id);
+    if (!base) {
+      base = {
+        hasDelivery: Object.prototype.hasOwnProperty.call(store, "delivery"),
+        delivery: store.delivery
+      };
+      BASE_STORE_DELIVERY.set(store.id, base);
+    }
+    return base;
+  }
+
+  function mergePriceRow(target, row) {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return target;
+    Object.entries(row).forEach(([storeId, raw]) => {
+      if (raw == null) {
+        target[storeId] = null;
+        return;
+      }
+      const value = Number(raw);
+      if (Number.isFinite(value) && value > 0) target[storeId] = value;
+    });
+    return target;
+  }
+
+  function resetToBaseline() {
+    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return false;
+    if (typeof STORES === "undefined" || !Array.isArray(STORES)) return false;
+
+    PRODUCTS.forEach(product => {
+      const base = rememberProductBase(product);
+      product.prices = Object.assign({}, base.prices);
+      product.bring = Object.assign({}, base.bring);
+    });
+    STORES.forEach(store => {
+      const base = rememberStoreBase(store);
+      if (base.hasDelivery) store.delivery = base.delivery;
+      else delete store.delivery;
+    });
+    return true;
   }
 
   function applyBook() {
@@ -21,30 +79,29 @@
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return false;
     if (typeof STORES === "undefined" || !Array.isArray(STORES)) return false;
     if (typeof state === "undefined" || !state) return false;
+    if (!resetToBaseline()) return false;
 
     const shelf = PRICE_BOOK.flat && PRICE_BOOK.flat[state.city];
     const bring = PRICE_BOOK.flat_bring && PRICE_BOOK.flat_bring[state.city];
-    if (!shelf && !bring) return false;
 
     PRODUCTS.forEach(product => {
       const id = sourceId(product.id);
-      if (shelf && shelf[id]) {
-        product.prices = Object.assign({}, product.prices || {}, shelf[id]);
-      }
-      if (bring && bring[id]) {
-        product.bring = Object.assign({}, product.bring || {}, bring[id]);
-      }
+      mergePriceRow(product.prices, shelf && shelf[id]);
+      mergePriceRow(product.bring, bring && bring[id]);
     });
 
     const fees = PRICE_BOOK.delivery_fee || {};
     STORES.forEach(store => {
-      if (fees[store.id] != null) store.delivery = fees[store.id];
+      if (fees[store.id] == null) return;
+      const fee = Number(fees[store.id]);
+      if (Number.isFinite(fee) && fee >= 0) store.delivery = fee;
     });
 
     window.TDPriceState = {
       schema: PRICE_BOOK.schema || null,
       asOf: PRICE_BOOK.as_of || null,
       city: state.city,
+      overlayAvailable: Boolean(shelf || bring),
       productCount: PRODUCTS.length,
       aliases: Object.assign({}, PRICE_ID_ALIASES),
       appliedAt: new Date().toISOString()
@@ -54,12 +111,25 @@
     return true;
   }
 
+  function safePlanHint(plan) {
+    const p = plan || {};
+    if (p.channel !== "bring") return "сходить, полка · без адреса";
+    const goods = p.goods != null && Number.isFinite(Number(p.goods)) ? Number(p.goods) : null;
+    const delivery = p.delivery != null && Number.isFinite(Number(p.delivery)) && Number(p.delivery) >= 0 ? Number(p.delivery) : null;
+    const goodsText = goods == null ? "стоимость товаров уточняется" : `товары ${Math.round(goods)} ₽`;
+    if (p.feeKnown && delivery != null) return `${goodsText} + доставка сети ${Math.round(delivery)} ₽ · ${p.time || "время уточняется"}`;
+    return `${goodsText} · тариф доставки не заложен`;
+  }
+
   // Replace the legacy applier while keeping app.js API intact.
   window.applyCityPrices = applyBook;
   try { applyCityPrices = applyBook; } catch (e) {}
+  window.planHint = safePlanHint;
+  try { planHint = safePlanHint; } catch (e) {}
 
   window.TDPriceAliases = Object.freeze(Object.assign({}, PRICE_ID_ALIASES));
   window.TDApplyPrices = applyBook;
+  window.TDPricePlanHint = safePlanHint;
 
   function catalogLooksReady() {
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return false;
