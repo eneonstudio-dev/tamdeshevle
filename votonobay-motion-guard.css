@@ -1,0 +1,22 @@
+/* Accessibility guard loaded after the canonical Votonobay polish layers.
+   Keep the approved look while removing non-essential motion when requested. */
+@media (prefers-reduced-motion: reduce){
+  .v2-bay-first .v2-hero-bai img,
+  .v2-bay-scenarios button,
+  .v2-self-search .v2-search,
+  .v2-add,
+  body.td-votonobay-inner .step button,
+  .bai-actions>button,
+  .v2-easter{
+    transition:none!important;
+    animation:none!important;
+  }
+
+  .v2-bay-first .v2-hero-bai:hover img,
+  .v2-bay-scenarios button:hover,
+  body.td-votonobay-inner .step button:active{
+    transform:none!important;
+  }
+
+  html{scroll-behavior:auto!important}
+}
