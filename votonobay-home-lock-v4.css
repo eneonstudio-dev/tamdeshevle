@@ -1,25 +1,62 @@
-/* Votonobay home lock v4
-   Final Bay-first layout authority. This file must load after the historical
-   cinematic/mobile layers so the current Home cannot fall back to old absolute
-   mascot/search geometry on Android, coarse pointers, or narrow viewports. */
+/* Votonobay Home authority.
+   This file loads after the historical cinematic/mobile layers and owns the
+   final Bay-first Home geometry and visual hierarchy. */
 
 .v2-hero.v2-bay-first{
   position:relative!important;
   display:grid!important;
-  grid-template-columns:minmax(0,1.16fr) minmax(260px,.84fr)!important;
-  grid-template-areas:"copy bay" "actions bay" "self self" "proof proof"!important;
-  column-gap:clamp(22px,3vw,42px)!important;
+  grid-template-columns:minmax(0,1.18fr) minmax(250px,.82fr)!important;
+  grid-template-areas:"copy bay" "actions bay" "self self"!important;
+  column-gap:clamp(28px,4vw,64px)!important;
   row-gap:0!important;
   align-items:center!important;
+  min-height:520px!important;
+  padding:clamp(44px,5vw,72px)!important;
   overflow:hidden!important;
+  border:1px solid rgba(226,255,237,.07)!important;
+  border-radius:34px!important;
+  background:
+    radial-gradient(circle at 78% 44%,rgba(79,245,154,.085),transparent 28%),
+    linear-gradient(145deg,#050a07 0%,#07100b 58%,#09140e 100%)!important;
+  box-shadow:0 34px 90px rgba(0,0,0,.26)!important;
 }
+.v2-hero.v2-bay-first:after{display:none!important}
+
 .v2-bay-first .v2-hero-copy{
   grid-area:copy!important;
   position:relative!important;
   inset:auto!important;
   transform:none!important;
   min-width:0!important;
+  max-width:720px!important;
+  align-self:end!important;
 }
+.v2-bay-first .v2-eyebrow{
+  margin-bottom:18px!important;
+  color:#7f9989!important;
+  font-size:10px!important;
+  letter-spacing:.12em!important;
+}
+.v2-bay-first .v2-eyebrow i{width:6px!important;height:6px!important;background:#4ff59a!important;box-shadow:none!important}
+.v2-bay-first .v2-hero-copy h1{
+  max-width:680px!important;
+  margin:0!important;
+  color:#f4f8f5!important;
+  font-size:clamp(56px,6.1vw,88px)!important;
+  line-height:.95!important;
+  letter-spacing:-.065em!important;
+  text-wrap:balance!important;
+}
+.v2-bay-first .v2-hero-copy h1 em{color:#a9e8c5!important;font-style:normal!important;font-weight:inherit!important}
+.v2-bay-first .v2-hero-copy p{
+  max-width:590px!important;
+  margin-top:22px!important;
+  color:#91a399!important;
+  font-size:15px!important;
+  line-height:1.65!important;
+}
+
+/* Bay peeks into the composition instead of becoming a second giant card. */
 .v2-bay-first .v2-hero-bai{
   grid-area:bay!important;
   position:relative!important;
@@ -29,7 +66,7 @@
   width:100%!important;
   max-width:none!important;
   height:auto!important;
-  min-height:340px!important;
+  min-height:300px!important;
   margin:0!important;
   padding:0!important;
   display:flex!important;
@@ -43,49 +80,119 @@
   opacity:1!important;
   visibility:visible!important;
   transform:none!important;
+  isolation:isolate!important;
 }
 .v2-bay-first .v2-hero-bai:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:-1!important;
   left:50%!important;
-  top:50%!important;
-  right:auto!important;
-  bottom:auto!important;
-  transform:translate(-50%,-48%)!important;
+  top:55%!important;
+  width:300px!important;
+  height:300px!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(79,245,154,.12),rgba(79,245,154,0) 68%)!important;
+  transform:translate(-50%,-50%)!important;
 }
 .v2-bay-first .v2-hero-bai img{
   position:relative!important;
   inset:auto!important;
   display:block!important;
-  width:min(360px,100%)!important;
+  width:min(315px,100%)!important;
   max-width:100%!important;
-  height:340px!important;
+  height:300px!important;
   margin:0 auto!important;
   object-fit:contain!important;
   object-position:center bottom!important;
   background:transparent!important;
   opacity:1!important;
   visibility:visible!important;
+  filter:drop-shadow(0 25px 30px rgba(0,0,0,.34))!important;
 }
 .v2-bay-first .v2-hero-bai span{
   position:absolute!important;
-  left:8px!important;
+  left:2px!important;
   right:auto!important;
   top:auto!important;
-  bottom:16px!important;
-  max-width:170px!important;
+  bottom:8px!important;
+  max-width:168px!important;
+  padding:8px 11px!important;
+  border:1px solid rgba(226,255,237,.08)!important;
+  border-radius:14px 14px 4px 14px!important;
+  background:rgba(5,12,8,.78)!important;
+  color:#b9cec1!important;
+  box-shadow:none!important;
   transform:none!important;
+  backdrop-filter:blur(12px)!important;
+  font-size:10px!important;
+  line-height:1.35!important;
 }
+
+/* One obvious Bay entry; the rest becomes supporting UI. */
 .v2-bay-actions{
   grid-area:actions!important;
   position:relative!important;
   inset:auto!important;
   display:grid!important;
-  grid-template-columns:max-content max-content!important;
+  grid-template-columns:minmax(300px,520px) max-content!important;
   align-items:center!important;
   justify-content:start!important;
-  gap:10px!important;
+  gap:10px 14px!important;
   min-width:0!important;
+  margin-top:34px!important;
   transform:none!important;
+  align-self:start!important;
 }
+.v2-bay-primary{
+  position:relative!important;
+  width:100%!important;
+  min-height:72px!important;
+  padding:16px 50px 16px 19px!important;
+  border:1px solid rgba(79,245,154,.24)!important;
+  border-radius:20px!important;
+  background:#0d1c13!important;
+  color:#eff8f2!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.012)!important;
+  text-align:left!important;
+  font-size:15px!important;
+  letter-spacing:-.015em!important;
+}
+.v2-bay-primary:before{
+  content:"Что нужно решить?";
+  display:block;
+  margin-bottom:4px;
+  color:#6f8778;
+  font:700 10px/1.2 Manrope,sans-serif;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.v2-bay-primary:after{
+  content:"→";
+  position:absolute;
+  right:17px;
+  top:50%;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#4ff59a;
+  color:#04140b;
+  transform:translateY(-50%);
+  font:900 17px/1 Manrope,sans-serif;
+}
+.v2-bay-primary:hover{background:#102419!important;border-color:rgba(79,245,154,.38)!important;transform:none!important}
+.v2-bay-secondary{
+  min-height:44px!important;
+  padding:0 8px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:transparent!important;
+  color:#83978b!important;
+  box-shadow:none!important;
+  font-size:12px!important;
+}
+.v2-bay-secondary:hover{background:rgba(255,255,255,.035)!important;color:#d4e2d9!important}
 .v2-bay-scenarios{
   grid-column:1/-1!important;
   position:static!important;
@@ -93,58 +200,103 @@
   min-width:0!important;
   display:flex!important;
   flex-wrap:wrap!important;
+  gap:7px!important;
+  margin-top:1px!important;
   overflow:visible!important;
   transform:none!important;
 }
+.v2-bay-scenarios button{
+  flex:0 0 auto!important;
+  min-height:34px!important;
+  padding:7px 11px!important;
+  border:1px solid rgba(226,255,237,.075)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.025)!important;
+  color:#82968a!important;
+  box-shadow:none!important;
+  font-size:10px!important;
+  font-weight:720!important;
+  white-space:nowrap!important;
+}
+.v2-bay-scenarios button:hover{background:rgba(255,255,255,.05)!important;color:#d8e6dd!important;border-color:rgba(226,255,237,.12)!important}
+
+/* Self-service stays first-class, but visually quiet until the user chooses it. */
 .v2-self-search{
   grid-area:self!important;
   position:relative!important;
   inset:auto!important;
   min-width:0!important;
-  margin-top:28px!important;
+  width:100%!important;
+  margin-top:36px!important;
+  padding-top:22px!important;
+  border-top:1px solid rgba(226,255,237,.06)!important;
   transform:none!important;
 }
+.v2-self-label{color:#617268!important;font-size:8px!important;letter-spacing:.13em!important}
+.v2-self-label:after{background:linear-gradient(90deg,rgba(226,255,237,.06),transparent)!important}
 .v2-self-search .v2-search{
   position:relative!important;
   inset:auto!important;
   display:grid!important;
   grid-template-columns:auto minmax(0,1fr) auto!important;
   align-items:center!important;
-  width:min(780px,100%)!important;
-  min-height:52px!important;
-  margin:12px 0 0!important;
+  width:min(680px,100%)!important;
+  min-height:48px!important;
+  margin:11px 0 0!important;
+  border:1px solid rgba(226,255,237,.07)!important;
+  border-radius:16px!important;
+  background:#0a130d!important;
+  box-shadow:none!important;
   transform:none!important;
 }
-.v2-self-search .v2-search input{
-  min-width:0!important;
-  width:100%!important;
+.v2-self-search .v2-search input{min-width:0!important;width:100%!important;color:#dfeae3!important;font-size:13px!important}
+.v2-self-search .v2-search input::placeholder{color:#5f7166!important}
+.v2-self-search .v2-search>span{color:#607166!important}
+.v2-self-search .v2-search button{
+  margin:4px!important;
+  min-height:38px!important;
+  padding:0 13px!important;
+  border-radius:12px!important;
+  background:rgba(255,255,255,.055)!important;
+  color:#b6c5bc!important;
+  box-shadow:none!important;
 }
 .v2-self-search .v2-categories{
   position:relative!important;
   inset:auto!important;
   display:flex!important;
   flex-wrap:wrap!important;
+  gap:6px!important;
   min-width:0!important;
+  margin-top:8px!important;
   transform:none!important;
 }
-.v2-bay-first .v2-hero-proof{
-  grid-area:proof!important;
-  position:relative!important;
-  inset:auto!important;
-  transform:none!important;
+.v2-self-search .v2-categories button{
+  padding:6px 9px!important;
+  border-color:transparent!important;
+  background:transparent!important;
+  color:#62746a!important;
+  font-size:9px!important;
 }
+.v2-self-search .v2-categories button:hover{background:rgba(255,255,255,.035)!important;color:#bdcbc2!important}
+
+/* The old checkmark strip added visual noise and repeated information. */
+.v2-bay-first .v2-hero-proof{display:none!important}
 
 @media(max-width:1000px){
   .v2-hero.v2-bay-first{
-    grid-template-columns:minmax(0,1fr) minmax(230px,.72fr)!important;
-    column-gap:22px!important;
+    grid-template-columns:minmax(0,1fr) minmax(220px,.7fr)!important;
+    column-gap:24px!important;
+    padding:42px 36px!important;
   }
-  .v2-bay-first .v2-hero-bai{min-height:290px!important}
-  .v2-bay-first .v2-hero-bai img{width:min(300px,100%)!important;height:290px!important}
+  .v2-bay-first .v2-hero-copy h1{font-size:clamp(52px,7vw,72px)!important}
+  .v2-bay-first .v2-hero-bai{min-height:255px!important}
+  .v2-bay-first .v2-hero-bai img{width:min(270px,100%)!important;height:255px!important}
+  .v2-bay-actions{grid-template-columns:minmax(260px,1fr) max-content!important}
 }
 
-/* Phones, touch-first tablets and Android “desktop site” get the same deliberate
-   one-column composition instead of the obsolete absolute-positioned mascot. */
+/* Phones and touch-first tablets: compact peeking Bay, one strong action,
+   horizontal examples. No oversized mascot wall before the actual task. */
 @media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:1100px){
   .v2-hero.v2-bay-first{
     display:grid!important;
@@ -153,85 +305,76 @@
     column-gap:0!important;
     row-gap:0!important;
     align-items:start!important;
+    min-height:auto!important;
+    padding:30px 20px 24px!important;
+    border-radius:26px!important;
   }
-  .v2-bay-first .v2-hero-copy{width:100%!important;max-width:none!important}
+  .v2-bay-first .v2-hero-copy{width:100%!important;max-width:none!important;align-self:auto!important}
+  .v2-bay-first .v2-eyebrow{margin-bottom:13px!important;font-size:8px!important}
+  .v2-bay-first .v2-hero-copy h1{font-size:clamp(43px,12.2vw,58px)!important;line-height:.96!important;letter-spacing:-.06em!important}
+  .v2-bay-first .v2-hero-copy p{max-width:100%!important;margin-top:15px!important;font-size:12px!important;line-height:1.55!important}
+
   .v2-bay-first .v2-hero-bai{
     width:100%!important;
     height:auto!important;
-    min-height:220px!important;
-    margin:8px 0 0!important;
+    min-height:138px!important;
+    margin:6px 0 0!important;
     align-items:flex-end!important;
   }
-  .v2-bay-first .v2-hero-bai:before{
-    width:260px!important;
-    height:260px!important;
-  }
+  .v2-bay-first .v2-hero-bai:before{width:190px!important;height:190px!important;top:59%!important}
   .v2-bay-first .v2-hero-bai img{
-    width:min(248px,76vw)!important;
-    height:220px!important;
+    width:min(175px,52vw)!important;
+    height:138px!important;
     margin:0 auto!important;
   }
   .v2-bay-first .v2-hero-bai span{
-    left:8px!important;
-    bottom:6px!important;
-    max-width:145px!important;
+    left:2px!important;
+    bottom:2px!important;
+    max-width:130px!important;
+    padding:6px 8px!important;
+    font-size:8px!important;
+    opacity:.86!important;
   }
+
   .v2-bay-actions{
     width:100%!important;
-    margin-top:10px!important;
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-    gap:9px!important;
+    margin-top:8px!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:6px!important;
   }
-  .v2-bay-primary,.v2-bay-secondary{
-    width:100%!important;
-    min-width:0!important;
-  }
+  .v2-bay-primary{width:100%!important;min-height:64px!important;padding:13px 48px 13px 15px!important;border-radius:18px!important;font-size:13px!important}
+  .v2-bay-primary:before{font-size:8px!important}
+  .v2-bay-primary:after{right:14px!important;width:32px!important;height:32px!important}
+  .v2-bay-secondary{width:max-content!important;min-height:36px!important;padding:0 3px!important;justify-self:start!important;font-size:10px!important}
   .v2-bay-scenarios{
-    grid-column:1/-1!important;
+    grid-column:1!important;
     flex-wrap:nowrap!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
     overscroll-behavior-inline:contain;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    padding:1px 1px 4px!important;
+    padding:1px 0 3px!important;
   }
   .v2-bay-scenarios::-webkit-scrollbar{display:none!important}
-  .v2-bay-scenarios button{flex:0 0 auto!important;white-space:nowrap!important}
-  .v2-self-search{
-    width:100%!important;
-    margin-top:20px!important;
-    padding-top:18px!important;
-  }
-  .v2-self-search .v2-search{
-    width:100%!important;
-    min-height:50px!important;
-    margin:11px 0 0!important;
-    grid-template-columns:auto minmax(0,1fr) auto!important;
-  }
-  .v2-self-search .v2-categories{
-    width:100%!important;
-    flex-wrap:nowrap!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none;
-    padding-bottom:3px!important;
-  }
+  .v2-bay-scenarios button{min-height:31px!important;padding:6px 9px!important;font-size:9px!important}
+
+  .v2-self-search{width:100%!important;margin-top:18px!important;padding-top:15px!important}
+  .v2-self-search .v2-search{width:100%!important;min-height:46px!important;margin:9px 0 0!important;grid-template-columns:auto minmax(0,1fr) auto!important}
+  .v2-self-search .v2-search input{font-size:12px!important}
+  .v2-self-search .v2-search button{min-height:36px!important;font-size:10px!important}
+  .v2-self-search .v2-categories{width:100%!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-top:5px!important}
   .v2-self-search .v2-categories::-webkit-scrollbar{display:none!important}
   .v2-self-search .v2-categories button{flex:0 0 auto!important;white-space:nowrap!important}
-  .v2-bay-first .v2-hero-proof{display:none!important}
 }
 
-@media(max-width:420px){
-  .v2-hero h1{font-size:clamp(42px,13vw,54px)!important}
-  .v2-bay-first .v2-hero-bai{min-height:205px!important}
-  .v2-bay-first .v2-hero-bai img{width:min(230px,74vw)!important;height:205px!important}
-  .v2-bay-actions{grid-template-columns:1fr!important}
-  .v2-bay-scenarios{grid-column:1!important}
-  .v2-bay-primary,.v2-bay-secondary{min-height:48px!important}
+@media(max-width:380px){
+  .v2-hero.v2-bay-first{padding-left:16px!important;padding-right:16px!important}
+  .v2-bay-first .v2-hero-copy h1{font-size:42px!important}
+  .v2-bay-first .v2-hero-bai{min-height:124px!important}
+  .v2-bay-first .v2-hero-bai img{height:124px!important;width:min(160px,50vw)!important}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .v2-bay-first .v2-hero-bai img{transform:none!important}
+  .v2-bay-first .v2-hero-bai img,.v2-bay-primary{transition:none!important;transform:none!important}
 }
