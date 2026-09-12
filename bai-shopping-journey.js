@@ -60,7 +60,7 @@
   async function ensurePersonal(){
     if(window.TDBaiPantry&&window.TDBaiGoalMemory&&window.TDBaiQuestionSelector)return{pantry:window.TDBaiPantry,goal:window.TDBaiGoalMemory,question:window.TDBaiQuestionSelector};
     personalLoad=personalLoad||Promise.all([
-      import("./bai-pantry.js?v=20260912-pantry-v2"),
+      import("./bai-pantry.js?v=20260912-pantry-v3"),
       import("./bai-goal-memory.js?v=20260912-goal-v1"),
       import("./bai-question-selector.js?v=20260912-question-v2")
     ]).catch(error=>{console.warn("[Bai Journey] personal context load failed",error);return null});
