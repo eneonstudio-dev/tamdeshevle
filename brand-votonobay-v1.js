@@ -2,8 +2,8 @@
   "use strict";
 
   const BRAND="Votonobay";
-  const TAGLINE="Собери корзину — покажем, как лучше";
-  const TITLE="Votonobay — как лучше собрать корзину";
+  const TAGLINE="Скажи, что нужно — поможем решить, как лучше";
+  const TITLE="Votonobay — покупки, как лучше";
   const THEME="#102018";
   let raf=0;
   let observer=null;
@@ -28,7 +28,7 @@
     if(theme)theme.setAttribute("content",THEME);
     let description=document.querySelector('meta[name="description"]');
     if(!description){description=document.createElement("meta");description.name="description";document.head.appendChild(description);}
-    description.content="Votonobay помогает понять, как лучше собрать корзину: по цене, удобству и подтверждённости данных.";
+    description.content="Votonobay помогает решить, как лучше купить: учитывает цену, удобство, время и контекст — а выбор остаётся за тобой.";
   }
 
   function tuneV2Brand(){
