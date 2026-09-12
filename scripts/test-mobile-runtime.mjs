@@ -90,11 +90,12 @@ const priceSync=fs.readFileSync("price-sync.js","utf8");
 const androidCss=fs.readFileSync("android-viewport-fix.css","utf8");
 const touchCss=fs.readFileSync("touch-layout-fix.css","utf8");
 
+assert.match(source,/visualViewport/,"runtime bridge must own the real visual viewport");
+assert.match(source,/data-td-keyboard-open/,"runtime bridge must publish keyboard-open state");
 assert.match(mobileDock,/__TDV2MobileDockInitialized/,"mobile dock must be idempotent");
-assert.match(mobileDock,/visualViewport/,"mobile dock must follow the real visual viewport");
-assert.match(mobileDock,/data-td-keyboard-open/,"mobile dock must publish keyboard-open state");
-assert.match(mobileDock,/pagehide/,"mobile viewport work must pause on pagehide");
-assert.match(mobileDock,/pageshow/,"mobile viewport must recover on pageshow");
+assert.doesNotMatch(mobileDock,/visualViewport/,"mobile dock must not duplicate visual viewport listeners owned by runtime bridge");
+assert.match(mobileDock,/td:runtime-resume/,"mobile dock must rehydrate when runtime resumes");
+assert.match(mobileDock,/pageshow/,"mobile dock must recover after BFCache/page restore");
 
 assert.match(priceSync,/__TDPriceSyncInitialized/,"price sync must be idempotent");
 assert.doesNotMatch(priceSync,/setInterval\s*\(/,"price sync must not poll continuously with setInterval");
@@ -111,4 +112,4 @@ assert.match(androidCss,/\.v2-bottom-nav/,"Android keyboard state must protect b
 assert.match(touchCss,/bottom:calc\(64px \+ env\(safe-area-inset-bottom\)\)!important/,"coarse-pointer mascot must preserve the bottom safe area");
 assert.match(touchCss,/max-height:calc\(var\(--td-vvh,100dvh\) - 104px\)!important/,"coarse-pointer Bay panel must use visual viewport height");
 
-console.log("Mobile runtime lifecycle passed: viewport, keyboard, safe areas, BFCache resume and suspended price sync are guarded.");
+console.log("Mobile runtime lifecycle passed: one viewport owner, keyboard/safe areas, BFCache resume and suspended price sync are guarded.");
