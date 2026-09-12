@@ -73,7 +73,7 @@ for(const [name,source] of [["continue-in-stores",continueStores],["retailer-han
 }
 
 assert.match(continueStores,/(?:Сайт|«Там дешевле») не читает корзину магазина/);
-assert.match(retailer,/«Там дешевле» не читает и не меняет cookie или корзину Магнита/);
-assert.match(retailer,/Публичный стабильный deep-link для автоматического наполнения корзины пока не подтверждён/);
+assert.match(retailer,/(?:Сайт|«Там дешевле») не читает и не меняет cookie или корзину Магнита/);
+assert.match(retailer,/Публичный стабильный deep-link для автоматического наполнения корзины (?:пока )?не подтверждён/);
 
 console.log("Bai handoff E2E contract passed: basket -> checkout -> pickup/courier/store transfer is truthful, branded and accessible.");
