@@ -1,6 +1,6 @@
 (()=>{"use strict";
 const K="td_bai_memory_v1",u=a=>[...new Set((a||[]).filter(Boolean))],clone=v=>JSON.parse(JSON.stringify(v));
-const finite=v=>Number.isFinite(Number(v))?Number(v):null,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const finite=v=>v==null||v===""?null:Number.isFinite(Number(v))?Number(v):null,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const blank=()=>({version:5,turns:0,preferences:[],productsLiked:[],productsAvoided:[],productSignals:{},preferenceSignals:{},outcomeSignals:{},tradeoffSignals:[],cooking:null,usualBudget:null,usualPeople:null,storeMode:null,corrections:0,acceptedPlans:0,correctedPlans:0,pendingRecommendation:null});
 let p;try{p={...blank(),...JSON.parse(localStorage.getItem(K)||"{}")}}catch{p=blank()}
 p.productSignals=p.productSignals||{};p.preferenceSignals=p.preferenceSignals||{};p.outcomeSignals=p.outcomeSignals||{};p.tradeoffSignals=Array.isArray(p.tradeoffSignals)?p.tradeoffSignals.slice(-30):[];p.version=5;
@@ -39,7 +39,7 @@ function noteTradeoffChoice(value={}){
 }
 function tradeoffProfile(defaultThreshold=250,mode="walk"){
   const fallback=clamp(Math.round(Number(defaultThreshold)||250),50,2500),all=(p.tradeoffSignals||[]).filter(x=>!mode||String(x.mode||"walk")===String(mode));
-  const usable=all.filter(x=>Number.isFinite(Number(x.netSaving))&&Number(x.netSaving)>=0),sampleCount=all.length,usableCount=usable.length;
+  const usable=all.filter(x=>Number.isFinite(Number(x.netSaving))&&x.netSaving!=null&&Number(x.netSaving)>=0),sampleCount=all.length,usableCount=usable.length;
   if(!usableCount)return{sampleCount,usableCount,thresholdRub:fallback,confidence:0,tendency:"balanced",personalized:false,errorRate:null};
   const values=u(usable.map(x=>clamp(Math.round(Number(x.netSaving)),50,2500))),candidates=u([50,fallback,...values.map(v=>clamp(v,50,2500)),2500]).sort((a,b)=>a-b);
   let best={threshold:fallback,error:Infinity,total:0};
