@@ -5,7 +5,7 @@ const html=fs.readFileSync("index.html","utf8"),ui=fs.readFileSync("v2-shell.js"
 const bayFirstCss=fs.readFileSync("votonobay-bay-first.css","utf8"),touchCss=fs.readFileSync("touch-layout-fix.css","utf8");
 const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.readFileSync("smart-substitutions.js","utf8");
 const app=fs.readFileSync("app.js","utf8");
-const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8"),decisionHandoff=fs.readFileSync("bai-decision-handoff-v1.js","utf8");
+const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8"),decisionHandoff=fs.readFileSync("votonobay-decision-handoff-v1.js","utf8");
 const cards=fs.readFileSync("cards.css","utf8"),brand=fs.readFileSync("brand-votonobay-v1.js","utf8"),brandCss=fs.readFileSync("votonobay-brand-v1.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
 new Function(ui);new Function(bai);new Function(decisionHandoff);
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
@@ -16,7 +16,7 @@ assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/grid-template-co
 assert.match(css,/\.phone\{max-width:none!important\}/);
 assert.match(cinema,/--v2-canvas:#06110c/);assert.match(cinema,/\.v2-hero-bai/);assert.match(cinema,/\.v2-bottom-nav/);
 assert.match(cinema,/body \.td-account/);assert.match(cinema,/grid-template-columns:60px minmax\(0,1fr\) auto/);
-assert.match(life,/micro-blink/);assert.match(life,/bai-decision-handoff-v1\.js/);assert.match(html,/bai-life\.js\?v=/);
+assert.match(life,/micro-blink/);assert.match(html,/bai-life\.js\?v=/);assert.match(polish,/votonobay-decision-handoff-v1\.js/);assert.match(polish,/data-votonobay-decision-handoff|votonobayDecisionHandoff/);
 assert.match(mobileDock,/Мобильная навигация/);assert.match(html,/v2-mobile-dock\.js\?v=/);
 assert.match(mobileDock,/document\.querySelectorAll\("\.v2-bottom-nav"\)/);assert.match(mobileDock,/dock!==nav\)dock\.remove\(\)/);
 assert.match(mobileDock,/aria-current/);assert.match(mobileDock,/type="button"/);
@@ -29,8 +29,8 @@ assert.match(brand,/const BRAND="Votonobay"/);assert.match(brand,/помога(�
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);assert.doesNotMatch(bai,/Где корзина дешевле\?/);
 
-// Bai must carry a finished recommendation into an honest retailer handoff without pretending carts were auto-filled.
-assert.match(decisionHandoff,/TDShoppingState\?\.get/);assert.match(decisionHandoff,/lastPlans\?\.\[0\]/);assert.match(decisionHandoff,/TDContinueInStoresV1/);assert.match(decisionHandoff,/continue-in-stores-v1\.js/);assert.match(decisionHandoff,/dataBayContinuePlan|bayContinuePlan/);assert.match(decisionHandoff,/Продолжить в/);assert.match(decisionHandoff,/не буду притворяться, что перенёс товары автоматически/);assert.match(decisionHandoff,/фактические цена и наличие подтверждаются/);assert.match(decisionHandoff,/td:bai-handoff-opened/);assert.match(decisionHandoff,/td:shopping-state/);assert.doesNotMatch(decisionHandoff,/MutationObserver/);assert.match(decisionHandoff,/body\.td-votonobay \.td-continue-stores-card/);assert.match(decisionHandoff,/@media\(max-width:520px\)/);
+// A finished Bay recommendation must continue into the existing honest retailer handoff without mutating Bai's internal reasoning runtime.
+assert.match(decisionHandoff,/TDShoppingState\?\.get/);assert.match(decisionHandoff,/lastPlans\?\.\[0\]/);assert.match(decisionHandoff,/TDContinueInStoresV1/);assert.match(decisionHandoff,/continue-in-stores-v1\.js/);assert.match(decisionHandoff,/bayContinuePlan/);assert.match(decisionHandoff,/Продолжить в/);assert.match(decisionHandoff,/не буду притворяться, что перенёс товары автоматически/);assert.match(decisionHandoff,/фактические цена и наличие подтверждаются/);assert.match(decisionHandoff,/td:bai-handoff-opened/);assert.match(decisionHandoff,/td:shopping-state/);assert.doesNotMatch(decisionHandoff,/MutationObserver/);assert.match(decisionHandoff,/body\.td-votonobay \.td-continue-stores-card/);assert.match(decisionHandoff,/@media\(max-width:520px\)/);
 
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
