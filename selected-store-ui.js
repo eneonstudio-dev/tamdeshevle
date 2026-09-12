@@ -1,15 +1,45 @@
 (function(){
   "use strict";
-  const KEY="td:selected-store-point";
+  const KEY="td:selected-store-point", POINT_VERSION=2;
+
+  function safeText(value,max=160){
+    const text=typeof value==="string"?value.trim():String(value==null?"":value).trim();
+    return text&&text.length<=max?text:null;
+  }
+
+  function normalizePoint(raw){
+    if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
+    const id=safeText(raw.id,180),chainId=safeText(raw.chainId,80),storeId=safeText(raw.storeId,120);
+    if(!id||!chainId||!storeId)return null;
+    const point={
+      id,
+      chainId,
+      storeId,
+      version:Number.isFinite(Number(raw.version))?Number(raw.version):1
+    };
+    const priceStoreId=safeText(raw.priceStoreId,120),address=safeText(raw.address,500),city=safeText(raw.city,40),referenceStoreId=safeText(raw.referenceStoreId,80),scopeMethod=safeText(raw.scopeMethod,80),selectedAt=safeText(raw.selectedAt,80);
+    if(priceStoreId)point.priceStoreId=priceStoreId;
+    if(address)point.address=address;
+    if(city)point.city=city;
+    if(referenceStoreId&&referenceStoreId!==chainId)point.referenceStoreId=referenceStoreId;
+    if(scopeMethod)point.scopeMethod=scopeMethod;
+    const confidence=Number(raw.scopeConfidence);
+    if(Number.isFinite(confidence)&&confidence>=0&&confidence<=1)point.scopeConfidence=confidence;
+    if(selectedAt&&!Number.isNaN(Date.parse(selectedAt)))point.selectedAt=selectedAt;
+    return point;
+  }
 
   function readPoint(){
     try{
       const raw=localStorage.getItem(KEY);
       if(!raw)return null;
-      const point=JSON.parse(raw);
-      if(!point||!point.chainId||!point.storeId)return null;
+      const point=normalizePoint(JSON.parse(raw));
+      if(!point){localStorage.removeItem(KEY);return null;}
       return point;
-    }catch{return null;}
+    }catch{
+      try{localStorage.removeItem(KEY);}catch{}
+      return null;
+    }
   }
 
   function appStores(){
@@ -29,18 +59,74 @@
   }
 
   function persistPoint(point){
-    if(!point)return false;
-    try{localStorage.setItem(KEY,JSON.stringify(point));return true;}catch{return false;}
+    const normalized=normalizePoint(point);
+    if(!normalized)return false;
+    normalized.version=POINT_VERSION;
+    try{localStorage.setItem(KEY,JSON.stringify(normalized));return true;}catch{return false;}
+  }
+
+  function storeEligible(store,city,mode){
+    if(!store)return false;
+    if(city&&Array.isArray(store.city)&&!store.city.includes(city))return false;
+    if(mode==="walk"&&store.kind==="delivery")return false;
+    if(mode==="delivery"&&store.has_bring!==true)return false;
+    return true;
+  }
+
+  function pointContextStatus(point,{ignoreStoreMismatch=false}={}){
+    if(!point)return{ok:false,reason:"missing"};
+    if(!window.state)return{ok:true,deferred:true,reason:"state_pending"};
+    const stores=appStores();
+    if(!stores.length)return{ok:true,deferred:true,reason:"stores_pending"};
+    const chain=stores.find(s=>s.id===point.chainId);
+    if(!chain)return{ok:false,reason:"unknown_chain"};
+    const city=state.city||null,mode=state.mode||"any";
+    if(point.city&&city&&point.city!==city)return{ok:false,reason:"city_changed"};
+    if(!storeEligible(chain,city,mode))return{ok:false,reason:"chain_unavailable"};
+    if(!ignoreStoreMismatch&&state.storeId&&state.storeId!==point.chainId)return{ok:false,reason:"store_changed"};
+    return{ok:true,deferred:false,reason:"ok",chain};
   }
 
   function persistCurrentChain(point){
-    if(!point||!point.chainId)return;
+    if(!point||!point.chainId)return false;
     if(window.state)state.storeId=point.chainId;
     try{
-      const saved=JSON.parse(localStorage.getItem("td")||"{}");
+      const parsed=JSON.parse(localStorage.getItem("td")||"{}");
+      const saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};
       saved.storeId=point.chainId;
       localStorage.setItem("td",JSON.stringify(saved));
-    }catch{}
+      return true;
+    }catch{return false;}
+  }
+
+  function dropSelection(reason="invalid",notify=true){
+    try{localStorage.removeItem(KEY);}catch{}
+    document.querySelector("[data-td-selected-store]")?.remove();
+    document.querySelectorAll("[data-point-selected]").forEach(el=>el.removeAttribute("data-point-selected"));
+    if(notify)window.dispatchEvent(new CustomEvent("td:selected-store-point-cleared",{detail:{reason}}));
+    return null;
+  }
+
+  function reconcileSelectedPoint(){
+    const point=readPoint();
+    if(!point)return null;
+    const status=pointContextStatus(point);
+    if(!status.ok)return dropSelection(status.reason,true);
+    if(status.deferred)return point;
+
+    let changed=false;
+    const city=state.city||null,mode=state.mode||"any",stores=appStores();
+    if(!point.city&&city){point.city=city;changed=true;}
+    if(point.version!==POINT_VERSION){point.version=POINT_VERSION;changed=true;}
+    if(point.referenceStoreId){
+      const reference=stores.find(s=>s.id===point.referenceStoreId);
+      if(!reference||point.referenceStoreId===point.chainId||!storeEligible(reference,city,mode)){
+        delete point.referenceStoreId;
+        changed=true;
+      }
+    }
+    if(changed)persistPoint(point);
+    return point;
   }
 
   function basketState(point){
@@ -50,7 +136,7 @@
     if(!totalItems)return{kind:"empty",text:"Добавьте товары — здесь появится итог по этой точке."};
     if(!window.TDStoreIdBridge||typeof TDStoreIdBridge.basket!=="function")return{kind:"pending",text:"Проверяем цены именно для этой точки…"};
 
-    const referenceStoreId=point.referenceStoreId&&point.referenceStoreId!==point.chainId&&stores.some(s=>s.id===point.referenceStoreId)?point.referenceStoreId:null;
+    const referenceStoreId=point.referenceStoreId&&point.referenceStoreId!==point.chainId&&stores.some(s=>s.id===point.referenceStoreId&&storeEligible(s,state.city,state.mode))?point.referenceStoreId:null;
     let quote;
     try{
       quote=TDStoreIdBridge.basket(point,{products,cart,stores,referenceStoreId});
@@ -101,10 +187,8 @@
   }
 
   function clearSelection(){
-    try{localStorage.removeItem(KEY);}catch{}
-    document.querySelectorAll("[data-point-selected]").forEach(el=>el.removeAttribute("data-point-selected"));
-    renderBanner();
-    window.dispatchEvent(new CustomEvent("td:selected-store-point-cleared"));
+    dropSelection("user",true);
+    sync();
   }
 
   function changeSelection(){
@@ -141,9 +225,8 @@
     return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
   }
 
-  function renderBanner(){
+  function renderBanner(point){
     injectStyles();
-    const point=readPoint();
     const current=document.querySelector("[data-td-selected-store]");
     if(!point||!window.state||state.storeId!==point.chainId||!["catalog","cart","compare","stores"].includes(state.screen)){
       if(current)current.remove();
@@ -153,7 +236,7 @@
     const wrap=document.querySelector("#app .wrap");
     if(!wrap)return;
     const quote=basketState(point);
-    const signature=JSON.stringify({id:point.id,storeId:point.storeId,chainId:point.chainId,referenceStoreId:point.referenceStoreId||null,address:point.address||"",screen:state.screen,kind:quote.kind,text:quote.text,saving:quote.saving||null});
+    const signature=JSON.stringify({id:point.id,storeId:point.storeId,chainId:point.chainId,city:point.city||null,referenceStoreId:point.referenceStoreId||null,address:point.address||"",screen:state.screen,kind:quote.kind,text:quote.text,saving:quote.saving||null});
     if(current&&current.dataset.signature===signature)return;
 
     const holder=document.createElement("div");
@@ -166,8 +249,7 @@
     banner.querySelector(".td-selected-store-clear")?.addEventListener("click",clearSelection);
   }
 
-  function markMapCard(){
-    const point=readPoint();
+  function markMapCard(point){
     const cards=[...document.querySelectorAll(".td-map-store")];
     cards.forEach(card=>card.removeAttribute("data-point-selected"));
     if(!point||!window.TDGeo||!Array.isArray(window.TDGeo.nearby))return;
@@ -177,13 +259,9 @@
   }
 
   function sync(){
-    renderBanner();
-    markMapCard();
-  }
-
-  function reconcileSelectedPoint(){
-    const point=readPoint();
-    if(point&&window.state&&state.storeId!==point.chainId)persistCurrentChain(point);
+    const point=reconcileSelectedPoint();
+    renderBanner(point);
+    markMapCard(point);
   }
 
   let raf=0;
@@ -192,7 +270,6 @@
     raf=requestAnimationFrame(sync);
   });
   function start(){
-    reconcileSelectedPoint();
     sync();
     obs.observe(document.getElementById("app")||document.body,{childList:true,subtree:true});
   }
@@ -200,23 +277,36 @@
   document.addEventListener("click",e=>{
     if(!e.target.closest("[data-use-point]"))return;
     const previousStoreId=window.state&&state.storeId;
-    setTimeout(()=>{
+    const selectedCity=window.state&&state.city;
+    const selectedMode=window.state&&state.mode||"any";
+    const finish=()=>{
       const point=readPoint();
       if(!point)return;
-      if(previousStoreId&&previousStoreId!==point.chainId&&appStores().some(s=>s.id===previousStoreId)&&!point.referenceStoreId){
-        point.referenceStoreId=previousStoreId;
-        persistPoint(point);
-      }
+      if(selectedCity)point.city=selectedCity;
+      point.version=POINT_VERSION;
+      const stores=appStores(),previousStore=stores.find(s=>s.id===previousStoreId);
+      if(previousStoreId&&previousStoreId!==point.chainId&&storeEligible(previousStore,selectedCity,selectedMode)&&!point.referenceStoreId)point.referenceStoreId=previousStoreId;
+      persistPoint(point);
       persistCurrentChain(point);
       sync();
       window.dispatchEvent(new CustomEvent("td:selected-store-point-current",{detail:{point}}));
-    },0);
+    };
+    if(typeof queueMicrotask==="function")queueMicrotask(finish);else setTimeout(finish,0);
   },true);
 
-  window.addEventListener("storage",e=>{if(e.key===KEY){reconcileSelectedPoint();sync();}});
+  window.addEventListener("storage",e=>{if(e.key===KEY||e.key==="td")sync();});
   window.addEventListener("td:retailer-prices-applied",sync);
   window.addEventListener("td:store-id-bridge-ready",sync);
-  window.TDSelectedStore={get:readPoint,clear:clearSelection,change:changeSelection,refresh:sync,basket:()=>{const p=readPoint();return p?basketState(p):null;},makeCurrent:()=>{const p=readPoint();if(p){persistCurrentChain(p);sync();}return p;}};
+  window.addEventListener("td:runtime-resume",sync);
+  window.TDSelectedStore={
+    get:reconcileSelectedPoint,
+    clear:clearSelection,
+    change:changeSelection,
+    refresh:sync,
+    validate:point=>pointContextStatus(normalizePoint(point)),
+    basket:()=>{const p=reconcileSelectedPoint();return p?basketState(p):null;},
+    makeCurrent:()=>{const p=readPoint();if(!p)return null;const status=pointContextStatus(p,{ignoreStoreMismatch:true});if(!status.ok)return dropSelection(status.reason,true);persistCurrentChain(p);sync();return p;}
+  };
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
