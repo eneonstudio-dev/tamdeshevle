@@ -25,6 +25,15 @@ assert(productUI.includes("function retryImages"), "product images need an expli
 assert(productUI.includes('window.addEventListener("online",retryImages)'), "failed image sources must retry after the browser comes back online");
 assert(productUI.includes("delete card.dataset.productUiSignature") && productUI.includes("delete img.dataset.tdPreparedSource"), "online recovery must invalidate stale image/decorator signatures before retrying");
 
+assert(productUI.includes('card.classList.toggle("td-in-cart",quantity>0)'), "product cards must expose whether the item is already in the cart");
+assert(productUI.includes("tdCartQty"), "product card state must retain its visible cart quantity");
+assert(productUI.includes("подтверждено сетью"), "verified retailer prices must use calm provenance copy");
+assert(productUI.includes("данные устаревают"), "stale retailer prices must be called out without pretending they are current");
+assert(productUI.includes("≈ оценка"), "unverified product prices must remain visibly approximate");
+assert(productUI.includes("в корзине ·"), "catalog cards must show the current cart quantity");
+assert(!productUI.includes("✓ подтверждено"), "Votonobay product trust must not use the rejected checkmark treatment");
+assert(productUI.includes("rgba(43,228,135,.10)"), "product trust states must use the Votonobay mint treatment rather than the old beige UI");
+
 assert(cards.includes("grid-template-columns:76px minmax(0,1fr) auto"), "product text column must be allowed to shrink instead of overflowing");
 assert(cards.includes("overflow-wrap:anywhere"), "long product names and price text must wrap safely");
 assert(cards.includes("@media (max-width:380px)"), "very narrow Android product cards need an explicit layout guard");
@@ -35,4 +44,4 @@ assert(cards.includes("object-fit:contain"), "product imagery must remain contai
 assert(!productUI.includes("TDBai") && !productUI.includes("bai-"), "product image resilience must stay independent from Bai");
 assert(!cards.includes("bai-"), "product card layout must stay independent from Bai");
 
-console.log("Product card resilience checks passed: aspect-safe images, multi-stage fallback, connectivity retry, BFCache resume and 360px layout guards are wired.");
+console.log("Product card resilience checks passed: dark trust states, in-cart feedback, aspect-safe images, multi-stage fallback, connectivity retry, BFCache resume and 360px layout guards are wired.");
