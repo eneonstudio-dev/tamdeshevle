@@ -18,31 +18,8 @@ on:
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
       - "supabase-config.js"
-      - "scripts/test-bai-core-parser.mjs"
-      - "scripts/test-bai-brain.mjs"
-      - "scripts/test-bai-self-check.mjs"
+      - "scripts/test-bai-*.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
-      - "scripts/test-bai-learning-loop.mjs"
-      - "scripts/test-bai-learning-safety.mjs"
-      - "scripts/test-bai-learning-backend.mjs"
-      - "scripts/test-bai-learning-admin.mjs"
-      - "scripts/test-bai-memory-undo.mjs"
-      - "scripts/test-bai-memory-outcomes.mjs"
-      - "scripts/test-bai-handoff-e2e.mjs"
-      - "scripts/test-bai-chat-runtime.mjs"
-      - "scripts/test-bai-agent-core.mjs"
-      - "scripts/test-bai-evolution.mjs"
-      - "scripts/test-bai-autopilot.mjs"
-      - "scripts/test-bai-shopping-journey.mjs"
-      - "scripts/test-bai-sufficiency.mjs"
-      - "scripts/test-bai-smart-substitutions.mjs"
-      - "scripts/test-bai-meal-brain.mjs"
-      - "scripts/test-bai-meal-pipeline.mjs"
-      - "scripts/test-bai-pantry.mjs"
-      - "scripts/test-bai-goal-memory.mjs"
-      - "scripts/test-bai-question-selector.mjs"
-      - "scripts/test-bai-personal-context-journey.mjs"
-      - "scripts/test-bai-character.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -63,31 +40,8 @@ on:
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
       - "supabase-config.js"
-      - "scripts/test-bai-core-parser.mjs"
-      - "scripts/test-bai-brain.mjs"
-      - "scripts/test-bai-self-check.mjs"
+      - "scripts/test-bai-*.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
-      - "scripts/test-bai-learning-loop.mjs"
-      - "scripts/test-bai-learning-safety.mjs"
-      - "scripts/test-bai-learning-backend.mjs"
-      - "scripts/test-bai-learning-admin.mjs"
-      - "scripts/test-bai-memory-undo.mjs"
-      - "scripts/test-bai-memory-outcomes.mjs"
-      - "scripts/test-bai-handoff-e2e.mjs"
-      - "scripts/test-bai-chat-runtime.mjs"
-      - "scripts/test-bai-agent-core.mjs"
-      - "scripts/test-bai-evolution.mjs"
-      - "scripts/test-bai-autopilot.mjs"
-      - "scripts/test-bai-shopping-journey.mjs"
-      - "scripts/test-bai-sufficiency.mjs"
-      - "scripts/test-bai-smart-substitutions.mjs"
-      - "scripts/test-bai-meal-brain.mjs"
-      - "scripts/test-bai-meal-pipeline.mjs"
-      - "scripts/test-bai-pantry.mjs"
-      - "scripts/test-bai-goal-memory.mjs"
-      - "scripts/test-bai-question-selector.mjs"
-      - "scripts/test-bai-personal-context-journey.mjs"
-      - "scripts/test-bai-character.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -117,6 +71,7 @@ jobs:
           node --check bai-goal-memory.js
           node --check bai-question-selector.js
           node --check bai-character.js
+          node --check bai-decision-quality.js
           node --check bai-life.js
           node --check bai-memory.js
           node --check bai-learning-safety.js
@@ -163,6 +118,7 @@ jobs:
           node --check scripts/test-bai-question-selector.mjs
           node --check scripts/test-bai-personal-context-journey.mjs
           node --check scripts/test-bai-character.mjs
+          node --check scripts/test-bai-decision-quality.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -190,3 +146,4 @@ jobs:
           node scripts/test-bai-question-selector.mjs
           node scripts/test-bai-personal-context-journey.mjs
           node scripts/test-bai-character.mjs
+          node scripts/test-bai-decision-quality.mjs
