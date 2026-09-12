@@ -23,6 +23,8 @@ function boot(savedValue) {
     window,
     history,
     document: {
+      hidden: false,
+      addEventListener() {},
       getElementById(id) { return id === "app" ? app : null; },
       querySelector() { return null; }
     },
