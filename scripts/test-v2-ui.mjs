@@ -37,5 +37,5 @@ assert.match(brand,/votonobay-bay-first-v3\.js/);
 assert.match(bayFirst,/Спросить Бая/);assert.match(bayFirst,/Искать самому/);assert.match(bayFirst,/Что лучше выбрать\?/);
 assert.match(bayFirst,/window\.TDShoppingAssistant\?\.open/);assert.match(bayFirst,/window\.tdBayFirstAsk/);
 assert.match(bayFirstCss,/--bay3-bg:#050a07/);assert.match(bayFirstCss,/\.v2-bay-primary/);assert.match(bayFirstCss,/@media\(min-width:821px\)\{\.td-ai/);
-assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.match(bai,/цена, удобство и время/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);
+assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.match(bai,/[Цц]ена, удобство и время/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);
 console.log("V2 UI contract passed: responsive Votonobay shell, Bay-first decision entry, self-service fallback, honest data labels, correct PWA identity and accessible navigation are wired.");
