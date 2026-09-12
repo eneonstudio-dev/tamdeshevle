@@ -11,7 +11,7 @@
     {stem:"лимон",ids:["lemon"]},{stem:"груш",ids:["pear"]},{stem:"виноград",ids:["grapes"]},{stem:"рис",ids:["rice"]},
     {stem:"овсян",ids:["oatmeal"]},{stem:"творог",ids:["tvorog","cottage"]},{stem:"сметан",ids:["smetana","sour"]},
     {stem:"греч",ids:["buckwheat","buck"]},{stem:"яйц",ids:["eggs_c1","eggs"]},{stem:"яиц",ids:["eggs_c1","eggs"]},
-    {stem:"куриц",ids:["chicken_fil","chicken"]},{stem:"хлеб",ids:["bread_dark","bread"]},{stem:"вод",ids:["water_still","water"]}
+    {stem:"куриц",ids:["chicken_fil","chicken"]},{stem:"хлеб",ids:["bread_dark","bread"]}
   ];
   const EDIT=/(?:^|[^а-я])(?:добав[а-я]*|докин[а-я]*|положи|убери|удали|исключи|выкинь|замени|поменяй|вместо|не\s+добав[а-я]*|без)(?=$|[^а-я])/i;
   const PLAN=/(?:собери|подбери|составь|рацион|меню|сам\s+реши|реши\s+сам|сравни|что\s+лучше|что\s+купить|подешевле|дешевле|бюджет|до\s*\d+\s*(?:р|руб|₽)|на\s+\d+\s*(?:дн|дня|дней|недел)|готовить|магазин)/i;
@@ -34,7 +34,7 @@
     const list=catalog(),byId=new Map(list.map(p=>[String(p.id),p])),stemIds=new Map();
     for(const p of list){
       const words=low(p?.name).split(/[^а-яa-z0-9_-]+/).filter(Boolean);
-      for(const word of words){const stem=simpleStem(word);if(stem.length<4)continue;const set=stemIds.get(stem)||new Set();set.add(String(p.id));stemIds.set(stem,set)}
+      for(const word of words){const stem=simpleStem(word);if(stem.length<3)continue;const set=stemIds.get(stem)||new Set();set.add(String(p.id));stemIds.set(stem,set)}
     }
     return{list,byId,stemIds};
   }
@@ -86,10 +86,15 @@
     if(!brain?.route||brain.__baiLiteralBasketWrapped)return brain;const original=brain.route.bind(brain);Object.defineProperty(brain,"__baiLiteralBasketWrapped",{value:true,configurable:true});
     brain.route=async function(raw,history=[],...rest){const literal=route(raw);return literal||original(raw,history,...rest)};return brain;
   }
-  function install(){
-    const current=window.TDBaiBrain;if(current){wrapBrain(current);return true}
-    const desc=Object.getOwnPropertyDescriptor(window,"TDBaiBrain");if(desc?.set&&desc?.get&&desc.configurable){Object.defineProperty(window,"TDBaiBrain",{configurable:true,enumerable:desc.enumerable,get:desc.get,set(next){desc.set.call(window,next);const ready=desc.get.call(window);if(ready)wrapBrain(ready)}});return true}
-    let value;try{Object.defineProperty(window,"TDBaiBrain",{configurable:true,enumerable:true,get(){return value},set(next){value=wrapBrain(next)}});return true}catch{return false}
+  function wrapOptimizer(optimizer){
+    if(!optimizer?.optimize||optimizer.__baiLiteralBasketWrapped)return optimizer;const original=optimizer.optimize.bind(optimizer);Object.defineProperty(optimizer,"__baiLiteralBasketWrapped",{value:true,configurable:true});
+    optimizer.optimize=function(state,...rest){if(state?.intent!=="literal")return original(state,...rest);const literalState={...state,budget:null,peopleCount:1,duration:1};return original(literalState,...rest)};return optimizer;
   }
+  function installGlobal(name,wrapper){
+    const current=window[name];if(current){wrapper(current);return true}
+    const desc=Object.getOwnPropertyDescriptor(window,name);if(desc?.set&&desc?.get&&desc.configurable){Object.defineProperty(window,name,{configurable:true,enumerable:desc.enumerable,get:desc.get,set(next){desc.set.call(window,next);const ready=desc.get.call(window);if(ready)wrapper(ready)}});return true}
+    let value;try{Object.defineProperty(window,name,{configurable:true,enumerable:true,get(){return value},set(next){value=wrapper(next)}});return true}catch{return false}
+  }
+  function install(){installGlobal("TDBaiBrain",wrapBrain);installGlobal("TDShoppingOptimizer",wrapOptimizer);return true}
   window.TDBaiLiteralBasket={parse,isLiteral,route,install};install();
 })();
