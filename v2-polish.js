@@ -112,6 +112,6 @@
   window.addEventListener("pagehide",()=>{
     if(headerScrollFrame)cancelAnimationFrame(headerScrollFrame);
     headerScrollFrame=0;
-  },{once:true});
+  });
   hydrate();
 })();
