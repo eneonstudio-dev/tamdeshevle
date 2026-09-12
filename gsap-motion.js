@@ -96,6 +96,11 @@
     });
   }
 
+  function cancelQueuedPlay() {
+    if (playFrame) cancelAnimationFrame(playFrame);
+    playFrame = 0;
+  }
+
   loadV2Polish();
   const prev = window.render;
   window.render = function () {
@@ -103,15 +108,8 @@
     queuePlay();
   };
   window.addEventListener("td:v2-rendered", queuePlay);
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden && playFrame) {
-      cancelAnimationFrame(playFrame);
-      playFrame = 0;
-    }
-  });
-  window.addEventListener("pagehide", () => {
-    if (playFrame) cancelAnimationFrame(playFrame);
-    playFrame = 0;
-  }, { once: true });
+  document.addEventListener("visibilitychange", () => document.hidden ? cancelQueuedPlay() : queuePlay());
+  window.addEventListener("pagehide", cancelQueuedPlay);
+  window.addEventListener("pageshow", queuePlay);
   queuePlay();
 })();
