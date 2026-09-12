@@ -2,10 +2,12 @@ import fs from "node:fs";
 
 const source = fs.readFileSync("geo-store-map.js", "utf8");
 const oneTap = fs.readFileSync("map-one-tap.js", "utf8");
+const selectedStore = fs.readFileSync("selected-store-ui.js", "utf8");
 function assert(condition, message) { if (!condition) throw new Error(message); }
 
 new Function(source);
 new Function(oneTap);
+new Function(selectedStore);
 
 assert(source.includes("openPointDetails"), "point details UI must exist");
 assert(source.includes("data-use-point"), "verified point selection action must exist");
@@ -30,4 +32,9 @@ assert(oneTap.includes("closeMapFlow"), "one-tap compare must use centralized ma
 assert(oneTap.includes("TDGeo?.closeMap") && oneTap.includes("TDGeo?.closePointDetails"), "one-tap navigation must call the geo lifecycle API instead of bypassing it");
 assert(oneTap.includes("clearGeoHistory"), "one-tap compare must not leave stale geo history state");
 
-console.log("Geo store map checks passed: provenance safety, abortable lookup, Leaflet cleanup, accessible dialogs and lifecycle-safe one-tap exits are wired.");
+assert(selectedStore.includes("previousStoreId"), "point selection must capture the store that was active before switching chains");
+assert(selectedStore.includes("point.referenceStoreId=previousStoreId"), "selected point metadata must retain the original comparison reference");
+assert(selectedStore.includes("referenceStoreId=point.referenceStoreId"), "point basket must compare against the preserved reference instead of the newly selected chain");
+assert(selectedStore.includes("previousStoreId!==point.chainId"), "same-chain point selection must not create fake self-savings");
+
+console.log("Geo store map checks passed: provenance safety, abortable lookup, selected-point reference preservation, accessible dialogs and lifecycle-safe one-tap exits are wired.");
