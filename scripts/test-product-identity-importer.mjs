@@ -22,10 +22,12 @@ const run = spawnSync(process.execPath, [
 
 if (run.status !== 0) throw new Error(run.stderr || run.stdout || 'importer failed');
 const manifest = JSON.parse(fs.readFileSync(path.join(output, 'manifest.json'), 'utf8'));
-if (manifest.accepted_unique_gtins !== 1) throw new Error(`expected 1 valid GTIN, got ${manifest.accepted_unique_gtins}`);
-if (manifest.rejected_rows !== 2) throw new Error(`expected 2 rejected rows, got ${manifest.rejected_rows}`);
+if (manifest.accepted_unique_gtins !== 2) throw new Error(`expected 2 valid GTINs, got ${manifest.accepted_unique_gtins}`);
+if (manifest.rejected_rows !== 1) throw new Error(`expected 1 rejected row, got ${manifest.rejected_rows}`);
 if (manifest.safety.verifies_price !== false) throw new Error('identity import must never verify price');
-const shard = JSON.parse(fs.readFileSync(path.join(output, '400.json'), 'utf8'));
-if (shard.records[0].barcode !== '4006381333931') throw new Error('expected exact barcode in shard');
-if (shard.records[0].product_name !== 'Valid EAN') throw new Error('expected product name mapping');
+const shard400 = JSON.parse(fs.readFileSync(path.join(output, '400.json'), 'utf8'));
+if (shard400.records[0].barcode !== '4006381333931') throw new Error('expected exact barcode in 400 shard');
+if (shard400.records[0].product_name !== 'Valid EAN') throw new Error('expected product name mapping');
+const shard460 = JSON.parse(fs.readFileSync(path.join(output, '460.json'), 'utf8'));
+if (shard460.records[0].barcode !== '4601234567893') throw new Error('expected valid Russian-market EAN in 460 shard');
 console.log('product identity importer: ok');
