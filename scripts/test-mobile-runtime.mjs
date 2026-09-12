@@ -96,6 +96,10 @@ assert.match(mobileDock,/__TDV2MobileDockInitialized/,"mobile dock must be idemp
 assert.doesNotMatch(mobileDock,/visualViewport/,"mobile dock must not duplicate visual viewport listeners owned by runtime bridge");
 assert.match(mobileDock,/td:runtime-resume/,"mobile dock must rehydrate when runtime resumes");
 assert.match(mobileDock,/pageshow/,"mobile dock must recover after BFCache/page restore");
+assert.match(mobileDock,/const ROUTES=\["home",null,"catalog","cart","profile"\]/,"mobile dock must preserve the canonical Bay-first route order");
+assert.match(mobileDock,/data-action="bai"/,"fallback mobile dock must keep Bai as the second primary action");
+assert.match(mobileDock,/button\.dataset\.screen===screen/,"mobile dock active state must follow the current route instead of a hardcoded Home state");
+assert.doesNotMatch(mobileDock,/data-screen="stores"/,"fallback mobile dock must not regress to the legacy Map slot in place of Bai");
 
 assert.match(priceSync,/__TDPriceSyncInitialized/,"price sync must be idempotent");
 assert.doesNotMatch(priceSync,/setInterval\s*\(/,"price sync must not poll continuously with setInterval");
@@ -112,4 +116,4 @@ assert.match(androidCss,/\.v2-bottom-nav/,"Android keyboard state must protect b
 assert.match(touchCss,/bottom:calc\(64px \+ env\(safe-area-inset-bottom\)\)!important/,"coarse-pointer mascot must preserve the bottom safe area");
 assert.match(touchCss,/max-height:calc\(var\(--td-vvh,100dvh\) - 104px\)!important/,"coarse-pointer Bay panel must use visual viewport height");
 
-console.log("Mobile runtime lifecycle passed: one viewport owner, keyboard/safe areas, BFCache resume and suspended price sync are guarded.");
+console.log("Mobile runtime lifecycle passed: one viewport owner, Bay-first dock state, keyboard/safe areas, BFCache resume and suspended price sync are guarded.");
