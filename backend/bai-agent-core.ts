@@ -1,5 +1,6 @@
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
 import { withSupabase } from "@supabase/server";
+import { BAI_SYSTEM_PROMPT_V1, BAI_SYSTEM_PROMPT_VERSION } from "./bai-system-prompt-v1.ts";
 
 const AUTH_URL = "https://pdsxeddldrmehdqaaksl.supabase.co";
 const AUTH_PUBLISHABLE_KEY = "sb_publishable_PDQ3o1sAFvGFw2MelUNw0g_Vr2Vd7vw";
@@ -13,19 +14,7 @@ const PRODUCT_FALLBACK = new Set(["milk","bread","chicken","banana","oil","eggs"
 const STORE_IDS = new Set(["pyat","magnit","perek","lenta","dixy","lavka","vprok"]);
 const COOKING = new Set(["normal","minimal","none","easy"]);
 const MODES = new Set(["one","multi"]);
-const BAI_CHARACTER = `Ты Бай. Ты не маскот и не типичный AI-ассистент, а самостоятельный интернет-персонаж внутри Votonobay.
-Твоя работа — защищать человека не просто от высокой цены, а от плохого решения: бессмысленной переплаты, лишней поездки, неудобной корзины, сомнительной выгоды и ненужной сложности.
-Сначала помоги. Потом, только если уместно, прояви характер. Структура ответа: факт -> действие/рекомендация -> необязательная короткая реакция Бая.
-Пиши коротко и по-человечески. Юмор сухой и наблюдательный, обычно максимум одна короткая шутка после полезной части. Большинство ответов могут быть без шутки.
-Считай, что человек не тупой, а занятой. Никогда не унижай пользователя. Можно редко стебать нелепые условия, себя, Votonobay или разработчиков, но не человека.
-Если конкурент реально выгоднее — скажи это. Дороже допустимо, если вариант разумнее; экономия не культ.
-Если ситуация касается оплаты, потерянных денег, безопасности, здоровья или сильного стресса — полностью выключи стёб.
-Мат — только если пользователь сам так говорит, редко, максимум одно уместное слово и никогда в адрес пользователя.
-Не используй «Отличный вопрос», «С удовольствием», «Рад помочь», «Давайте разберёмся», «уважаемый пользователь», «ваш запрос очень важен», «благодарим за терпение».
-Почти не используй эмодзи и восклицательные знаки. Не изображай молодёжный сленг и не называй себя AI-помощником без необходимости.
-Если ошибся — прямо назови ошибку и исправь её до самоиронии. Если не уверен — скажи об этом. Не выдумывай факты.
-Фирменные штуки вроде «понюхаю интернет», шуток про разработчиков и «Во. Вот это уже нормально.» — редкие пасхалки, а не обязательные catchphrases.
-Узнаваемость Бая идёт от полезного скепсиса, сухой заботы, самостоятельности и ненависти к бессмысленности.`;
+const BAI_CHARACTER = BAI_SYSTEM_PROMPT_V1;
 
 type ToolCall={name:string;arguments?:Record<string,unknown>};
 type Op={type:string;value?:unknown};
@@ -265,9 +254,9 @@ export default {fetch:withSupabase({auth:"none"},async(req,ctx)=>{
   const started=Date.now();
   const result=await graph.invoke({message,history:payload?.history||[],basket:payload?.basket||{},catalog:payload?.catalog||[],baseline:payload?.baseline||{},rawModel:"",reply:"",operations:[],suggestions:[],expectsAnswer:false,model:"",error:"",trace:[]});
   const latency=Math.min(120000,Math.max(0,Date.now()-started));
-  if(result.error==="model_not_configured")return json(req,{ok:false,error:"model_not_configured",fallback:"rules",version:"brain-2.0-agent-core-v1",trace:result.trace},503);
+  if(result.error==="model_not_configured")return json(req,{ok:false,error:"model_not_configured",fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},503);
   const outcome=result.error?"error":"ok";
   await ctx.supabaseAdmin.from("bai_agent_usage").insert({actor_hash:actorHash,outcome,model:clean(result.model,80)||null,latency_ms:latency});
-  if(result.error)return json(req,{ok:false,error:result.error,fallback:"rules",version:"brain-2.0-agent-core-v1",trace:result.trace},502);
-  return json(req,{ok:true,version:"brain-2.0-agent-core-v1",model:result.model,reply:result.reply,operations:result.operations,suggestions:result.suggestions,expectsAnswer:result.expectsAnswer,trace:result.trace});
+  if(result.error)return json(req,{ok:false,error:result.error,fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},502);
+  return json(req,{ok:true,version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,model:result.model,reply:result.reply,operations:result.operations,suggestions:result.suggestions,expectsAnswer:result.expectsAnswer,trace:result.trace});
 })};
