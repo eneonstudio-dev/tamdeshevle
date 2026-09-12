@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const read = path => fs.readFileSync(path, "utf8");
+const app = read("app.js");
 const gsap = read("gsap-motion.js");
 const polish = read("v2-polish.js");
 const product = read("product-ui.js");
@@ -11,6 +12,12 @@ const baiLife = read("bai-life.js");
 const index = read("index.html");
 
 assert.match(index, /<script src="v2-polish\.js\?/, "v2-polish must already be loaded by the page");
+assert.doesNotMatch(app, /setInterval\(updateSaleTimer/, "sale timer must not run as a permanent interval");
+assert.match(app, /function scheduleSaleTimer\(\)/, "sale timer must use an on-demand timeout loop");
+assert.match(app, /if \(document\.hidden \|\| !document\.querySelector\("\[data-sale-timer\]"\)\) return stopSaleTimer\(\)/, "sale timer must stop when hidden or absent from DOM");
+assert.match(app, /window\.addEventListener\("pagehide", stopSaleTimer\)/, "sale timer must stop on pagehide");
+assert.match(app, /window\.addEventListener\("pageshow", syncSaleTimer\)/, "sale timer must recover after page restore");
+
 assert.match(gsap, /__TDGsapMotionInitialized/, "GSAP motion must be idempotent");
 assert.match(gsap, /script\[src\*="\$\{file\}"\]/, "GSAP loader must recognize statically loaded polish scripts");
 assert.match(gsap, /link\[href\*="\$\{file\}"\]/, "GSAP loader must recognize statically loaded polish styles");
@@ -51,4 +58,4 @@ assert.match(baiLife, /if\(document\.hidden\|\|motionQuery\?\.matches\)return/, 
 assert.match(baiLife, /window\.addEventListener\("pagehide",pause\)/, "Bai timers must stop on pagehide");
 assert.match(baiLife, /window\.addEventListener\("pageshow",resume\)/, "Bai timers must resume after page restore");
 
-console.log("Runtime performance guards passed: duplicate init, observer scope, BFCache lifecycle, hidden-tab work and image priority are controlled.");
+console.log("Runtime performance guards passed: timer lifecycle, duplicate init, observer scope, BFCache recovery, hidden-tab work and image priority are controlled.");
