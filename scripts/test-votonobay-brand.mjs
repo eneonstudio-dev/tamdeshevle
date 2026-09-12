@@ -5,6 +5,7 @@ const shell = fs.readFileSync("v2-shell.js", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
 const legacy = fs.readFileSync("brand-prosche-v1.js", "utf8");
 const css = fs.readFileSync("votonobay-brand-v1.css", "utf8");
+const touchCss = fs.readFileSync("touch-layout-fix.css", "utf8");
 const manifest = JSON.parse(fs.readFileSync("manifest.json", "utf8"));
 const favicon = fs.readFileSync("favicon.svg", "utf8");
 
@@ -19,6 +20,10 @@ new Function(legacy);
 assert(/<title>Votonobay — как лучше собрать корзину<\/title>/.test(html), "HTML title must expose Votonobay before JavaScript runs");
 assert(/<meta name="theme-color" content="#102018"/.test(html), "first paint must use the canonical graphite-green theme color");
 assert(/votonobay-brand-v1\.css\?v=/.test(html), "Votonobay visual foundation must load from the document head");
+assert(/touch-layout-fix\.css\?v=/.test(html), "late bootstrap stylesheet must be available for first-paint correction");
+assert(/html\{background:#050a07;color-scheme:dark\}/.test(touchCss), "document first paint must start on the approved dark canvas");
+assert(/body\{background:#050a07!important;color:#f5faf6\}/.test(touchCss), "legacy beige body paint must be overridden before runtime decoration");
+assert(/\.phone\{background:#050a07!important\}/.test(touchCss), "empty app shell must not flash the legacy light surface");
 assert(/Votonobay помогает понять, как лучше собрать корзину/.test(html), "HTML metadata must carry the how-better positioning");
 assert(!/<title>[^<]*(Тамдешевле|Там дешевле|Проще)/.test(html), "legacy brand must not appear in the document title");
 assert(manifest.name === "Votonobay" && manifest.short_name === "Votonobay", "PWA identity must use Votonobay");
@@ -41,4 +46,4 @@ assert(/body\.td-votonobay/.test(css), "Votonobay visual foundation must be scop
 assert(!/[財财]/.test(brand + css + shell), "brand layer must not expose a visible Chinese easter egg");
 assert(!/content:\s*["']V["']/.test(css), "brand CSS must not invent an unapproved V monogram");
 
-console.log("Votonobay brand tests passed: first-paint identity, peeking Bay PWA icon, dark launch surface, one master brand and Bay-first positioning are protected.");
+console.log("Votonobay brand tests passed: dark first paint, peeking Bay PWA icon, one master brand and Bay-first positioning are protected.");
