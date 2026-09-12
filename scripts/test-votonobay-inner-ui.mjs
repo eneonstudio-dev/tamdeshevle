@@ -14,8 +14,12 @@ assert.match(js,/td:v2-rendered/,"inner screen layer must follow the existing re
 assert.doesNotMatch(js,/MutationObserver/,"inner screen layer must not add a DOM observer loop");
 assert.doesNotMatch(js,/TDBai|bai:|bai-|\.td-ai|assets\/bai/,"inner screen layer must not modify Bai");
 assert.doesNotMatch(css,/\.td-ai|bai-|assets\/bai/,"inner screen styles must not target Bai");
-assert.match(js,/Сравнение вариантов/,"comparison screen must use the Votonobay decision framing");
-assert.match(js,/Собери список — Votonobay сравнит варианты целиком/,"catalog must explain whole-basket comparison");
+assert.match(js,/Лучший вариант/,"comparison screen must use decision framing instead of a cheaper-only heading");
+assert.match(js,/Собери нужное — дальше сравним цену, способ покупки и удобство/,"catalog must explain the full purchase decision");
+assert.match(js,/Решить, как лучше купить/,"cart primary CTA must lead to a decision, not a cheaper-only comparison");
+assert.match(js,/Проверить →/,"catalog cart shortcut must avoid turning savings into the only goal");
+assert.match(js,/Есть вариант с экономией .*проверим, стоит ли переключаться/,"savings must be framed as a tradeoff to evaluate");
+assert.match(js,/Добавь нужные товары — Votonobay сравнит цену, способ покупки и удобство/,"empty cart must teach the current product promise");
 assert.match(js,/Votonobay сам ничего не везёт/,"comparison disclaimer must use the current master brand");
 assert.match(js,/type="search"|input\.type="search"/,"catalog search must expose search semantics");
 assert.match(js,/aria-pressed/,"purchase mode toggle must expose its state accessibly");
@@ -25,11 +29,20 @@ assert.match(js,/До минимального заказа не хватает/
 assert.match(js,/TDCompare\?\.fromWindow/,"delivery constraint copy must be driven by the same comparison result as ranking");
 assert.match(js,/Оценка здесь/,"cart must downgrade an operationally incomplete delivery from confirmed total to estimate");
 assert.match(js,/indicativeTotal/,"cart may expose the known arithmetic only as an indicative amount");
+assert.match(js,/voto-cart-summary/,"legacy inline cart total must receive a semantic Votonobay surface hook");
+assert.match(js,/voto-product-row/,"catalog product rows must receive a stable Votonobay surface hook");
+assert.match(css,/color-scheme:dark/,"inner shopping surfaces must be dark-first");
+assert.match(css,/--voto-bg:#050a07/,"inner surfaces must use the approved near-black base");
+assert.match(css,/--voto-mint:#2be487/,"inner surfaces must use the restrained mint semantic accent");
+assert.match(css,/\.voto-cart-summary\{background:rgba\(255,255,255,\.045\)!important/,"cart total must override the old white inline card");
+assert.match(css,/\.voto-cart-opportunity\{background:rgba\(43,228,135,\.085\)!important/,"cart opportunity must live in the dark Votonobay visual system");
 assert.match(css,/\.voto-delivery-constraint/,"delivery constraint explanation must have a dedicated readable treatment");
 assert.match(css,/\.voto-cart-constraint/,"cart delivery constraint must have a dedicated readable treatment");
 assert.match(css,/body\[data-votonobay-screen="stores"\] \.wrap\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"store choice must use a desktop grid");
 assert.match(css,/body\[data-votonobay-screen="catalog"\] \.products\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"catalog must use a desktop grid");
 assert.match(css,/@media\(max-width:780px\)/,"inner screen layer must collapse cleanly for mobile");
+assert.match(css,/env\(safe-area-inset-bottom\)/,"mobile shopping dock must respect device safe areas");
+assert.match(css,/min-width:44px!important/,"mobile quantity controls must keep touch targets usable");
 assert.match(css,/prefers-reduced-motion:reduce/,"inner screen motion must respect reduced-motion preferences");
 
-console.log("Votonobay inner UI tests passed: responsive store/catalog/cart/compare styling, visible delivery constraints, guarded store state, current brand copy, accessible controls and no Bai coupling.");
+console.log("Votonobay inner UI tests passed: dark self-service stores/catalog/cart/compare, decision-first copy, mobile-safe controls, visible delivery constraints and no Bai coupling.");
