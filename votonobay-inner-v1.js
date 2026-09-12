@@ -145,6 +145,10 @@
       plan.classList.add("voto-comparison-plan");
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
+      const badge=plan.querySelector(".badge");
+      if(badge)setText(badge,"рекомендую");
+      const why=[...plan.querySelectorAll("button")].find(button=>/Почему так/i.test(button.textContent||""));
+      if(why)setText(why,"Почему этот вариант");
       plan.querySelector(".voto-delivery-constraint")?.remove();
       const copy=deliveryConstraint(rows[index]);
       if(copy){
