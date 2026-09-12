@@ -50,7 +50,9 @@ context.window=Object.assign(windowTarget,{
   innerHeight:800,
   visualViewport:Object.assign(viewportTarget,{height:800,offsetTop:0}),
   speechSynthesis:{cancel(){}},
-  loadPrices(){priceRefreshes+=1;return Promise.resolve(true)}
+  loadPrices(){priceRefreshes+=1;return Promise.resolve(true)},
+  TDCompare:context.TDCompare,
+  state:context.state
 });
 context.globalThis=context;
 vm.createContext(context);
