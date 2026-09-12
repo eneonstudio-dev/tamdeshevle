@@ -9,6 +9,7 @@
   const ADD=/(?:^|[^а-я])(?:добав[а-я]*|докин[а-я]*|положи)(?=$|[^а-я])/i;
   const REPLACE=/(?:^|[^а-я])(?:замени|поменяй)(?=$|[^а-я])|вместо/i;
   const NUMBER={один:1,одну:1,одна:1,одно:1,два:2,две:2,три:3,четыре:4,пять:5,шесть:6};
+  const LEGACY={bread:"bread_dark",chicken:"chicken_fil",oil:"oil_sunflower",eggs:"eggs_c1",buck:"buckwheat",sour:"smetana"};
   let wrapped=false,lastProduct=null,pendingReplacement=null;
 
   function parsedItems(raw){
@@ -35,6 +36,8 @@
   }
   function cheapest(ids){return [...ids].sort((a,b)=>priceFor(a)-priceFor(b))[0]||null}
   function meaningful(ops){return (ops||[]).some(op=>PRODUCT_OPS.has(op?.type))}
+  function canonical(id){const value=String(id||"");const wanted=LEGACY[value]||value;return window.TDStoreAdapters?.catalog?.().some?.(x=>String(x.id)===wanted)?wanted:value}
+  function canonicalOperations(operations){return(operations||[]).map(op=>{if(!op||!PRODUCT_OPS.has(op.type))return op;if(op.type==="SET_ONLY_PRODUCTS")return{...op,value:(Array.isArray(op.value)?op.value:[op.value]).map(canonical)};if(op.type==="REPLACE_PRODUCT")return{...op,value:{...op.value,from:canonical(op.value?.from),to:canonical(op.value?.to)}};if(["CHANGE_QUANTITY","SET_PRODUCT_AMOUNT"].includes(op.type))return{...op,value:{...op.value,id:canonical(op.value?.id)}};return{...op,value:canonical(op.value)}})}
   function normalizeQuantity(raw,result,items){
     const count=explicitCount(raw);if(!count||items.length!==1)return result;
     const id=items[0],ops=Array.isArray(result?.operations)?result.operations:[];
@@ -72,7 +75,8 @@
     if(REPLACE.test(t)&&result?.expectsAnswer){
       pendingReplacement=items[0]||lastProduct;
     }
-    return normalizeQuantity(raw,result,items);
+    const normalized={...(result||{}),operations:canonicalOperations(result?.operations)};
+    return normalizeQuantity(raw,normalized,items);
   }
   function remember(result){
     for(const op of result?.operations||[]){

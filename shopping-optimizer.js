@@ -2,14 +2,17 @@
   "use strict";
   const quick=["dumplings","eggs","bread","milk","water","banana","apple","noodles","waffles"];
   const normal=["chicken","eggs","bread","milk","water","banana","apple","buck","pasta"];
+  const LEGACY={bread:"bread_dark",chicken:"chicken_fil",oil:"oil_sunflower",eggs:"eggs_c1",buck:"buckwheat",sour:"smetana"};
   const uniq=a=>[...new Set((a||[]).filter(Boolean))];
   const norm=v=>String(v||"").toLowerCase().trim().replace(/,/g,".");
+  const grounded=(id,all)=>all.some(p=>p.id===(LEGACY[id]||id))?(LEGACY[id]||id):id;
   function excludedBrand(s,p){const brand=norm(p?.brand);return brand&&(s.excludedBrands||[]).some(x=>brand.includes(norm(x))||norm(x).includes(brand));}
   function desired(s){
     const all=TDStoreAdapters.catalog();
     const excluded=s.excludedProducts||[],required=s.requiredProducts||[],preferred=s.preferredProducts||[],existingProducts=s.existingProducts||[];
     if(s.selectionMode==="only"&&s.onlyProducts?.length)return uniq(s.onlyProducts).filter(id=>{const p=all.find(x=>x.id===id);return p&&!excluded.includes(id)&&!excludedBrand(s,p)});
-    let ids=s.cookingPreference==="minimal"?[...quick]:[...normal];
+    let ids=(s.cookingPreference==="minimal"?quick:normal).map(id=>grounded(id,all));
+    ids.push(...required.filter(id=>all.some(p=>p.id===id)),...preferred.filter(id=>all.some(p=>p.id===id)));
     const words=[...required,...preferred].join(" ").toLowerCase();
     all.forEach(p=>{if((p.tags||[]).some(t=>words.includes(t))||words.includes(p.name.toLowerCase()))ids.push(p.id)});
     const existing=existingProducts.join(" ").toLowerCase();
@@ -18,7 +21,7 @@
   function quote(ids,storeId,s){const adapter=TDStoreAdapters.adapter(storeId);const lines=ids.map(id=>{const p=adapter.getProduct(id),q=adapter.getPrice(id,"shelf");return p&&!excludedBrand(s,p)&&{id,name:p.name,pack:p.pack,emoji:p.emoji||"•",brand:p.brand||"Без привязки к бренду",quantity:1,storeId,unitPrice:q.value,price:q.value,quality:q.quality,sourceId:(typeof PRODUCTS!=="undefined"&&PRODUCTS.some(x=>x.id===id))?id:null}}).filter(x=>x&&Number.isFinite(x.price));return{lines,total:lines.reduce((n,x)=>n+x.price,0)};}
   function packMeasure(pack){const t=norm(pack);let m=t.match(/(\d+(?:\.\d+)?)\s*(кг|kg|г|гр|g)\b/);if(m){let v=Number(m[1]);if(/кг|kg/.test(m[2]))v*=1000;return{kind:"mass",base:v}}m=t.match(/(\d+(?:\.\d+)?)\s*(мл|ml|л|l)\b/);if(m){let v=Number(m[1]);if(/^(л|l)$/.test(m[2]))v*=1000;return{kind:"volume",base:v}}m=t.match(/(\d+)\s*(?:шт|pcs|pieces|яиц|яйц)/);if(m)return{kind:"pcs",base:Number(m[1])};return null}
   function targetBase(target){const a=Number(target?.amount)||0,u=target?.unit;if(!a)return null;if(u==="kg")return{kind:"mass",unit:u,amount:a,base:a*1000,label:`${a} кг`};if(u==="g")return{kind:"mass",unit:u,amount:a,base:a,label:`${a} г`};if(u==="l")return{kind:"volume",unit:u,amount:a,base:a*1000,label:`${a} л`};if(u==="ml")return{kind:"volume",unit:u,amount:a,base:a,label:`${a} мл`};if(u==="pcs")return{kind:"pcs",unit:u,amount:a,base:a,label:`${a} шт.`};if(u==="pack")return{kind:"pack",unit:u,amount:a,base:a,label:`${a} уп.`};return null}
-  function fallbackQuantity(t,line){if(t.kind==="mass")return Math.max(1,Math.ceil(t.unit==="kg"?t.amount:t.amount/1000));if(t.kind==="volume")return Math.max(1,Math.ceil(t.unit==="l"?t.amount:t.amount/1000));if(t.kind==="pcs"&&line.id==="eggs")return Math.max(1,Math.ceil(t.amount/10));if(t.kind==="pcs"&&["banana","apple"].includes(line.id))return Math.max(1,Math.ceil(t.amount/5));return Math.max(1,Math.ceil(t.amount))}
+  function fallbackQuantity(t,line){if(t.kind==="mass")return Math.max(1,Math.ceil(t.unit==="kg"?t.amount:t.amount/1000));if(t.kind==="volume")return Math.max(1,Math.ceil(t.unit==="l"?t.amount:t.amount/1000));if(t.kind==="pcs"&&["eggs","eggs_c1"].includes(line.id))return Math.max(1,Math.ceil(t.amount/10));if(t.kind==="pcs"&&["banana","apple"].includes(line.id))return Math.max(1,Math.ceil(t.amount/5));return Math.max(1,Math.ceil(t.amount))}
   function applyTargets(lines,s){const targets=s.quantityTargets||{};for(const line of lines){const t=targetBase(targets[line.id]);if(!t)continue;let q=1,approx=false;if(t.kind==="pack")q=Math.ceil(t.base);else{const p=packMeasure(line.pack);if(p&&p.kind===t.kind&&p.base>0)q=Math.ceil(t.base/p.base);else{q=fallbackQuantity(t,line);approx=true}}line.quantity=Math.max(line.quantity||1,q);line.requestedMinQuantity=line.quantity;line.requestedApproximate=approx;line.requestedAmountLabel=(approx?"≈ ":"")+t.label;if(q>1)line.requestedAmountLabel+=` → ${q} уп.`}return lines}
   function fit(lines,budget,required){if(!budget)return lines;const req=new Set(required||[]);const scored=lines.map((x,i)=>({...x,_i:i,_must:req.has(x.id)||Boolean(x.requestedMinQuantity)}));while(scored.reduce((n,x)=>n+x.price*x.quantity,0)>budget){const removable=scored.filter(x=>!x._must).sort((a,b)=>b.price-a.price)[0];if(!removable)break;scored.splice(scored.indexOf(removable),1)}return scored.map(({_i,_must,...x})=>x);}
   function targetBudget(s,overhead=0){if(!s.budget)return Infinity;return Math.max(0,Math.floor(s.budget*.9)-overhead);}
@@ -37,8 +40,8 @@
   }
   function scaleQuantities(lines,s,overhead=0){
     if(s.selectionMode==="only")return scaleOnly(lines,s,overhead);
-    if(!lines.length)return lines;const people=Math.max(1,Number(s.peopleCount)||1),days=Math.max(1,Number(s.duration)||1);const demand=Math.max(1,people*days);const target=targetBudget(s,overhead);let total=lines.reduce((n,x)=>n+x.price*x.quantity,0);const priority=["water","bread","eggs","milk","chicken","dumplings","pasta","buck","banana","apple","noodles"];
-    const byId=new Map(lines.map(x=>[x.id,x]));const softCaps={water:Math.ceil(demand/2),bread:Math.ceil(demand/4),eggs:Math.ceil(demand/3),milk:Math.ceil(demand/4),chicken:Math.ceil(demand/3),dumplings:Math.ceil(demand/3),pasta:Math.ceil(demand/4),buck:Math.ceil(demand/4),banana:Math.ceil(demand/3),apple:Math.ceil(demand/3),noodles:Math.ceil(demand/3)};
+    if(!lines.length)return lines;const people=Math.max(1,Number(s.peopleCount)||1),days=Math.max(1,Number(s.duration)||1);const demand=Math.max(1,people*days);const target=targetBudget(s,overhead);let total=lines.reduce((n,x)=>n+x.price*x.quantity,0);const priority=["water","bread_dark","bread","eggs_c1","eggs","milk","chicken_fil","chicken","dumplings","pasta","buckwheat","buck","banana","apple","noodles"];
+    const byId=new Map(lines.map(x=>[x.id,x]));const softCaps={water:Math.ceil(demand/2),bread_dark:Math.ceil(demand/4),bread:Math.ceil(demand/4),eggs_c1:Math.ceil(demand/3),eggs:Math.ceil(demand/3),milk:Math.ceil(demand/4),chicken_fil:Math.ceil(demand/3),chicken:Math.ceil(demand/3),dumplings:Math.ceil(demand/3),pasta:Math.ceil(demand/4),buckwheat:Math.ceil(demand/4),buck:Math.ceil(demand/4),banana:Math.ceil(demand/3),apple:Math.ceil(demand/3),noodles:Math.ceil(demand/3)};
     let changed=true,rounds=0;while(changed&&rounds<80){changed=false;rounds++;for(const id of priority){const line=byId.get(id);if(!line)continue;const cap=Math.max(line.requestedMinQuantity||1,softCaps[id]||Math.ceil(demand/4));if(line.quantity>=cap)continue;if(total+line.price>target)continue;line.quantity++;total+=line.price;changed=true;}if(total>=target)break;}
     if(s.budget&&total<target*.72){const cheapest=[...lines].sort((a,b)=>a.price-b.price);let guard=0;while(total<target*.86&&guard++<80){let added=false;for(const line of cheapest){const absoluteCap=Math.max(line.requestedMinQuantity||1,2,Math.ceil(demand/2));if(line.quantity>=absoluteCap||total+line.price>target)continue;line.quantity++;total+=line.price;added=true;if(total>=target*.86)break;}if(!added)break;}}
     return lines;

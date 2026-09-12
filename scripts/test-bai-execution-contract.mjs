@@ -2,7 +2,7 @@ import fs from "node:fs";
 import vm from "node:vm";
 import assert from "node:assert/strict";
 
-const products={potato:"Картофель",apple:"Яблоки",banana:"Бананы",ham:"Ветчина",milk:"Молоко"};
+const products={potato:"Картофель",apple:"Яблоки",banana:"Бананы",ham:"Ветчина",milk:"Молоко",eggs_c1:"Яйца куриные",bread_dark:"Хлеб дарницкий",chicken_fil:"Филе куриное",oil_sunflower:"Масло подсолнечное",buckwheat:"Гречка",smetana:"Сметана"};
 const parse=text=>({items:Object.keys(products).map(id=>({id,pos:String(text).toLowerCase().indexOf(products[id].toLowerCase().slice(0,5))})).filter(x=>x.pos>=0).sort((a,b)=>a.pos-b.pos)});
 const context={console,JSON,Math,Number,String,Object,Array,Set,Map};
 context.window=context;context.STORES=[{id:"pyat"}];
@@ -31,5 +31,12 @@ result=await context.TDBaiBrain.route("замени молоко");
 assert.equal(result.expectsAnswer,true,"truly incomplete replacement may ask one concrete question");
 result=await context.TDBaiBrain.route("яблоки");
 assert.deepEqual({...result.operations.find(x=>x.type==="REPLACE_PRODUCT").value},{from:"milk",to:"apple"},"answer must resume the pending replacement");
+
+context.TDBaiBrain.route=async()=>({ok:true,operations:[{type:"REQUIRE",value:"eggs"},{type:"SET_ONLY_PRODUCTS",value:["bread","chicken"]},{type:"CHANGE_QUANTITY",value:{id:"buck",delta:1}}],reply:""});
+context.TDBaiExecutionContract.install();
+result=context.TDBaiExecutionContract.rescue("собери яйца хлеб и курицу",await context.TDBaiBrain.route("x"));
+assert.equal(result.operations.some(x=>x.type==="REQUIRE"&&x.value==="eggs_c1"),true,"legacy product ids must be grounded to the live catalog");
+assert.deepEqual(result.operations.find(x=>x.type==="SET_ONLY_PRODUCTS").value,["bread_dark","chicken_fil"]);
+assert.equal(result.operations.find(x=>x.type==="CHANGE_QUANTITY").value.id,"buckwheat");
 
 console.log("Bai execution contract passed: dynamic edits, autonomous choice, quantity decrement and pending replacement.");
