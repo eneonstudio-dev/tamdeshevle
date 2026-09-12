@@ -1,0 +1,14 @@
+import fs from "node:fs";
+import assert from "node:assert/strict";
+const js=fs.readFileSync("ai-shopping-visual-v3.js","utf8");
+const css=fs.readFileSync("ai-shopping-visual-v3.css","utf8");
+assert.match(js,/AI-АССИСТЕНТ ПОКУПОК/);
+assert.match(js,/Еда на три дня до 2000 ₽/);
+assert.match(js,/TDShoppingAssistant\?\.submit/);
+assert.match(js,/td-ai-v3-product/);
+assert.match(js,/dataset\.visualSignature/);
+assert.match(css,/data-bai-busy/);
+assert.match(css,/td-v3-card/);
+assert.match(css,/object-fit:cover/);
+assert.match(css,/@media\(max-width:820px\)/);
+console.log("AI shopping visual V3 passed: start, assembly and product-card layers.");
