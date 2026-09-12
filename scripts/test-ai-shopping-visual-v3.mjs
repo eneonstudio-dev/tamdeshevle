@@ -12,6 +12,7 @@ assert.match(js,/dataset\.visualSignature/);
 assert.doesNotMatch(js,/dataset\.visualV3\)return/);
 assert.match(js,/if\(!hero\.querySelector\("\.td-ai-v3-prompts"\)\)/);
 assert.match(css,/data-bai-busy/);
+assert.match(css,/\.td-ai-shell\{width:100%;max-width:1080px/);
 assert.match(css,/td-v3-card/);
 assert.match(css,/object-fit:cover/);
 assert.match(css,/td-ai-v3-photo\.fallback/);
