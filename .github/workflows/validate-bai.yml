@@ -71,6 +71,7 @@ jobs:
           node --check bai-goal-memory.js
           node --check bai-question-selector.js
           node --check bai-system-prompt-v1.js
+          node --check bai-literal-basket.js
           node --check bai-character.js
           node --check bai-decision-quality.js
           node --check bai-life.js
@@ -121,6 +122,7 @@ jobs:
           node --check scripts/test-bai-character.mjs
           node --check scripts/test-bai-system-prompt.mjs
           node --check scripts/test-bai-decision-quality.mjs
+          node --check scripts/test-bai-literal-basket.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -150,3 +152,4 @@ jobs:
           node scripts/test-bai-character.mjs
           node scripts/test-bai-system-prompt.mjs
           node scripts/test-bai-decision-quality.mjs
+          node scripts/test-bai-literal-basket.mjs
