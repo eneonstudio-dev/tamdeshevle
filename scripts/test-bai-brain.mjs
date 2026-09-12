@@ -57,7 +57,7 @@ brain.reset();
 result=await brain.route('замени молоко на воду или хлеб');
 assert.equal(result.operations.length,0,'ambiguous replacement must not mutate the basket');
 assert.equal(result.expectsAnswer,true,'ambiguous replacement must ask for clarification');
-assert.deepEqual(result.suggestions,['вода','хлеб']);
+assert.equal(JSON.stringify(result.suggestions),JSON.stringify(['вода','хлеб']),'clarification must expose the two alternatives');
 
 brain.reset();
 result=await brain.route('добавь 2 л молока');
