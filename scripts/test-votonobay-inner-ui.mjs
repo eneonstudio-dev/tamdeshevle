@@ -20,6 +20,8 @@ assert.match(js,/Решить, как лучше купить/,"cart primary CTA
 assert.match(js,/Проверить →/,"catalog cart shortcut must avoid turning savings into the only goal");
 assert.match(js,/Есть вариант с экономией .*проверим, стоит ли переключаться/,"savings must be framed as a tradeoff to evaluate");
 assert.match(js,/Добавь нужные товары — Votonobay сравнит цену, способ покупки и удобство/,"empty cart must teach the current product promise");
+assert.match(js,/рекомендую/,"best plan badge must read as a Votonobay recommendation");
+assert.match(js,/Почему этот вариант/,"comparison rationale action must explain the chosen option, not generic math");
 assert.match(js,/Votonobay сам ничего не везёт/,"comparison disclaimer must use the current master brand");
 assert.match(js,/type="search"|input\.type="search"/,"catalog search must expose search semantics");
 assert.match(js,/aria-pressed/,"purchase mode toggle must expose its state accessibly");
@@ -45,4 +47,4 @@ assert.match(css,/env\(safe-area-inset-bottom\)/,"mobile shopping dock must resp
 assert.match(css,/min-width:44px!important/,"mobile quantity controls must keep touch targets usable");
 assert.match(css,/prefers-reduced-motion:reduce/,"inner screen motion must respect reduced-motion preferences");
 
-console.log("Votonobay inner UI tests passed: dark self-service stores/catalog/cart/compare, decision-first copy, mobile-safe controls, visible delivery constraints and no Bai coupling.");
+console.log("Votonobay inner UI tests passed: dark self-service stores/catalog/cart/compare, recommendation language, mobile-safe controls, visible delivery constraints and no Bai coupling.");
