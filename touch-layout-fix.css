@@ -4,8 +4,8 @@
 @import url("./votonobay-design-system-v2.css?v=20260912-v1");
 @import url("./votonobay-final-polish-v3.css?v=20260912-v1");
 @import url("./votonobay-motion-guard.css?v=20260912-v1");
-@import url("./votonobay-home-lock-v4.css?v=20260912-v2");
-@import url("./votonobay-inner-polish-v2.css?v=20260912-v1");
+@import url("./votonobay-home-lock-v4.css?v=20260912-qa-v1");
+@import url("./votonobay-inner-polish-v2.css?v=20260912-qa-v1");
 
 html,body{max-width:100%;overflow-x:hidden}
 
@@ -47,6 +47,7 @@ body>.bai-panel[data-bai-panel="true"]{
   .store:hover{transform:none!important}
   .store:hover .cover{background-size:cover!important}
   .bai-assistant{right:0!important;bottom:calc(64px + env(safe-area-inset-bottom))!important;width:62px!important;height:58px!important;z-index:72!important}
+  body.td-votonobay-inner>.bai-assistant{display:none!important}
   .bai-character,.bai-image{width:66px!important;height:63px!important}
   .bai-character{right:-9px!important;bottom:-5px!important}
   body>.bai-panel[data-bai-panel="true"]{
@@ -67,4 +68,65 @@ body>.bai-panel[data-bai-panel="true"]{
 @media(max-width:520px){
   .grid,.v2-inner-screen .grid{gap:10px!important}
   .phone .store .cover{min-height:96px}
+}
+
+/* Visual QA authority: desktop inner header, catalog grid, evidence priority and touch comfort. */
+body.td-votonobay-inner header.app:not(.v2-header){
+  width:100%!important;
+  max-width:none!important;
+}
+body.td-votonobay-inner header.app:not(.v2-header) .row{
+  width:min(1040px,100%)!important;
+  max-width:1040px!important;
+  margin-inline:auto!important;
+}
+body[data-votonobay-screen="catalog"].td-votonobay-inner .products>.shelf-head{
+  grid-column:1/-1!important;
+  align-self:end!important;
+  min-height:0!important;
+  margin:10px 2px 0!important;
+  color:#879d91!important;
+}
+body[data-votonobay-screen="catalog"].td-votonobay-inner .products>.shelf-head:empty{display:none!important}
+body.td-votonobay-inner .receipt-entry-cta{
+  min-height:50px!important;
+  margin:0 0 7px!important;
+  padding:10px 12px!important;
+  border:1px solid rgba(255,255,255,.075)!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.032)!important;
+  color:#c7d7ce!important;
+  box-shadow:none!important;
+  font-size:11px!important;
+}
+body.td-votonobay-inner .receipt-entry-cta small{display:none!important}
+body.td-votonobay-inner .receipt-entry-cta b{color:#79eeb0!important;font-size:16px!important}
+body.td-votonobay-inner .receipt-local-open{
+  min-height:38px!important;
+  padding:0 8px 7px!important;
+  color:#71877b!important;
+  font-size:10px!important;
+}
+body.td-votonobay-inner .receipt-local-open b{color:#6fdca4!important}
+body[data-votonobay-screen="compare"].td-votonobay-inner .td-data-health{
+  margin:0 0 12px!important;
+  padding:10px 12px!important;
+  border:1px solid rgba(255,255,255,.075)!important;
+  border-radius:15px!important;
+  background:rgba(255,255,255,.03)!important;
+  color:#9eb1a6!important;
+  box-shadow:none!important;
+  font-size:10px!important;
+}
+body[data-votonobay-screen="compare"].td-votonobay-inner .td-data-health.warn{border-color:rgba(255,220,145,.14)!important;background:rgba(255,220,145,.045)!important;color:#c6b98f!important}
+body[data-votonobay-screen="compare"].td-votonobay-inner .td-data-health.bad{border-color:rgba(255,150,130,.14)!important;background:rgba(255,150,130,.045)!important;color:#caa49a!important}
+body[data-votonobay-screen="compare"].td-votonobay-inner .td-data-health strong{color:#dfece5!important;font-size:10px!important}
+body[data-votonobay-screen="compare"].td-votonobay-inner .td-data-health small{font-size:9px!important;opacity:.72!important}
+
+@media (hover:none) and (pointer:coarse), (max-width:780px){
+  body.td-votonobay-inner header.app:not(.v2-header) .back,
+  body.td-votonobay-inner header.app:not(.v2-header) .city,
+  body.td-votonobay-inner header.app:not(.v2-header) .td-profile-btn{min-width:44px!important;min-height:44px!important}
+  .v2-bay-first .v2-bay-scenarios button{min-height:44px!important;padding:8px 11px!important}
+  .v2-bay-first .v2-self-search .v2-categories button{min-height:40px!important}
 }
