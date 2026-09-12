@@ -14,6 +14,7 @@ const SKU_RULES = [
   { sku: "oil_sunflower", any: ["масло подсолнеч"], none: ["оливк", "кукуруз", "рапс", "смесь масел"], pack: { value: 1000, unit: "ml", tolerance: 0.2 } },
   { sku: "sugar", any: ["сахар"], none: ["заменител", "пудр", "тростников", "кокосов"], pack: { value: 1000, unit: "g", tolerance: 0.2 } },
   { sku: "bread_dark", any: ["хлеб"], all: ["дарниц"], none: ["сухар", "гренк"], pack: { value: 650, unit: "g", tolerance: 0.3 } },
+  { sku: "bread_generic", any: ["хлеб"], none: ["дарниц", "сухар", "гренк", "лаваш", "тостов", "сладк", "булоч", "злаков", "сухофрукт", "сэндвич"], pack: { value: 500, unit: "g", tolerance: 0.2 }, comparisonTolerance: true },
   { sku: "banana", any: ["банан"], namePattern: /^бананы?(?:\s+(?:мини|весовые|свежие|отборные))*?(?:\s+\d+(?:[.,]\d+)?\s*(?:кг|г))?$/ },
   { sku: "tea_black", any: ["чай черн", "черный чай"], none: ["листов", "листовой", "зелён", "зелен", "травян", "холодн", "напиток"], pack: { value: 100, unit: "pcs", tolerance: 0 } }
 ];
@@ -40,7 +41,10 @@ export function comparisonEligibility(product, result) {
   const expected = rule?.pack || {value:1000, unit:"g"};
   const actual = result.evidence?.pack;
   if (!actual || !Number.isFinite(actual.value) || actual.value <= 0) return {eligible:false, reason:"pack_missing"};
-  if (actual.unit !== expected.unit || Math.abs(actual.value - expected.value) > 0.000001) {
+  const sameUnit = actual.unit === expected.unit;
+  const exactPack = sameUnit && Math.abs(actual.value - expected.value) <= 0.000001;
+  const toleratedPack = sameUnit && rule?.comparisonTolerance === true && packDistance(actual, expected).ok;
+  if (!exactPack && !toleratedPack) {
     return {eligible:false, reason:"different_pack", source_pack:actual, requested_pack:{value:expected.value, unit:expected.unit}};
   }
   // A unit price on a fixed smaller pack is not a purchasable kilogram.
