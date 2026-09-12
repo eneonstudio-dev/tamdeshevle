@@ -6,7 +6,7 @@
   const products=()=>typeof PRODUCTS!=="undefined"?PRODUCTS:[];
   const count=()=>products().reduce((sum,p)=>sum+Number(window.state&&state.cart&&state.cart[p.id]||0),0);
   const items=()=>products().filter(p=>window.state&&state.cart&&state.cart[p.id]>0);
-  let headerScrollFrame=0;
+  let headerScrollFrame=0,purchaseLoadPromise=null;
 
   function ensureDecisionHandoff(){
     if(window.__TDVotonobayDecisionHandoffV1||document.querySelector('script[data-votonobay-decision-handoff]'))return;
@@ -16,6 +16,15 @@
     script.dataset.votonobayDecisionHandoff="1";
     script.onerror=()=>{script.remove();console.warn("[Votonobay] decision handoff failed to load")};
     document.head.appendChild(script);
+  }
+
+  function ensurePurchaseExperience(){
+    if(window.__TDVotonobayPurchaseExperienceV1)return Promise.resolve(window.TDPurchaseExperienceV1||true);
+    if(purchaseLoadPromise)return purchaseLoadPromise;
+    purchaseLoadPromise=import("./purchase-experience-v1.js?v=20260912-purchase-v1")
+      .then(()=>window.TDPurchaseExperienceV1||true)
+      .catch(error=>{purchaseLoadPromise=null;console.warn("[Votonobay] purchase experience failed to load",error);return false});
+    return purchaseLoadPromise;
   }
 
   function ensureMobileCart(){
@@ -31,7 +40,7 @@
     const qty=count();
     const list=items();
     bar.hidden=qty===0;
-    bar.innerHTML=`<div class="v2-mobile-cartbar-copy"><b>${list.length?`В корзине ${qty} шт.`:"Корзина пуста"}</b><span>${list.length?"Сравним всю корзину по магазинам":"Добавь товары, чтобы увидеть выгоду"}</span></div><button type="button">Сравнить →</button>`;
+    bar.innerHTML=`<div class="v2-mobile-cartbar-copy"><b>${list.length?`В корзине ${qty} шт.`:"Корзина пуста"}</b><span>${list.length?"Сравним всю корзину и покажем лучший сценарий":"Добавь товары, чтобы выбрать лучший сценарий"}</span></div><button type="button">Решить →</button>`;
     const btn=bar.querySelector("button");
     if(btn) btn.onclick=()=>{ if(window.go) go("compare"); };
   }
@@ -72,6 +81,7 @@
   function hydrate(){
     if(document.hidden)return;
     ensureDecisionHandoff();
+    ensurePurchaseExperience();
     ensureMobileCart();
     enhanceMobileMenu();
     syncHeaderScrollState();

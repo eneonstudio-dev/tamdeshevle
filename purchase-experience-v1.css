@@ -1,0 +1,41 @@
+/* Votonobay purchase journey: decision → trust → store handoff */
+:root{--td-purchase-bg:#050a07;--td-purchase-panel:#09120d;--td-purchase-panel-2:#0d1a12;--td-purchase-line:rgba(255,255,255,.09);--td-purchase-text:#f4fff8;--td-purchase-muted:#8aa596;--td-purchase-mint:#2be487;--td-purchase-mint-soft:#bfffdc;--td-purchase-warn:#ffd986}
+#td-purchase-feedback{background:rgba(8,18,13,.96)!important;color:var(--td-purchase-text)!important;border:1px solid rgba(43,228,135,.18)!important;box-shadow:0 18px 54px rgba(0,0,0,.42)!important;backdrop-filter:blur(16px)!important}
+.td-compare-v2-shell{background:radial-gradient(circle at 84% 0,rgba(43,228,135,.09),transparent 28%),linear-gradient(165deg,#0a1710,#050a07 68%)!important}
+.td-compare-v2 header{background:rgba(5,10,7,.92)!important}
+.td-compare-hero{background:linear-gradient(135deg,#bfffdc,#2be487)!important;box-shadow:0 18px 50px rgba(43,228,135,.16)}
+.td-compare-plan{transition:transform .18s ease,border-color .18s ease,background .18s ease}.td-compare-plan:hover{transform:translateY(-1px)}
+.td-compare-plan.best{border-color:rgba(43,228,135,.46)!important;background:linear-gradient(160deg,rgba(43,228,135,.11),rgba(255,255,255,.035))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.td-compare-plan button{min-height:44px;cursor:pointer}.td-compare-plan.best button{background:var(--td-purchase-mint)!important;color:#032014!important;box-shadow:0 10px 28px rgba(43,228,135,.15)}
+.td-compare-why{background:#eef8f2!important;color:#102019!important}.td-compare-note{font-size:11px!important;line-height:1.55!important;color:#8ea99a!important}
+.td-trust{background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.025))!important}
+
+.td-continue-stores{background:rgba(1,7,4,.82)!important;backdrop-filter:blur(14px)!important;place-items:center!important;padding:18px!important}
+.td-continue-stores-card{width:min(620px,100%)!important;max-height:min(90dvh,820px)!important;background:radial-gradient(circle at 90% 0,rgba(43,228,135,.1),transparent 34%),linear-gradient(165deg,#0d1a12,#050a07 72%)!important;color:var(--td-purchase-text)!important;border:1px solid var(--td-purchase-line)!important;border-radius:30px!important;padding:26px!important;box-shadow:0 30px 100px rgba(0,0,0,.6)!important}
+.td-continue-stores-x{background:rgba(255,255,255,.07)!important;color:#fff!important;border:1px solid rgba(255,255,255,.08)!important;cursor:pointer!important}
+.td-continue-stores-card>small{color:#75f2ad!important;letter-spacing:.1em!important;text-transform:uppercase!important;font-size:10px!important}
+.td-continue-stores-card h2{font-size:30px!important;letter-spacing:-.045em!important;line-height:1.05!important;margin-top:8px!important}
+.td-continue-stores-card p{color:var(--td-purchase-muted)!important;line-height:1.55!important}
+.td-continue-stores-summary{background:rgba(43,228,135,.09)!important;border:1px solid rgba(43,228,135,.16)!important;color:var(--td-purchase-mint-soft)!important;padding:14px 16px!important;border-radius:18px!important}
+.td-continue-stores-summary b{color:#fff!important}
+.td-continue-stores-warning{background:rgba(255,200,80,.09)!important;border-color:rgba(255,217,134,.2)!important}.td-continue-stores-warning b{color:#ffe19a!important}.td-continue-stores-warning span{color:#c3b997!important}
+.td-continue-stores-list{gap:10px!important}
+.td-continue-store-row{border:1px solid var(--td-purchase-line)!important;background:rgba(255,255,255,.025)!important;border-radius:19px!important;overflow:hidden!important;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.td-continue-store-row:hover{transform:translateY(-1px);border-color:rgba(43,228,135,.22)!important}
+.td-continue-store-row>button{background:transparent!important;color:#fff!important;padding:15px 16px!important;cursor:pointer!important}
+.td-continue-store-row small,.td-continue-store-row em{color:var(--td-purchase-muted)!important}.td-continue-store-row i,.td-continue-store-row strong{color:#7cf3b1!important}
+.td-continue-store-row.is-done{border-color:rgba(43,228,135,.42)!important;background:rgba(43,228,135,.08)!important}
+.td-store-progress-controls{border-top:1px solid var(--td-purchase-line)!important}.td-store-progress-controls button{background:rgba(255,255,255,.035)!important;color:#eafff3!important;min-height:44px!important}.td-store-progress-controls button:first-child{border-right:1px solid var(--td-purchase-line)!important}.td-store-progress-controls button:last-child{color:#7cf3b1!important}
+.td-continue-stores-note{margin-top:16px!important;padding:12px 14px!important;border:1px solid rgba(255,255,255,.07)!important;border-radius:14px!important;background:rgba(255,255,255,.025)!important;font-size:11px!important}
+
+.split-basket{background:linear-gradient(160deg,#0b1710,#07100b)!important;border:1px solid rgba(255,255,255,.09)!important;color:#f4fff8!important;box-shadow:0 20px 54px rgba(0,0,0,.2)!important}
+.split-basket__eyebrow{color:#6feaa8!important}.split-basket__stores,.split-basket__note,.split-basket__continue-note,.split-basket__disclaimer{color:#8ca496!important}.split-basket__option{background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.08)!important}.split-basket__option.best{background:rgba(43,228,135,.09)!important;border-color:rgba(43,228,135,.24)!important}.split-basket__continue{background:#2be487!important;color:#042014!important;border:0!important;min-height:46px!important;border-radius:14px!important;font-weight:900!important;box-shadow:0 12px 28px rgba(43,228,135,.13)!important}
+
+@media(max-width:700px){
+  .td-continue-stores{padding:0!important;place-items:end center!important}
+  .td-continue-stores-card{width:100%!important;max-height:min(94dvh,94vh)!important;border-radius:26px 26px 0 0!important;border-bottom:0!important;padding:22px 16px max(20px,env(safe-area-inset-bottom))!important}
+  .td-continue-stores-card h2{font-size:27px!important;padding-right:42px!important}
+  .td-continue-store-row>button{min-height:74px!important}
+  .td-store-progress-controls button{min-height:48px!important}
+}
+@media(prefers-reduced-motion:reduce){.td-compare-plan,.td-continue-store-row{transition:none!important}}
