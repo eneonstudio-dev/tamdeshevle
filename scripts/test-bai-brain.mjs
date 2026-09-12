@@ -54,6 +54,12 @@ result=await brain.route('хлеб вместо молока');
 assert.ok(hasOp(result,'REPLACE_PRODUCT',{from:'milk',to:'bread'}),'«X вместо Y» must replace Y with X');
 
 brain.reset();
+result=await brain.route('замени молоко на воду или хлеб');
+assert.equal(result.operations.length,0,'ambiguous replacement must not mutate the basket');
+assert.equal(result.expectsAnswer,true,'ambiguous replacement must ask for clarification');
+assert.deepEqual(result.suggestions,['вода','хлеб']);
+
+brain.reset();
 result=await brain.route('добавь 2 л молока');
 assert.ok(hasOp(result,'ADD_PRODUCT','milk'));
 assert.ok(hasOp(result,'SET_PRODUCT_AMOUNT',{id:'milk',amount:2,unit:'l'}),'Bai must keep explicit product quantity');
@@ -69,4 +75,4 @@ await brain.route('добавь хлеб');
 result=await brain.route('убери это');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','bread'),'pronoun removal must target last product');
 
-console.log('Bai brain regression suite passed: mixed edits, postpositive negation, replacement, quantities, budget and context.');
+console.log('Bai brain regression suite passed: mixed edits, postpositive negation, replacement clarification, quantities, budget and context.');
