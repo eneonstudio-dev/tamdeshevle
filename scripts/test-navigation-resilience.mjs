@@ -8,7 +8,9 @@ const [app, overlay, index] = await Promise.all([
   read("index.html")
 ]);
 
-assert.match(app, /let priceLoad = \{ status: "loading", error: "" \}/, "price loading state must exist");
+assert.match(app, /let priceLoad = \{ status: "loading", error: "", seq: 0, promise: null \}/, "price loading state must track lifecycle and in-flight requests");
+assert.match(app, /if \(priceLoad\.promise\) return priceLoad\.promise/, "price loading must deduplicate concurrent refreshes");
+assert.match(app, /const seq = \+\+priceLoad\.seq/, "price loading must guard against stale async results");
 assert.match(app, /AbortController/, "price loading must be abortable");
 assert.match(app, /setTimeout\(\(\) => controller\.abort\(\), 8000\)/, "price loading must have a bounded timeout");
 assert.match(app, /Свежие цены не загрузились/, "price errors must be visible to users");
@@ -29,4 +31,4 @@ assert.match(overlay, /MutationObserver/, "overlay history must follow dynamical
 assert.match(index, /app\.js\?v=20260912-nav-state-v1/, "index must bust cache for hardened app runtime");
 assert.match(index, /overlay-history-v1\.js\?v=20260912-v1/, "index must load overlay history after runtime modules");
 
-console.log("Navigation resilience contract passed: empty/loading/error basket states and browser Back are wired.");
+console.log("Navigation resilience contract passed: bounded price lifecycle, empty/loading/error basket states and browser Back are wired.");

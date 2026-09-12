@@ -69,6 +69,9 @@ async function sha256(value:string){
   const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));
   return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
+async function finishUsage(ctx:any,id:number,outcome:"ok"|"fallback"|"error",model:string,latency:number){
+  await ctx.supabaseAdmin.from("bai_agent_usage").update({outcome,model:clean(model,80)||null,latency_ms:latency}).eq("id",id);
+}
 
 function safeHistory(raw:unknown):HistoryItem[]{
   return (Array.isArray(raw)?raw:[]).slice(-MAX_HISTORY).map((x:any)=>({role:x?.role==="assistant"?"assistant":"user",text:clean(x?.text)})).filter(x=>x.text) as HistoryItem[];
@@ -247,16 +250,20 @@ export default {fetch:withSupabase({auth:"none"},async(req,ctx)=>{
   try{payload=await req.json()}catch{return json(req,{ok:false,error:"invalid_json"},400)}
   const message=clean(payload?.message);
   if(!message)return json(req,{ok:false,error:"empty_message"},400);
-  const actorHash=await sha256(`bai-agent-v1:${userId}`),since=new Date(Date.now()-3600000).toISOString();
-  const count=await ctx.supabaseAdmin.from("bai_agent_usage").select("id",{count:"exact",head:true}).eq("actor_hash",actorHash).gte("created_at",since);
-  if(count.error)return json(req,{ok:false,error:"rate_check_failed"},503);
-  if((count.count??0)>=MAX_PER_HOUR)return json(req,{ok:false,error:"rate_limited"},429);
+  const actorHash=await sha256(`bai-agent-v1:${userId}`);
+  const reservation=await ctx.supabaseAdmin.rpc("reserve_bai_agent_request",{p_actor_hash:actorHash,p_limit:MAX_PER_HOUR});
+  if(reservation.error)return json(req,{ok:false,error:"rate_check_failed"},503);
+  const usageId=Number(reservation.data);
+  if(!Number.isSafeInteger(usageId)||usageId<1)return json(req,{ok:false,error:"rate_limited"},429);
   const started=Date.now();
   const result=await graph.invoke({message,history:payload?.history||[],basket:payload?.basket||{},catalog:payload?.catalog||[],baseline:payload?.baseline||{},rawModel:"",reply:"",operations:[],suggestions:[],expectsAnswer:false,model:"",error:"",trace:[]});
   const latency=Math.min(120000,Math.max(0,Date.now()-started));
-  if(result.error==="model_not_configured")return json(req,{ok:false,error:"model_not_configured",fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},503);
+  if(result.error==="model_not_configured"){
+    await finishUsage(ctx,usageId,"fallback",result.model,latency);
+    return json(req,{ok:false,error:"model_not_configured",fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},503);
+  }
   const outcome=result.error?"error":"ok";
-  await ctx.supabaseAdmin.from("bai_agent_usage").insert({actor_hash:actorHash,outcome,model:clean(result.model,80)||null,latency_ms:latency});
+  await finishUsage(ctx,usageId,outcome,result.model,latency);
   if(result.error)return json(req,{ok:false,error:result.error,fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},502);
   return json(req,{ok:true,version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,model:result.model,reply:result.reply,operations:result.operations,suggestions:result.suggestions,expectsAnswer:result.expectsAnswer,trace:result.trace});
 })};
