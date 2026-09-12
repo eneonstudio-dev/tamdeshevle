@@ -21,6 +21,8 @@ jobs:
         run: |
           node --check app.js
           node --check runtime-bridge.js
+          node --check price-sync.js
+          node --check v2-mobile-dock.js
           node --check ui-layer-coordinator.js
           node --check product-ui.js
           node --check price-history.js
