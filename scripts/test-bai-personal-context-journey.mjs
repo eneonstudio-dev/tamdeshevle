@@ -26,15 +26,10 @@ assert.equal(context.TDBaiPantry.has('buck'),true);
 
 brainOutput={provider:'rules',operations:[{type:'CHANGE_BUDGET',value:3000},{type:'SET_PEOPLE',value:1},{type:'SET_INTENT',value:'build'}],reply:'Собираю.',expectsAnswer:false};
 result=await context.TDBaiBrain.route('Собери мне корзину до 3000 ₽ на одного',[]);
-assert.equal(result.provider,'bai-question-selector','missing duration must trigger one useful question');
-assert.equal(result.operations[0].type,'ASK_CLARIFICATION');
-
-brainOutput={provider:'rules',operations:[{type:'SET_DURATION',value:7}],reply:'На неделю.',expectsAnswer:false};
-result=await context.TDBaiBrain.route('На неделю',[]);
-assert.equal(result.provider,'bai-shopping-journey','answer must resume and complete the original basket request');
-assert.ok(result.operations.some(x=>x.type==='CHANGE_BUDGET'&&x.value===3000),'original budget must survive clarification round-trip');
-assert.ok(result.operations.some(x=>x.type==='SET_DURATION'&&x.value===7),'clarification answer must enter final operations');
+assert.equal(result.provider,'bai-shopping-journey','missing optional duration must not block basket execution');
+assert.equal(result.operations.some(x=>x.type==='ASK_CLARIFICATION'),false);
+assert.ok(result.operations.some(x=>x.type==='CHANGE_BUDGET'&&x.value===3000),'explicit budget must survive immediate planning');
 assert.ok(result.operations.some(x=>x.type==='HAS_AT_HOME'&&/масло|греч/.test(String(x.value))),'persistent pantry must be projected into final optimization');
 assert.ok(plannerState.existingProducts.some(x=>/масло/.test(x))&&plannerState.existingProducts.some(x=>/греч/.test(x)),'planner must see home stock before choosing products');
 
-console.log('Bai personal context journey passed: pantry stock affects planning and one clarification resumes the original task.');
+console.log('Bai personal context journey passed: pantry stock affects planning without an optional-question detour.');
