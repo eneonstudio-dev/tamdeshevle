@@ -28,6 +28,11 @@
     return `${Math.round(Number(value)||0).toLocaleString("ru-RU")} ₽`;
   }
 
+  function persistPoint(point){
+    if(!point)return false;
+    try{localStorage.setItem(KEY,JSON.stringify(point));return true;}catch{return false;}
+  }
+
   function persistCurrentChain(point){
     if(!point||!point.chainId)return;
     if(window.state)state.storeId=point.chainId;
@@ -45,9 +50,10 @@
     if(!totalItems)return{kind:"empty",text:"Добавьте товары — здесь появится итог по этой точке."};
     if(!window.TDStoreIdBridge||typeof TDStoreIdBridge.basket!=="function")return{kind:"pending",text:"Проверяем цены именно для этой точки…"};
 
+    const referenceStoreId=point.referenceStoreId&&point.referenceStoreId!==point.chainId&&stores.some(s=>s.id===point.referenceStoreId)?point.referenceStoreId:null;
     let quote;
     try{
-      quote=TDStoreIdBridge.basket(point,{products,cart,stores,referenceStoreId:state.storeId});
+      quote=TDStoreIdBridge.basket(point,{products,cart,stores,referenceStoreId});
     }catch{
       return{kind:"pending",text:"Проверяем цены именно для этой точки…"};
     }
@@ -147,7 +153,7 @@
     const wrap=document.querySelector("#app .wrap");
     if(!wrap)return;
     const quote=basketState(point);
-    const signature=JSON.stringify({id:point.id,storeId:point.storeId,chainId:point.chainId,address:point.address||"",screen:state.screen,kind:quote.kind,text:quote.text,saving:quote.saving||null});
+    const signature=JSON.stringify({id:point.id,storeId:point.storeId,chainId:point.chainId,referenceStoreId:point.referenceStoreId||null,address:point.address||"",screen:state.screen,kind:quote.kind,text:quote.text,saving:quote.saving||null});
     if(current&&current.dataset.signature===signature)return;
 
     const holder=document.createElement("div");
@@ -193,9 +199,14 @@
 
   document.addEventListener("click",e=>{
     if(!e.target.closest("[data-use-point]"))return;
+    const previousStoreId=window.state&&state.storeId;
     setTimeout(()=>{
       const point=readPoint();
       if(!point)return;
+      if(previousStoreId&&previousStoreId!==point.chainId&&appStores().some(s=>s.id===previousStoreId)&&!point.referenceStoreId){
+        point.referenceStoreId=previousStoreId;
+        persistPoint(point);
+      }
       persistCurrentChain(point);
       sync();
       window.dispatchEvent(new CustomEvent("td:selected-store-point-current",{detail:{point}}));
