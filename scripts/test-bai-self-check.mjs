@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 global.window=globalThis;
 global.TDBaiBrain={status:()=>({goal:{people:3,days:3}})};
 await import(`../bai-self-check.js?test=${Date.now()}`);
+
+const assistantSource=fs.readFileSync(new URL("../ai-shopping-assistant.js",import.meta.url),"utf8");
+assert.match(assistantSource,/bai-reasoning-guard\.js/,'production assistant must load Bai reasoning guard');
+assert.match(assistantSource,/TDBaiReasoningGuard/,'production assistant must wait for reasoning guard wiring');
 
 const base={ok:true,provider:"test",reply:"",suggestions:[],expectsAnswer:false};
 
@@ -19,4 +24,4 @@ assert.equal(TDBaiBrain.status().goal.people,2,"explicit people count must becom
 out=TDBaiSelfCheck.guard("собери на 4 человека",{...base,operations:[{type:"SET_PEOPLE",value:4}],goal:{people:4,days:null}},{peopleCount:2});
 assert.equal(out.operations.find(o=>o.type==="SET_PEOPLE")?.value,4,"explicit person noun must keep people mutation");
 
-console.log("Bai self-check passed: duration phrases cannot silently overwrite people count.");
+console.log("Bai self-check passed: runtime guard wiring is present and duration phrases cannot silently overwrite people count.");
