@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+
+const store=new Map();
+global.window=globalThis;
+global.localStorage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
+await import(`../bai-pantry.js?pantry=${Date.now()}`);
+
+const pantry=global.TDBaiPantry;
+pantry.clear();
+pantry.observe('Дома есть масло и гречка',[{type:'HAS_AT_HOME',value:'масло и гречка'}]);
+assert.equal(pantry.has('oil'),true,'explicit home stock must remember oil');
+assert.equal(pantry.has('buck'),true,'explicit home stock must remember buck');
+assert.equal(pantry.count(),2,'pantry must keep distinct mapped products');
+const applied=pantry.applyToState({existingProducts:[]});
+assert.ok(applied.existingProducts.includes('масло')&&applied.existingProducts.includes('гречка'),'pantry must project labels into optimizer existingProducts');
+const ops=pantry.operations();
+assert.ok(ops.every(x=>x.type==='HAS_AT_HOME'),'pantry projection must use existing safe HAS_AT_HOME operation');
+
+pantry.observe('Масло вкусное',[]);
+assert.equal(pantry.count(),2,'un-grounded mention must not change pantry');
+pantry.observe('Дома нет масла',[]);
+assert.equal(pantry.has('oil'),false,'explicit no-stock statement must remove stale pantry item');
+
+console.log('Bai pantry passed: explicit home stock persists, projects into optimizer state and can be removed without learning random mentions.');
