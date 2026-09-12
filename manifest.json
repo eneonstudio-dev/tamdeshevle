@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "Там дешевле",
-  "short_name": "Там дешевле",
-  "description": "Сравнение цен и умная сборка продуктовой корзины по магазинам.",
+  "name": "Votonobay",
+  "short_name": "Votonobay",
+  "description": "Умная сборка корзины: сравнение вариантов по цене, удобству и подтверждённости данных.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#F4F1EA",
-  "theme_color": "#0F7B4A",
+  "background_color": "#F4F5F1",
+  "theme_color": "#102018",
   "lang": "ru",
   "orientation": "portrait-primary",
   "icons": [
