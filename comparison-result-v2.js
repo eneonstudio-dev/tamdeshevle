@@ -70,7 +70,8 @@
   function trustFor(plan){
     const rows=(plan?.products||[]).map(line=>({line,meta:metaFor(line)}));
     const counts={fresh:0,stale:0,estimated:0,unknown:0};rows.forEach(x=>counts[x.meta.kind]++);
-    const risk=rows.filter(x=>x.meta.kind!=="fresh").sort((a,b)=>({unknown:0,stale:1,estimated:2}[a.meta.kind]-({unknown:0,stale:1,estimated:2}[b.meta.kind]));
+    const order={unknown:0,stale:1,estimated:2,fresh:3};
+    const risk=rows.filter(x=>x.meta.kind!=="fresh").sort((a,b)=>(order[a.meta.kind]??9)-(order[b.meta.kind]??9));
     const total=rows.length,good=counts.fresh;
     const label=!total?"Нет данных":good===total?"Высокая уверенность":good>=Math.ceil(total*.6)?"В основном надёжно":"Нужно проверить";
     return{rows,counts,risk,total,good,label};
@@ -112,9 +113,11 @@
     return{ok:true,plan:chosen,saved:Boolean(saved)};
   }
   function close({restoreFocus=true}={}){
-    const root=activeRoot||document.querySelector(".td-compare-v2");if(root)root.remove();activeRoot=null;
+    const root=activeRoot||document.querySelector(".td-compare-v2");if(!root)return false;
+    root.remove();activeRoot=null;
     document.body.style.overflow=previousOverflow;previousOverflow="";
     const target=opener;opener=null;if(restoreFocus)requestAnimationFrame(()=>safeFocus(target));
+    return true;
   }
   function unavailable(rawCount){
     const root=document.createElement("section");root.className="td-compare-v2";
