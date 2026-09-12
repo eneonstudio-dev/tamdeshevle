@@ -4,9 +4,9 @@
   const KEY="td_bai_pantry_v1";
   const DAY=86400000;
   const META={
-    milk:{label:"молоко",ttl:5*DAY},bread:{label:"хлеб",ttl:5*DAY},chicken:{label:"курица",ttl:4*DAY},banana:{label:"бананы",ttl:5*DAY},oil:{label:"масло",ttl:35*DAY},eggs:{label:"яйца",ttl:18*DAY},buck:{label:"гречка",ttl:45*DAY},sour:{label:"сметана",ttl:7*DAY},sugar:{label:"сахар",ttl:60*DAY},pasta:{label:"макароны",ttl:60*DAY},water:{label:"вода",ttl:30*DAY},apple:{label:"яблоки",ttl:10*DAY},ham:{label:"ветчина",ttl:5*DAY},dumplings:{label:"пельмени",ttl:45*DAY},noodles:{label:"лапша",ttl:90*DAY},waffles:{label:"вафли",ttl:30*DAY},cottage:{label:"творог",ttl:5*DAY}
+    milk:{label:"молоко",ttl:5*DAY},bread:{label:"хлеб",ttl:5*DAY},chicken:{label:"курица",ttl:4*DAY},banana:{label:"бананы",ttl:5*DAY},oil:{label:"масло",ttl:35*DAY},eggs:{label:"яйца",ttl:18*DAY},buck:{label:"гречка",ttl:45*DAY},sour:{label:"сметана",ttl:7*DAY},sugar:{label:"сахар",ttl:60*DAY},pasta:{label:"макароны",ttl:60*DAY},water:{label:"вода",ttl:30*DAY},apple:{label:"яблоки",ttl:10*DAY},ham:{label:"ветчина",ttl:5*DAY},dumplings:{label:"пельмени",ttl:45*DAY},noodles:{label:"лапша",ttl:90*DAY},waffles:{label:"вафли",ttl:30*DAY},cottage:{label:"творог",ttl:5*DAY},cheese:{label:"сыр",ttl:14*DAY}
   };
-  const STEMS={молок:"milk",хлеб:"bread",куриц:"chicken",банан:"banana",масл:"oil",яйц:"eggs",греч:"buck",сметан:"sour",сахар:"sugar",макарон:"pasta",вод:"water",яблок:"apple",ветчин:"ham",пельмен:"dumplings",лапш:"noodles",вафл:"waffles",творог:"cottage"};
+  const STEMS={молок:"milk",хлеб:"bread",куриц:"chicken",банан:"banana",масл:"oil",яйц:"eggs",греч:"buck",сметан:"sour",сахар:"sugar",макарон:"pasta",вод:"water",яблок:"apple",ветчин:"ham",пельмен:"dumplings",лапш:"noodles",вафл:"waffles",творог:"cottage",сыр:"cheese"};
   const clone=v=>JSON.parse(JSON.stringify(v));
   const now=()=>Date.now();
   const blank=()=>({version:1,items:{}});
@@ -17,10 +17,12 @@
   function prune(){let changed=false;for(const [id,item] of Object.entries(state.items)){const ttl=META[id]?.ttl||14*DAY;if(!item?.seenAt||now()-Number(item.seenAt)>ttl){delete state.items[id];changed=true}}if(changed)save();return changed}
   function add(value,source="explicit"){const id=idFrom(value);if(!id)return null;state.items[id]={id,label:META[id]?.label||String(value),seenAt:now(),source};save();return clone(state.items[id])}
   function remove(value){const id=idFrom(value);if(!id||!state.items[id])return false;delete state.items[id];save();return true}
+  function homeClause(text){const m=text.match(/(?:дома|у меня)\s+(?:уже\s+)?(?:есть|осталось)\s+(.+?)(?=(?:[,;.]?\s+(?:нужн|хочу|хотел|добав|собери|купи|но\b))|[.!?]|$)/);return m?.[1]||""}
   function observe(raw,operations=[]){const text=String(raw||"").toLowerCase().replace(/ё/g,"е");prune();if(/(?:дома|у меня)\s+(?:нет|не осталось)|закончил(?:ось|ись)|кончил(?:ось|ись)/.test(text)){for(const id of Object.keys(META))if(text.includes(META[id].label.split(" ")[0])||Object.entries(STEMS).some(([stem,x])=>x===id&&text.includes(stem)))remove(id)}
     if(!/(?:дома|у меня)\s+(?:уже\s+)?есть/.test(text))return list();
+    const clause=homeClause(text);
     for(const op of operations||[])if(op?.type==="HAS_AT_HOME")add(op.value,"explicit");
-    for(const [stem,id] of Object.entries(STEMS))if(text.includes(stem))add(id,"explicit");
+    for(const [stem,id] of Object.entries(STEMS))if(clause.includes(stem))add(id,"explicit");
     return list();
   }
   function list(){prune();return Object.values(state.items).map(clone)}
