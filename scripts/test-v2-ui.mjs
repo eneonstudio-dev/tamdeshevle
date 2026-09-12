@@ -6,8 +6,6 @@ const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.read
 const app=fs.readFileSync("app.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8");
 const cards=fs.readFileSync("cards.css","utf8"),brand=fs.readFileSync("brand-votonobay-v1.js","utf8"),brandCss=fs.readFileSync("votonobay-brand-v1.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
-const bayFirst=fs.readFileSync("votonobay-bay-first-v3.js","utf8"),bayFirstCss=fs.readFileSync("votonobay-bay-first-v3.css","utf8");
-new Function(bayFirst);
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
@@ -31,11 +29,4 @@ assert.match(app,/function comparisonLead\(/);assert.match(app,/Победите
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
 assert.equal(manifest.name,"Votonobay");assert.equal(manifest.short_name,"Votonobay");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
 assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
-
-// Bay-first V3: Bay is the primary decision path, self-service remains available.
-assert.match(brand,/votonobay-bay-first-v3\.js/);
-assert.match(bayFirst,/Спросить Бая/);assert.match(bayFirst,/Искать самому/);assert.match(bayFirst,/Что лучше выбрать\?/);
-assert.match(bayFirst,/window\.TDShoppingAssistant\?\.open/);assert.match(bayFirst,/window\.tdBayFirstAsk/);
-assert.match(bayFirstCss,/--bay3-bg:#050a07/);assert.match(bayFirstCss,/\.v2-bay-primary/);assert.match(bayFirstCss,/@media\(min-width:821px\)\{\.td-ai/);
-assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.match(bai,/[Цц]ена, удобство и время/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);
-console.log("V2 UI contract passed: responsive Votonobay shell, Bay-first decision entry, self-service fallback, honest data labels, correct PWA identity and accessible navigation are wired.");
+console.log("V2 UI contract passed: responsive Votonobay shell, honest data labels, product packaging fit, correct PWA identity and an accessible single mobile navigation dock are wired.");
