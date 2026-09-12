@@ -41,6 +41,17 @@
     const s=document.createElement("script");s.src="map-marker-card-sync.js?v=20260910-marker-card-v1";s.dataset.tdMarkerCardSync="1";document.head.appendChild(s);
   }
   function cleanupTray(){document.querySelector(".td-one-tap")?.remove();}
+  function clearGeoHistory(){
+    if(!window.history?.replaceState)return;
+    try{const next={...history.state};delete next.tdGeoPoint;delete next.tdGeoMap;history.replaceState(next,"");}catch{}
+  }
+  function closeMapFlow(){
+    cleanupTray();clearGeoHistory();
+    if(window.TDGeo?.closePointDetails)window.TDGeo.closePointDetails({historyBack:false,restoreFocus:false});
+    else document.querySelector(".td-point-detail")?.remove();
+    if(window.TDGeo?.closeMap)window.TDGeo.closeMap({historyBack:false,restoreFocus:false});
+    else document.querySelector(".td-map-sheet")?.remove();
+  }
   function renderTray(point,index,match){
     injectStyles();cleanupTray();
     const verified=Boolean(match&&match.verified),distance=distanceText(point);
@@ -49,7 +60,7 @@
     tray.innerHTML=`<div class="td-one-tap-top"><div class="td-one-tap-pin">⌖</div><div class="td-one-tap-copy"><div class="td-one-tap-title">${escapeHtml(point.chainLabel||point.name||"Магазин")}${distance?` · ${escapeHtml(distance)}`:""}</div><div class="td-one-tap-sub">${escapeHtml(point.address||"Адрес точки")}</div></div></div><div class="td-one-tap-price">${escapeHtml(q.main)}<small>${escapeHtml(q.sub)}</small></div><div class="td-one-tap-actions"><button type="button" class="td-one-tap-compare"${verified?"":' aria-disabled="true"'}>Сравнить</button><button type="button" class="td-one-tap-detail">Подробнее</button></div>`;
     document.body.appendChild(tray);
     tray.querySelector(".td-one-tap-compare")?.addEventListener("click",()=>goCompare(point));
-    tray.querySelector(".td-one-tap-detail")?.addEventListener("click",()=>window.TDGeo?.openPointDetails?.(point));
+    tray.querySelector(".td-one-tap-detail")?.addEventListener("click",()=>window.TDGeo?.openPointDetails?.(point,document.activeElement));
   }
   function escapeHtml(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
   function choosePoint(index){
@@ -69,8 +80,7 @@
   function goCompare(point){
     const match=resolve(point);
     if(!point||!match||!match.verified)return false;
-    persistChain(point.chainId);
-    document.querySelector(".td-point-detail")?.remove();cleanupTray();document.querySelector(".td-map-sheet")?.remove();
+    persistChain(point.chainId);closeMapFlow();
     if(typeof window.go==="function")window.go("compare");else if(window.state){state.screen="compare";window.render?.();}
     return true;
   }
