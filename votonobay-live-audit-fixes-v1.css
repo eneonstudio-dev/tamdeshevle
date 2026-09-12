@@ -1,0 +1,67 @@
+/* Votonobay live Chromium audit fixes.
+   This layer resolves conflicts that only appear in the composed, deployed UI. */
+
+/* Inner headers must span the viewport; only their content is constrained. */
+body.td-votonobay-inner header.app:not(.v2-header){
+  width:100vw!important;max-width:none!important;left:0!important;right:0!important;
+}
+body.td-votonobay-inner header.app:not(.v2-header) .row{width:min(1120px,100%)!important;max-width:none!important}
+body.td-votonobay-inner header.app:not(.v2-header) .td-profile-btn{
+  border:1px solid var(--voto-line)!important;background:rgba(255,255,255,.055)!important;color:#dce9e1!important;box-shadow:none!important;
+}
+
+/* Receipt entry belongs to the dark product world, not the old beige prototype. */
+body.td-votonobay-inner .receipt-entry-cta{
+  border-color:rgba(79,245,154,.15)!important;
+  background:linear-gradient(155deg,rgba(79,245,154,.075),rgba(255,255,255,.025))!important;
+  color:#effaf3!important;box-shadow:none!important;
+}
+body.td-votonobay-inner .receipt-entry-cta small{color:#8ea197!important}
+body.td-votonobay-inner .receipt-entry-cta b{color:#79f3ad!important}
+body.td-votonobay-inner .receipt-entry-sheet{
+  border:1px solid var(--voto-line)!important;background:radial-gradient(circle at 90% 0,rgba(79,245,154,.08),transparent 30%),#08120d!important;color:#f4fbf6!important;
+}
+body.td-votonobay-inner .receipt-entry-head p,body.td-votonobay-inner .receipt-entry-field label{color:#8ea197!important}
+body.td-votonobay-inner .receipt-entry-close,body.td-votonobay-inner .receipt-entry-note,body.td-votonobay-inner .receipt-entry-status,body.td-votonobay-inner .receipt-entry-file{
+  border:1px solid var(--voto-line)!important;background:rgba(255,255,255,.045)!important;color:#c8d8ce!important;
+}
+body.td-votonobay-inner .receipt-entry-field input,body.td-votonobay-inner .receipt-entry-field select{
+  border:1px solid var(--voto-line)!important;background:#0b1710!important;color:#f4fbf6!important;
+}
+body.td-votonobay-inner .receipt-entry-save,body.td-votonobay-inner .receipt-entry-submit{background:var(--voto-mint)!important;color:#032015!important}
+
+/* Cart empty state is a product state, not a white legacy card. */
+body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint{
+  padding:26px 22px!important;border:1px solid rgba(79,245,154,.16)!important;border-radius:24px!important;
+  background:radial-gradient(circle at 92% 0,rgba(79,245,154,.11),transparent 35%),linear-gradient(155deg,#0d1a12,#07100b)!important;
+  color:#93a79b!important;box-shadow:0 20px 55px rgba(0,0,0,.18)!important;text-align:center!important;
+}
+body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint b{color:#f7fff9!important}
+body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint .btn.green{
+  width:auto!important;display:inline-flex!important;margin:16px auto 0!important;padding:12px 18px!important;background:linear-gradient(135deg,var(--voto-mint-2),var(--voto-mint))!important;color:#032015!important;
+}
+
+/* ai-shopping-visual-v3 was designed for a centered 1080px modal. Bay-first desktop
+   intentionally uses a 470px side room, so force the visual-v3 shell to respect it. */
+@media(min-width:821px){
+  .td-ai[data-visual-v3="1"]{left:auto!important;right:0!important;width:min(470px,43vw)!important;max-width:470px!important;padding:12px!important;place-items:stretch!important}
+  .td-ai[data-visual-v3="1"] .td-ai-shell{width:100%!important;max-width:100%!important;height:calc(100dvh - 24px)!important;border-radius:27px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-main{padding:16px 18px 24px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai{width:100%!important;max-width:100%!important;margin:0 auto 12px!important;padding:4px 4px 10px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai img{width:92px!important;height:86px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai:before{top:48px!important;width:142px!important;height:102px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai:after{top:48px!important;width:112px!important;height:78px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai h2{font-size:32px!important;line-height:1.02!important}
+  .td-ai[data-visual-v3="1"] .td-ai-bai p{max-width:360px!important;font-size:10px!important}
+  .td-ai[data-visual-v3="1"] .td-ai-v3-prompts{display:grid!important;grid-template-columns:1fr!important;max-width:320px!important;margin:12px auto 0!important}
+  .td-ai[data-visual-v3="1"] .td-ai-v3-prompts button{width:100%!important;text-align:left!important}
+}
+
+@media(max-width:700px){
+  /* Bottom nav already owns Bay on mobile; the floating mascot must not cover product controls. */
+  body.td-votonobay-inner>.bai-assistant{display:none!important}
+  .td-ai[data-visual-v3="1"] .td-ai-shell{width:100%!important;max-width:100%!important}
+  .td-ai-quick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .td-ai-quick button{min-width:0!important;width:100%!important;white-space:normal!important;line-height:1.25!important;text-align:center!important;padding:10px 8px!important}
+  .td-ai-quick button:last-child:nth-child(odd){grid-column:1/-1!important}
+}
