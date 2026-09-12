@@ -79,7 +79,7 @@ assert(selected.includes("Подтверждено") && selected.includes("по�
 
 assert(layers.includes(".td-map-sheet,.td-point-detail,.td-one-tap"), "Bay coordinator must recognize all blocking map overlays");
 assert(layers.includes("data-ui-parked"), "Bay must be parked while map overlays are active");
-assert(layers.includes("app.inert=blocked"), "underlying app must be inert while an overlay is active when supported");
+assert(layers.includes("shouldInertApp") && layers.includes("!app.contains(overlay)") && layers.includes("app.inert=shouldInertApp"), "underlying app must be inert only when it does not own the active overlay");
 assert(bai.includes("bai-assistant"), "Bay assistant must remain independently mountable");
 
 console.log("Mobile smoke flow checks passed: exact store selection, clustering, trusted filters, two-way card/marker sync, branded trusted popup with swipe navigation, compare routing, overlay cleanup and Bay coordination are wired.");
