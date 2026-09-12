@@ -36,6 +36,7 @@ jobs:
           node --check comparison-result-v2.js
           node --check brand-votonobay-v1.js
           node --check brand-prosche-v1.js
+          node --check votonobay-inner-v1.js
           node --check scripts/test-catalog-resilience.mjs
           node --check scripts/test-product-card-resilience.mjs
           node --check scripts/test-first-shopping-journey.mjs
@@ -47,6 +48,7 @@ jobs:
           node --check scripts/test-purchase-comparison-resilience.mjs
           node --check scripts/test-price-sync-resilience.mjs
           node --check scripts/test-votonobay-brand.mjs
+          node --check scripts/test-votonobay-inner-ui.mjs
       - name: Test app runtime resilience
         run: node scripts/test-app-runtime-resilience.mjs
       - name: Test catalog interaction resilience
@@ -61,6 +63,8 @@ jobs:
         run: node scripts/test-price-sync-resilience.mjs
       - name: Test Votonobay brand contract
         run: node scripts/test-votonobay-brand.mjs
+      - name: Test Votonobay inner UI contract
+        run: node scripts/test-votonobay-inner-ui.mjs
       - name: Test runtime performance guards
         run: node scripts/test-runtime-performance.mjs
       - name: Test mobile runtime lifecycle
