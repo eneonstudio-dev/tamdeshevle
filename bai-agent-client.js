@@ -46,8 +46,8 @@
     if(!trim(text)||navigator.onLine===false)return false;
     if(baseline?.selfCheck?.safe===false)return false;
     if(!ops.length&&(/не понял|уточни|что именно|на что заменить/i.test(String(baseline?.reply||""))||baseline?.expectsAnswer))return true;
-    if(/\b(сам реши|что бы ты|что лучше|как лучше|предложи|подбери|посоветуй|нормальн\w* ед|рацион|меню|что купить|как собрать|сравни варианты)\b/.test(t))return true;
-    const constraints=[/бюджет|до\s*\d|руб|₽/.test(t),/готовить|готовк/.test(t),/на\s+\d+\s*(?:дн|дня|дней)|недел/.test(t),/нас\s+\w+|на\s+\d+\s*(?:человек|чел)/.test(t),/не хочу|без\s+\w+|исключ/.test(t),/одном магазин|разным магазин|где дешевле/.test(t)].filter(Boolean).length;
+    if(/сам реши|что бы ты|что лучше|как лучше|предложи|подбери|посоветуй|нормальн[а-я]*\s+ед|рацион|меню|что купить|как собрать|сравни варианты/.test(t))return true;
+    const constraints=[/бюджет|до\s*\d|руб|₽/.test(t),/готовить|готовк/.test(t),/на\s+\d+\s*(?:дн|дня|дней)|недел/.test(t),/нас\s+[а-я0-9]+|на\s+\d+\s*(?:человек|чел)/.test(t),/не хочу|без\s+[а-я]+|исключ/.test(t),/одном магазин|разным магазин|где дешевле/.test(t)].filter(Boolean).length;
     return t.length>=55&&constraints>=2;
   }
 
