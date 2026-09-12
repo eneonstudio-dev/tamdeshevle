@@ -7,11 +7,15 @@
     stores:{title:"Магазины",sub:"Выбери привычный магазин — дальше сравним весь сценарий"},
     catalog:{sub:"Собери нужное — дальше сравним цену, способ покупки и удобство"},
     cart:{title:"Корзина",sub:"Проверим цену, удобство и следующий шаг",compare:"Решить, как лучше купить"},
-    compare:{title:"Лучший вариант",sub:"Одна корзина · цена, удобство и подтверждённость данных"}
+    compare:{title:"Как лучше купить",sub:"Одна корзина · цена, удобство, способ покупки и надёжность данных"}
   };
 
   function setText(node,text){if(node&&node.textContent!==text)node.textContent=text;}
   function screen(){return window.state&&typeof state.screen==="string"?state.screen:"home";}
+  function cartQty(){
+    const cart=window.state&&state.cart&&typeof state.cart==="object"?state.cart:{};
+    return Object.values(cart).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+  }
 
   function tuneHeader(name){
     const header=document.querySelector("header.app:not(.v2-header)");
@@ -50,22 +54,51 @@
     tuneDock();
   }
 
+  function catalogIntro(){
+    const wrap=document.querySelector(".wrap");
+    const input=wrap?.querySelector(".addr");
+    if(!wrap||!input)return;
+    wrap.querySelector(".voto-screen-intro")?.remove();
+    const intro=document.createElement("section");
+    intro.className="voto-screen-intro";
+    intro.setAttribute("aria-label","Как работает корзина Votonobay");
+    const qty=cartQty();
+    intro.innerHTML=`<div><span>СОБЕРИ КОРЗИНУ</span><h2>Добавляй то, что реально нужно</h2><p>Votonobay сравнит корзину целиком — без трюка с одной дешёвой позицией.</p></div><b class="voto-cart-count">${qty?`${qty} шт. в корзине`:"Корзина пуста"}</b>`;
+    input.insertAdjacentElement("beforebegin",intro);
+  }
+
   function tuneCatalog(){
     const input=document.querySelector(".wrap .addr");
     if(input){
       input.type="search";
+      input.placeholder="Найти товар";
       input.setAttribute("aria-label","Поиск товара в выбранном магазине");
       input.setAttribute("enterkeyhint","search");
       input.setAttribute("autocomplete","off");
       input.classList.add("voto-catalog-search");
     }
+    catalogIntro();
     const products=document.querySelector(".products");
-    if(products)products.setAttribute("aria-label","Товары");
-    document.querySelectorAll(".products > .item").forEach(item=>{
-      item.classList.add("voto-product-row");
-      const title=item.querySelector(".title")?.textContent?.trim();
-      if(title)item.setAttribute("aria-label",title);
-    });
+    if(products){
+      products.setAttribute("aria-label","Товары");
+      products.querySelectorAll(":scope > .item").forEach((item,index)=>{
+        item.classList.add("voto-product-row","voto-product-card");
+        const title=item.querySelector(".title")?.textContent?.trim()||`Товар ${index+1}`;
+        const qty=Number(item.querySelector(".step b")?.textContent)||0;
+        item.classList.toggle("is-in-cart",qty>0);
+        item.setAttribute("aria-label",qty>0?`${title}, в корзине ${qty}`:title);
+      });
+      document.querySelector(".voto-empty-state")?.remove();
+      const query=String(window.state?.q||"").trim();
+      if(query&&products.querySelectorAll(":scope > .item").length===0){
+        const empty=document.createElement("section");
+        empty.className="voto-empty-state";
+        empty.setAttribute("role","status");
+        empty.innerHTML=`<span>НИЧЕГО НЕ НАШЛИ</span><h2>Такого товара пока нет в этой витрине</h2><p>Сбрось поиск и продолжи собирать корзину. Состав не потеряется.</p><button type="button">Сбросить поиск</button>`;
+        empty.querySelector("button").onclick=()=>{state.q="";window.render?.();};
+        products.insertAdjacentElement("afterend",empty);
+      }
+    }
     tuneDock();
   }
 
@@ -91,10 +124,13 @@
       note.classList.add("voto-empty-cart");
       const text=note.querySelector("span");
       if(text)setText(text,"Добавь нужные товары — Votonobay сравнит цену, способ покупки и удобство.");
+      const button=note.querySelector("button");
+      if(button)setText(button,"Добавить товары");
     });
   }
 
   function tuneCart(){
+    document.querySelectorAll(".wrap > .item").forEach(item=>item.classList.add("voto-cart-item"));
     const primary=document.querySelector(".dock .btn.dark");
     if(primary){
       setText(primary,SCREEN_COPY.cart.compare);
@@ -113,6 +149,8 @@
         node.classList.add("voto-cart-opportunity");
         node.textContent=`Есть вариант с экономией ${match[1].trim()} ₽ — проверим, стоит ли переключаться.`;
       });
+      const secondary=dock.querySelector(".ghost");
+      if(secondary)setText(secondary,"Другие магазины");
     }
     tuneEmptyCart();
     document.querySelector(".voto-cart-constraint")?.remove();
@@ -140,11 +178,16 @@
       toggle.setAttribute("aria-label","Способ покупки");
       toggle.querySelectorAll("button").forEach(button=>button.setAttribute("aria-pressed",String(button.classList.contains("on"))));
     }
+    document.querySelector(".v2-verdict")?.classList.add("voto-decision-lead");
     const rows=window.TDCompare?.fromWindow?.()||[];
     document.querySelectorAll(".plan").forEach((plan,index)=>{
-      plan.classList.add("voto-comparison-plan");
+      plan.classList.add("voto-comparison-plan","voto-option-card");
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
+      const badge=plan.querySelector(".badge");
+      if(badge)setText(badge,"рекомендую");
+      const why=plan.querySelector(".ghost");
+      if(why&&/Почему/i.test(why.textContent))setText(why,"Почему этот вариант");
       plan.querySelector(".voto-delivery-constraint")?.remove();
       const copy=deliveryConstraint(rows[index]);
       if(copy){
@@ -188,5 +231,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",decorate,{once:true});
   else decorate();
 
-  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan,tuneDock,tuneEmptyCart};
+  window.TDVotonobayInner={decorate,deliveryConstraint,currentPlan,tuneDock,tuneEmptyCart,cartQty,catalogIntro};
 })();
