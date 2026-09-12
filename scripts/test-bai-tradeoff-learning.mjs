@@ -31,6 +31,13 @@ const {memory,advisor}=boot();
 let profile=memory.tradeoffProfile(150,"walk");
 assert.equal(profile.personalized,false,"fresh memory must not personalize tradeoffs");
 
+// Unknown operational cost is a qualitative observation, not fake zero-ruble evidence.
+memory.noteTradeoffChoice({choice:"one",recommendedChoice:"split",netSaving:null,grossSaving:180,timeMinutes:null,operationalCost:null,mode:"walk"});
+profile=memory.tradeoffProfile(150,"walk");
+assert.equal(profile.sampleCount,1);
+assert.equal(profile.usableCount,0,"unknown net saving must not train a numeric threshold");
+memory.clear();
+
 // One click is evidence, not a personality.
 memory.noteTradeoffChoice({choice:"one",recommendedChoice:"split",netSaving:200,grossSaving:400,timeMinutes:25,operationalCost:200,mode:"walk",override:true});
 profile=memory.tradeoffProfile(150,"walk");
@@ -57,17 +64,18 @@ decision=advisor.evaluate({...neutralCase,state:{preferences:["budget"]}});
 assert.equal(decision.choice,"split","explicit budget intent must override convenience history");
 assert.equal(decision.personalized,false,"task override must not be presented as historical personalization");
 
-// Learn the opposite behavior in a clean memory: user accepts extra stops for modest net savings.
+// Learn the opposite behavior in a clean memory. Five consistent choices are enough to call it a stable savings tendency.
 memory.clear();
-for(const netSaving of [100,140,180])memory.noteTradeoffChoice({choice:"split",recommendedChoice:"one",netSaving,grossSaving:netSaving+200,timeMinutes:20,operationalCost:200,mode:"walk",override:true});
+for(const netSaving of [100,120,140,160,180])memory.noteTradeoffChoice({choice:"split",recommendedChoice:"one",netSaving,grossSaving:netSaving+200,timeMinutes:20,operationalCost:200,mode:"walk",override:true});
 profile=memory.tradeoffProfile(150,"walk");
 assert.equal(profile.personalized,true);
-assert.equal(profile.tendency,"saving","repeated split choices should learn a savings tendency");
+assert.equal(profile.tendency,"saving","repeated split choices should eventually learn a savings tendency");
 assert.ok(profile.thresholdRub<150,"savings history should lower the neutral split threshold");
 
 decision=advisor.evaluate({oneTotal:5000,splitGoods:4700,oneStores:1,splitStores:2,state:{preferences:[]},mode:"walk",assembly:{configured:true,delivery:false,extraStops:1,minutesPerStop:20,timeMinutes:20,timeValueRub:150,transportRub:50,operationalCost:200},confidence:"verified"});
 assert.equal(decision.netSaving,100);
 assert.equal(decision.choice,"split","learned willingness to travel should make a modest but familiar saving worthwhile");
+assert.match(decision.why,/готов заехать ещё в магазин/i,"stable savings history should be explained transparently");
 
 // Explicit convenience for this task must still beat a historically savings-oriented profile.
 decision=advisor.evaluate({...neutralCase,state:{preferences:["convenience"]}});
