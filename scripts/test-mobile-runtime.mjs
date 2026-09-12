@@ -85,4 +85,30 @@ context.window.dispatchEvent({type:"online"});
 await Promise.resolve();
 assert.equal(priceRefreshes,beforeOnline+1,"duplicate script execution must not duplicate lifecycle listeners");
 
-console.log("Mobile runtime lifecycle passed: viewport, keyboard, BFCache resume, idempotent listeners.");
+const mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8");
+const priceSync=fs.readFileSync("price-sync.js","utf8");
+const androidCss=fs.readFileSync("android-viewport-fix.css","utf8");
+const touchCss=fs.readFileSync("touch-layout-fix.css","utf8");
+
+assert.match(mobileDock,/__TDV2MobileDockInitialized/,"mobile dock must be idempotent");
+assert.match(mobileDock,/visualViewport/,"mobile dock must follow the real visual viewport");
+assert.match(mobileDock,/data-td-keyboard-open/,"mobile dock must publish keyboard-open state");
+assert.match(mobileDock,/pagehide/,"mobile viewport work must pause on pagehide");
+assert.match(mobileDock,/pageshow/,"mobile viewport must recover on pageshow");
+
+assert.match(priceSync,/__TDPriceSyncInitialized/,"price sync must be idempotent");
+assert.doesNotMatch(priceSync,/setInterval\s*\(/,"price sync must not poll continuously with setInterval");
+assert.match(priceSync,/document\.hidden/,"price sync must pause in hidden tabs");
+assert.match(priceSync,/navigator\.onLine/,"price sync must avoid network work while offline");
+assert.match(priceSync,/window\.addEventListener\("pagehide",suspend\)/,"price sync must suspend on pagehide");
+assert.match(priceSync,/window\.addEventListener\("pageshow",resume\)/,"price sync must resume after BFCache/page restore");
+assert.match(priceSync,/window\.addEventListener\("offline",suspend\)/,"price sync must pause offline");
+assert.match(priceSync,/window\.addEventListener\("online",resume\)/,"price sync must resume online");
+
+assert.match(androidCss,/data-td-keyboard-open/,"Android CSS must react to keyboard state");
+assert.match(androidCss,/var\(--td-vvh,100dvh\)/,"Android dialogs must use visual viewport height");
+assert.match(androidCss,/\.v2-bottom-nav/,"Android keyboard state must protect bottom navigation");
+assert.match(touchCss,/bottom:calc\(64px \+ env\(safe-area-inset-bottom\)\)!important/,"coarse-pointer mascot must preserve the bottom safe area");
+assert.match(touchCss,/max-height:calc\(var\(--td-vvh,100dvh\) - 104px\)!important/,"coarse-pointer Bay panel must use visual viewport height");
+
+console.log("Mobile runtime lifecycle passed: viewport, keyboard, safe areas, BFCache resume and suspended price sync are guarded.");
