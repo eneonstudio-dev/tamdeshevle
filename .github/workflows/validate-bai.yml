@@ -15,6 +15,7 @@ on:
       - "courier-handoff-v1.js"
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
+      - "scripts/test-bai-core-parser.mjs"
       - "scripts/test-bai-brain.mjs"
       - "scripts/test-bai-self-check.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
@@ -42,6 +43,7 @@ on:
       - "courier-handoff-v1.js"
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
+      - "scripts/test-bai-core-parser.mjs"
       - "scripts/test-bai-brain.mjs"
       - "scripts/test-bai-self-check.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
@@ -89,6 +91,7 @@ jobs:
           node --check continue-in-stores-v1.js
           node --check real-store-integration-v1.js
           node --check server/bai-learning-consensus.mjs
+          node --check scripts/test-bai-core-parser.mjs
           node --check scripts/test-bai-brain.mjs
           node --check scripts/test-bai-self-check.mjs
           node --check scripts/test-shopping-state-consistency.mjs
@@ -101,6 +104,7 @@ jobs:
           node --check scripts/test-bai-chat-runtime.mjs
       - name: Test Bai conversation regressions
         run: |
+          node scripts/test-bai-core-parser.mjs
           node scripts/test-bai-brain.mjs
           node scripts/test-bai-self-check.mjs
           node scripts/test-shopping-state-consistency.mjs
