@@ -1,0 +1,26 @@
+:root{--voto-ink:#101814;--voto-graphite:#17201b;--voto-green:#2bd67b;--voto-green-deep:#0f7b4a;--voto-paper:#f4f5f1;--voto-card:#fff;--voto-muted:#69736c;--voto-line:rgba(16,24,20,.10)}
+body.td-votonobay{background:#e9ede9;color:var(--voto-ink)}
+body.td-votonobay .phone{background:var(--voto-paper)}
+body.td-votonobay .v2-header{background:rgba(244,245,241,.9);border-bottom-color:var(--voto-line)}
+body.td-votonobay .v2-brand{gap:0;color:var(--voto-ink);font-weight:900;letter-spacing:-.055em}
+body.td-votonobay .v2-brand svg.logo{display:none!important}
+body.td-votonobay .v2-brand span{font-size:20px;font-weight:900}
+body.td-votonobay .brand-home{width:auto;min-width:96px;height:36px;padding:0 2px;border:0;background:transparent!important;color:var(--voto-ink);font:900 16px/1 Manrope,system-ui,sans-serif;letter-spacing:-.045em;text-align:left}
+body.td-votonobay .brand-home svg.logo{display:none!important}
+body.td-votonobay .brand-home:after{content:"Votonobay"}
+body.td-votonobay .v2-hero{background:radial-gradient(circle at 86% 8%,rgba(43,214,123,.17),transparent 28%),linear-gradient(138deg,#101814 0%,#16231c 58%,#123d29 100%);box-shadow:0 26px 70px rgba(10,34,22,.18)}
+body.td-votonobay .v2-eyebrow{color:#aebdb4}
+body.td-votonobay .v2-hero h1{letter-spacing:-.075em}
+body.td-votonobay .v2-hero h1 em{color:#63e8a2}
+body.td-votonobay .v2-hero p{color:#c8d3cc}
+body.td-votonobay .v2-search{box-shadow:0 20px 50px rgba(0,0,0,.2)}
+body.td-votonobay .v2-search button,body.td-votonobay .v2-compare{background:var(--voto-green-deep)}
+body.td-votonobay .v2-section-head span,body.td-votonobay .v2-basket-top span,body.td-votonobay .v2-product-price strong,body.td-votonobay .price,body.td-votonobay .delta{color:var(--voto-green-deep)}
+body.td-votonobay .v2-product-card,body.td-votonobay .v2-basket-card,body.td-votonobay .item,body.td-votonobay .plan{border-color:rgba(16,24,20,.06);box-shadow:0 10px 30px rgba(16,40,28,.055)}
+body.td-votonobay .v2-add{background:var(--voto-ink)}
+body.td-votonobay .v2-footer{background:linear-gradient(145deg,#101814,#13291d);box-shadow:0 22px 60px rgba(10,35,23,.14)}
+body.td-votonobay .btn.dark,body.td-votonobay .step button:last-child{background:var(--voto-ink);border-color:var(--voto-ink)}
+body.td-votonobay .btn.green{background:var(--voto-green-deep)}
+body.td-votonobay .plan.best{border-color:var(--voto-green-deep);background:#f1faf4}
+body.td-votonobay .city{color:var(--voto-ink)}
+@media(max-width:700px){body.td-votonobay .v2-brand span{font-size:18px}body.td-votonobay .v2-hero h1{font-size:clamp(44px,13vw,58px)}}
