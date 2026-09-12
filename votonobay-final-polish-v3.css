@@ -1,0 +1,184 @@
+/* Votonobay final visual polish v3
+   Presentation-only refinements layered after the core design system. */
+
+:root{
+  --voto-plate:#e7ece8;
+  --voto-plate-2:#dfe6e1;
+  --voto-hairline:rgba(224,255,235,.07);
+  --voto-glow:rgba(79,245,154,.12);
+}
+
+/* Make the page feel intentional even before interaction. */
+body{letter-spacing:-.008em}
+.v2-main,.v2-footer,.v2-header-inner{width:100%}
+.v2-content{isolation:isolate}
+.v2-section-head h2,.v2-basket-card h2,.voto-screen-intro h2{font-weight:800}
+
+/* Header: reduce marketplace chrome and keep focus on product + Bay. */
+.v2-header{box-shadow:0 1px 0 rgba(255,255,255,.015),0 14px 44px rgba(0,0,0,.12)!important}
+.v2-header-inner{gap:28px!important}
+.v2-brand{position:relative;padding:9px 0!important}
+.v2-brand:after{content:"";position:absolute;left:0;right:0;bottom:3px;height:1px;background:linear-gradient(90deg,var(--voto-mint),transparent);opacity:.28;transform:scaleX(.55);transform-origin:left}
+.v2-nav{gap:1px!important}
+.v2-nav button{padding:9px 11px!important;font-size:11px!important;letter-spacing:-.01em}
+.v2-header-actions{gap:6px!important}
+.v2-city{max-width:178px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.v2-favorite,.v2-profile,.v2-menu{font-size:16px!important}
+
+/* Hero: editorial hierarchy rather than a dashboard of pills. */
+.v2-hero.v2-bay-first{isolation:isolate}
+.v2-hero.v2-bay-first:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,rgba(255,255,255,.018),transparent 34%,transparent 72%,rgba(79,245,154,.025));z-index:0}
+.v2-bay-first .v2-hero-copy,.v2-bay-first .v2-hero-bai,.v2-bay-actions,.v2-self-search,.v2-hero-proof{position:relative;z-index:1}
+.v2-hero h1{max-width:760px;text-wrap:balance}
+.v2-bay-first .v2-hero-copy p{text-wrap:pretty}
+.v2-bay-first .v2-hero-bai img{transform-origin:50% 92%}
+.v2-bay-first .v2-hero-bai:hover img{transform:translateY(-5px) rotate(-.6deg)!important}
+.v2-bay-first .v2-hero-bai span{max-width:170px;line-height:1.4!important}
+.v2-bay-actions{align-items:center!important}
+.v2-bay-primary,.v2-bay-secondary{letter-spacing:-.015em}
+.v2-bay-scenarios{opacity:.92}
+.v2-bay-scenarios button{transition:background .18s,border-color .18s,color .18s,transform .18s!important}
+.v2-bay-scenarios button:hover{transform:translateY(-1px)}
+
+/* Remove the old checkmark language visually. */
+.v2-bay-first .v2-hero-proof span{font-size:0!important;gap:0!important;padding:7px 10px!important}
+.v2-bay-first .v2-hero-proof span:before{display:inline-block;font-size:10px;line-height:1.2;font-weight:750;letter-spacing:-.01em;color:#7e9487}
+.v2-bay-first .v2-hero-proof span:nth-child(1):before{content:"Объясняет выбор"}
+.v2-bay-first .v2-hero-proof span:nth-child(2):before{content:"Сравнивает сценарий целиком"}
+.v2-bay-first .v2-hero-proof span:nth-child(3):before{content:"Работает и без ассистента"}
+
+/* Self-service should look quieter than the Bay path, but never unfinished. */
+.v2-self-search .v2-search{transition:border-color .18s,box-shadow .18s,background .18s!important}
+.v2-self-search .v2-search:focus-within{background:#0c1811!important}
+.v2-self-search .v2-categories{gap:6px!important}
+.v2-self-search .v2-categories button{padding:7px 10px!important;font-size:9px!important}
+.v2-self-label{letter-spacing:.13em!important}
+
+/* Store strip: compact, calm, and visually consistent. */
+.v2-store-strip>button{min-height:68px!important}
+.v2-store-strip i{width:39px!important;height:39px!important;border-radius:13px!important;filter:saturate(.78) brightness(.95)}
+.v2-store-strip b{color:#eef8f1!important;font-size:12px!important;letter-spacing:-.02em}
+.v2-store-strip small{text-transform:none!important;letter-spacing:0!important}
+
+/* Product cards: less glaring image plates and stronger typographic rhythm. */
+.v2-product-grid{align-items:stretch}
+.v2-product-card{display:flex!important;flex-direction:column!important;min-height:292px!important;overflow:hidden}
+.v2-product-image{flex:0 0 auto;background:radial-gradient(circle at 50% 34%,#f2f5f2 0%,var(--voto-plate) 64%,var(--voto-plate-2) 100%)!important;box-shadow:inset 0 0 0 1px rgba(3,16,9,.035)}
+.v2-product-image img{padding:11px!important;filter:saturate(.94) contrast(.98)}
+.v2-product-body{display:flex!important;flex:1!important;flex-direction:column!important;padding:12px 4px 3px!important;min-width:0}
+.v2-product-name{white-space:normal!important;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;min-height:2.65em;line-height:1.32!important;font-size:13px!important}
+.v2-product-pack{min-height:1.35em;margin-top:4px!important}
+.v2-product-price{margin-top:auto!important;padding-top:12px;padding-right:42px}
+.v2-product-store{min-height:1.4em;padding-right:42px;margin-top:6px!important}
+.v2-product-store>span{box-shadow:0 0 0 3px rgba(255,255,255,.025)}
+.v2-add{display:grid!important;place-items:center;transition:transform .16s,background .16s,box-shadow .16s!important}
+.v2-add:hover{box-shadow:0 10px 25px rgba(79,245,154,.12)!important}
+.v2-product-image em{box-shadow:0 7px 18px rgba(0,0,0,.11)}
+
+/* Decision tray: make the next action unmistakable. */
+.v2-basket-card{overflow:hidden}
+.v2-basket-card:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(138,255,189,.42),transparent)}
+.v2-basket-card h2{line-height:1.18!important;text-wrap:balance}
+.v2-basket-lines{margin-top:4px}
+.v2-basket-lines>div{min-height:42px;padding:11px 0!important}
+.v2-basket-lines>div>span{font-size:11px!important}
+.v2-basket-lines button{width:25px!important;height:25px!important;border-radius:8px!important}
+.v2-compare{min-height:50px;align-items:center!important;font-size:12px!important;letter-spacing:-.01em}
+.v2-edit{padding:11px!important}
+
+/* Inner screens: neutral cards stay flat; decisions get depth. */
+body.td-votonobay-inner .wrap{max-width:1120px}
+body.td-votonobay-inner .voto-screen-intro{position:relative;overflow:hidden}
+body.td-votonobay-inner .voto-screen-intro:after{content:"";position:absolute;right:-90px;top:-110px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(79,245,154,.11),transparent 69%);pointer-events:none}
+body.td-votonobay-inner .item,body.td-votonobay-inner .store{box-shadow:0 10px 30px rgba(0,0,0,.11)!important}
+body.td-votonobay-inner .plan,body.td-votonobay-inner .note,body.td-votonobay-inner .toggle{box-shadow:0 8px 24px rgba(0,0,0,.09)!important}
+body.td-votonobay-inner .plan.best,body.td-votonobay-inner .v2-verdict,.td-bai-handoff,.td-ai-summary{box-shadow:0 24px 68px rgba(0,0,0,.26),inset 0 1px 0 rgba(202,255,223,.025)!important}
+body.td-votonobay-inner .thumb,body.td-votonobay-inner .product-packaging,body.td-votonobay-inner .sku-plate{background:radial-gradient(circle at 50% 34%,#f1f4f2,var(--voto-plate) 66%,var(--voto-plate-2))!important}
+body.td-votonobay-inner .title{line-height:1.32!important}
+body.td-votonobay-inner .price{font-variant-numeric:tabular-nums}
+body.td-votonobay-inner .step button{transition:background .16s,border-color .16s,transform .16s}
+body.td-votonobay-inner .step button:active{transform:scale(.94)}
+body.td-votonobay-inner .dock{border-color:rgba(224,255,235,.105)!important}
+
+/* Bay: remove the last light floating bubble/panel feel. */
+.bai-bubble{border:1px solid rgba(224,255,235,.11)!important;background:rgba(7,18,11,.94)!important;color:#eafff2!important;box-shadow:0 18px 44px rgba(0,0,0,.32)!important;backdrop-filter:blur(14px)}
+.bai-panel{border-radius:24px!important;background:radial-gradient(circle at 90% -5%,rgba(79,245,154,.075),transparent 31%),rgba(7,20,13,.97)!important;border-color:rgba(224,255,235,.1)!important;box-shadow:0 30px 86px rgba(0,0,0,.46)!important}
+.bai-panel-head span{color:#76e8a8!important}
+.bai-panel-head b{color:#f5fff8!important}
+.bai-actions>button{min-height:53px!important;border-radius:15px!important;background:rgba(255,255,255,.035)!important}
+.bai-actions>button:hover{background:rgba(79,245,154,.075)!important}
+.bai-actions i{background:rgba(79,245,154,.09)!important;color:#9bf6c0!important}
+.bai-actions b{color:#edf8f1!important}
+.bai-actions small{font-size:9px!important;line-height:1.35!important}
+
+/* Assistant work-room messages and composer. */
+.td-ai-main{min-width:0}
+.td-ai-messages{scrollbar-width:thin;scrollbar-color:rgba(138,255,189,.18) transparent}
+.td-ai-messages::-webkit-scrollbar{width:6px}
+.td-ai-messages::-webkit-scrollbar-thumb{background:rgba(138,255,189,.16);border-radius:999px}
+.td-ai-compose{border-radius:18px!important}
+.td-ai-quick{gap:7px!important}
+.td-ai-quick button{border-radius:999px!important;padding:8px 11px!important}
+
+/* Footer and low-priority content should recede. */
+.v2-footer{box-shadow:0 18px 58px rgba(0,0,0,.16)!important}
+.v2-footer b{color:#dce8df!important}
+.v2-easter{opacity:.72;transition:opacity .2s}
+.v2-easter:hover{opacity:1}
+
+/* Mobile: one deliberate composition, not a squeezed desktop. */
+@media(max-width:700px){
+  .v2-header-inner{gap:8px!important}
+  .v2-brand{font-size:16px!important}
+  .v2-header-actions{margin-left:auto}
+  .v2-city{max-width:106px!important;padding:0 9px!important}
+  .v2-profile,.v2-menu{width:36px!important;height:36px!important}
+  .v2-hero.v2-bay-first{box-shadow:0 24px 62px rgba(0,0,0,.28)!important}
+  .v2-hero h1{text-wrap:balance}
+  .v2-bay-first .v2-hero-bai span{max-width:145px}
+  .v2-bay-scenarios{margin-left:-2px;margin-right:-2px;padding-left:2px;padding-right:2px}
+  .v2-bay-first .v2-hero-proof{display:none!important}
+  .v2-store-strip>button{min-width:142px!important;min-height:64px!important}
+  .v2-product-card{min-height:266px!important}
+  .v2-product-name{font-size:12px!important;min-height:2.62em}
+  .v2-product-body{padding-top:10px!important}
+  .v2-product-price{padding-top:9px}
+  .v2-bottom-nav{padding-top:7px!important;padding-bottom:calc(7px + env(safe-area-inset-bottom))!important}
+  .v2-bottom-nav button{min-height:48px!important}
+  .v2-bottom-nav button i{font-size:18px!important}
+  .v2-bottom-nav button span{font-size:9px!important;font-weight:750!important}
+  body.td-votonobay-inner .voto-screen-intro{margin-bottom:12px!important}
+  body.td-votonobay-inner .dock{box-shadow:0 22px 68px rgba(0,0,0,.58)!important}
+  .bai-bubble{right:54px!important;bottom:42px!important}
+  body>.bai-panel[data-bai-panel="true"]{border-radius:24px!important;padding:16px!important}
+}
+
+@media(max-width:520px){
+  .v2-city{display:none!important}
+  .v2-product-grid{gap:9px!important}
+  .v2-product-image{height:128px!important}
+  .v2-product-card{min-height:250px!important}
+  .v2-product-price strong{font-size:16px!important}
+  .v2-add{width:34px!important;height:34px!important;right:11px!important;bottom:11px!important}
+  body.td-votonobay-inner .wrap{padding-top:20px!important}
+  body.td-votonobay-inner .voto-screen-intro h2{font-size:23px!important}
+}
+
+@media(max-width:360px){
+  .v2-main{padding-left:10px!important;padding-right:10px!important}
+  .v2-hero.v2-bay-first{padding-left:15px!important;padding-right:15px!important}
+  .v2-product-grid{grid-template-columns:1fr!important}
+  .v2-product-card{min-height:0!important}
+  .v2-product-image{height:176px!important}
+  .v2-product-name{font-size:13px!important;min-height:0}
+  .v2-product-price strong{font-size:18px!important}
+  .v2-store-strip>button{min-width:132px!important}
+}
+
+@media(hover:none){
+  .v2-product-card:hover,.v2-store-strip>button:hover,.v2-bay-primary:hover,.v2-bay-scenarios button:hover{transform:none!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v2-easter,.v2-bay-scenarios button,.v2-add,.bai-actions>button{transition:none!important}
+}
