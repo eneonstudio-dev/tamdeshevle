@@ -4,6 +4,7 @@
   if(!brain?.route||window.TDBaiReasoningGuard)return;
 
   const PRODUCT={"молок":"milk","хлеб":"bread","куриц":"chicken","банан":"banana","масл":"oil","яйц":"eggs","яиц":"eggs","греч":"buck","сметан":"sour","сахар":"sugar","макарон":"pasta","вод":"water","яблок":"apple","ветчин":"ham","пельмен":"dumplings","лапш":"noodles","вафл":"waffles","творог":"cottage"};
+  const LABEL={milk:"молоко",bread:"хлеб",chicken:"курица",banana:"банан",oil:"масло",eggs:"яйца",buck:"гречка",sour:"сметана",sugar:"сахар",pasta:"макароны",water:"вода",apple:"яблоки",ham:"ветчина",dumplings:"пельмени",noodles:"лапша",waffles:"вафли",cottage:"творог"};
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
   const original=brain.route.bind(brain);
   const trailingExclusion=/(?:не\s+надо(?:\s+(?:добавлять|класть|брать))?|не\s+нуж(?:но|ен|на|ны)|не\s+(?:клади|добавляй))(?:\s*[.!?])?$/;
@@ -33,6 +34,17 @@
     }).join("");
   }
 
+  function ambiguousReplacementChoice(raw){
+    const t=low(raw);
+    if(!/(замени|поменяй|вместо)/.test(t)||!/(^|[^а-яa-z0-9_])или(?=$|[^а-яa-z0-9_])/.test(t))return null;
+    const items=mentions(t);
+    if(items.length<3)return null;
+    const orPos=t.indexOf("или");
+    const left=items.filter(x=>x.pos<orPos).at(-1),right=items.find(x=>x.pos>orPos);
+    if(!left||!right||left.id===right.id)return null;
+    return{left,right};
+  }
+
   function directionalReplacement(raw){
     const t=low(raw),pivot=t.indexOf("вместо");
     if(pivot<0)return null;
@@ -54,6 +66,11 @@
 
   brain.route=async function(raw,...rest){
     const normalized=normalizeTrailingExclusions(raw);
+    const ambiguous=ambiguousReplacementChoice(normalized);
+    if(ambiguous){
+      const left=LABEL[ambiguous.left.id]||ambiguous.left.stem,right=LABEL[ambiguous.right.id]||ambiguous.right.stem;
+      return{ok:true,provider:"bai-reasoning-guard+clarification",operations:[],reply:`Вижу два варианта через «или». Уточни один товар для замены: ${left} или ${right}.`,suggestions:[left,right],expectsAnswer:true};
+    }
     const replacement=directionalReplacement(normalized);
     if(!replacement){
       const result=await original(normalized,...rest);
@@ -64,5 +81,5 @@
     return{...result,provider:`${result?.provider||"bai-brain"}+direction-guard`,interpretedAs:{type:"replace",from:replacement.from.id,to:replacement.to.id}};
   };
 
-  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions};
+  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice};
 })();
