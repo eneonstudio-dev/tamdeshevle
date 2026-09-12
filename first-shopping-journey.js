@@ -31,6 +31,11 @@
     try{return Array.isArray(window.TDCompare?.fromWindow?.())?window.TDCompare.fromWindow():[]}catch{return[]}
   }
 
+  function knownMoney(value){
+    if(value===null||value===undefined||value==="")return false;
+    const number=Number(value);return Number.isFinite(number)&&number>=0;
+  }
+
   function actionLabel(plan){
     const name=String(plan?.name||"магазин");
     return plan?.channel==="bring"?`Перейти в «${name}»`:`Найти «${name}» рядом`;
@@ -39,10 +44,10 @@
   function safePlanHint(plan){
     if(!plan)return"Детали варианта уточняются";
     if(plan.channel==="bring"){
-      const goods=Number.isFinite(Number(plan.goods))?`товары ${Math.round(Number(plan.goods))} ₽`:"цена товаров уточняется";
+      const goods=knownMoney(plan.goods)?`товары ${Math.round(Number(plan.goods))} ₽`:"цена товаров уточняется";
       const time=plan.time?` · ${plan.time}`:"";
       if(plan.feeKnown){
-        const fee=Number.isFinite(Number(plan.delivery))?`доставка сети ${Math.round(Number(plan.delivery))} ₽`:"доставка сети уточняется";
+        const fee=knownMoney(plan.delivery)?`доставка сети ${Math.round(Number(plan.delivery))} ₽`:"доставка сети уточняется";
         return`${goods} + ${fee}${time}`;
       }
       return`${goods} · тариф доставки не заложен${time}`;
