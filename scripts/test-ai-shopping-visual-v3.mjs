@@ -7,6 +7,8 @@ assert.match(js,/Еда на три дня до 2000 ₽/);
 assert.match(js,/TDShoppingAssistant\?\.submit/);
 assert.match(js,/td-ai-v3-product/);
 assert.match(js,/dataset\.visualSignature/);
+assert.doesNotMatch(js,/dataset\.visualV3\)return/);
+assert.match(js,/if\(!hero\.querySelector\("\.td-ai-v3-prompts"\)\)/);
 assert.match(css,/data-bai-busy/);
 assert.match(css,/td-v3-card/);
 assert.match(css,/object-fit:cover/);
