@@ -6,12 +6,25 @@
 .meta{padding:10px 12px 12px}
 .time{font-size:11px;font-weight:700;margin-top:0}
 .grid{gap:10px}
-.sku{border-radius:20px;box-shadow:0 8px 20px rgba(22,20,16,.07);transition:transform .16s ease}
-.sku-plate{min-height:96px;background:#fff;padding:6px;display:flex;align-items:center;justify-content:center}
+.sku{border-radius:20px;box-shadow:0 8px 20px rgba(22,20,16,.07);transition:transform .16s ease;min-width:0}
+.sku-plate{min-height:96px;background:#fff;padding:6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .sku-plate img{width:100%;height:96px;object-fit:contain;object-position:center;transition:transform .45s ease}
+.sku-name,.sku-meta{overflow-wrap:anywhere}
 .sku:active .sku-plate img{transform:scale(1.025)}
-.item,.product-card{border:0;border-radius:18px;padding:10px;grid-template-columns:76px 1fr auto;gap:10px;box-shadow:0 6px 16px rgba(22,20,16,.05)}
-.thumb,.product-packaging{width:76px;height:76px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;padding:5px}
+.item,.product-card{border:0;border-radius:18px;padding:10px;grid-template-columns:76px minmax(0,1fr) auto;gap:10px;box-shadow:0 6px 16px rgba(22,20,16,.05);min-width:0}
+.item>div:nth-child(2),.product-card>div:nth-child(2){min-width:0}
+.item .title,.product-card .title{line-height:1.25;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+.item .pack,.product-card .pack,.item .price,.product-card .price{overflow-wrap:anywhere;min-width:0}
+.thumb,.product-packaging{width:76px;height:76px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;padding:5px;overflow:hidden}
 .thumb img,.product-packaging img{width:100%;height:100%;object-fit:contain;object-position:center;display:block}
+.step{min-width:0}
 .step button{width:40px!important;height:40px!important;min-width:40px;touch-action:manipulation}
+@media (max-width:380px){
+  .item,.product-card{grid-template-columns:64px minmax(0,1fr) auto;gap:8px;padding:8px}
+  .thumb,.product-packaging{width:64px;height:64px;border-radius:12px;padding:4px}
+  .item .title,.product-card .title{font-size:13px}
+  .item .pack,.product-card .pack{font-size:10px}
+  .item .price,.product-card .price{font-size:13px}
+  .td-product-trust,.td-retailer-name,.td-match-note{grid-column:2/-1!important}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
