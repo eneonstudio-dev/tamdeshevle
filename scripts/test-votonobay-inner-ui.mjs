@@ -6,8 +6,11 @@ const js=fs.readFileSync("votonobay-inner-v1.js","utf8");
 const css=fs.readFileSync("votonobay-inner-v1.css","utf8");
 const polish=fs.readFileSync("votonobay-inner-polish-v2.css","utf8");
 const touch=fs.readFileSync("touch-layout-fix.css","utf8");
+const comparisonJs=fs.readFileSync("comparison-result-v2.js","utf8");
+const comparisonCss=fs.readFileSync("comparison-result-v2.css","utf8");
 
 new Function(js);
+new Function(comparisonJs);
 
 assert.match(html,/votonobay-inner-v1\.css\?v=/,"inner screen styles must load from the document head");
 assert.match(html,/votonobay-inner-v1\.js\?v=/,"inner screen runtime must load after the shopping shell");
@@ -82,4 +85,18 @@ assert.match(polish,/grid-template-columns:58px minmax\(0,1fr\)!important/,"narr
 assert.match(polish,/min-height:44px!important/,"comparison and recovery actions must keep usable touch targets");
 assert.match(polish,/prefers-reduced-motion:reduce/,"polish must continue respecting reduced-motion preferences");
 
-console.log("Votonobay inner UI tests passed: dark decision-first self-service, unified catalog/cart/comparison hierarchy, mobile-safe controls, truthful delivery constraints and no Bai coupling.");
+// The dedicated comparison overlay must feel like Bay's decision, not a cheapest-first table.
+assert.match(comparisonJs,/comparison-result-v2\.css\?v=20260912-decision-v2/,"comparison visual cache key must follow the Bay-led redesign");
+assert.match(comparisonJs,/const best=all\[0\]/,"comparison must respect the canonical Bay recommendation order instead of re-ranking by lowest price");
+assert.match(comparisonJs,/Я бы взял этот вариант\./,"recommendation must lead with a human Bay verdict");
+assert.match(comparisonJs,/ЕСЛИ ПРИОРИТЕТ ДРУГОЙ/,"alternatives must be framed around changed priorities");
+assert.match(comparisonJs,/td-compare-bay/,"Bay must be visually present inside the recommendation surface");
+assert.match(comparisonJs,/Можно дешевле на/,"recommendation must explain a cheaper tradeoff instead of hiding it");
+assert.match(comparisonCss,/\.td-compare-hero\{[\s\S]*background:radial-gradient/,"recommendation must be a premium dark decision surface, not a bright green slab");
+assert.match(comparisonCss,/\.td-compare-bay/,"comparison styles must integrate Bay as part of the decision composition");
+assert.match(comparisonCss,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)!important/,"desktop alternatives must keep a compact comparison grid");
+assert.match(comparisonCss,/height:min\(94dvh,860px\)!important/,"mobile decision comparison must continue as a bounded bottom sheet");
+assert.match(comparisonCss,/padding-bottom:env\(safe-area-inset-bottom\)!important/,"mobile decision comparison must respect safe area");
+assert.doesNotMatch(comparisonCss,/linear-gradient\(135deg,#24df84,#10a95e\)/,"old full-green comparison hero must not return");
+
+console.log("Votonobay inner UI tests passed: dark decision-first self-service, Bay-led recommendation, mobile-safe comparison, truthful delivery constraints and no accidental Bai coupling in self-service polish.");
