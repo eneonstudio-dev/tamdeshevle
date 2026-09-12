@@ -75,8 +75,8 @@
     const style=document.createElement("style");style.dataset.baiChangeIntelligenceV1="1";style.textContent=`.td-bai-change-note{display:grid;gap:5px;margin:5px 0 11px;padding:11px 12px;border:1px solid rgba(79,245,154,.18);border-radius:15px;background:rgba(79,245,154,.055);color:#dce9e1}.td-bai-change-note>small{color:#78f4ad;font:900 9px/1.2 Manrope,sans-serif;letter-spacing:.1em}.td-bai-change-note>span{font:700 11px/1.45 Manrope,sans-serif}.td-bai-change-note[data-level="warning"]{border-color:rgba(255,194,92,.24);background:rgba(255,194,92,.07)}.td-bai-change-note[data-level="warning"]>small{color:#ffd28a}`;document.head.appendChild(style);
   }
   function surface(insight){
-    try{window.dispatchEvent(new CustomEvent("td:bai-change-insight",{detail:clone(insight)}))}catch{}
     if(!insight?.notify||!insight.text)return;
+    try{window.dispatchEvent(new CustomEvent("td:bai-change-insight",{detail:clone(insight)}))}catch{}
     const root=typeof document!=="undefined"?document.querySelector(".td-ai"):null;
     if(root){ensureCss();root.querySelector(".td-bai-change-note")?.remove();const note=document.createElement("section");note.className="td-bai-change-note";note.dataset.level=insight.level;note.setAttribute("role","status");note.setAttribute("aria-live","polite");const label=document.createElement("small");label.textContent=insight.level==="warning"?"БАЙ ЗАМЕТИЛ":"БАЙ ПЕРЕСЧИТАЛ";const text=document.createElement("span");text.textContent=insight.text;note.append(label,text);root.querySelector(".td-ai-messages")?.insertAdjacentElement("beforebegin",note);return;}
     try{window.dispatchEvent(new CustomEvent("bai:hint",{detail:{state:insight.level==="warning"?"suspicious":insight.reason==="winner_changed"?"happy":"thinking",text:insight.text,ms:3400}}))}catch{}
