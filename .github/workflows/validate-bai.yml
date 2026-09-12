@@ -77,6 +77,7 @@ jobs:
           node --check bai-decision-quality.js
           node --check bai-life.js
           node --check bai-memory.js
+          node --check bai-tradeoff-advisor-v1.js
           node --check bai-learning-safety.js
           node --check bai-learning-loop.js
           node --check bai-learning-admin.js
@@ -106,6 +107,7 @@ jobs:
           node --check scripts/test-bai-learning-admin.mjs
           node --check scripts/test-bai-memory-undo.mjs
           node --check scripts/test-bai-memory-outcomes.mjs
+          node --check scripts/test-bai-tradeoff-learning.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
           node --check scripts/test-bai-agent-core.mjs
@@ -137,6 +139,7 @@ jobs:
           node scripts/test-bai-learning-admin.mjs
           node scripts/test-bai-memory-undo.mjs
           node scripts/test-bai-memory-outcomes.mjs
+          node scripts/test-bai-tradeoff-learning.mjs
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
           node scripts/test-bai-agent-core.mjs
