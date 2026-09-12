@@ -10,6 +10,13 @@ body.td-votonobay-inner header.app:not(.v2-header) .td-profile-btn{
   border:1px solid var(--voto-line)!important;background:rgba(255,255,255,.055)!important;color:#dce9e1!important;box-shadow:none!important;
 }
 
+/* Category labels are section headers, not grid cells. Without spanning both columns
+   the first product in every desktop category jumps into column two. */
+body[data-votonobay-screen="catalog"] .products>.sec,
+body[data-votonobay-screen="catalog"] .products>.shelf-head{
+  grid-column:1/-1!important;margin:12px 0 2px!important;
+}
+
 /* Receipt entry belongs to the dark product world, not the old beige prototype. */
 body.td-votonobay-inner .receipt-entry-cta{
   border-color:rgba(79,245,154,.15)!important;
