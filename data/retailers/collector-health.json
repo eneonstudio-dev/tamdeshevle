@@ -1,6 +1,6 @@
 {
   "schema": "tamdeshevle.collector-health.v1",
-  "generated_at": "2026-09-12T07:20:50.952Z",
+  "generated_at": "2026-09-12T08:07:07.642Z",
   "collectors": {
     "magnit": {
       "status": "healthy",
@@ -16,8 +16,8 @@
     },
     "pyat_regional": {
       "status": "healthy",
-      "last_attempt_at": "2026-09-11T08:17:08.126Z",
-      "last_success_at": "2026-09-11T08:17:08.126Z",
+      "last_attempt_at": "2026-09-12T08:07:07.642Z",
+      "last_success_at": "2026-09-12T08:07:07.642Z",
       "message": "Regional Proshoper catalog refresh and validation succeeded."
     }
   }
