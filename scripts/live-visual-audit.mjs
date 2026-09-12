@@ -21,21 +21,46 @@ async function openPage(name, viewport, action) {
   await page.addStyleTag({ path: PREVIEW_CSS });
   if (action) await action(page);
   await page.waitForTimeout(1200);
-  const metrics = await page.evaluate(() => ({
-    width: innerWidth,
-    height: innerHeight,
-    bodyScrollWidth: document.body.scrollWidth,
-    bodyScrollHeight: document.body.scrollHeight,
-    hero: document.querySelector(".v2-hero")?.getBoundingClientRect().toJSON?.() || null,
-    header: document.querySelector(".v2-header")?.getBoundingClientRect().toJSON?.() || null,
-    innerHeader: document.querySelector("header.app:not(.v2-header)")?.getBoundingClientRect().toJSON?.() || null,
-    bottomNav: document.querySelector(".v2-bottom-nav")?.getBoundingClientRect().toJSON?.() || null,
-    assistant: document.querySelector(".td-ai")?.getBoundingClientRect().toJSON?.() || null,
-    assistantShell: document.querySelector(".td-ai-shell")?.getBoundingClientRect().toJSON?.() || null,
-    background: getComputedStyle(document.body).backgroundColor,
-    color: getComputedStyle(document.body).color,
-    overflowX: getComputedStyle(document.documentElement).overflowX,
-  }));
+  const metrics = await page.evaluate(() => {
+    const styleInfo = node => {
+      if (!node) return null;
+      const cs = getComputedStyle(node);
+      return {
+        tag: node.tagName,
+        className: String(node.className || ""),
+        text: String(node.textContent || "").replace(/\s+/g, " ").trim().slice(0, 180),
+        rect: node.getBoundingClientRect().toJSON?.() || null,
+        display: cs.display,
+        background: cs.background,
+        backgroundColor: cs.backgroundColor,
+        color: cs.color,
+        border: cs.border,
+        gridColumn: cs.gridColumn,
+        overflowX: cs.overflowX,
+        whiteSpace: cs.whiteSpace,
+      };
+    };
+    return {
+      width: innerWidth,
+      height: innerHeight,
+      bodyScrollWidth: document.body.scrollWidth,
+      bodyScrollHeight: document.body.scrollHeight,
+      hero: document.querySelector(".v2-hero")?.getBoundingClientRect().toJSON?.() || null,
+      header: document.querySelector(".v2-header")?.getBoundingClientRect().toJSON?.() || null,
+      innerHeader: document.querySelector("header.app:not(.v2-header)")?.getBoundingClientRect().toJSON?.() || null,
+      bottomNav: document.querySelector(".v2-bottom-nav")?.getBoundingClientRect().toJSON?.() || null,
+      assistant: document.querySelector(".td-ai")?.getBoundingClientRect().toJSON?.() || null,
+      assistantShell: document.querySelector(".td-ai-shell")?.getBoundingClientRect().toJSON?.() || null,
+      background: getComputedStyle(document.body).backgroundColor,
+      color: getComputedStyle(document.body).color,
+      overflowX: getComputedStyle(document.documentElement).overflowX,
+      wrapChildren: [...(document.querySelector(".wrap")?.children || [])].slice(0, 12).map(styleInfo),
+      stateCard: styleInfo(document.querySelector(".td-ai-state-card")),
+      stateCardButtons: [...document.querySelectorAll(".td-ai-state-card button")].map(styleInfo),
+      miniBay: styleInfo(document.querySelector("body>.bai-assistant")),
+      catalogSections: [...document.querySelectorAll(".products>.sec,.products>.shelf-head")].slice(0, 6).map(styleInfo),
+    };
+  });
   await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: true });
   report.push({ name, viewport, metrics, errors: errors.slice(0, 25) });
   await context.close();
