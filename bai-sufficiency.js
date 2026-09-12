@@ -56,11 +56,13 @@
     }
     const capped=role=>Math.min(1,ratios[role]||0);
     const weighted=capped("protein")*.32+capped("base")*.32+capped("fruit")*.18+capped("drink")*.18;
-    let score=Math.round(weighted*100)-Math.min(24,targetMiss.length*4);
+    const bottleneck=Math.min(capped("protein"),capped("base"),capped("fruit"),capped("drink"));
+    let score=Math.round((weighted*.76+bottleneck*.24)*100)-Math.min(24,targetMiss.length*4);
     score=Math.max(0,Math.min(100,score));
     return {
       score,demand:d,supply:s,ratios,gaps:gaps.sort((a,b)=>b.severity-a.severity),targetMiss,
-      sufficient:gaps.length===0&&targetMiss.length<=1,
+      sufficient:gaps.length===0&&targetMiss.length<=1&&bottleneck>=.62,
+      bottleneck,
       label:score>=85?"запас выглядит уверенно":score>=65?"запас в целом рабочий":"запаса мало для заданного срока"
     };
   }
