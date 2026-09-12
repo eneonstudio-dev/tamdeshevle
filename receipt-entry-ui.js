@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "td:receipt-drafts:v1";
+  const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>\"']/g, ch => ({
@@ -44,7 +45,13 @@
   function saveDraft(observation, localPhotoName) {
     const drafts = loadDrafts();
     drafts.unshift({ saved_at: new Date().toISOString(), local_photo_name: localPhotoName || null, observation });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts.slice(0, 20)));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts.slice(0, 20)));
+      return true;
+    } catch (error) {
+      console.warn("Receipt draft storage unavailable", error);
+      return false;
+    }
   }
 
   function storeOptions(selectedId) {
@@ -55,20 +62,29 @@
     return `<option value="">Не сопоставлен</option>` + products().map(product => `<option value="${esc(product.id)}">${esc(product.name || product.id)}</option>`).join("");
   }
 
+  function setStatus(status, kind, text) {
+    if (!status) return;
+    status.hidden = false;
+    status.className = `receipt-entry-status${kind ? ` ${kind}` : ""}`;
+    status.textContent = text;
+  }
+
   function openSheet() {
-    if (document.querySelector(".receipt-entry-backdrop")) return;
+    if (document.querySelector(".receipt-entry-backdrop")) return false;
     const stateNow = currentState() || {};
     const point = selectedPoint();
     const selectedStore = stores().find(store => store.id === (point ? point.chainId : stateNow.storeId)) || stores()[0] || null;
     const now = new Date();
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    const opener = document.activeElement;
+    const previousOverflow = document.body && document.body.style ? document.body.style.overflow : "";
 
     const overlay = document.createElement("div");
     overlay.className = "receipt-entry-backdrop";
     overlay.innerHTML = `
-      <section class="receipt-entry-sheet" role="dialog" aria-modal="true" aria-label="Добавить чек">
+      <section class="receipt-entry-sheet" role="dialog" aria-modal="true" aria-labelledby="receipt-entry-title" tabindex="-1">
         <div class="receipt-entry-head">
-          <div><h2>Добавить чек</h2><p>Пока сохраняем безопасный черновик. На сравнение цен он не влияет.</p></div>
+          <div><h2 id="receipt-entry-title">Добавить чек</h2><p>Пока сохраняем безопасный черновик. На сравнение цен он не влияет.</p></div>
           <button class="receipt-entry-close" type="button" aria-label="Закрыть">×</button>
         </div>
         <div class="receipt-entry-note">${point ? `Чек будет привязан к выбранной точке: ${esc(point.address)}.` : "Точная точка не выбрана. Адрес можно сохранить в черновике, но он не подтверждает магазин — выбери точку на карте перед отправкой."}</div>
@@ -80,102 +96,188 @@
             <div class="receipt-entry-field full"><label>Название в чеке</label><input name="receipt_name" placeholder="Молоко 3.2% 930 мл" required></div>
             <div class="receipt-entry-field"><label>Цена строки, ₽</label><input name="price" inputmode="decimal" type="number" min="0.01" step="0.01" required></div>
             <div class="receipt-entry-field"><label>Количество</label><input name="quantity" inputmode="decimal" type="number" min="0.001" step="0.001" value="1" required></div>
-            <div class="receipt-entry-field full"><label>Товар в Тамдешевле</label><select name="product_id">${productOptions()}</select></div>
+            <div class="receipt-entry-field full"><label>Товар в Votonobay</label><select name="product_id">${productOptions()}</select></div>
             <div class="receipt-entry-field"><label>Штрихкод</label><input name="barcode" inputmode="numeric" placeholder="Необязательно"></div>
             <div class="receipt-entry-field"><label>Фото чека</label><div class="receipt-entry-file"><input name="photo" type="file" accept="image/*" capture="environment"></div></div>
           </div>
           <button class="receipt-entry-save" type="submit">Сохранить черновик</button>
           <button class="receipt-entry-submit" type="button" disabled>Отправить фото на проверку</button>
-          <div class="receipt-entry-status" hidden></div>
+          <div class="receipt-entry-status" role="status" aria-live="polite" hidden></div>
         </form>
       </section>`;
 
     document.body.appendChild(overlay);
+    if (document.body && document.body.style) document.body.style.overflow = "hidden";
 
-    const close = () => overlay.remove();
+    const sheet = overlay.querySelector(".receipt-entry-sheet");
+    let closed = false;
+    const close = () => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener("keydown", onKeyDown);
+      if (document.body && document.body.style) document.body.style.overflow = previousOverflow;
+      overlay.remove();
+      if (opener && typeof opener.focus === "function" && opener.isConnected !== false) {
+        try { opener.focus({ preventScroll: true }); } catch (_) { opener.focus(); }
+      }
+    };
+    const onKeyDown = event => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key !== "Tab" || !sheet) return;
+      const focusable = Array.from(sheet.querySelectorAll(FOCUSABLE)).filter(node => node && node.offsetParent !== null);
+      if (!focusable.length) {
+        event.preventDefault();
+        sheet.focus();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
     overlay.querySelector(".receipt-entry-close").addEventListener("click", close);
     overlay.addEventListener("click", event => { if (event.target === overlay) close(); });
+    setTimeout(() => {
+      if (closed) return;
+      const target = overlay.querySelector('[name="receipt_name"]') || overlay.querySelector(".receipt-entry-close") || sheet;
+      if (target && typeof target.focus === "function") target.focus();
+    }, 0);
 
     const form = overlay.querySelector(".receipt-entry-form");
     const queueButton = form.querySelector(".receipt-entry-submit");
     form.addEventListener("submit", event => {
       event.preventDefault();
-      const form = event.currentTarget;
-      const status = form.querySelector(".receipt-entry-status");
-      const data = new FormData(form);
-      const storeId = String(data.get("store_id") || "");
+      const currentForm = event.currentTarget;
+      const status = currentForm.querySelector(".receipt-entry-status");
+      const data = new FormData(currentForm);
+      const storeId = String(data.get("store_id") || "").trim();
       const store = stores().find(item => item.id === storeId) || null;
       const currentPoint = selectedPoint();
       const scopedPoint = currentPoint && currentPoint.chainId === storeId ? currentPoint : null;
       const productId = String(data.get("product_id") || "").trim() || null;
       const barcode = String(data.get("barcode") || "").trim() || null;
+      const receiptName = String(data.get("receipt_name") || "").trim();
+      const address = String(data.get("address") || "").trim();
       const matchMethod = productId ? (barcode ? "barcode" : "name") : "unmatched";
-      const localPhoto = form.elements.photo && form.elements.photo.files && form.elements.photo.files[0];
+      const localPhoto = currentForm.elements.photo && currentForm.elements.photo.files && currentForm.elements.photo.files[0];
+      const observedDate = new Date(String(data.get("observed_at") || ""));
+      const price = Number(data.get("price"));
+      const quantity = Number(data.get("quantity"));
 
-      if (!window.TDReceiptObservations) {
-        status.hidden = false;
-        status.className = "receipt-entry-status warn";
-        status.textContent = "Модуль чеков пока недоступен.";
+      queueButton.disabled = true;
+      currentForm._receiptObservation = null;
+      currentForm._receiptPhoto = null;
+
+      if (!window.TDReceiptObservations || typeof window.TDReceiptObservations.create !== "function" || typeof window.TDReceiptObservations.validate !== "function") {
+        setStatus(status, "warn", "Модуль чеков пока недоступен.");
+        return;
+      }
+      if (!storeId || !receiptName || !address) {
+        setStatus(status, "warn", "Заполни магазин, адрес и название товара из чека.");
+        return;
+      }
+      if (!Number.isFinite(observedDate.getTime())) {
+        setStatus(status, "warn", "Проверь дату и время чека.");
+        return;
+      }
+      if (!Number.isFinite(price) || price <= 0) {
+        setStatus(status, "warn", "Проверь цену: она должна быть больше нуля.");
+        return;
+      }
+      if (!Number.isFinite(quantity) || quantity <= 0) {
+        setStatus(status, "warn", "Проверь количество: оно должно быть больше нуля.");
         return;
       }
 
-      const observation = window.TDReceiptObservations.create({
-        source: "manual_receipt",
-        receipt_id: `local-${Date.now()}`,
-        observed_at: new Date(String(data.get("observed_at"))).toISOString(),
-        store: {
-          chain_id: store ? store.id : storeId,
-          store_id: scopedPoint ? scopedPoint.storeId : storeId,
-          external_store_id: scopedPoint ? scopedPoint.id : null,
-          address: String(data.get("address") || "").trim(),
-          scope_source: scopedPoint ? "verified_store_point" : "manual_address",
-          scope_method: scopedPoint ? scopedPoint.scopeMethod : null,
-          scope_confidence: scopedPoint ? Number(scopedPoint.scopeConfidence) : null
-        },
-        items: [{
-          receipt_name: String(data.get("receipt_name") || "").trim(),
-          barcode,
-          product_id: productId,
-          match_method: matchMethod,
-          price: Number(data.get("price")),
-          quantity: Number(data.get("quantity")) || 1,
-          currency: "RUB"
-        }]
-      });
+      let observation;
+      try {
+        observation = window.TDReceiptObservations.create({
+          source: "manual_receipt",
+          receipt_id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          observed_at: observedDate.toISOString(),
+          store: {
+            chain_id: store ? store.id : storeId,
+            store_id: scopedPoint ? scopedPoint.storeId : storeId,
+            external_store_id: scopedPoint ? scopedPoint.id : null,
+            address,
+            scope_source: scopedPoint ? "verified_store_point" : "manual_address",
+            scope_method: scopedPoint ? scopedPoint.scopeMethod : null,
+            scope_confidence: scopedPoint ? Number(scopedPoint.scopeConfidence) : null
+          },
+          items: [{
+            receipt_name: receiptName,
+            barcode,
+            product_id: productId,
+            match_method: matchMethod,
+            price,
+            quantity,
+            currency: "RUB"
+          }]
+        });
+      } catch (error) {
+        console.warn("Receipt draft creation failed", error);
+        setStatus(status, "warn", "Не удалось подготовить черновик. Проверь поля и попробуй ещё раз.");
+        return;
+      }
 
       const validation = window.TDReceiptObservations.validate(observation);
       if (!validation.ok) {
-        status.hidden = false;
-        status.className = "receipt-entry-status warn";
-        status.textContent = `Не сохранила: ${validation.errors.join(", ")}`;
+        setStatus(status, "warn", `Не сохранила: ${(validation.errors || ["неверные данные"]).join(", ")}`);
         return;
       }
 
-      saveDraft(observation, localPhoto ? localPhoto.name : null);
-      form._receiptObservation = observation;
-      form._receiptPhoto = localPhoto || null;
+      if (!saveDraft(observation, localPhoto ? localPhoto.name : null)) {
+        setStatus(status, "warn", "Не удалось сохранить черновик на устройстве. Проверь свободное место или настройки хранилища и попробуй ещё раз.");
+        return;
+      }
+
+      currentForm._receiptObservation = observation;
+      currentForm._receiptPhoto = localPhoto || null;
       queueButton.disabled = !(localPhoto && window.TDAuth && typeof window.TDAuth.submitReceiptEvidence === "function");
-      status.hidden = false;
-      status.className = "receipt-entry-status ok";
-      status.textContent = localPhoto
+      setStatus(status, "ok", localPhoto
         ? (queueButton.disabled ? "Черновик сохранён. Чтобы отправить фото на проверку, сначала войди в аккаунт." : "Черновик сохранён. Фото ещё не отправлено — нажми кнопку ниже.")
-        : "Черновик сохранён. Он не участвует в рейтинге до подтверждения чека.";
+        : "Черновик сохранён. Он не участвует в рейтинге до подтверждения чека.");
       window.dispatchEvent(new CustomEvent("td:receipt-draft-saved", { detail: { observation } }));
     });
+
     queueButton.addEventListener("click", async () => {
       const status = form.querySelector(".receipt-entry-status");
-      if (!form._receiptObservation || !form._receiptPhoto) { status.hidden = false; status.className = "receipt-entry-status warn"; status.textContent = "Сначала сохрани черновик с фото чека."; return; }
-      queueButton.disabled = true; status.hidden = false; status.className = "receipt-entry-status"; status.textContent = "Отправляем защищённое фото на проверку…";
+      if (!form._receiptObservation || !form._receiptPhoto) {
+        setStatus(status, "warn", "Сначала сохрани черновик с фото чека.");
+        return;
+      }
+      if (!window.TDAuth || typeof window.TDAuth.submitReceiptEvidence !== "function") {
+        setStatus(status, "warn", "Войди в аккаунт, чтобы отправить чек.");
+        queueButton.disabled = true;
+        return;
+      }
+      if (queueButton.dataset.busy === "true") return;
+      queueButton.dataset.busy = "true";
+      queueButton.disabled = true;
+      setStatus(status, "", "Отправляем защищённое фото на проверку…");
       try {
         const result = await window.TDAuth.submitReceiptEvidence({ observation: form._receiptObservation, file: form._receiptPhoto });
-        status.className = "receipt-entry-status ok";
-        status.textContent = `Чек отправлен в очередь проверки · ${result.status}. До ручного подтверждения цена не влияет на рейтинг.`;
+        setStatus(status, "ok", `Чек отправлен в очередь проверки · ${result.status}. До ручного подтверждения цена не влияет на рейтинг.`);
       } catch (error) {
         const code = String(error && error.message || error);
-        status.className = "receipt-entry-status warn";
-        status.textContent = code === "SIGN_IN_REQUIRED" ? "Войди в аккаунт, чтобы отправить чек." : code === "RECEIPT_FILE_INVALID" ? "Нужен JPG, PNG, WEBP или HEIC до 10 МБ." : "Не удалось отправить чек. Черновик остался на устройстве.";
-      } finally { queueButton.disabled = false; }
+        setStatus(status, "warn", code === "SIGN_IN_REQUIRED" ? "Войди в аккаунт, чтобы отправить чек." : code === "RECEIPT_FILE_INVALID" ? "Нужен JPG, PNG, WEBP или HEIC до 10 МБ." : "Не удалось отправить чек. Черновик остался на устройстве.");
+      } finally {
+        delete queueButton.dataset.busy;
+        queueButton.disabled = false;
+      }
     });
+    return true;
   }
 
   function mount() {
@@ -196,5 +298,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mount, { once: true });
   else mount();
 
-  window.TDReceiptEntry = { open: openSheet, loadDrafts };
+  window.TDReceiptEntry = { open: openSheet, loadDrafts, saveDraft };
 })();
