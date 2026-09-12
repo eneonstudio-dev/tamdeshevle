@@ -5,9 +5,13 @@
 
   const PRODUCT={"молок":"milk","хлеб":"bread","куриц":"chicken","банан":"banana","масл":"oil","яйц":"eggs","яиц":"eggs","греч":"buck","сметан":"sour","сахар":"sugar","макарон":"pasta","вод":"water","яблок":"apple","ветчин":"ham","пельмен":"dumplings","лапш":"noodles","вафл":"waffles","творог":"cottage"};
   const LABEL={milk:"молоко",bread:"хлеб",chicken:"курица",banana:"банан",oil:"масло",eggs:"яйца",buck:"гречка",sour:"сметана",sugar:"сахар",pasta:"макароны",water:"вода",apple:"яблоки",ham:"ветчина",dumplings:"пельмени",noodles:"лапша",waffles:"вафли",cottage:"творог"};
+  const NUM={"один":1,"одного":1,"одна":1,"одну":1,"два":2,"две":2,"двое":2,"двоих":2,"три":3,"трое":3,"троих":3,"четыре":4,"четверо":4,"четверых":4,"пять":5,"шесть":6,"семь":7,"восемь":8,"девять":9,"десять":10};
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
   const original=brain.route.bind(brain);
+  const originalReset=brain.reset?.bind(brain);
+  const originalStatus=brain.status?.bind(brain);
   const trailingExclusion=/(?:не\s+надо(?:\s+(?:добавлять|класть|брать))?|не\s+нуж(?:но|ен|на|ны)|не\s+(?:клади|добавляй))(?:\s*[.!?])?$/;
+  let peopleShadow=Number(originalStatus?.()?.goal?.people)||null;
 
   function mentions(raw){
     const t=low(raw),out=[];
@@ -21,6 +25,23 @@
       }
     }
     return out.sort((a,b)=>a.pos-b.pos);
+  }
+
+  function parseNumber(value){
+    if(!value)return null;
+    const v=low(value);
+    if(/^\d+$/.test(v))return Number(v);
+    return NUM[v]||null;
+  }
+
+  function explicitPeople(raw){
+    const t=low(raw);
+    let m=t.match(/(?:^|[^а-я])нас\s+(\d+|[а-я]+)(?=\s|$|[,.!?])/);
+    if(m){const n=parseNumber(m[1]);if(n)return n}
+    m=t.match(/(?:^|[^а-я])(?:на|для|будет)\s+(\d+|[а-я]+)\s*(?:человек(?:а|у|ом)?|чел(?:\.|а)?|персон(?:ы|у)?|едок(?:а|ов)?)(?=\s|$|[,.!?])/);
+    if(m){const n=parseNumber(m[1]);if(n)return n}
+    m=t.match(/(?:^|[^а-я])(?:на|для)\s+(одного|двоих|троих|четверых)(?=\s|$|[,.!?])/);
+    return m?parseNumber(m[1]):null;
   }
 
   function normalizeTrailingExclusions(raw){
@@ -64,6 +85,31 @@
     return{from,to,rewrite:`замени ${from.stem} на ${to.stem}`};
   }
 
+  function guardPeople(raw,result){
+    if(!result||typeof result!=="object")return result;
+    const parsed=explicitPeople(raw);
+    const operations=Array.isArray(result.operations)?result.operations:[];
+    const hadPeople=operations.some(op=>op?.type==="SET_PEOPLE");
+    let changed=false,nextOps=operations;
+    if(parsed){
+      peopleShadow=parsed;
+      if(hadPeople){
+        changed=operations.some(op=>op?.type==="SET_PEOPLE"&&Number(op.value)!==parsed);
+        nextOps=operations.map(op=>op?.type==="SET_PEOPLE"?{...op,value:parsed}:op);
+      }
+    }else if(hadPeople){
+      nextOps=operations.filter(op=>op?.type!=="SET_PEOPLE");
+      changed=true;
+    }
+    let goal=result.goal;
+    if(goal&&typeof goal==="object"&&goal.people!==peopleShadow){
+      goal={...goal,people:peopleShadow};
+      changed=true;
+    }
+    if(!changed)return result;
+    return{...result,operations:nextOps,goal,provider:`${result.provider||"bai-brain"}+people-guard`};
+  }
+
   brain.route=async function(raw,...rest){
     const normalized=normalizeTrailingExclusions(raw);
     const ambiguous=ambiguousReplacementChoice(normalized);
@@ -72,14 +118,28 @@
       return{ok:true,provider:"bai-reasoning-guard+clarification",operations:[],reply:`Вижу два варианта через «или». Уточни один товар для замены: ${left} или ${right}.`,suggestions:[left,right],expectsAnswer:true};
     }
     const replacement=directionalReplacement(normalized);
+    let result;
     if(!replacement){
-      const result=await original(normalized,...rest);
-      if(normalized===String(raw||""))return result;
-      return{...result,provider:`${result?.provider||"bai-brain"}+negation-guard`};
+      result=await original(normalized,...rest);
+      if(normalized!==String(raw||""))result={...result,provider:`${result?.provider||"bai-brain"}+negation-guard`};
+    }else{
+      result=await original(replacement.rewrite,...rest);
+      result={...result,provider:`${result?.provider||"bai-brain"}+direction-guard`,interpretedAs:{type:"replace",from:replacement.from.id,to:replacement.to.id}};
     }
-    const result=await original(replacement.rewrite,...rest);
-    return{...result,provider:`${result?.provider||"bai-brain"}+direction-guard`,interpretedAs:{type:"replace",from:replacement.from.id,to:replacement.to.id}};
+    return guardPeople(raw,result);
   };
 
-  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice};
+  if(originalReset)brain.reset=function(...args){
+    const result=originalReset(...args);
+    peopleShadow=null;
+    return result;
+  };
+
+  if(originalStatus)brain.status=function(){
+    const status=originalStatus();
+    if(!status?.goal)return status;
+    return{...status,goal:{...status.goal,people:peopleShadow}};
+  };
+
+  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice,explicitPeople,guardPeople};
 })();
