@@ -4,7 +4,10 @@
   window.__TDBaiLifeInitialized=true;
   import("./bai-runtime-states-v1.js?v=20260912-states-v1").catch(error=>console.warn("[Bay Runtime States] load failed",error));
   import("./unified-cart-state-v1.js?v=20260912-v1")
-    .then(()=>import("./bai-change-intelligence-v1.js?v=20260912-v1"))
+    .then(()=>Promise.all([
+      import("./bai-change-intelligence-v1.js?v=20260912-v1"),
+      import("./bai-tradeoff-advisor-v1.js?v=20260912-v1")
+    ]))
     .catch(error=>console.warn("[Bay Cart Intelligence] load failed",error));
   const bai=document.getElementById("bai-assistant");
   if(!bai)return;
