@@ -6,7 +6,7 @@
   const products=()=>typeof PRODUCTS!=="undefined"?PRODUCTS:[];
   const count=()=>products().reduce((sum,p)=>sum+Number(window.state&&state.cart&&state.cart[p.id]||0),0);
   const items=()=>products().filter(p=>window.state&&state.cart&&state.cart[p.id]>0);
-  let headerScrollFrame=0;
+  let headerScrollFrame=0,purchaseLoadPromise=null;
 
   function ensureDecisionHandoff(){
     if(window.__TDVotonobayDecisionHandoffV1||document.querySelector('script[data-votonobay-decision-handoff]'))return;
@@ -19,13 +19,12 @@
   }
 
   function ensurePurchaseExperience(){
-    if(window.__TDVotonobayPurchaseExperienceV1||document.querySelector('script[data-votonobay-purchase-experience]'))return;
-    const script=document.createElement("script");
-    script.src="purchase-experience-v1.js?v=20260912-purchase-v1";
-    script.defer=true;
-    script.dataset.votonobayPurchaseExperience="1";
-    script.onerror=()=>{script.remove();console.warn("[Votonobay] purchase experience failed to load")};
-    document.head.appendChild(script);
+    if(window.__TDVotonobayPurchaseExperienceV1)return Promise.resolve(window.TDPurchaseExperienceV1||true);
+    if(purchaseLoadPromise)return purchaseLoadPromise;
+    purchaseLoadPromise=import("./purchase-experience-v1.js?v=20260912-purchase-v1")
+      .then(()=>window.TDPurchaseExperienceV1||true)
+      .catch(error=>{purchaseLoadPromise=null;console.warn("[Votonobay] purchase experience failed to load",error);return false});
+    return purchaseLoadPromise;
   }
 
   function ensureMobileCart(){
