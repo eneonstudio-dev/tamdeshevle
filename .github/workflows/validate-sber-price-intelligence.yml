@@ -1,0 +1,34 @@
+name: Validate Sber price intelligence
+
+on:
+  pull_request:
+    paths:
+      - "supabase/functions/alice-bai-webhook/sber-price-intelligence.mjs"
+      - "supabase/functions/alice-bai-webhook/live-price-source.ts"
+      - "supabase/functions/alice-bai-webhook/index.ts"
+      - "scripts/test-sber-price-intelligence.mjs"
+      - ".github/workflows/validate-sber-price-intelligence.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "supabase/functions/alice-bai-webhook/sber-price-intelligence.mjs"
+      - "supabase/functions/alice-bai-webhook/live-price-source.ts"
+      - "supabase/functions/alice-bai-webhook/index.ts"
+      - "scripts/test-sber-price-intelligence.mjs"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Syntax check Sber adapter
+        run: node --check supabase/functions/alice-bai-webhook/sber-price-intelligence.mjs
+      - name: Test Sber price intelligence
+        run: node scripts/test-sber-price-intelligence.mjs
