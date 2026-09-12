@@ -7,6 +7,7 @@ on:
       - "ai-shopping-assistant.css"
       - "bai-*.js"
       - "gemma-*.js"
+      - "BAI_CHARACTER_BIBLE.md"
       - "bai-learning-admin.html"
       - "bai-learning-admin.css"
       - "shopping-*.js"
@@ -41,6 +42,7 @@ on:
       - "scripts/test-bai-goal-memory.mjs"
       - "scripts/test-bai-question-selector.mjs"
       - "scripts/test-bai-personal-context-journey.mjs"
+      - "scripts/test-bai-character.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -50,6 +52,7 @@ on:
       - "ai-shopping-assistant.css"
       - "bai-*.js"
       - "gemma-*.js"
+      - "BAI_CHARACTER_BIBLE.md"
       - "bai-learning-admin.html"
       - "bai-learning-admin.css"
       - "shopping-*.js"
@@ -84,6 +87,7 @@ on:
       - "scripts/test-bai-goal-memory.mjs"
       - "scripts/test-bai-question-selector.mjs"
       - "scripts/test-bai-personal-context-journey.mjs"
+      - "scripts/test-bai-character.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -112,6 +116,7 @@ jobs:
           node --check bai-pantry.js
           node --check bai-goal-memory.js
           node --check bai-question-selector.js
+          node --check bai-character.js
           node --check bai-life.js
           node --check bai-memory.js
           node --check bai-learning-safety.js
@@ -157,6 +162,7 @@ jobs:
           node --check scripts/test-bai-goal-memory.mjs
           node --check scripts/test-bai-question-selector.mjs
           node --check scripts/test-bai-personal-context-journey.mjs
+          node --check scripts/test-bai-character.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -183,3 +189,4 @@ jobs:
           node scripts/test-bai-goal-memory.mjs
           node scripts/test-bai-question-selector.mjs
           node scripts/test-bai-personal-context-journey.mjs
+          node scripts/test-bai-character.mjs
