@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "ai-shopping-assistant.js"
+      - "ai-shopping-assistant.css"
       - "bai-*.js"
       - "shopping-*.js"
       - "pickup-flow-v1.js"
@@ -15,12 +16,14 @@ on:
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
+      - "scripts/test-bai-chat-runtime.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
       - main
     paths:
       - "ai-shopping-assistant.js"
+      - "ai-shopping-assistant.css"
       - "bai-*.js"
       - "shopping-*.js"
       - "pickup-flow-v1.js"
@@ -32,6 +35,7 @@ on:
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
+      - "scripts/test-bai-chat-runtime.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -71,6 +75,7 @@ jobs:
           node --check scripts/test-shopping-state-consistency.mjs
           node --check scripts/test-bai-learning-loop.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
+          node --check scripts/test-bai-chat-runtime.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-brain.mjs
@@ -78,3 +83,4 @@ jobs:
           node scripts/test-shopping-state-consistency.mjs
           node scripts/test-bai-learning-loop.mjs
           node scripts/test-bai-handoff-e2e.mjs
+          node scripts/test-bai-chat-runtime.mjs
