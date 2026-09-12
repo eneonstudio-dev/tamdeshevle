@@ -22,6 +22,7 @@ const PRODUCTS = [
 ];
 
 let PRICE_BOOK = null;
+let priceLoad = { status: "loading", error: "" };
 const saved = JSON.parse(localStorage.getItem("td") || "{}");
 const savedCartIsExplicit = saved.cartTouched === true && saved.cart && typeof saved.cart === "object" && !Array.isArray(saved.cart);
 const state = {
@@ -36,6 +37,7 @@ const state = {
   address: saved.address || "",
   openWhy: null
 };
+const SCREENS = new Set(["home", "stores", "catalog", "cart", "compare"]);
 function persist() {
   localStorage.setItem("td", JSON.stringify({
     screen: state.screen, city: state.city, storeId: state.storeId, cart: state.cart, cartTouched: state.cartTouched === true, address: state.address
@@ -53,15 +55,29 @@ function applyCityPrices() {
   STORES.forEach(s => { if (fees[s.id] != null) s.delivery = fees[s.id]; });
 }
 async function loadPrices() {
+  if (priceLoad.status === "loading" && PRICE_BOOK) return;
+  priceLoad = { status: "loading", error: "" };
+  render();
   try {
-    const res = await fetch("prices.json?v=20260909d");
+    const controller = typeof AbortController === "function" ? new AbortController() : null;
+    const timeout = controller ? setTimeout(() => controller.abort(), 8000) : null;
+    let res;
+    try { res = await fetch("prices.json?v=20260909d", controller ? { signal: controller.signal } : undefined); }
+    finally { if (timeout) clearTimeout(timeout); }
     if (!res.ok) throw new Error(String(res.status));
     PRICE_BOOK = await res.json();
     applyCityPrices();
-    render();
+    priceLoad = { status: "ready", error: "" };
   } catch (err) {
     console.warn("prices.json не загрузился", err);
+    priceLoad = { status: "error", error: err && err.name === "AbortError" ? "timeout" : "network" };
   }
+  render();
+}
+function priceNotice() {
+  if (priceLoad.status === "loading") return `<div class="hint" role="status" aria-live="polite">Обновляем цены… Пока показываем сохранённые или базовые оценки.</div>`;
+  if (priceLoad.status === "error") return `<div class="hint" role="alert">Свежие цены не загрузились. Корзина сохранена, можно продолжить с оценками. <button class="ghost" style="margin-top:8px" onclick="loadPrices()">Повторить загрузку</button></div>`;
+  return "";
 }
 const cityName = () => state.city === "msk" ? "Москва" : "Санкт-Петербург";
 const EASTER_EGG_DEADLINE = Date.UTC(2026, 8, 13, 20, 59, 59);
@@ -117,6 +133,7 @@ function dockCart() {
 function screenHome() {
   return `${header("Тамдешевле", "Собери корзину — скажем, где дешевле")}
     <div class="wrap">
+      ${priceNotice()}
       <p class="note">Сравнение корзины. Не магазин, не доставка и не заказ. Цены учебные — витрина, не полка. Адрес сейчас ничего не считает.</p>
       <input class="addr" placeholder="Адрес в Москве или Питере (пока не считается)" value="${state.address}"
         onchange="state.address=this.value;persist()" />
@@ -146,58 +163,55 @@ function updateSaleTimer() {
   const seconds = Math.floor(left / 1000);
   const hours = String(Math.floor(seconds / 3600)).padStart(2, "0");
   const minutes = String(Math.floor(seconds % 3600 / 60)).padStart(2, "0");
-  const rest = String(seconds % 60).padStart(2, "0");
-  node.textContent = left ? `${hours}:${minutes}:${rest}` : "закончилось";
+  const secs = String(seconds % 60).padStart(2, "0");
+  node.textContent = `${hours}:${minutes}:${secs}`;
 }
 function screenStores() {
-  const filters = ["Все", "Продукты", "Гипер"];
-  const list = STORES.filter(s => s.city.includes(state.city) && (state.filter === "Все" || s.type === state.filter));
-  return `${header("Магазины", "Сети для сравнения, не витрина заказа")}
-    <div class="chips">${filters.map(f => `<button class="chip ${state.filter===f?"on":""}" onclick="state.filter='${f}';render()">${f}</button>`).join("")}</div>
-    <div class="wrap"><div class="grid">${list.map(s => {
-      const row=cartCount()?TDCompare.compare({stores:STORES,products:PRODUCTS,cart:state.cart,city:state.city,mode:"any",originStoreId:state.storeId}).find(x=>x.id===s.id):null;
-      const total=row&&Number.isFinite(row.total)?Math.round(row.total):null;
-      const save=row&&Number.isFinite(row.save)?Math.round(row.save):null;
-      return `<button class="store" onclick="state.storeId='${s.id}';persist();go('catalog')">
-        <div class="cover" style="background:${s.color}">${s.short}</div>
-        <div class="meta">
-          <div class="name">${s.name}</div>
-          <div class="time">${s.kind === "delivery" ? s.time + " · доставка сети" : s.time + " · без адреса"}</div>
-          ${total != null ? `<div style="margin-top:6px">${save>0?`<span class="badge">корзина −${save} ₽</span>`:row.verifiedComplete?`<span class="hint">${total} ₽ · подтверждено</span>`:`<span class="hint">≈ ${total} ₽ · оценка</span>`}</div>` : ""}
-        </div></button>`;
-    }).join("")}</div></div>${dockCart()}`;
+  const stores = STORES.filter(s => s.city.includes(state.city));
+  return `${header("Магазины", "Выбери, где обычно покупаешь", "home")}
+    <div class="wrap">
+      ${stores.map(s => `<button class="store" onclick="state.storeId='${s.id}';persist();go('catalog')">
+        <span class="store-dot" style="background:${s.color}"></span>
+        <span><b>${s.name}</b><small>${s.type}</small></span><span>→</span>
+      </button>`).join("")}
+    </div>${dockCart()}`;
 }
 function screenCatalog() {
   const s = storeBy(state.storeId);
-  const q = state.q.trim().toLowerCase();
-  const items = PRODUCTS.filter(p => !q || p.name.toLowerCase().includes(q));
   const ch = selectedChannel(s);
-  return `${header(s.name, "Клади товары, сравнение потом", "stores")}
+  const filtered = PRODUCTS.filter(p => !state.q || p.name.toLowerCase().includes(state.q.toLowerCase()));
+  return `${header(s.name, "Добавь товары в корзину", "stores")}
     <div class="wrap">
-      <input class="search" placeholder="Молоко, курица, гречка" value="${state.q}" oninput="state.q=this.value;render()" />
-      ${items.map(p => `<div class="item">
+      ${priceNotice()}
+      <input class="addr" placeholder="Поиск товара" value="${state.q}" oninput="state.q=this.value;render()" />
+      <div class="products">${filtered.map(p => `<div class="item">
         <div class="thumb">${p.emoji}</div>
         <div><div class="title">${p.name}</div><div class="pack">${p.pack}</div><div class="price">${displayPrice(p, s.id, ch)}</div></div>
-        <div class="step"><button onclick="setQty('${p.id}',-1)">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)">+</button></div>
+        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${p.name}">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${p.name}">+</button></div>
       </div>`).join("")}
     </div>${dockCart()}`;
 }
+function emptyCartState() {
+  return `<section class="hint" role="status"><b style="display:block;font-size:18px;color:var(--ink);margin-bottom:6px">Корзина пока пустая</b><span>Добавь хотя бы один товар — тогда сравним одинаковую корзину между магазинами.</span><button class="btn green" style="margin-top:14px" onclick="go('catalog')">Добавить товары</button></section>`;
+}
 function screenCart() {
   const s = storeBy(state.storeId);
+  const entries = cartEntries();
+  if (!entries.length) return `${header("Корзина", s.name + " · " + cityName(), "catalog")}<div class="wrap">${priceNotice()}${emptyCartState()}</div>`;
   const ch = selectedChannel(s);
   const quote=TDCompare.basketQuote(PRODUCTS,state.cart||{},s.id,ch),fee=TDCompare.feeQuote(s,ch);
   const total=quote.complete&&fee.known?quote.goods+fee.value:null,verified=quote.verifiedComplete&&fee.known;
   const best = scenarios().find(x => !x.same && x.rankable && x.save > 0);
   return `${header("Корзина", s.name + " · " + cityName(), "catalog")}
-    <div class="wrap">${cartEntries().map(p => `<div class="item">
+    <div class="wrap">${priceNotice()}${entries.map(p => `<div class="item">
       <div class="thumb">${p.emoji}</div>
       <div>
         <div class="title">${p.name}</div>
         <div class="pack">${p.pack} · ${displayPrice(p, s.id, ch)}</div>
-        <div class="step"><button onclick="setQty('${p.id}',-1)">−</button><b>${state.cart[p.id]}</b><button onclick="setQty('${p.id}',1)">+</button></div>
+        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${p.name}">−</button><b>${state.cart[p.id]}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${p.name}">+</button></div>
       </div>
       <div class="price">${displayPrice(p, s.id, ch, state.cart[p.id])}</div>
-    </div>`).join("") || "<p class='hint'>Корзина пустая</p>"}</div>
+    </div>`).join("")}</div>
     <div class="dock">
       <div style="background:#fff;border-radius:16px;padding:12px 14px;margin-bottom:8px;font-weight:800;display:flex;justify-content:space-between">
         <span>${verified?"Итого здесь":"Оценка здесь"}</span><span>${total==null?"уточняется":`${verified?"":"≈ "}${Math.round(total)} ₽`}</span>
@@ -218,10 +232,12 @@ function comparisonLead(plans) {
   return `<section class="v2-verdict"><div><span>ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ</span><h2>${winner.name}</h2><strong>${Math.round(winner.total)} ₽</strong><p>${winner.save>0?`Экономия ${Math.round(winner.save)} ₽ относительно текущего выбора.`:"Полная корзина подтверждена для сравнения."}</p></div><button onclick="window.TDPurchase?TDPurchase.start('${winner.id}','${winner.channel}') : choosePlan('${winner.id}')">Купить здесь →</button></section>`;
 }
 function screenCompare() {
+  if (!cartCount()) return `${header("Где выгоднее", "Сначала собери корзину", "cart")}<div class="wrap">${emptyCartState()}</div>`;
   const origin = storeBy(state.storeId);
   const plans = scenarios();
   return `${header("Где выгоднее", "Та же корзина · " + cartCount() + " позиций", "cart")}
     <div class="wrap">
+      ${priceNotice()}
       <div class="toggle">
         <button class="${state.mode==="any"?"on":""}" onclick="state.mode='any';render()">Все</button>
         <button class="${state.mode==="walk"?"on":""}" onclick="state.mode='walk';render()">Сходить</button>
@@ -250,7 +266,17 @@ function whyBlock(p) {
   }).join("");
   return `<div style="margin-top:8px">${rows}</div>`;
 }
-function go(screen) { state.screen = screen; persist(); render(); }
+function navigate(screen, options = {}) {
+  const next = SCREENS.has(screen) ? screen : "home";
+  state.screen = next;
+  persist();
+  if (!options.fromPop && window.history && typeof history.pushState === "function") {
+    const method = options.replace ? "replaceState" : "pushState";
+    history[method]({ ...(history.state || {}), tdScreen: next }, "");
+  }
+  render();
+}
+function go(screen) { navigate(screen); }
 function toggleCity() {
   state.city = state.city === "msk" ? "spb" : "msk";
   applyCityPrices();
@@ -262,7 +288,12 @@ function render() {
   document.getElementById("app").innerHTML = (map[state.screen] || screenHome)();
   updateSaleTimer();
 }
-window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.choosePlan = choosePlan; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render;
+window.addEventListener("popstate", event => {
+  const target = event.state && event.state.tdScreen;
+  if (SCREENS.has(target)) navigate(target, { fromPop: true });
+});
+window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.choosePlan = choosePlan; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render; window.loadPrices = loadPrices;
+if (window.history && typeof history.replaceState === "function") history.replaceState({ ...(history.state || {}), tdScreen: SCREENS.has(state.screen) ? state.screen : "home" }, "");
 render();
 setInterval(updateSaleTimer, 1000);
 loadPrices();
