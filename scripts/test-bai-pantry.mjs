@@ -16,10 +16,14 @@ assert.ok(applied.existingProducts.includes('масло')&&applied.existingProdu
 const ops=pantry.operations();
 assert.ok(ops.every(x=>x.type==='HAS_AT_HOME'),'pantry projection must use existing safe HAS_AT_HOME operation');
 pantry.clear();
+pantry.add('вода');
 pantry.observe('Дома есть гречка и сыр, нужна вода и фрукты',[]);
 assert.equal(pantry.has('гречка'),true);
 assert.equal(pantry.has('сыр'),true,'cheese at home must be remembered');
 assert.equal(pantry.has('вода'),false,'a required product after the home clause must not be mistaken for pantry stock');
+pantry.add('вода');
+pantry.observe('Дома есть гречка и сыр, нужна вода и фрукты',[{type:'REQUIRE',value:'water'}]);
+assert.equal(pantry.has('вода'),false,'an explicit requirement must repair stale poisoned pantry state');
 
 pantry.observe('Масло вкусное',[]);
 assert.equal(pantry.count(),2,'un-grounded mention must not change pantry');
