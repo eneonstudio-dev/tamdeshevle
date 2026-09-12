@@ -34,6 +34,19 @@ assert.ok(hasOp(result,'REMOVE_PRODUCT','milk'));
 assert.ok(hasOp(result,'ADD_PRODUCT','bread'));
 
 brain.reset();
+result=await brain.route('без сахара добавь молоко');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','sugar'),'«без сахара» must apply only to sugar');
+assert.ok(hasOp(result,'ADD_PRODUCT','milk'),'following add command must still add milk');
+assert.equal(byType(result,'REMOVE_PRODUCT').length,1,'scoped «без» must not remove the added product');
+assert.equal(byType(result,'ADD_PRODUCT').length,1,'scoped «без» must not duplicate add operations');
+
+brain.reset();
+result=await brain.route('добавь молоко без сахара');
+assert.ok(hasOp(result,'ADD_PRODUCT','milk'),'leading add command must still add milk');
+assert.ok(hasOp(result,'REMOVE_PRODUCT','sugar'),'trailing «без сахара» must exclude sugar only');
+assert.equal(byType(result,'REMOVE_PRODUCT').length,1,'trailing «без» must stay scoped to sugar');
+
+brain.reset();
 result=await brain.route('добавь молоко, сахар не надо');
 assert.ok(hasOp(result,'ADD_PRODUCT','milk'),'positive product must still be added');
 assert.ok(hasOp(result,'REMOVE_PRODUCT','sugar'),'postpositive «не надо» must exclude sugar');
@@ -124,4 +137,4 @@ result=await brain.route('замени молоко на воду');
 assert.equal(result.goal.quantityTargets.milk,undefined,'replacement must remove stale source quantity');
 assert.deepEqual({...result.goal.quantityTargets.water},{amount:2,unit:'l'},'replacement must transfer an explicit quantity to the target');
 
-console.log('Bai brain regression suite passed: mixed edits, negation, replacement clarification, quantities, budget, people, duration, context and product-goal consistency.');
+console.log('Bai brain regression suite passed: mixed edits, scoped exclusions, negation, replacement clarification, quantities, budget, people, duration, context and product-goal consistency.');
