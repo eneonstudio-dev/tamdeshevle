@@ -1,0 +1,237 @@
+/* Votonobay home lock v4
+   Final Bay-first layout authority. This file must load after the historical
+   cinematic/mobile layers so the current Home cannot fall back to old absolute
+   mascot/search geometry on Android, coarse pointers, or narrow viewports. */
+
+.v2-hero.v2-bay-first{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1.16fr) minmax(260px,.84fr)!important;
+  grid-template-areas:"copy bay" "actions bay" "self self" "proof proof"!important;
+  column-gap:clamp(22px,3vw,42px)!important;
+  row-gap:0!important;
+  align-items:center!important;
+  overflow:hidden!important;
+}
+.v2-bay-first .v2-hero-copy{
+  grid-area:copy!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+  min-width:0!important;
+}
+.v2-bay-first .v2-hero-bai{
+  grid-area:bay!important;
+  position:relative!important;
+  inset:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:340px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+}
+.v2-bay-first .v2-hero-bai:before{
+  left:50%!important;
+  top:50%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-48%)!important;
+}
+.v2-bay-first .v2-hero-bai img{
+  position:relative!important;
+  inset:auto!important;
+  display:block!important;
+  width:min(360px,100%)!important;
+  max-width:100%!important;
+  height:340px!important;
+  margin:0 auto!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  background:transparent!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.v2-bay-first .v2-hero-bai span{
+  position:absolute!important;
+  left:8px!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:16px!important;
+  max-width:170px!important;
+  transform:none!important;
+}
+.v2-bay-actions{
+  grid-area:actions!important;
+  position:relative!important;
+  inset:auto!important;
+  display:grid!important;
+  grid-template-columns:max-content max-content!important;
+  align-items:center!important;
+  justify-content:start!important;
+  gap:10px!important;
+  min-width:0!important;
+  transform:none!important;
+}
+.v2-bay-scenarios{
+  grid-column:1/-1!important;
+  position:static!important;
+  width:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  overflow:visible!important;
+  transform:none!important;
+}
+.v2-self-search{
+  grid-area:self!important;
+  position:relative!important;
+  inset:auto!important;
+  min-width:0!important;
+  margin-top:28px!important;
+  transform:none!important;
+}
+.v2-self-search .v2-search{
+  position:relative!important;
+  inset:auto!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  align-items:center!important;
+  width:min(780px,100%)!important;
+  min-height:52px!important;
+  margin:12px 0 0!important;
+  transform:none!important;
+}
+.v2-self-search .v2-search input{
+  min-width:0!important;
+  width:100%!important;
+}
+.v2-self-search .v2-categories{
+  position:relative!important;
+  inset:auto!important;
+  display:flex!important;
+  flex-wrap:wrap!important;
+  min-width:0!important;
+  transform:none!important;
+}
+.v2-bay-first .v2-hero-proof{
+  grid-area:proof!important;
+  position:relative!important;
+  inset:auto!important;
+  transform:none!important;
+}
+
+@media(max-width:1000px){
+  .v2-hero.v2-bay-first{
+    grid-template-columns:minmax(0,1fr) minmax(230px,.72fr)!important;
+    column-gap:22px!important;
+  }
+  .v2-bay-first .v2-hero-bai{min-height:290px!important}
+  .v2-bay-first .v2-hero-bai img{width:min(300px,100%)!important;height:290px!important}
+}
+
+/* Phones, touch-first tablets and Android “desktop site” get the same deliberate
+   one-column composition instead of the obsolete absolute-positioned mascot. */
+@media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:1100px){
+  .v2-hero.v2-bay-first{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"copy" "bay" "actions" "self"!important;
+    column-gap:0!important;
+    row-gap:0!important;
+    align-items:start!important;
+  }
+  .v2-bay-first .v2-hero-copy{width:100%!important;max-width:none!important}
+  .v2-bay-first .v2-hero-bai{
+    width:100%!important;
+    height:auto!important;
+    min-height:220px!important;
+    margin:8px 0 0!important;
+    align-items:flex-end!important;
+  }
+  .v2-bay-first .v2-hero-bai:before{
+    width:260px!important;
+    height:260px!important;
+  }
+  .v2-bay-first .v2-hero-bai img{
+    width:min(248px,76vw)!important;
+    height:220px!important;
+    margin:0 auto!important;
+  }
+  .v2-bay-first .v2-hero-bai span{
+    left:8px!important;
+    bottom:6px!important;
+    max-width:145px!important;
+  }
+  .v2-bay-actions{
+    width:100%!important;
+    margin-top:10px!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:9px!important;
+  }
+  .v2-bay-primary,.v2-bay-secondary{
+    width:100%!important;
+    min-width:0!important;
+  }
+  .v2-bay-scenarios{
+    grid-column:1/-1!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    overscroll-behavior-inline:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:1px 1px 4px!important;
+  }
+  .v2-bay-scenarios::-webkit-scrollbar{display:none!important}
+  .v2-bay-scenarios button{flex:0 0 auto!important;white-space:nowrap!important}
+  .v2-self-search{
+    width:100%!important;
+    margin-top:20px!important;
+    padding-top:18px!important;
+  }
+  .v2-self-search .v2-search{
+    width:100%!important;
+    min-height:50px!important;
+    margin:11px 0 0!important;
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+  }
+  .v2-self-search .v2-categories{
+    width:100%!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:3px!important;
+  }
+  .v2-self-search .v2-categories::-webkit-scrollbar{display:none!important}
+  .v2-self-search .v2-categories button{flex:0 0 auto!important;white-space:nowrap!important}
+  .v2-bay-first .v2-hero-proof{display:none!important}
+}
+
+@media(max-width:420px){
+  .v2-hero h1{font-size:clamp(42px,13vw,54px)!important}
+  .v2-bay-first .v2-hero-bai{min-height:205px!important}
+  .v2-bay-first .v2-hero-bai img{width:min(230px,74vw)!important;height:205px!important}
+  .v2-bay-actions{grid-template-columns:1fr!important}
+  .v2-bay-scenarios{grid-column:1!important}
+  .v2-bay-primary,.v2-bay-secondary{min-height:48px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v2-bay-first .v2-hero-bai img{transform:none!important}
+}
