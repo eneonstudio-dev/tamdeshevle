@@ -2,7 +2,6 @@
   "use strict";
   if(window.__TDBaiLifeInitialized)return;
   window.__TDBaiLifeInitialized=true;
-  import("./bai-decision-handoff-v1.js?v=20260912-decision-v1").catch(error=>console.warn("[Bai Decision Handoff] load failed",error));
   const bai=document.getElementById("bai-assistant");
   if(!bai)return;
   const character=bai.querySelector(".bai-character");
