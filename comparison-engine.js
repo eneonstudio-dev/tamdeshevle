@@ -51,7 +51,7 @@
 
     for (const product of entries) {
       const quantity = Number(cart[product.id]);
-      if (!Number.isFinite(quantity) || !Number.isInteger(quantity)) { missingProductIds.push(product.id); continue; }
+      if (!Number.isFinite(quantity) || !Number.isInteger(quantity) || quantity <= 0) { missingProductIds.push(product.id); continue; }
       const price = unitPrice(product, storeId, channel);
       if (!Number.isFinite(price)) {
         missingProductIds.push(product.id);
@@ -68,8 +68,9 @@
     }
     partialGoods /= 100;
     const totalItems = coveredItems + missingProductIds.length;
-    const complete = missingProductIds.length === 0;
-    const verifiedComplete = complete && totalItems > 0 && verifiedItems === totalItems;
+    const hasItems = totalItems > 0;
+    const complete = hasItems && missingProductIds.length === 0;
+    const verifiedComplete = complete && verifiedItems === totalItems;
     return {
       goods: complete ? partialGoods : null,
       partialGoods,
@@ -81,8 +82,8 @@
       verifiedItems,
       estimatedItems: Math.max(0, coveredItems - verifiedItems),
       totalItems,
-      coverage: totalItems ? coveredItems / totalItems : 1,
-      verifiedCoverage: totalItems ? verifiedItems / totalItems : 1
+      coverage: totalItems ? coveredItems / totalItems : 0,
+      verifiedCoverage: totalItems ? verifiedItems / totalItems : 0
     };
   }
 
