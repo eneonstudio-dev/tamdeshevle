@@ -34,7 +34,8 @@
     if(/подешевле|дешевле|пересобери|пересчитай|побольше|поменьше/.test(low)&&ops.length)ops.push({type:"REOPTIMIZE"});
     const brand=low.match(/(?:бренд\s+)?([а-яёa-z0-9-]+)\s+(?:не хочу|не добавляй)/i);if(brand&&!productWords[brand[1]])ops.push({type:"EXCLUDE_BRAND",value:brand[1]});const existing=low.match(/дома (?:есть|уже есть)\s+(.+?)(?:\.|,?\s+(?:нужн|хочу|и хотелось)|$)/);if(existing)existing[1].split(/,| и /).map(x=>x.trim()).filter(Boolean).forEach(x=>ops.push({type:"HAS_AT_HOME",value:x}));if(!ops.length)ops.push({type:"NOTE",value:text});return ops;
   }
-  function resetBasketState(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.excludedBrands=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.preferences=[];s.userNotes=[];}
+  function resetBasketState(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.excludedBrands=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.preferences=[];s.userNotes=[];s.shoppingIntelligence=null;}
+  function rebuildProducts(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.lastPlans=[];s.currentTotal=0;}
   function apply(raw,providedOps){
     const ops=Array.isArray(providedOps)&&providedOps.length?providedOps:parse(raw);
     if(ops[0]?.type==="UNDO")return TDShoppingState.undo();
@@ -47,6 +48,8 @@
       if(requestedStores.length)s.stores=[...requestedStores];
       for(const op of ops){
         if(op.type==="RESET_BASKET")resetBasketState(s);
+        if(op.type==="REBUILD_PRODUCTS")rebuildProducts(s);
+        if(op.type==="SET_SHOPPING_INTENT")s.shoppingIntelligence=window.TDBaiShoppingIntelligence?.applyStatePatch?.(s.shoppingIntelligence,op.value)||op.value||s.shoppingIntelligence;
         if(op.type==="CHANGE_BUDGET")s.budget=Math.max(0,Number(op.value)||0);
         if(op.type==="SET_PEOPLE")s.peopleCount=Math.max(1,Number(op.value)||1);
         if(op.type==="SET_DURATION")s.duration=Math.max(1,Number(op.value)||1);
@@ -65,12 +68,12 @@
           if(next<=0){if(!s.excludedProducts.includes(id))s.excludedProducts.push(id);s.products=s.products.filter(x=>x.id!==id);s.requiredProducts=s.requiredProducts.filter(x=>x!==id);s.onlyProducts=s.onlyProducts.filter(x=>x!==id);delete s.quantityTargets[id];}
           else{s.quantityTargets[id]={amount:next,unit:"pack"};if(!s.requiredProducts.includes(id))s.requiredProducts.push(id);if(s.selectionMode==="only"&&!s.onlyProducts.includes(id))s.onlyProducts.push(id);s.excludedProducts=s.excludedProducts.filter(x=>x!==id);}
         }
-        if(op.type==="REPLACE_PRODUCT"&&op.value){const from=op.value.from,to=op.value.to,target=s.quantityTargets[from];if(from&&!s.excludedProducts.includes(from))s.excludedProducts.push(from);s.requiredProducts=s.requiredProducts.filter(x=>x!==from);s.onlyProducts=s.onlyProducts.filter(x=>x!==from);delete s.quantityTargets[from];if(to&&!s.requiredProducts.includes(to))s.requiredProducts.push(to);if(s.selectionMode==="only"&&to&&!s.onlyProducts.includes(to))s.onlyProducts.push(to);s.excludedProducts=s.excludedProducts.filter(x=>x!==to);if(target&&!s.quantityTargets[to])s.quantityTargets[to]=target;}
+        if(op.type==="REPLACE_PRODUCT"&&op.value){const from=op.value.from,to=op.value.to,target=s.quantityTargets[from];if(from&&!s.excludedProducts.includes(from))s.excludedProducts.push(from);s.products=s.products.filter(x=>x.id!==from);s.requiredProducts=s.requiredProducts.filter(x=>x!==from);s.onlyProducts=s.onlyProducts.filter(x=>x!==from);delete s.quantityTargets[from];if(to&&!s.requiredProducts.includes(to))s.requiredProducts.push(to);if(s.selectionMode==="only"&&to&&!s.onlyProducts.includes(to))s.onlyProducts.push(to);s.excludedProducts=s.excludedProducts.filter(x=>x!==to);if(target&&!s.quantityTargets[to])s.quantityTargets[to]=target;}
         if(op.type==="REQUIRE"&&!s.requiredProducts.includes(op.value)){s.requiredProducts.push(op.value);s.excludedProducts=s.excludedProducts.filter(x=>x!==op.value);}
         if(op.type==="PREFER"&&!s.preferredProducts.includes(op.value))s.preferredProducts.push(op.value);
-        if(op.type==="EXCLUDE_BRAND"&&!s.excludedBrands.includes(op.value))s.excludedBrands.push(op.value);
+        if(op.type==="EXCLUDE_BRAND"&&!s.excludedBrands.some(x=>String(x).toLowerCase()===String(op.value).toLowerCase()))s.excludedBrands.push(op.value);
         if(op.type==="HAS_AT_HOME"&&!s.existingProducts.includes(op.value))s.existingProducts.push(op.value);
-        if(op.type==="EXCLUDE_TAG")s.excludedProducts=uniq([...s.excludedProducts,...TDStoreAdapters.catalog().filter(p=>(p.tags||[]).includes(op.value)).map(p=>p.id)]);
+        if(op.type==="EXCLUDE_TAG"){const tag=String(op.value||"").toLowerCase();s.excludedProducts=uniq([...s.excludedProducts,...TDStoreAdapters.catalog().filter(p=>(p.tags||[]).some(x=>String(x).toLowerCase()===tag)||(tag==="meat"&&/Мясо|Колбас/i.test(p.category||""))||(tag==="dairy"&&/Молоч/i.test(p.category||""))).map(p=>p.id)]);}
         if(op.type==="NOTE")s.userNotes.push(op.value);
         descriptions.push(op.type);
       }
