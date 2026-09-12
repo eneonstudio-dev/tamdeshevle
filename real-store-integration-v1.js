@@ -10,15 +10,15 @@
   };
   const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const state=()=>window.TDShoppingState?.get?.()||{};
-  const plan=()=>state().lastPlans?.[0]||null;
+  function resolvePlan(explicitPlan){return explicitPlan&&typeof explicitPlan==="object"&&Array.isArray(explicitPlan.products)?explicitPlan:(state().lastPlans?.[0]||null)}
   function matchesStore(storeId,id){const value=String(storeId||"");return value===id||value.startsWith(`${id}_`)}
   function safe(url,r){try{const u=new URL(String(url||""),location.href);return u.protocol==="https:"&&r&&r.hosts.some(re=>re.test(u.hostname))?u.href:null}catch{return null}}
-  function lines(id){return(plan()?.products||[]).filter(p=>matchesStore(p.storeId,id))}
+  function lines(id,explicitPlan){return(resolvePlan(explicitPlan)?.products||[]).filter(p=>matchesStore(p.storeId,id))}
   function metaFor(p,id){return window.TDPriceMeta?.get?.(p.id,p.storeId,"shelf")||window.TDPriceMeta?.get?.(p.id,id,"shelf")||window.TDPriceMeta?.getEstimated?.(p.id,id,"shelf")||null}
   let opener=null,keyHandler=null,previousOverflow="";
-  function rows(id){
+  function rows(id,explicitPlan){
     const r=RETAILERS[id];if(!r)return[];
-    return lines(id).map(p=>{
+    return lines(id,explicitPlan).map(p=>{
       const meta=metaFor(p,id),official=safe(meta?.sourceUrl,r),magnit=id==="magnit"?window.TDMagnitProductMatchV1?.match?.({...p,sourceUrl:official}):null,perek=id==="perek"?window.TDPerekrestokProductFlowV1?.match?.({...p,sourceUrl:official}):null,match=magnit||perek,matched=safe(match?.url,r),fallback=safe(r.fallback(p.name),r)||r.home,rawUrl=matched||official||fallback,url=id==="magnit"?(window.TDMagnitStoreContextV1?.apply?.(rawUrl)||rawUrl):rawUrl,linkKind=match?.verified&&matched?"exact":official?"official_product":"catalog";
       return{...p,url,meta,official:linkKind!=="catalog",linkKind,retailerProductId:match?.productId||meta?.retailerProductId||null,matchMethod:match?.method||null};
     });
@@ -31,9 +31,9 @@
   function close(){const modal=document.querySelector(".td-retailer-handoff");if(!modal)return;modal.remove();unlock()}
   function bindDialog(modal){previousOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow="hidden";keyHandler=e=>{if(e.key==="Escape"){e.preventDefault();close();return}if(e.key!=="Tab")return;const card=modal.querySelector(".td-retailer-card");if(!card)return;const items=focusables(card);if(!items.length){e.preventDefault();card.focus();return}const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}};document.addEventListener("keydown",keyHandler)}
   function storeContext(r){if(r.id!=="magnit")return"";const ctx=window.TDMagnitStoreContextV1?.get?.();if(!ctx)return"";const title=ctx.verified?"Точка Магнита подтверждена":ctx.reason==="selected_point_not_mapped"?"Точка выбрана, но shopCode не подтверждён":"Точка Магнита не выбрана";const text=ctx.verified?`${ctx.address} · shopCode ${ctx.shopCode}`:ctx.reason==="selected_point_not_mapped"?"Не подставляем чужую точку: ссылка откроется без shopCode.":"Ссылка откроется без shopCode — магазин можно выбрать на стороне Магнита.";return`<div class="td-retailer-store-context"><b>${esc(title)}</b><span>${esc(text)}</span></div>`}
-  function open(id){
-    const r=RETAILERS[id];if(!r||!supported(r.id))return false;
-    const items=rows(r.id);if(!items.length)return false;
+  function open(id,explicitPlan){
+    const r=RETAILERS[id];if(!r||!supported(r.id,explicitPlan))return false;
+    const items=rows(r.id,explicitPlan);if(!items.length)return false;
     close();opener=document.activeElement instanceof HTMLElement?document.activeElement:null;
     const progressKey=key(r.id,items),progress=readProgress(progressKey),modal=document.createElement("div");modal.className="td-retailer-handoff";
     const render=()=>{
@@ -45,8 +45,8 @@
     };
     document.body.appendChild(modal);modal.onclick=e=>{if(e.target===modal)close()};render();bindDialog(modal);setTimeout(()=>{if(!modal.isConnected)return;render();requestAnimationFrame(()=>modal.querySelector(".td-retailer-x")?.focus({preventScroll:true}))},0);return true;
   }
-  function supportedRetailers(){return Object.values(RETAILERS).filter(r=>lines(r.id).length>0)}
-  function supported(id){return id?Boolean(RETAILERS[id]&&lines(id).length>0):supportedRetailers().length>0}
+  function supportedRetailers(explicitPlan){return Object.values(RETAILERS).filter(r=>lines(r.id,explicitPlan).length>0)}
+  function supported(id,explicitPlan){return id?Boolean(RETAILERS[id]&&lines(id,explicitPlan).length>0):supportedRetailers(explicitPlan).length>0}
   function css(){if(document.querySelector("style[data-real-store-v1]"))return;const s=document.createElement("style");s.dataset.realStoreV1="1";s.textContent=`.td-retailer-handoff{position:fixed;inset:0;z-index:10070;background:rgba(8,18,13,.58);display:grid;place-items:end center;padding:16px max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}.td-retailer-card{position:relative;width:min(560px,100%);max-height:min(88vh,88dvh);overflow:auto;overscroll-behavior:contain;background:#fff;border-radius:26px;padding:22px}.td-retailer-card:focus{outline:none}.td-retailer-x{position:absolute;right:16px;top:14px;border:0;background:#eef4f0;width:36px;height:36px;border-radius:50%;font-size:24px}.td-retailer-card>small,.td-retailer-items em{color:#16834d;font-weight:800}.td-retailer-card h2{margin:5px 40px 6px 0;font-size:26px}.td-retailer-card p,.td-retailer-items small,.td-retailer-progress span{color:#65736b}.td-retailer-probe,.td-retailer-store-context,.td-retailer-session{display:grid;gap:3px;background:#f2f8f4;border-radius:14px;padding:11px 12px;margin:12px 0}.td-retailer-store-context{background:#eef7f1}.td-retailer-session{background:#f7f6ee}.td-retailer-probe b,.td-retailer-store-context b,.td-retailer-session b{font-size:13px;color:#147847}.td-retailer-probe span,.td-retailer-store-context span,.td-retailer-session span,.td-retailer-session small{font-size:12px;color:#65736b}.td-retailer-bulk{width:100%;border:0;border-radius:15px;padding:13px;background:#dff8e9;color:#0d6b42;font-weight:900;cursor:pointer}.td-retailer-bulk-note{font-size:11px;margin:6px 2px 12px}.td-retailer-progress{display:flex;align-items:baseline;gap:8px;margin:14px 0}.td-retailer-progress b{font-size:24px}.td-retailer-items{display:grid;gap:8px;margin:16px 0}.td-retailer-row{display:grid;grid-template-columns:38px 1fr;gap:8px}.td-retailer-row.done{opacity:.66}.td-retailer-check{border:1px solid #dce7e0;background:#f5f8f6;border-radius:13px;font:900 17px inherit;color:#147847}.td-retailer-items a{display:flex;justify-content:space-between;gap:12px;align-items:center;text-decoration:none;color:inherit;border:1px solid #e3ebe6;border-radius:16px;padding:13px}.td-retailer-items b,.td-retailer-items small{display:block}.td-retailer-items em{font-style:normal;white-space:nowrap}.td-retailer-main{display:block;text-align:center;text-decoration:none;border-radius:15px;padding:14px;background:#102018;color:#fff;font-weight:800}.td-retailer-note{font-size:12px}@media(max-width:520px){.td-retailer-handoff{padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}.td-retailer-card{border-radius:24px 24px 0 0;padding:20px 16px max(20px,env(safe-area-inset-bottom));max-height:min(94vh,94dvh)}}`;document.head.appendChild(s)}
-  css();window.TDRealStoreIntegrationV1={open,close,supported,supportedRetailers,retailers:RETAILERS,rows};
+  css();window.TDRealStoreIntegrationV1={open,close,supported,supportedRetailers,retailers:RETAILERS,rows,resolvePlan};
 })();
