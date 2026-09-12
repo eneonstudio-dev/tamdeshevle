@@ -30,6 +30,9 @@ jobs:
           node --check ui-layer-coordinator.js
           node --check product-ui.js
           node --check price-history.js
+          node --check selected-store-ui.js
+          node --check worth-it.js
+          node --check on-the-way.js
           node --check v2-polish.js
           node --check gsap-motion.js
           node --check bai-life.js
@@ -57,6 +60,7 @@ jobs:
           node --check scripts/test-first-shopping-journey.mjs
           node --check scripts/test-ui-lifecycle-resilience.mjs
           node --check scripts/test-runtime-performance.mjs
+          node --check scripts/test-route-recommendation-resilience.mjs
           node --check scripts/test-static-assets.mjs
           node --check scripts/test-security-hardening.mjs
           node --check scripts/test-mobile-runtime.mjs
@@ -109,6 +113,8 @@ jobs:
         run: node scripts/test-votonobay-inner-ui.mjs
       - name: Test runtime performance guards
         run: node scripts/test-runtime-performance.mjs
+      - name: Test route recommendation resilience
+        run: node scripts/test-route-recommendation-resilience.mjs
       - name: Test mobile runtime lifecycle
         run: node scripts/test-mobile-runtime.mjs
       - name: Test mobile Bay-first E2E
