@@ -1,18 +1,20 @@
 (function () {
   "use strict";
 
+  import("./brand-votonobay-v1.js?v=20260912-v1").catch(error=>console.warn("[Brand Votonobay] load failed",error));
+
   const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
   const cityName = () => window.state && state.city === "spb" ? "Санкт-Петербург" : "Москва";
   const storeById = id => typeof STORES !== "undefined" ? STORES.find(store => store.id === id) : null;
   const products = () => typeof PRODUCTS !== "undefined" ? PRODUCTS : [];
   const IMAGE_BY_ID = {
-    milk:"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=420&h=320&q=76",
-    eggs_c1:"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=420&h=320&q=76",
-    chicken_fil:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=420&h=320&q=76",
-    bread_dark:"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=420&h=320&q=76",
-    banana:"https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=420&h=320&q=76",
-    apple:"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=420&h=320&q=76",
-    pasta:"https://images.unsplash.com/photo-1551462147-ff29893d2640?auto=format&fit=crop&w=420&h=320&q=76"
+    milk:"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=max&w=420&h=320&q=76",
+    eggs_c1:"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=max&w=420&h=320&q=76",
+    chicken_fil:"https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=max&w=420&h=320&q=76",
+    bread_dark:"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=max&w=420&h=320&q=76",
+    banana:"https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=max&w=420&h=320&q=76",
+    apple:"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=max&w=420&h=320&q=76",
+    pasta:"https://images.unsplash.com/photo-1551462147-ff29893d2640?auto=format&fit=max&w=420&h=320&q=76"
   };
   const cartCount = () => products().reduce((sum, product) => sum + Number(state.cart && state.cart[product.id] || 0), 0);
   const productImage = product => IMAGE_BY_ID[product && product.id] || "";
@@ -30,7 +32,7 @@
   };
 
   function Brand() {
-    return `<button class="v2-brand" type="button" onclick="go('home')" aria-label="Там Дешевле — на главную">${logoSvg(40)}<span><b>Там</b> Дешевле</span></button>`;
+    return `<button class="v2-brand" type="button" onclick="go('home')" aria-label="Votonobay — на главную"><span>Votonobay</span></button>`;
   }
 
   function Header() {
@@ -39,23 +41,23 @@
       <nav class="v2-nav" aria-label="Основная навигация">
         <button onclick="go('catalog')">Товары</button><button onclick="go('stores')">Магазины</button><button onclick="go('cart')">Списки</button><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')">Карта</button><button onclick="tdV2About()">О проекте</button>
       </nav>
-      <div class="v2-header-actions"><button class="v2-city" onclick="toggleCity()"><span>●</span>${esc(cityName())}</button><button class="v2-favorite" aria-label="Избранное" onclick="go('cart')">♡</button><button class="td-profile-btn v2-profile" aria-label="Открыть профиль">П</button><button class="v2-menu" aria-label="Открыть меню" aria-expanded="false" onclick="tdV2Menu(this)">☰</button></div>
+      <div class="v2-header-actions"><button class="v2-city" onclick="toggleCity()"><span>●</span>${esc(cityName())}</button><button class="v2-favorite" aria-label="Избранное" onclick="go('cart')">♡</button><button class="td-profile-btn v2-profile" aria-label="Открыть профиль">○</button><button class="v2-menu" aria-label="Открыть меню" aria-expanded="false" onclick="tdV2Menu(this)">☰</button></div>
     </div><div class="v2-mobile-nav" hidden><button onclick="go('catalog')">Товары</button><button onclick="go('stores')">Магазины</button><button onclick="go('cart')">Списки</button><button onclick="window.TDGeo&&TDGeo.openMap?TDGeo.openMap():go('stores')">Карта</button><button onclick="tdV2About()">О проекте</button></div></header>`;
   }
 
   function HeroSearch() {
     return `<section class="v2-hero">
-      <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> сравниваем корзину целиком</div><h1>Где <em>дешевле?</em></h1><p>Один поиск. Все магазины рядом. Честно показываем, где данные подтверждены, а где это только оценка.</p></div>
+      <div class="v2-hero-copy"><div class="v2-eyebrow"><i></i> одна корзина — несколько вариантов</div><h1>Покупки. <em>Как лучше.</em></h1><p>Собери корзину один раз. Сравним варианты по цене, удобству и подтверждённости данных — решение остаётся за тобой.</p></div>
       <div class="v2-hero-bai" aria-hidden="true"><span>Я найду,<br>где дешевле</span><img src="assets/bai/bai-peek.webp" alt=""></div>
-      <form class="v2-search" role="search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input type="search" name="query" autocomplete="off" enterkeyhint="search" autocapitalize="none" spellcheck="false" value="${esc(state.q || "")}" placeholder="Что хочешь купить?" aria-label="Поиск товара"><button type="submit">Найти</button></form>
+      <form class="v2-search" role="search" onsubmit="tdV2Search(event)"><span aria-hidden="true">⌕</span><input type="search" name="query" autocomplete="off" enterkeyhint="search" autocapitalize="none" spellcheck="false" value="${esc(state.q || "")}" placeholder="Например: молоко, яйца, хлеб" aria-label="Поиск товара"><button type="submit">Собрать</button></form>
       <div class="v2-categories" aria-label="Быстрые категории">${["Молоко","Яйца","Курица","Сыр","Хлеб","Яблоки","Для дома"].map(label => `<button type="button" onclick="tdV2Quick('${label}')">${label}</button>`).join("")}</div>
-      <div class="v2-hero-proof"><span>✓ Проверяем источник</span><span>✓ Считаем всю корзину</span><span>✓ Не продаём первое место</span></div>
+      <div class="v2-hero-proof"><span>✓ Видно, откуда цена</span><span>✓ Считаем всю корзину</span><span>✓ Показываем варианты, а не рекламу</span></div>
     </section>`;
   }
 
   function StoreStrip() {
     const list = (typeof STORES === "undefined" ? [] : STORES).filter(store => store.city.includes(state.city));
-    return `<section class="v2-section"><div class="v2-section-head"><div><span>МАГАЗИНЫ</span><h2>Сравниваем знакомые сети</h2></div><button onclick="go('stores')">Все магазины →</button></div><div class="v2-store-strip">${list.map(store => `<button onclick="state.storeId='${store.id}';persist();go('catalog')"><i style="--store:${store.color}">${esc(store.short.charAt(0))}</i><span><b>${esc(store.short)}</b><small>${store.kind === "delivery" ? "доставка" : "магазин"}</small></span></button>`).join("")}</div></section>`;
+    return `<section class="v2-section"><div class="v2-section-head"><div><span>МАГАЗИНЫ</span><h2>Знакомые магазины рядом</h2></div><button onclick="go('stores')">Все магазины →</button></div><div class="v2-store-strip">${list.map(store => `<button onclick="state.storeId='${store.id}';persist();go('catalog')"><i style="--store:${store.color}">${esc(store.short.charAt(0))}</i><span><b>${esc(store.short)}</b><small>${store.kind === "delivery" ? "доставка" : "магазин"}</small></span></button>`).join("")}</div></section>`;
   }
 
   function ProductCard(product) {
@@ -70,16 +72,16 @@
   }
 
   function ProductGrid() {
-    return `<section class="v2-section"><div class="v2-section-head"><div><span>ПОПУЛЯРНОЕ</span><h2>Начни собирать корзину</h2></div><small>Цены с ≈ — демонстрационные и не участвуют в честном рейтинге</small></div><div class="v2-product-grid">${products().slice(0, 8).map(ProductCard).join("")}</div></section>`;
+    return `<section class="v2-section"><div class="v2-section-head"><div><span>ПОПУЛЯРНОЕ</span><h2>Добавь нужное</h2></div><small>≈ — ориентир, подтверждённые цены отмечаем отдельно</small></div><div class="v2-product-grid">${products().slice(0, 8).map(ProductCard).join("")}</div></section>`;
   }
 
   function ShoppingList() {
     const items = products().filter(product => state.cart && state.cart[product.id] > 0);
-    return `<aside class="v2-basket-card"><div class="v2-basket-top"><span>ТВОЙ СПИСОК</span><b>${cartCount()} шт.</b></div><h2>${items.length ? "Корзина готова к сравнению" : "Добавь нужные товары"}</h2><div class="v2-basket-lines">${items.slice(0, 5).map(product => `<div><span>${esc(product.name)}</span><div><button onclick="setQty('${product.id}',-1)">−</button><b>${state.cart[product.id]}</b><button onclick="setQty('${product.id}',1)">+</button></div></div>`).join("") || "<p>Нажимай «+» у товаров — список появится здесь.</p>"}</div>${items.length > 5 ? `<div class="v2-more">Ещё ${items.length - 5} поз.</div>` : ""}<button class="v2-compare" onclick="go('compare')" ${items.length ? "" : "disabled"}>Найти, где дешевле <span>→</span></button><button class="v2-edit" onclick="go('cart')">Открыть список</button></aside>`;
+    return `<aside class="v2-basket-card"><div class="v2-basket-top"><span>ТВОЙ СПИСОК</span><b>${cartCount()} шт.</b></div><h2>${items.length ? "Корзина готова. Сравним варианты." : "Добавь нужные товары"}</h2><div class="v2-basket-lines">${items.slice(0, 5).map(product => `<div><span>${esc(product.name)}</span><div><button onclick="setQty('${product.id}',-1)">−</button><b>${state.cart[product.id]}</b><button onclick="setQty('${product.id}',1)">+</button></div></div>`).join("") || "<p>Нажимай «+» у товаров — список появится здесь.</p>"}</div>${items.length > 5 ? `<div class="v2-more">Ещё ${items.length - 5} поз.</div>` : ""}<button class="v2-compare" onclick="go('compare')" ${items.length ? "" : "disabled"}>Сравнить варианты <span>→</span></button><button class="v2-edit" onclick="go('cart')">Открыть список</button></aside>`;
   }
 
   function Footer() {
-    return `<footer class="v2-footer" id="about"><div>${Brand()}<p>Помогаем выбрать выгодную покупку. Подтверждённые и предполагаемые цены всегда разделены.</p></div><div><b>Главное</b><button onclick="go('catalog')">Товары</button><button onclick="go('stores')">Магазины</button><button onclick="go('cart')">Моя корзина</button></div><div><b>Доверие</b><span>Источник цены</span><span>Свежесть данных</span><span>Честный рейтинг</span></div></footer>`;
+    return `<footer class="v2-footer" id="about"><div>${Brand()}<p>Помогаем понять, как лучше собрать корзину: по цене, удобству и подтверждённости данных.</p></div><div><b>Главное</b><button onclick="go('catalog')">Товары</button><button onclick="go('stores')">Магазины</button><button onclick="go('cart')">Моя корзина</button></div><div><b>Доверие</b><span>Откуда цена</span><span>Когда проверили</span><span>Без платных первых мест</span></div></footer>`;
   }
 
   function Home() {
