@@ -6,6 +6,8 @@ on:
       - "ai-shopping-assistant.js"
       - "ai-shopping-assistant.css"
       - "bai-*.js"
+      - "bai-learning-admin.html"
+      - "bai-learning-admin.css"
       - "shopping-*.js"
       - "server/**"
       - "backend/**"
@@ -19,6 +21,7 @@ on:
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-learning-safety.mjs"
       - "scripts/test-bai-learning-backend.mjs"
+      - "scripts/test-bai-learning-admin.mjs"
       - "scripts/test-bai-memory-undo.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
@@ -30,6 +33,8 @@ on:
       - "ai-shopping-assistant.js"
       - "ai-shopping-assistant.css"
       - "bai-*.js"
+      - "bai-learning-admin.html"
+      - "bai-learning-admin.css"
       - "shopping-*.js"
       - "server/**"
       - "backend/**"
@@ -43,6 +48,7 @@ on:
       - "scripts/test-bai-learning-loop.mjs"
       - "scripts/test-bai-learning-safety.mjs"
       - "scripts/test-bai-learning-backend.mjs"
+      - "scripts/test-bai-learning-admin.mjs"
       - "scripts/test-bai-memory-undo.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
@@ -72,6 +78,7 @@ jobs:
           node --check bai-memory.js
           node --check bai-learning-safety.js
           node --check bai-learning-loop.js
+          node --check bai-learning-admin.js
           node --check bai-planner.js
           node --check bai-self-check.js
           node --check shopping-conversation.js
@@ -88,6 +95,7 @@ jobs:
           node --check scripts/test-bai-learning-loop.mjs
           node --check scripts/test-bai-learning-safety.mjs
           node --check scripts/test-bai-learning-backend.mjs
+          node --check scripts/test-bai-learning-admin.mjs
           node --check scripts/test-bai-memory-undo.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
@@ -99,6 +107,7 @@ jobs:
           node scripts/test-bai-learning-safety.mjs
           node scripts/test-bai-learning-loop.mjs
           node scripts/test-bai-learning-backend.mjs
+          node scripts/test-bai-learning-admin.mjs
           node scripts/test-bai-memory-undo.mjs
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
