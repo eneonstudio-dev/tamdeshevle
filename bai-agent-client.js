@@ -27,10 +27,18 @@
       duration:Math.max(1,Math.min(365,Number(s.duration)||1)),
       cookingPreference:String(s.cookingPreference||"normal").slice(0,32),
       mode:s.mode==="one"?"one":"multi",
-      stores:ids(s.stores),requiredProducts:ids(s.requiredProducts),preferredProducts:ids(s.preferredProducts),excludedProducts:ids(s.excludedProducts),onlyProducts:ids(s.onlyProducts),
-      preferences:ids(s.preferences),
+      stores:ids(s.stores),requiredProducts:ids(s.requiredProducts),preferredProducts:ids(s.preferredProducts),excludedProducts:ids(s.excludedProducts),onlyProducts:ids(s.onlyProducts),preferences:ids(s.preferences),
       products:(Array.isArray(s.products)?s.products:[]).slice(0,30).map(p=>({id:String(p?.id||"").slice(0,64),name:String(p?.name||"").slice(0,90),quantity:Math.max(0,Number(p?.quantity)||0)})).filter(p=>p.id)
     };
+  }
+
+  function sanitizeCatalog(raw){
+    const seen=new Set(),out=[];
+    for(const item of (Array.isArray(raw)?raw:[]).slice(0,80)){
+      const id=String(item?.id||"").slice(0,64);if(!/^[a-z0-9_-]{1,64}$/.test(id)||seen.has(id))continue;seen.add(id);
+      out.push({id,name:String(item?.name||id).replace(/[<>]/g," ").slice(0,90),tags:(Array.isArray(item?.tags)?item.tags:[]).map(x=>String(x||"").replace(/[<>]/g," ").slice(0,32)).filter(Boolean).slice(0,8)});
+    }
+    return out;
   }
 
   function shouldUse(text,baseline){
@@ -53,7 +61,8 @@
     const token=await accessToken();if(!token)return null;
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);
     try{
-      const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},signal:controller.signal,body:JSON.stringify({message:trim(text),history:sanitizeHistory(history),basket:sanitizeState(window.TDShoppingState?.get?.()||{}),baseline:{operations:safeOps(baseline?.operations),reply:trim(baseline?.reply),expectsAnswer:Boolean(baseline?.expectsAnswer)}})});
+      const catalog=sanitizeCatalog(window.TDStoreAdapters?.catalog?.()||[]);
+      const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},signal:controller.signal,body:JSON.stringify({message:trim(text),history:sanitizeHistory(history),basket:sanitizeState(window.TDShoppingState?.get?.()||{}),catalog,baseline:{operations:safeOps(baseline?.operations),reply:trim(baseline?.reply),expectsAnswer:Boolean(baseline?.expectsAnswer)}})});
       let body=null;try{body=await response.json()}catch{}
       if(!response.ok||body?.ok===false)return null;
       const operations=safeOps(body?.operations),reply=trim(body?.reply),suggestions=(Array.isArray(body?.suggestions)?body.suggestions:[]).map(trim).filter(Boolean).slice(0,3);
@@ -93,6 +102,6 @@
     }catch{return false}
   }
 
-  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,safeOps,status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint)})};
+  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,sanitizeCatalog,safeOps,status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint)})};
   install();
 })();
