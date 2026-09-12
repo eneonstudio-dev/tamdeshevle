@@ -7,6 +7,7 @@
   const emptyGoal=()=>({task:"basket",occasion:null,people:null,days:null,budget:null,cooking:null,preferences:[],requiredProducts:[],excludedProducts:[],onlyProducts:[],quantityTargets:{},stores:[],mode:null});
   let memory={pending:null,lastIntent:"build",lastProduct:null,turns:0,goal:emptyGoal()};
   function products(text){const t=low(text),out=[];for(const [stem,id] of Object.entries(PRODUCTS)){const p=t.indexOf(stem);if(p>=0)out.push({id,pos:p,stem})}return out.sort((a,b)=>a.pos-b.pos)}
+  function replacementPair(text,ordered){if(!Array.isArray(ordered)||ordered.length<2)return null;const t=low(text),i=t.indexOf("вместо");if(i>=0){const before=ordered.filter(p=>p.pos<i),after=ordered.filter(p=>p.pos>i);if(before.length&&after.length)return{from:after[0].id,to:before[before.length-1].id};if(after.length>=2)return{from:after[0].id,to:after[after.length-1].id}}return{from:ordered[0].id,to:ordered[ordered.length-1].id}}
   function stores(text){const t=low(text),out=[];for(const [stem,id] of Object.entries(STORES))if(t.includes(stem))out.push(id);return uniq(out)}
   function number(v){if(!v)return null;if(/^\d+(?:[.,]\d+)?$/.test(v))return Number(v.replace(",","."));return NUM[low(v)]||null}
   function people(text){const m=low(text).match(/(?:нас|на|для|будет)\s+(\d+|[а-я]+)\s*(?:человек|чел|персон|едок|нас)?/);return m?number(m[1]):null}
@@ -34,7 +35,7 @@
     if(negatedAdd(t)&&ids.length){ops.push({type:"SET_INTENT",value:"remove"});ids.forEach(id=>ops.push({type:"REMOVE_PRODUCT",value:id}));memory.lastIntent="remove"}
     else if(remove(t)&&add(t)&&mixedEdits(t,ops)){memory.lastIntent="edit"}
     else if(only(t)&&ids.length){ops.push({type:"SET_INTENT",value:"only"},{type:"SET_ONLY_PRODUCTS",value:ids});memory.lastIntent="only"}
-    else if(replace(t)&&ordered.length>=2){ops.push({type:"SET_INTENT",value:"replace"},{type:"REPLACE_PRODUCT",value:{from:ordered[0].id,to:ordered[ordered.length-1].id}});memory.lastIntent="replace"}
+    else if(replace(t)&&ordered.length>=2){const pair=replacementPair(t,ordered);ops.push({type:"SET_INTENT",value:"replace"},{type:"REPLACE_PRODUCT",value:pair});memory.lastIntent="replace"}
     else if(replace(t)&&ordered.length===1&&/вместо\s+(этого|него|нее|неё)|замени\s+(это|его|ее|её)/.test(t)&&memory.lastProduct&&memory.lastProduct!==ordered[0].id){ops.push({type:"SET_INTENT",value:"replace"},{type:"REPLACE_PRODUCT",value:{from:memory.lastProduct,to:ordered[0].id}});memory.lastIntent="replace"}
     else if(remove(t)&&ids.length){ops.push({type:"SET_INTENT",value:"remove"});ids.forEach(id=>ops.push({type:"REMOVE_PRODUCT",value:id}));memory.lastIntent="remove"}
     else if(add(t)&&ids.length){ops.push({type:"SET_INTENT",value:"add"});ids.forEach(id=>ops.push({type:"ADD_PRODUCT",value:id}));memory.lastIntent="add"}
