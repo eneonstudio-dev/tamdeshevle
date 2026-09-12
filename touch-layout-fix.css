@@ -22,18 +22,18 @@ body>.bai-panel[data-bai-panel="true"]{
   right:max(18px,env(safe-area-inset-right))!important;
   bottom:max(82px,calc(70px + env(safe-area-inset-bottom)))!important;
   left:auto!important;width:min(320px,calc(100vw - 36px))!important;
-  max-height:calc(100dvh - 112px)!important;overflow:auto!important;
+  max-height:calc(var(--td-vvh,100dvh) - 112px)!important;overflow:auto!important;
   box-sizing:border-box!important;transform:none!important;
 }
 
 @media (hover:none) and (pointer:coarse), (max-width:1100px){
-  body{padding-bottom:78px!important;overflow-x:hidden!important}
+  body{padding-bottom:calc(78px + env(safe-area-inset-bottom))!important;overflow-x:hidden!important}
   .phone{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
   .v2-inner-screen .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
   .store:hover{transform:none!important}
   .store:hover .cover{background-size:cover!important}
-  .bai-assistant{right:0!important;bottom:64px!important;width:62px!important;height:58px!important;z-index:72!important}
+  .bai-assistant{right:0!important;bottom:calc(64px + env(safe-area-inset-bottom))!important;width:62px!important;height:58px!important;z-index:72!important}
   .bai-character,.bai-image{width:66px!important;height:63px!important}
   .bai-character{right:-9px!important;bottom:-5px!important}
   body>.bai-panel[data-bai-panel="true"]{
@@ -41,7 +41,13 @@ body>.bai-panel[data-bai-panel="true"]{
     right:max(12px,env(safe-area-inset-right))!important;
     bottom:max(82px,calc(72px + env(safe-area-inset-bottom)))!important;
     width:auto!important;max-width:none!important;
-    max-height:calc(100dvh - 104px)!important;border-radius:20px!important;
+    max-height:calc(var(--td-vvh,100dvh) - 104px)!important;border-radius:20px!important;
+  }
+  body[data-td-keyboard-open]{padding-bottom:0!important}
+  body[data-td-keyboard-open]>.bai-assistant{display:none!important}
+  body[data-td-keyboard-open]>.bai-panel[data-bai-panel="true"]{
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    max-height:calc(var(--td-vvh,100dvh) - 16px)!important;
   }
 }
 
