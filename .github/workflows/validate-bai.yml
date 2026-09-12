@@ -37,6 +37,10 @@ on:
       - "scripts/test-bai-smart-substitutions.mjs"
       - "scripts/test-bai-meal-brain.mjs"
       - "scripts/test-bai-meal-pipeline.mjs"
+      - "scripts/test-bai-pantry.mjs"
+      - "scripts/test-bai-goal-memory.mjs"
+      - "scripts/test-bai-question-selector.mjs"
+      - "scripts/test-bai-personal-context-journey.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -76,6 +80,10 @@ on:
       - "scripts/test-bai-smart-substitutions.mjs"
       - "scripts/test-bai-meal-brain.mjs"
       - "scripts/test-bai-meal-pipeline.mjs"
+      - "scripts/test-bai-pantry.mjs"
+      - "scripts/test-bai-goal-memory.mjs"
+      - "scripts/test-bai-question-selector.mjs"
+      - "scripts/test-bai-personal-context-journey.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -101,6 +109,9 @@ jobs:
           node --check bai-sufficiency.js
           node --check bai-smart-substitutions.js
           node --check bai-meal-brain.js
+          node --check bai-pantry.js
+          node --check bai-goal-memory.js
+          node --check bai-question-selector.js
           node --check bai-life.js
           node --check bai-memory.js
           node --check bai-learning-safety.js
@@ -142,6 +153,10 @@ jobs:
           node --check scripts/test-bai-smart-substitutions.mjs
           node --check scripts/test-bai-meal-brain.mjs
           node --check scripts/test-bai-meal-pipeline.mjs
+          node --check scripts/test-bai-pantry.mjs
+          node --check scripts/test-bai-goal-memory.mjs
+          node --check scripts/test-bai-question-selector.mjs
+          node --check scripts/test-bai-personal-context-journey.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -164,3 +179,7 @@ jobs:
           node scripts/test-bai-smart-substitutions.mjs
           node scripts/test-bai-meal-brain.mjs
           node scripts/test-bai-meal-pipeline.mjs
+          node scripts/test-bai-pantry.mjs
+          node scripts/test-bai-goal-memory.mjs
+          node scripts/test-bai-question-selector.mjs
+          node scripts/test-bai-personal-context-journey.mjs
