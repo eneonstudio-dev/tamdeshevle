@@ -1,0 +1,16 @@
+[
+  {"id":"budget_people_days","message":"Собери мне еду на 3000 рублей на четверых на 3 дня","requiredTypes":["CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","REOPTIMIZE"],"forbiddenTypes":["RESET_BASKET"],"critical":true,"passScore":80},
+  {"id":"minimal_cooking","message":"Готовить вообще не хочу, сделай попроще","requiredTypes":["SET_COOKING","REOPTIMIZE"],"forbiddenTypes":["RESET_BASKET"],"critical":true},
+  {"id":"remove_only_milk","message":"Нет, молоко убери","requiredOperations":[{"type":"REMOVE_PRODUCT","value":"milk"}],"forbiddenTypes":["RESET_BASKET","CLEAR_ONLY"],"critical":true},
+  {"id":"replace_milk_water","message":"Замени молоко на воду","requiredOperations":[{"type":"REPLACE_PRODUCT","value":{"from":"milk","to":"water"}}],"forbiddenTypes":["RESET_BASKET"],"critical":true},
+  {"id":"ambiguous_replace","message":"Замени молоко","expectsClarification":true,"forbiddenTypes":["REPLACE_PRODUCT","RESET_BASKET"],"critical":true},
+  {"id":"alternative_replace","message":"Замени молоко на воду или яблоки","expectsClarification":true,"forbiddenTypes":["REPLACE_PRODUCT"],"critical":true},
+  {"id":"single_store","message":"Давай всё в одном магазине","requiredOperations":[{"type":"SET_MODE","value":"one"}],"requiredTypes":["REOPTIMIZE"],"forbiddenTypes":["RESET_BASKET"]},
+  {"id":"multi_store","message":"Можно по разным магазинам если дешевле","requiredOperations":[{"type":"SET_MODE","value":"multi"}],"requiredTypes":["REOPTIMIZE"]},
+  {"id":"exclude_product","message":"Без ветчины вообще","requiredOperations":[{"type":"REMOVE_PRODUCT","value":"ham"}],"forbiddenTypes":["ADD_PRODUCT","RESET_BASKET"],"critical":true},
+  {"id":"keep_not_remove","message":"Не убирай молоко","forbiddenOperations":[{"type":"REMOVE_PRODUCT","value":"milk"}],"forbiddenTypes":["RESET_BASKET"],"critical":true,"allowClarification":true},
+  {"id":"ordinal_remove","message":"Убери второй товар","requiredTypes":["REMOVE_PRODUCT"],"forbiddenTypes":["RESET_BASKET"],"critical":true},
+  {"id":"budget_only","message":"До 2000 рублей","requiredTypes":["CHANGE_BUDGET","REOPTIMIZE"],"forbiddenTypes":["RESET_BASKET"]},
+  {"id":"natural_request","message":"Я один до воскресенья, тысяч на 3500, готовить лень, но одной лапшой питаться не хочу. Фрукты тоже нужны. Сам реши.","requiredTypes":["CHANGE_BUDGET","SET_PEOPLE","SET_COOKING","ADD_PREFERENCE","REOPTIMIZE"],"forbiddenTypes":["RESET_BASKET"],"maxMutations":10,"critical":true},
+  {"id":"no_hallucinated_action","message":"Какая сейчас точная цена молока в Пятёрочке?","expectsClarification":true,"forbiddenTypes":["ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","RESET_BASKET"],"critical":true}
+]

@@ -29,6 +29,7 @@ on:
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - "scripts/test-bai-agent-core.mjs"
+      - "scripts/test-bai-evolution.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -60,6 +61,7 @@ on:
       - "scripts/test-bai-handoff-e2e.mjs"
       - "scripts/test-bai-chat-runtime.mjs"
       - "scripts/test-bai-agent-core.mjs"
+      - "scripts/test-bai-evolution.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -100,6 +102,7 @@ jobs:
           node --check continue-in-stores-v1.js
           node --check real-store-integration-v1.js
           node --check server/bai-learning-consensus.mjs
+          node --check server/bai-evolution-policy.mjs
           node --check scripts/test-bai-core-parser.mjs
           node --check scripts/test-bai-brain.mjs
           node --check scripts/test-bai-self-check.mjs
@@ -112,6 +115,7 @@ jobs:
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
           node --check scripts/test-bai-agent-core.mjs
+          node --check scripts/test-bai-evolution.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-core-parser.mjs
@@ -126,3 +130,4 @@ jobs:
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
           node scripts/test-bai-agent-core.mjs
+          node scripts/test-bai-evolution.mjs
