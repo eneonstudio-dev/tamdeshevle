@@ -9,13 +9,16 @@ const state={duration:1,peopleCount:1,budget:null};
 const goal={recommend:()=>({})};
 const pantry={count:()=>0};
 let best=q.choose({text:'собери мне корзину',routed,state,goal,pantry});
-assert.equal(best.id,'duration','duration should be the highest-value missing fact for a generic basket');
+assert.equal(best,null,'generic basket must execute immediately with safe defaults');
+
+best=q.choose({text:'собери на несколько дней',routed,state,goal,pantry});
+assert.equal(best.id,'duration','an explicitly incomplete duration may ask one blocking question');
 const asked=q.askResult(routed,best);
 assert.equal(asked.operations.length,1,'question selector must ask at most one blocking question');
 assert.equal(asked.operations[0].type,'ASK_CLARIFICATION');
 assert.equal(asked.expectsAnswer,true);
 let resumed=q.resume('На неделю',{operations:[{type:'SET_DURATION',value:7}],expectsAnswer:false});
-assert.ok(resumed?.text.includes('собери мне корзину')&&resumed.text.includes('На неделю'),'answer must resume original shopping goal');
+assert.ok(resumed?.text.includes('собери на несколько дней')&&resumed.text.includes('На неделю'),'answer must resume original shopping goal');
 assert.ok(resumed.operations.some(x=>x.type==='SET_INTENT')&&resumed.operations.some(x=>x.type==='SET_DURATION'),'resume must preserve old and new constraints');
 
 q.clear();

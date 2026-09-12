@@ -62,7 +62,7 @@
     personalLoad=personalLoad||Promise.all([
       import("./bai-pantry.js?v=20260912-pantry-v1"),
       import("./bai-goal-memory.js?v=20260912-goal-v1"),
-      import("./bai-question-selector.js?v=20260912-question-v1")
+      import("./bai-question-selector.js?v=20260912-question-v2")
     ]).catch(error=>{console.warn("[Bai Journey] personal context load failed",error);return null});
     await personalLoad;return{pantry:window.TDBaiPantry||null,goal:window.TDBaiGoalMemory||null,question:window.TDBaiQuestionSelector||null};
   }
