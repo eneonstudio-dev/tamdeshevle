@@ -36,19 +36,19 @@ await import(`../pickup-flow-v1.js?handoff=${Date.now()}`);
 await import(`../courier-handoff-v1.js?handoff=${Date.now()}`);
 
 const pickup=global.TDPickupFlowV1.text("18:30");
-assert.match(pickup,/Самовывоз · Там дешевле/);
+assert.match(pickup,/Самовывоз · Votonobay/);
 assert.match(pickup,/Пятёрочка/);
 assert.match(pickup,/Магнит/);
 assert.match(pickup,/Когда забрать: 18:30/);
 assert.match(pickup,/Заказ в магазин не отправлен/);
-assert.doesNotMatch(pickup,/Самовывоз · Проще/);
+assert.doesNotMatch(pickup,/Там дешевле|Проще/);
 
 const courier=global.TDCourierHandoffV1.payload({address:"Тестовая, 1",entrance:"2",floor:"3",apartment:"4",phone:"+70000000000",comment:"Позвонить"});
-assert.match(courier,/Задание для курьера · Там дешевле/);
+assert.match(courier,/Задание для курьера · Votonobay/);
 assert.match(courier,/Куда привезти: Тестовая, 1/);
 assert.match(courier,/подъезд 2, этаж 3, кв\. 4/);
 assert.match(courier,/Курьер не вызван и заказ не оформлен/);
-assert.doesNotMatch(courier,/Задание для курьера · Проще/);
+assert.doesNotMatch(courier,/Там дешевле|Проще/);
 
 const load=path=>readFile(new URL(`../${path}`,import.meta.url),"utf8");
 const [checkout,continueStores,retailer]=await Promise.all([
@@ -61,7 +61,8 @@ assert.match(checkout,/data-bai-checkout-action="pickup"/);
 assert.match(checkout,/data-bai-checkout-action="courier"/);
 assert.match(checkout,/data-bai-continue-stores/);
 assert.match(checkout,/Бай ничего не оформит без тебя/);
-assert.match(checkout,/const lines=\[head,"Там дешевле",""\]/);
+assert.match(checkout,/const lines=\[head,"Votonobay",""\]/);
+assert.doesNotMatch(checkout,/"Там дешевле"/);
 
 for(const [name,source] of [["continue-in-stores",continueStores],["retailer-handoff",retailer]]){
   assert.match(source,/role="dialog"/i,`${name} must expose a dialog role`);
@@ -72,8 +73,8 @@ for(const [name,source] of [["continue-in-stores",continueStores],["retailer-han
   assert.match(source,/safe-area-inset-bottom/,`${name} must respect mobile safe areas`);
 }
 
-assert.match(continueStores,/(?:Сайт|«Там дешевле») не читает корзину магазина/);
-assert.match(retailer,/(?:Сайт|«Там дешевле») не читает и не меняет cookie или корзину Магнита/);
+assert.match(continueStores,/Votonobay не читает корзину магазина/);
+assert.match(retailer,/(?:Votonobay|Сайт) не читает и не меняет cookie или корзину Магнита/);
 assert.match(retailer,/Публичный стабильный deep-link для автоматического наполнения корзины (?:пока )?не подтверждён/);
 
-console.log("Bai handoff E2E contract passed: basket -> checkout -> pickup/courier/store transfer is truthful, branded and accessible.");
+console.log("Bai handoff E2E contract passed: Votonobay basket -> checkout -> pickup/courier/store transfer is truthful, branded and accessible.");
