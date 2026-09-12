@@ -24,6 +24,7 @@ jobs:
           node --check comparison-engine.js
           node --check runtime-bridge.js
           node --check price-sync.js
+          node --check store-adapters.js
           node --check v2-shell.js
           node --check v2-mobile-dock.js
           node --check ui-layer-coordinator.js
@@ -59,6 +60,7 @@ jobs:
           node --check scripts/test-mobile-bay-first-e2e.mjs
           node --check scripts/test-bay-runtime-states.mjs
           node --check scripts/test-unified-cart-state.mjs
+          node --check scripts/test-price-trust-quality.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
           node --check scripts/test-price-sync-resilience.mjs
@@ -109,6 +111,8 @@ jobs:
         run: node scripts/test-bay-runtime-states.mjs
       - name: Test unified cart state
         run: node scripts/test-unified-cart-state.mjs
+      - name: Test price trust quality
+        run: node scripts/test-price-trust-quality.mjs
       - name: Test account modal resilience
         run: node scripts/test-account-modal-resilience.mjs
       - name: Test purchase and comparison resilience
