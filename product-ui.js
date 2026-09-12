@@ -13,13 +13,13 @@
     const node=document.createElement("style");
     node.id="td-product-ui-style";
     node.textContent=`
-      .item{position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.item:has(.td-product-trust.real){border-color:#cce7d6;box-shadow:0 12px 28px rgba(15,123,74,.09)}
-      .thumb.td-retailer-photo{background:#fff;border:1px solid #eee7dc;padding:5px}.thumb.td-retailer-photo img{object-fit:contain;background:#fff}.td-photo-tag{position:absolute;left:18px;top:18px;background:rgba(22,20,16,.84);color:#fff;border-radius:999px;padding:3px 6px;font-size:8px;font-weight:800;letter-spacing:.02em;z-index:2}
-      .thumb.td-image-fallback,.sku-plate.td-image-fallback{background:linear-gradient(145deg,#faf8f3,#f0ece4);border:1px solid #e7e0d5}.td-image-fallback-mark{display:grid;place-items:center;width:100%;height:100%;min-height:44px;font-size:30px;line-height:1;color:#9b9285;text-align:center}
-      .td-product-trust{grid-column:2/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:-5px;padding-top:8px;border-top:1px solid #eee8de;font-size:10px;font-weight:800;color:#756d61}.td-product-trust.real{color:#116c45}
-      .td-product-trust .verified{display:inline-flex;align-items:center;gap:5px;background:#e7f6ec;border-radius:999px;padding:5px 8px;color:#0f7b4a}.td-product-trust .verified.stale{background:#fff1cf;color:#7b5700}.td-product-trust .estimated{background:#f1ede6;border-radius:999px;padding:5px 8px}.td-product-trust .promo{background:#fff0b8;color:#765700;border-radius:999px;padding:5px 8px}.td-product-trust a{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;opacity:.9}
-      .td-retailer-name{grid-column:2/-1;margin-top:-6px;color:#4e493f;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.td-retailer-name strong{color:#161410}.td-old-price{text-decoration:line-through;color:#8a8277;font-size:12px;font-weight:700;margin-left:6px}.td-match-note{grid-column:2/-1;font-size:10px;color:#777064;font-weight:700;margin-top:-5px}
-      @media (hover:hover){.item:has(.td-product-trust.real):hover{transform:translateY(-1px)}}`;
+      .item{position:relative;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.item:has(.td-product-trust.real){border-color:rgba(43,228,135,.20);box-shadow:0 14px 34px rgba(0,0,0,.18)}
+      .thumb.td-retailer-photo{background:#111d16;border:1px solid rgba(255,255,255,.07);padding:5px}.thumb.td-retailer-photo img{object-fit:contain;background:#111d16}.td-photo-tag{position:absolute;left:18px;top:18px;background:rgba(5,10,7,.88);color:#dff8e9;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:3px 6px;font-size:8px;font-weight:800;letter-spacing:.02em;z-index:2}
+      .thumb.td-image-fallback,.sku-plate.td-image-fallback{background:linear-gradient(145deg,#111d16,#0b1510);border:1px solid rgba(255,255,255,.07)}.td-image-fallback-mark{display:grid;place-items:center;width:100%;height:100%;min-height:44px;font-size:30px;line-height:1;color:#789083;text-align:center}
+      .td-product-trust{grid-column:2/-1;display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:-5px;padding-top:8px;border-top:1px solid rgba(255,255,255,.075);font-size:10px;font-weight:800;color:#82978b}.td-product-trust.real{color:#69eda4}
+      .td-product-trust .verified{display:inline-flex;align-items:center;gap:5px;background:rgba(43,228,135,.11);border:1px solid rgba(43,228,135,.18);border-radius:999px;padding:5px 8px;color:#85f7b7}.td-product-trust .verified.stale{background:rgba(255,196,61,.09);border-color:rgba(255,207,92,.16);color:#e8cd8a}.td-product-trust .estimated{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.07);border-radius:999px;padding:5px 8px;color:#a4b6ac}.td-product-trust .promo{background:rgba(255,196,61,.10);border:1px solid rgba(255,207,92,.16);color:#efd894;border-radius:999px;padding:5px 8px}.td-product-trust a{color:#9deec0;text-decoration:none;border-bottom:1px solid rgba(157,238,192,.45);opacity:.95}
+      .td-retailer-name{grid-column:2/-1;margin-top:-6px;color:#81968a;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.td-retailer-name strong{color:#edf9f1}.td-old-price{text-decoration:line-through;color:#72857a;font-size:12px;font-weight:700;margin-left:6px}.td-match-note{grid-column:2/-1;font-size:10px;color:#7f9588;font-weight:700;margin-top:-5px}
+      @media (hover:hover){.item:has(.td-product-trust.real):hover{transform:translateY(-1px);border-color:rgba(43,228,135,.30)}}`;
     document.head.appendChild(node);
   }
 
@@ -117,14 +117,14 @@
     clearDecor(card);applyImage(card,meta,item);
     const price=card.querySelector(".price");
     const name=document.createElement("div");name.className="td-retailer-name";
-    if(meta&&meta.retailerName)name.innerHTML=`В каталоге: <strong>${esc(meta.retailerName)}</strong>`;else name.textContent="Базовый товар для сравнения";
+    if(meta&&meta.retailerName)name.innerHTML=`В каталоге: <strong>${esc(meta.retailerName)}</strong>`;else name.textContent="Базовая оценка для сравнения вариантов";
     card.appendChild(name);
     const trust=document.createElement("div");trust.className=`td-product-trust${meta?" real":""}`;
     if(meta){
       const checked=date(meta.checkedAt),stale=meta.freshness==="stale";
-      trust.innerHTML=`<span class="verified${stale?" stale":""}">${stale?"⚠ устаревает":"✓ подтверждено"}${checked?` · ${esc(checked)}`:""}</span>${meta.promo?`<span class="promo">акция</span>`:""}${meta.sourceUrl?`<a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener noreferrer">карточка магазина ↗</a>`:""}`;
+      trust.innerHTML=`<span class="verified${stale?" stale":""}">${stale?"Данные устаревают":"Подтверждено"}${checked?` · ${esc(checked)}`:""}</span>${meta.promo?`<span class="promo">акция</span>`:""}${meta.sourceUrl?`<a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener noreferrer">карточка магазина ↗</a>`:""}`;
       if(price&&Number.isFinite(meta.oldPrice)&&meta.oldPrice>meta.price)price.insertAdjacentHTML("beforeend",`<span class="td-old-price">${esc(rub(meta.oldPrice))}</span>`);
-    }else trust.innerHTML=`<span class="estimated">≈ учебная оценка</span><span>не подтверждена каталогом сети</span>`;
+    }else trust.innerHTML=`<span class="estimated">≈ оценка</span><span>не подтверждена каталогом сети</span>`;
     card.appendChild(trust);
     if(meta&&meta.method&&meta.method!=="exact_retailer_id"){
       const note=document.createElement("div");note.className="td-match-note";note.textContent=meta.confidence!=null?`Совместимый товар · уверенность ${Math.round(meta.confidence*100)}%`:"Совместимый товар";card.appendChild(note);
