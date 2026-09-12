@@ -1,0 +1,38 @@
+name: Validate navigation resilience
+
+on:
+  pull_request:
+    paths:
+      - "app.js"
+      - "index.html"
+      - "overlay-history-v1.js"
+      - "scripts/test-navigation-resilience.mjs"
+      - ".github/workflows/validate-navigation.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "app.js"
+      - "index.html"
+      - "overlay-history-v1.js"
+      - "scripts/test-navigation-resilience.mjs"
+      - ".github/workflows/validate-navigation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  navigation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check navigation runtime syntax
+        run: |
+          node --check app.js
+          node --check overlay-history-v1.js
+          node --check scripts/test-navigation-resilience.mjs
+      - name: Test navigation resilience contract
+        run: node scripts/test-navigation-resilience.mjs
