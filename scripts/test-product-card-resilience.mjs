@@ -19,6 +19,11 @@ assert(productUI.includes("showImageFallback(holder,img,item)"), "base image fai
 assert(productUI.includes('document.querySelectorAll("#app .sku-plate img").forEach(prepareTileImage)'), "home/catalog product tiles must use the same image hardening");
 assert(productUI.includes('img.loading="lazy"') && productUI.includes('img.decoding="async"'), "product images must stay lazy and async decoded");
 assert(productUI.includes('setAttribute("fetchpriority","low")'), "non-critical product images should stay low priority");
+assert(productUI.includes('window.addEventListener("pagehide",pause)') && productUI.includes('window.addEventListener("pageshow",resume)'), "product decorators must pause and resume across Android/BFCache page lifecycle");
+assert(!productUI.includes('window.addEventListener("pagehide",pause,{once:true})'), "pagehide cleanup must work on every navigation, not only the first one");
+assert(productUI.includes("function retryImages"), "product images need an explicit retry path after connectivity returns");
+assert(productUI.includes('window.addEventListener("online",retryImages)'), "failed image sources must retry after the browser comes back online");
+assert(productUI.includes("delete card.dataset.productUiSignature") && productUI.includes("delete img.dataset.tdPreparedSource"), "online recovery must invalidate stale image/decorator signatures before retrying");
 
 assert(cards.includes("grid-template-columns:76px minmax(0,1fr) auto"), "product text column must be allowed to shrink instead of overflowing");
 assert(cards.includes("overflow-wrap:anywhere"), "long product names and price text must wrap safely");
@@ -30,4 +35,4 @@ assert(cards.includes("object-fit:contain"), "product imagery must remain contai
 assert(!productUI.includes("TDBai") && !productUI.includes("bai-"), "product image resilience must stay independent from Bai");
 assert(!cards.includes("bai-"), "product card layout must stay independent from Bai");
 
-console.log("Product card resilience checks passed: aspect-safe images, multi-stage fallback and 360px layout guards are wired.");
+console.log("Product card resilience checks passed: aspect-safe images, multi-stage fallback, connectivity retry, BFCache resume and 360px layout guards are wired.");
