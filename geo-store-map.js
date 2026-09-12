@@ -12,7 +12,7 @@
   let map=null,layer=null,lastPosition=null,nearby=[],leafletPromise=null;
   let searchController=null,searchTimer=0,locateSeq=0,mapSeq=0,locating=false,nearbyState="idle";
   let mapSheet=null,pointModal=null,mapOpener=null,pointOpener=null,previousOverflow="";
-  let mapManualBack=false,pointManualBack=false,suppressMapRemoval=false,suppressPointRemoval=false;
+  let mapManualBack=false,pointManualBack=false;
 
   function css(){if(document.getElementById("td-geo-style"))return;const s=document.createElement("style");s.id="td-geo-style";s.textContent=`
     .td-geo-card{background:#fff;border-radius:20px;padding:14px;margin:12px 0;box-shadow:0 10px 26px rgba(22,20,16,.06)}.td-geo-card h3{font-size:15px;margin:0 0 5px}.td-geo-card p{font-size:12px;color:#6b6458;font-weight:650;line-height:1.45;margin:0 0 10px}.td-geo-actions{display:flex;gap:8px}.td-geo-actions button{border:0;border-radius:13px;padding:11px 12px;font:800 12px Manrope,sans-serif;cursor:pointer}.td-geo-actions button:disabled{opacity:.58;cursor:wait}.td-geo-main{background:#161410;color:#fff;flex:1}.td-geo-status{font-size:11px!important;margin:8px 0 0!important}.td-map-sheet{position:fixed;inset:0;z-index:80;background:#f4f1ea;display:flex;flex-direction:column;height:var(--td-vvh,100dvh);max-height:var(--td-vvh,100dvh);overscroll-behavior:contain}.td-map-head{padding:max(12px,env(safe-area-inset-top)) 16px 10px;display:flex;gap:10px;align-items:center;background:rgba(244,241,234,.96);backdrop-filter:blur(16px)}.td-map-head button{border:0;background:#fff;width:40px;height:40px;border-radius:12px;font-size:18px;flex:none}.td-map-head strong{font-size:16px}.td-map-head span{font-size:11px;color:#6b6458;display:block;line-height:1.35}.td-map{height:clamp(180px,46dvh,420px);min-height:0;background:#e9e5dd}.td-map-list{padding:12px 16px max(28px,env(safe-area-inset-bottom));overflow:auto;flex:1;-webkit-overflow-scrolling:touch}.td-map-store{background:#fff;border-radius:16px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start}.td-map-store-main{min-width:0;flex:1}.td-map-store b{font-size:13px}.td-map-store small{display:block;color:#70695e;margin-top:3px;line-height:1.35}.td-map-distance{margin-left:auto;font-size:12px;font-weight:800;white-space:nowrap}.td-map-price-state{display:inline-block;margin-top:5px;border-radius:999px;background:#f1ede6;padding:4px 7px;font-size:9px;font-weight:800}.td-map-price-state.ok{background:#e7f6ec;color:#0f7b4a}.td-map-basket{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.td-map-basket span{border-radius:9px;background:#f7f4ee;padding:5px 7px;font-size:10px;font-weight:800}.td-map-basket .good{background:#e7f6ec;color:#0f7b4a}.td-map-basket .save{background:#161410;color:#fff}.td-map-detail-btn{border:0;background:transparent;padding:7px 0 0;color:#0f7b4a;font:800 11px Manrope,sans-serif;cursor:pointer}.td-map-state{background:#fff;border-radius:16px;padding:16px;font-size:11px;font-weight:750;line-height:1.5;color:#6b6458}.td-map-state button{display:block;margin-top:10px;border:0;border-radius:12px;padding:10px 12px;background:#161410;color:#fff;font:900 11px Manrope,sans-serif}.td-point-detail{position:fixed;inset:0;z-index:95;background:rgba(22,20,16,.38);display:flex;align-items:flex-end;overscroll-behavior:contain}.td-point-panel{width:100%;max-height:min(82dvh,var(--td-vvh,100dvh));overflow:auto;background:#f8f6f1;border-radius:24px 24px 0 0;padding:16px 16px max(16px,env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}.td-point-top{display:flex;gap:10px;align-items:flex-start}.td-point-top h3{margin:0;font-size:18px}.td-point-top p{margin:4px 0 0;font-size:11px;color:#70695e}.td-point-close{margin-left:auto;border:0;background:#fff;border-radius:12px;width:38px;height:38px;font-size:18px;flex:none}.td-point-summary{background:#161410;color:#fff;border-radius:16px;padding:13px;margin:14px 0}.td-point-summary strong{font-size:22px}.td-point-summary small{display:block;margin-top:4px;opacity:.75}.td-point-line{background:#fff;border-radius:14px;padding:11px;margin:7px 0;display:flex;gap:9px;align-items:flex-start}.td-point-line .grow{flex:1;min-width:0}.td-point-line b{font-size:12px}.td-point-line small{font-size:10px;color:#746d62;display:block;margin-top:3px}.td-point-line .amount{font-size:12px;font-weight:900;white-space:nowrap}.td-point-missing{border:1px dashed #d8d1c5;background:#fbfaf7}.td-point-source{display:inline-block;margin-top:5px;font-size:10px;font-weight:800;color:#0f7b4a;text-decoration:none}.td-point-actions{position:sticky;bottom:-16px;background:linear-gradient(transparent,#f8f6f1 22%);padding:24px 0 4px}.td-point-actions button{width:100%;border:0;border-radius:14px;padding:13px;font:900 13px Manrope,sans-serif;background:#161410;color:#fff}.td-user-dot{width:18px;height:18px;border-radius:50%;background:#1677ff;border:4px solid #fff;box-shadow:0 0 0 2px rgba(22,119,255,.25)}
@@ -20,7 +20,7 @@
   function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
   function safeUrl(v){try{const u=new URL(String(v),location.href);return /^https?:$/.test(u.protocol)?u.href:null;}catch{return null;}}
   function chainFor(name){return CHAINS.find(c=>c.re.test(name||""))||null;}
-  function distance(a,b){const rad=x=>x*Math.PI/180,R=6371;const dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon);const x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));}
+  function distance(a,b){const rad=x=>x*Math.PI/180,R=6371;const dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon);const x=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return R*2*Math.atan2(Math.sqrt(Math.min(1,Math.max(0,x))),Math.sqrt(Math.max(0,1-x)));}
   function rub(value){return Math.round(value).toLocaleString("ru-RU")+" ₽";}
   function dateText(value){if(!value)return null;const d=new Date(value);return Number.isNaN(d.getTime())?null:d.toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"});}
   function status(text){document.querySelectorAll(".td-geo-status").forEach(n=>{n.textContent=text;n.setAttribute("role","status");n.setAttribute("aria-live","polite");});}
@@ -28,7 +28,7 @@
   function trapTab(event,root){if(event.key!=="Tab"||!root)return;const items=[...root.querySelectorAll(FOCUSABLE)].filter(x=>!x.hidden&&x.getAttribute("aria-hidden")!=="true");if(!items.length){event.preventDefault();root.focus();return;}const first=items[0],last=items[items.length-1],active=document.activeElement;if(event.shiftKey&&(active===first||!root.contains(active))){event.preventDefault();last.focus();}else if(!event.shiftKey&&(active===last||!root.contains(active))){event.preventDefault();first.focus();}}
   function setLocateBusy(value){locating=value;document.querySelectorAll(".td-geo-main").forEach(btn=>{btn.disabled=value;btn.setAttribute("aria-busy",value?"true":"false");btn.textContent=value?"Ищем магазины…":"Показать на карте";});}
   function clearSearch(){if(searchTimer){clearTimeout(searchTimer);searchTimer=0;}if(searchController){try{searchController.abort();}catch{}searchController=null;}}
-  function destroyMap(){mapSeq++;if(map&&typeof map.remove==="function"){try{map.remove();}catch(e){console.warn("map cleanup failed",e);}}map=null;layer=null;}
+  function destroyMap(){if(map&&typeof map.remove==="function"){try{map.remove();}catch(e){console.warn("map cleanup failed",e);}}map=null;layer=null;}
   function clearGeoHistoryState(){if(!window.history?.replaceState)return;try{const next={...history.state};delete next.tdGeoPoint;delete next.tdGeoMap;history.replaceState(next,"");}catch{}}
   function pushGeoState(kind){if(!window.history?.pushState)return;try{const next={...history.state,tdGeoMap:true};if(kind==="point")next.tdGeoPoint=true;history.pushState(next,"");}catch{}}
 
@@ -98,8 +98,8 @@
   function closeMap({historyBack=true,restoreFocus=true}={}){
     closePointDetails({historyBack:false,restoreFocus:false});
     const sheet=mapSheet||document.querySelector(".td-map-sheet");
-    if(!sheet){destroyMap();return false;}
-    const opener=mapOpener;mapSheet=null;mapOpener=null;destroyMap();sheet.remove();document.body.style.overflow=previousOverflow;previousOverflow="";window.TDUILayers?.refresh?.();
+    if(!sheet){mapSeq++;destroyMap();return false;}
+    const opener=mapOpener;mapSheet=null;mapOpener=null;mapSeq++;destroyMap();sheet.remove();document.body.style.overflow=previousOverflow;previousOverflow="";window.TDUILayers?.refresh?.();
     if(historyBack&&history.state?.tdGeoMap){mapManualBack=true;try{history.back();}catch{mapManualBack=false;}}
     if(restoreFocus)requestAnimationFrame(()=>safeFocus(opener));
     return true;
@@ -113,20 +113,49 @@
   }
   function popupHtml(p){const b=basketFor(p),parts=[`<b>${esc(p.chainLabel)}</b>`,esc(p.address),`<small>${Math.round(p.distanceKm*1000)} м</small>`];if(b&&b.verified)parts.push(`<strong>Корзина: ${rub(b.total)}</strong>`,`<small>Покрытие: ${b.coveredItems}/${b.totalItems} SKU</small>`);else if(b&&b.match&&b.match.verified&&b.totalItems)parts.push(`<small>Подтверждено: ${b.coveredItems}/${b.totalItems} SKU</small>`);if(b&&Number.isFinite(b.savings)&&b.savings>0)parts.push(`<small>Экономия: ${rub(b.savings)}</small>`);return parts.join("<br>");}
 
-  async function openMap(opener){
-    if(!lastPosition)return locate();
-    css();
-    if(mapSheet){safeFocus(mapSheet.querySelector("[data-close-map]"));return;}
-    mapOpener=opener||document.activeElement;previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";
-    const sheet=document.createElement("section");sheet.className="td-map-sheet";sheet.tabIndex=-1;sheet.setAttribute("role","dialog");sheet.setAttribute("aria-modal","true");sheet.setAttribute("aria-labelledby","td-map-title");sheet.innerHTML=`<div class="td-map-head"><button type="button" data-close-map aria-label="Закрыть карту">←</button><div><strong id="td-map-title">Магазины рядом</strong><span>Геопозиция используется только сейчас и не сохраняется</span></div></div><div id="td-map" class="td-map" aria-label="Карта ближайших магазинов"></div><div class="td-map-list"></div>`;
-    document.body.appendChild(sheet);mapSheet=sheet;pushGeoState("map");window.TDUILayers?.refresh?.();sheet.querySelector("[data-close-map]").addEventListener("click",()=>closeMap());renderList();requestAnimationFrame(()=>safeFocus(sheet.querySelector("[data-close-map]")));
+  function refreshMapMarkers({fit=true,emit=true}={}){
+    if(!map||!layer||!lastPosition||!window.L)return false;
+    try{
+      if(typeof layer.clearLayers==="function")layer.clearLayers();
+      nearby.forEach(p=>L.marker([p.lat,p.lon]).addTo(layer).bindPopup(popupHtml(p)));
+      if(fit){
+        if(nearby.length){const bounds=L.latLngBounds([[lastPosition.lat,lastPosition.lon],...nearby.map(p=>[p.lat,p.lon])]);map.fitBounds(bounds.pad(.15),{maxZoom:15});}
+        else map.setView([lastPosition.lat,lastPosition.lon],14);
+      }
+      if(typeof map.invalidateSize==="function")map.invalidateSize(false);
+      if(emit)window.dispatchEvent(new CustomEvent("td:geo-map-updated",{detail:{count:nearby.length}}));
+      return true;
+    }catch(err){console.warn("map marker refresh failed",err);return false;}
+  }
+
+  async function renderMapSurface(sheet=mapSheet){
+    if(!sheet||sheet!==mapSheet||!document.contains(sheet)||!lastPosition)return false;
+    const target=sheet.querySelector("#td-map");if(!target)return false;
     const seq=++mapSeq;
     try{
-      await leaflet();if(seq!==mapSeq||!mapSheet||sheet!==mapSheet||!document.contains(sheet))return;
-      destroyMap();mapSeq=seq;
-      map=L.map("td-map",{zoomControl:true}).setView([lastPosition.lat,lastPosition.lon],14);map.attributionControl.setPrefix(false);L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map);const userIcon=L.divIcon({className:"",html:'<div class="td-user-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]});L.marker([lastPosition.lat,lastPosition.lon],{icon:userIcon}).addTo(map).bindPopup("Вы здесь");layer=L.layerGroup().addTo(map);nearby.forEach(p=>L.marker([p.lat,p.lon]).addTo(layer).bindPopup(popupHtml(p)));if(nearby.length){const bounds=L.latLngBounds([[lastPosition.lat,lastPosition.lon],...nearby.map(p=>[p.lat,p.lon])]);map.fitBounds(bounds.pad(.15),{maxZoom:15});}
+      await leaflet();
+      if(seq!==mapSeq||!mapSheet||sheet!==mapSheet||!document.contains(sheet))return false;
+      destroyMap();target.innerHTML="";
+      map=L.map(target,{zoomControl:true}).setView([lastPosition.lat,lastPosition.lon],14);map.attributionControl.setPrefix(false);
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",{subdomains:"abcd",maxZoom:20,attribution:'&copy; OpenStreetMap contributors &copy; CARTO'}).addTo(map);
+      const userIcon=L.divIcon({className:"",html:'<div class="td-user-dot"></div>',iconSize:[18,18],iconAnchor:[9,9]});L.marker([lastPosition.lat,lastPosition.lon],{icon:userIcon}).addTo(map).bindPopup("Вы здесь");
+      layer=L.layerGroup().addTo(map);refreshMapMarkers({fit:true,emit:false});
       window.dispatchEvent(new CustomEvent("td:geo-map-ready",{detail:{count:nearby.length}}));
-    }catch(err){const target=sheet.querySelector("#td-map");if(target)target.innerHTML='<div class="td-map-state" style="margin:16px">Карта не загрузилась, но список ближайших магазинов ниже доступен.</div>';console.warn("map load failed",err);}
+      return true;
+    }catch(err){
+      if(seq!==mapSeq||sheet!==mapSheet)return false;
+      target.innerHTML='<div class="td-map-state" style="margin:16px">Карта не загрузилась, но список ближайших магазинов ниже доступен.</div>';console.warn("map load failed",err);return false;
+    }
+  }
+
+  async function openMap(opener){
+    if(!lastPosition)return locate({opener});
+    css();
+    if(mapSheet){renderList();if(!map)void renderMapSurface(mapSheet);return true;}
+    mapOpener=opener||document.activeElement;previousOverflow=document.body.style.overflow;document.body.style.overflow="hidden";
+    const sheet=document.createElement("section");sheet.className="td-map-sheet";sheet.tabIndex=-1;sheet.setAttribute("role","dialog");sheet.setAttribute("aria-modal","true");sheet.setAttribute("aria-labelledby","td-map-title");sheet.innerHTML=`<div class="td-map-head"><button type="button" data-close-map aria-label="Закрыть карту">←</button><div><strong id="td-map-title">Магазины рядом</strong><span>Геопозиция используется только сейчас и не сохраняется</span></div></div><div id="td-map" class="td-map" aria-label="Карта ближайших магазинов"></div><div class="td-map-list"></div>`;
+    document.body.appendChild(sheet);mapSheet=sheet;if(!history.state?.tdGeoMap)pushGeoState("map");window.TDUILayers?.refresh?.();sheet.querySelector("[data-close-map]").addEventListener("click",()=>closeMap());renderList();requestAnimationFrame(()=>safeFocus(sheet.querySelector("[data-close-map]")));
+    return renderMapSurface(sheet);
   }
 
   async function searchFromPosition(seq){
@@ -134,9 +163,8 @@
     try{
       if(navigator.onLine===false)throw new Error("offline");
       const rows=await fetchNearby(lastPosition.lat,lastPosition.lon,RADIUS);if(seq!==locateSeq)return;
-      nearby=rows;nearby.forEach(p=>p.distanceKm=distance(lastPosition,p));nearby.sort((a,b)=>a.distanceKm-b.distanceKm);nearbyState="ready";status(`Нашли ${nearby.length} поддерживаемых магазинов рядом`);renderList();
-      if(mapSheet){closeMap({historyBack:false,restoreFocus:false});clearGeoHistoryState();await openMap(mapOpener);}
-    }catch(err){if(seq!==locateSeq||err?.name==="AbortError"&&searchController)return;nearby=[];nearbyState="error";status(err?.name==="AbortError"?"Поиск магазинов занял слишком много времени":"Геопозицию получили, но список магазинов сейчас не загрузился");renderList();console.warn("nearby stores failed",err);}
+      nearby=rows;nearby.forEach(p=>p.distanceKm=distance(lastPosition,p));nearby.sort((a,b)=>a.distanceKm-b.distanceKm);nearbyState="ready";status(`Нашли ${nearby.length} поддерживаемых магазинов рядом`);renderList();refreshMapMarkers({fit:true});
+    }catch(err){if(seq!==locateSeq)return;nearby=[];nearbyState="error";status(err?.name==="AbortError"?"Поиск магазинов занял слишком много времени":"Геопозицию получили, но список магазинов сейчас не загрузился");renderList();refreshMapMarkers({fit:true});console.warn("nearby stores failed",err);}
   }
   function locate(options={}){
     if(locating)return false;
@@ -156,13 +184,18 @@
   function inject(){css();if(!window.state||!["home","stores"].includes(state.screen))return;const wrap=document.querySelector("#app .wrap");if(!wrap||wrap.querySelector("[data-td-geo]"))return;wrap.insertAdjacentHTML("afterbegin",card());const btn=wrap.querySelector(".td-geo-main");btn.addEventListener("click",()=>lastPosition?openMap(btn):locate({opener:btn}));setLocateBusy(locating);}
 
   document.addEventListener("keydown",event=>{if(pointModal&&document.contains(pointModal)){if(event.key==="Escape"){event.preventDefault();event.stopImmediatePropagation();closePointDetails();return;}trapTab(event,pointModal);return;}if(mapSheet&&document.contains(mapSheet)){if(event.key==="Escape"){event.preventDefault();event.stopImmediatePropagation();closeMap();return;}trapTab(event,mapSheet);}},true);
-  window.addEventListener("popstate",event=>{if(pointManualBack){pointManualBack=false;return;}if(mapManualBack){mapManualBack=false;return;}if(pointModal&&!event.state?.tdGeoPoint){suppressPointRemoval=true;closePointDetails({historyBack:false});suppressPointRemoval=false;}if(mapSheet&&!event.state?.tdGeoMap){suppressMapRemoval=true;closeMap({historyBack:false});suppressMapRemoval=false;}});
+  window.addEventListener("popstate",event=>{if(pointManualBack){pointManualBack=false;return;}if(mapManualBack){mapManualBack=false;return;}if(pointModal&&!event.state?.tdGeoPoint)closePointDetails({historyBack:false});if(mapSheet&&!event.state?.tdGeoMap)closeMap({historyBack:false});});
   window.addEventListener("online",()=>{if(nearbyState==="error"&&lastPosition&&mapSheet)status("Соединение восстановлено. Можно повторить поиск магазинов.");});
-  window.addEventListener("pagehide",()=>{locateSeq++;clearSearch();setLocateBusy(false);destroyMap();});
+  window.addEventListener("pagehide",()=>{locateSeq++;clearSearch();setLocateBusy(false);mapSeq++;destroyMap();});
+  window.addEventListener("pageshow",()=>{
+    if(!mapSheet||!document.contains(mapSheet)||!lastPosition)return;
+    renderList();void renderMapSurface(mapSheet);
+    if(nearbyState==="loading"&&!locating){const seq=++locateSeq;setLocateBusy(true);searchFromPosition(seq).finally(()=>{if(seq===locateSeq)setLocateBusy(false);});}
+  });
 
   const obs=new MutationObserver(()=>requestAnimationFrame(inject));
   function start(){obs.observe(document.getElementById("app")||document.body,{childList:true,subtree:true});inject();}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
-  window.addEventListener("td:retailer-prices-applied",()=>{if(document.querySelector(".td-map-list"))renderList();});
-  window.TDGeo={locate,openMap,closeMap,openPointDetails,closePointDetails,get position(){return lastPosition;},get nearby(){return nearby.slice();},get state(){return nearbyState;}};
+  window.addEventListener("td:retailer-prices-applied",()=>{if(document.querySelector(".td-map-list")){renderList();refreshMapMarkers({fit:false});}});
+  window.TDGeo={locate,openMap,closeMap,openPointDetails,closePointDetails,refreshMapMarkers,get position(){return lastPosition;},get nearby(){return nearby.slice();},get state(){return nearbyState;}};
 })();
