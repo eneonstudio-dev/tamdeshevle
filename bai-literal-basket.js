@@ -80,7 +80,7 @@
     const ids=uniq(parsed.items.map(x=>x.id)),ops=[{type:"SET_INTENT",value:"literal"},{type:"SET_ONLY_PRODUCTS",value:ids}];
     for(const item of parsed.items)if(item.amount!=null)ops.push({type:"SET_PRODUCT_AMOUNT",value:{id:item.id,amount:item.amount,unit:item.unit}});
     ops.push({type:"REOPTIMIZE"});
-    return{ok:true,provider:"bai-literal-basket",operations:ops,reply:`${parsed.items.map(label).join(". ")}. Считаю.`,suggestions:[],expectsAnswer:false,literal:{safe:true,productIds:ids,quantityTargets:Object.fromEntries(parsed.items.filter(x=>x.amount!=null).map(x=>[x.id,{amount:x.amount,unit:x.unit}]))}};
+    return{ok:true,provider:"bai-literal-basket",confirmedContext:true,operations:ops,reply:`${parsed.items.map(label).join(". ")}. Считаю.`,suggestions:[],expectsAnswer:false,literal:{safe:true,productIds:ids,quantityTargets:Object.fromEntries(parsed.items.filter(x=>x.amount!=null).map(x=>[x.id,{amount:x.amount,unit:x.unit}]))}};
   }
   function wrapBrain(brain){
     if(!brain?.route||brain.__baiLiteralBasketWrapped)return brain;const original=brain.route.bind(brain);Object.defineProperty(brain,"__baiLiteralBasketWrapped",{value:true,configurable:true});
