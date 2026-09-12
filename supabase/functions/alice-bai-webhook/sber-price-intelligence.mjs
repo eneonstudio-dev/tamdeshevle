@@ -1,6 +1,8 @@
 const DEFAULT_GIGACHAT_URL = "https://api.giga.chat/v1/chat/completions";
+const DEFAULT_GIGACHAT_OAUTH_URL = "https://ngw.devices.sberbank.ru:9443/api/v2/oauth";
 const DEFAULT_GIGACHAT_MODEL = "GigaChat-2-Pro";
 const REQUEST_TIMEOUT_MS = 1800;
+let cachedGigaToken = null;
 
 const PRODUCT_RULES = {
   milk: { sku: "milk", any: ["молоко"], none: ["сгущ", "сухое", "коктейл", "кефир", "сливк"], pack: { min: 850, max: 1100, unit: "ml" } },
@@ -37,11 +39,11 @@ function number(value) {
 function parsePack(name) {
   const source = text(name);
   const patterns = [
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:кг|kg)\b/i, unit: "g", factor: 1000 },
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:гр|г|g)\b/i, unit: "g", factor: 1 },
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:мл|ml)\b/i, unit: "ml", factor: 1 },
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:л|l)\b/i, unit: "ml", factor: 1000 },
-    { re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)\b/i, unit: "pcs", factor: 1 }
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:кг|kg)(?![a-zа-я])/i, unit: "g", factor: 1000 },
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:гр|г|g)(?![a-zа-я])/i, unit: "g", factor: 1 },
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:мл|ml)(?![a-zа-я])/i, unit: "ml", factor: 1 },
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:л|l)(?![a-zа-я])/i, unit: "ml", factor: 1000 },
+    { re: /(\d+(?:[.,]\d+)?)\s*(?:шт|pcs)(?![a-zа-я])/i, unit: "pcs", factor: 1 }
   ];
   for (const pattern of patterns) {
     const match = source.match(pattern.re);
@@ -145,8 +147,40 @@ function safeJson(value) {
   try { return JSON.parse(value); } catch { return null; }
 }
 
+async function getGigaChatAccessToken() {
+  const provided = env("GIGACHAT_ACCESS_TOKEN");
+  if (provided) return provided;
+  const authKey = env("GIGACHAT_AUTHORIZATION_KEY");
+  if (!authKey) return "";
+  const now = Date.now();
+  if (cachedGigaToken?.token && cachedGigaToken.expiresAt - 60_000 > now) return cachedGigaToken.token;
+  try {
+    const response = await fetch(env("GIGACHAT_OAUTH_URL") || DEFAULT_GIGACHAT_OAUTH_URL, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+        RqUID: crypto.randomUUID(),
+        Authorization: authKey.startsWith("Basic ") ? authKey : `Basic ${authKey}`
+      },
+      body: new URLSearchParams({ scope: env("GIGACHAT_SCOPE") || "GIGACHAT_API_PERS" }),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+    });
+    if (!response.ok) return "";
+    const payload = await response.json();
+    const token = String(payload?.access_token || "");
+    if (!token) return "";
+    const rawExpiry = Number(payload?.expires_at);
+    const expiresAt = Number.isFinite(rawExpiry) ? (rawExpiry < 1e12 ? rawExpiry * 1000 : rawExpiry) : now + 25 * 60_000;
+    cachedGigaToken = { token, expiresAt };
+    return token;
+  } catch {
+    return "";
+  }
+}
+
 export async function verifyQuotesWithGigaChat(quotes) {
-  const token = env("GIGACHAT_ACCESS_TOKEN");
+  const token = await getGigaChatAccessToken();
   if (!token || !quotes.length) return quotes;
   const endpoint = env("GIGACHAT_API_URL") || DEFAULT_GIGACHAT_URL;
   const model = env("GIGACHAT_MODEL") || DEFAULT_GIGACHAT_MODEL;
@@ -199,5 +233,5 @@ export async function getSberPriceQuotes(basket, city) {
 
 export const sberPriceIntelligenceStatus = Object.freeze({
   kuperConfigured: Boolean(env("KUPER_PRICE_FEED_URL")),
-  gigachatConfigured: Boolean(env("GIGACHAT_ACCESS_TOKEN"))
+  gigachatConfigured: Boolean(env("GIGACHAT_ACCESS_TOKEN") || env("GIGACHAT_AUTHORIZATION_KEY"))
 });
