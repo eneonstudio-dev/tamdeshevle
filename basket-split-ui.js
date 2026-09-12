@@ -1,6 +1,8 @@
 (function () {
   "use strict";
 
+  const HANDOFF_STORES = new Set(["perek", "pyat", "magnit", "lenta", "dixy"]);
+
   function money(value) {
     return `${Math.round(value).toLocaleString("ru-RU")} ₽`;
   }
@@ -38,11 +40,47 @@
     return `По ценам товаров: до −${money(result.extraSaving)}. Дорога и время второго магазина пока не учтены.`;
   }
 
+  function canContinueInStores(option) {
+    if (!option || !option.allocations || !option.channels) return false;
+    if (Object.values(option.channels).some(channel => channel !== "shelf")) return false;
+    const used = Array.isArray(option.usedStoreIds) ? option.usedStoreIds : [];
+    return used.length === 2 && used.every(id => HANDOFF_STORES.has(id));
+  }
+
+  function handoffPlan(option) {
+    if (!canContinueInStores(option)) return null;
+    const products = [];
+    for (const storeId of option.usedStoreIds) {
+      for (const line of option.allocations[storeId] || []) {
+        products.push({
+          id: line.productId,
+          productId: line.productId,
+          name: line.name,
+          quantity: line.quantity,
+          storeId,
+          unitPrice: line.unitPrice,
+          lineTotal: line.lineTotal
+        });
+      }
+    }
+    return products.length ? { source: "basket-split", mode: "multi", total: option.total, products } : null;
+  }
+
+  async function continueInStores(option) {
+    const plan = handoffPlan(option);
+    if (!plan) return false;
+    if (!window.TDContinueInStoresV1) {
+      try { await import("./continue-in-stores-v1.js?v=20260912-split-v1"); } catch { return false; }
+    }
+    return Boolean(await window.TDContinueInStoresV1?.open?.(plan));
+  }
+
   function buildCard(result) {
     const one = result.bestOne;
     const two = result.bestTwo;
     if (!one || !two || !result.worthSplitting || !(result.extraSaving > 0)) return null;
     const delivery = two.channels && Object.values(two.channels).includes("bring");
+    const canContinue = canContinueInStores(two);
 
     const card = document.createElement("section");
     card.className = "split-basket";
@@ -67,8 +105,25 @@
       <div class="split-basket__note">${allocationSummary(two)} · используются только подтверждённые цены${delivery ? " и известные условия доставки" : ""}.</div>
       ${!delivery ? settingsHtml(result) : ""}
       <details class="split-basket__details"><summary>Что брать в каждом магазине</summary>${allocationLines(two)}</details>
+      ${canContinue ? `<button type="button" class="split-basket__continue" data-split-continue>Продолжить в двух магазинах →</button><p class="split-basket__continue-note">Откроем официальный handoff по каждому магазину. Товары добавляешь на стороне сети вручную.</p>` : delivery ? `<p class="split-basket__continue-note">Для разделённой доставки пока не показываем кнопку оформления: подтверждённого общего deep-link для двух корзин нет.</p>` : ""}
       <p class="split-basket__disclaimer">Votonobay показывает распределение корзины, но не оформляет два заказа автоматически. Наличие и финальную сумму подтверждает каждый магазин.</p>
     `;
+    card.querySelector("[data-split-continue]")?.addEventListener("click", async event => {
+      const button = event.currentTarget;
+      if (button.disabled) return;
+      button.disabled = true;
+      const original = button.textContent;
+      button.textContent = "Открываем шаги…";
+      const opened = await continueInStores(two);
+      if (!opened) {
+        button.disabled = false;
+        button.textContent = "Не удалось открыть · повторить";
+        setTimeout(() => { if (button.isConnected) button.textContent = original; }, 2400);
+      } else {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    });
     return card;
   }
 
@@ -101,5 +156,5 @@
   });
   setTimeout(enhance, 0);
 
-  window.TDBasketSplitUI = { enhance, buildCard, savingCopy };
+  window.TDBasketSplitUI = { enhance, buildCard, savingCopy, canContinueInStores, handoffPlan, continueInStores };
 })();
