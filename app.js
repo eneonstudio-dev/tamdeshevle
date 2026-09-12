@@ -21,27 +21,59 @@ const PRODUCTS = [
   { id: "pasta", emoji: "🍝", name: "Макароны", pack: "450 г", prices: { pyat: 75, magnit: 62, perek: 82, lenta: 68, dixy: 71, lavka: 95, vprok: 78 }, bring: { pyat: 85, magnit: 75, perek: 92, lenta: 79, dixy: 82, lavka: 95, vprok: 78 } }
 ];
 
+const SCREENS = new Set(["home", "stores", "catalog", "cart", "compare"]);
+const CITIES = new Set(["msk", "spb"]);
+const STORE_IDS = new Set(STORES.map(store => store.id));
+const PRODUCT_IDS = new Set(PRODUCTS.map(product => product.id));
 let PRICE_BOOK = null;
-let priceLoad = { status: "loading", error: "" };
-const saved = JSON.parse(localStorage.getItem("td") || "{}");
-const savedCartIsExplicit = saved.cartTouched === true && saved.cart && typeof saved.cart === "object" && !Array.isArray(saved.cart);
+let priceLoad = { status: "loading", error: "", seq: 0, promise: null };
+
+function readSavedState() {
+  try {
+    const raw = localStorage.getItem("td");
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch (err) {
+    console.warn("Сохранённое состояние повреждено — запускаем безопасно", err);
+    return {};
+  }
+}
+function normalizeCart(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const cart = {};
+  Object.entries(value).forEach(([id, rawQty]) => {
+    if (!PRODUCT_IDS.has(id)) return;
+    const qty = Number(rawQty);
+    if (!Number.isFinite(qty) || qty <= 0) return;
+    cart[id] = Math.min(99, Math.max(1, Math.floor(qty)));
+  });
+  return cart;
+}
+const saved = readSavedState();
+const savedCartIsExplicit = saved.cartTouched === true;
 const state = {
-  screen: saved.screen || "home",
-  city: saved.city || "msk",
+  screen: SCREENS.has(saved.screen) ? saved.screen : "home",
+  city: CITIES.has(saved.city) ? saved.city : "msk",
   filter: "Все",
   mode: "any",
-  storeId: saved.storeId || "pyat",
-  cart: savedCartIsExplicit ? saved.cart : {},
+  storeId: STORE_IDS.has(saved.storeId) ? saved.storeId : "pyat",
+  cart: savedCartIsExplicit ? normalizeCart(saved.cart) : {},
   cartTouched: savedCartIsExplicit,
   q: "",
-  address: saved.address || "",
+  address: typeof saved.address === "string" ? saved.address.slice(0, 240) : "",
   openWhy: null
 };
-const SCREENS = new Set(["home", "stores", "catalog", "cart", "compare"]);
 function persist() {
-  localStorage.setItem("td", JSON.stringify({
-    screen: state.screen, city: state.city, storeId: state.storeId, cart: state.cart, cartTouched: state.cartTouched === true, address: state.address
-  }));
+  try {
+    localStorage.setItem("td", JSON.stringify({
+      screen: state.screen, city: state.city, storeId: state.storeId, cart: state.cart, cartTouched: state.cartTouched === true, address: state.address
+    }));
+    return true;
+  } catch (err) {
+    console.warn("Не удалось сохранить локальное состояние", err);
+    return false;
+  }
 }
 function applyCityPrices() {
   if (!PRICE_BOOK) return;
@@ -54,25 +86,42 @@ function applyCityPrices() {
   const fees = PRICE_BOOK.delivery_fee || {};
   STORES.forEach(s => { if (fees[s.id] != null) s.delivery = fees[s.id]; });
 }
-async function loadPrices() {
-  if (priceLoad.status === "loading" && PRICE_BOOK) return;
-  priceLoad = { status: "loading", error: "" };
+function loadPrices() {
+  if (priceLoad.promise) return priceLoad.promise;
+  const seq = ++priceLoad.seq;
+  priceLoad.status = "loading";
+  priceLoad.error = "";
   render();
-  try {
-    const controller = typeof AbortController === "function" ? new AbortController() : null;
-    const timeout = controller ? setTimeout(() => controller.abort(), 8000) : null;
-    let res;
-    try { res = await fetch("prices.json?v=20260909d", controller ? { signal: controller.signal } : undefined); }
-    finally { if (timeout) clearTimeout(timeout); }
-    if (!res.ok) throw new Error(String(res.status));
-    PRICE_BOOK = await res.json();
-    applyCityPrices();
-    priceLoad = { status: "ready", error: "" };
-  } catch (err) {
-    console.warn("prices.json не загрузился", err);
-    priceLoad = { status: "error", error: err && err.name === "AbortError" ? "timeout" : "network" };
-  }
-  render();
+  const task = (async () => {
+    try {
+      const controller = typeof AbortController === "function" ? new AbortController() : null;
+      const timeout = controller ? setTimeout(() => controller.abort(), 8000) : null;
+      let res;
+      try { res = await fetch("prices.json?v=20260909d", controller ? { signal: controller.signal } : undefined); }
+      finally { if (timeout) clearTimeout(timeout); }
+      if (!res.ok) throw new Error(String(res.status));
+      const book = await res.json();
+      if (seq !== priceLoad.seq) return false;
+      PRICE_BOOK = book;
+      applyCityPrices();
+      priceLoad.status = "ready";
+      priceLoad.error = "";
+      return true;
+    } catch (err) {
+      if (seq !== priceLoad.seq) return false;
+      console.warn("prices.json не загрузился", err);
+      priceLoad.status = "error";
+      priceLoad.error = err && err.name === "AbortError" ? "timeout" : "network";
+      return false;
+    } finally {
+      if (seq === priceLoad.seq) {
+        priceLoad.promise = null;
+        render();
+      }
+    }
+  })();
+  priceLoad.promise = task;
+  return task;
 }
 function priceNotice() {
   if (priceLoad.status === "loading") return `<div class="hint" role="status" aria-live="polite">Обновляем цены… Пока показываем сохранённые или базовые оценки.</div>`;
@@ -92,18 +141,26 @@ function priceOf(p, storeId, channel) {
 }
 function displayPrice(p, storeId, channel, quantity = 1) {
   const slot = channel || defaultChannel(storeId);
+  const unit = priceOf(p, storeId, slot);
+  if (!Number.isFinite(unit)) return "цена уточняется";
+  const count = Number(quantity);
+  const qty = Number.isFinite(count) && count > 0 ? count : 1;
   const verified = Boolean(window.TDPriceMeta && TDPriceMeta.get(p.id, storeId, slot));
-  return `${verified ? "" : "≈ "}${priceOf(p, storeId, slot) * quantity} ₽`;
+  return `${verified ? "" : "≈ "}${Math.round(unit * qty)} ₽`;
 }
 const sumIn = (id, channel) => TDCompare.goodsTotal(PRODUCTS, state.cart || {}, id, channel || defaultChannel(id));
 function scenarios() {
   return TDCompare.compare({ stores: STORES, products: PRODUCTS, cart: state.cart || {}, city: state.city, mode: state.mode, originStoreId: state.storeId });
 }
 function setQty(id, d) {
-  const n = Math.max(0, (state.cart[id] || 0) + d);
-  if (n === 0) delete state.cart[id]; else state.cart[id] = n;
+  if (!PRODUCT_IDS.has(id)) return false;
+  const delta = Number(d);
+  if (!Number.isFinite(delta) || delta === 0) return false;
+  const n = Math.min(99, Math.max(0, (Number(state.cart[id]) || 0) + delta));
+  if (n === 0) delete state.cart[id]; else state.cart[id] = Math.floor(n);
   state.cartTouched = true;
   persist(); render();
+  return true;
 }
 function logoSvg(size = 36) {
   return `<svg class="logo" width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true">
@@ -188,7 +245,7 @@ function screenCatalog() {
         <div class="thumb">${p.emoji}</div>
         <div><div class="title">${p.name}</div><div class="pack">${p.pack}</div><div class="price">${displayPrice(p, s.id, ch)}</div></div>
         <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${p.name}">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${p.name}">+</button></div>
-      </div>`).join("")}
+      </div>`).join("")}</div>
     </div>${dockCart()}`;
 }
 function emptyCartState() {
@@ -260,9 +317,17 @@ function choosePlan(storeId) { const selected=storeBy(storeId);if (!selected) re
 function whyBlock(p) {
   const originCh = defaultChannel(state.storeId);
   const rows = cartEntries().map(x => {
-    const here = priceOf(x, state.storeId, originCh) * state.cart[x.id];
-    const there = priceOf(x, p.id, p.channel) * state.cart[x.id];
-    return `<div class="why-line"><span>${x.name}</span><span>${p.verifiedComplete?"":"≈ "}${there} ₽ ${p.save!=null?(there<here?" · −"+(here-there):there>here?" · +"+(there-here):""):""}</span></div>`;
+    const quantity = Number(state.cart[x.id]) || 0;
+    const hereUnit = priceOf(x, state.storeId, originCh);
+    const thereUnit = priceOf(x, p.id, p.channel);
+    if (!Number.isFinite(thereUnit)) return `<div class="why-line"><span>${x.name}</span><span>цена уточняется</span></div>`;
+    const there = Math.round(thereUnit * quantity);
+    let delta = "";
+    if (Number.isFinite(hereUnit) && p.save != null) {
+      const here = Math.round(hereUnit * quantity);
+      delta = there < here ? " · −" + (here - there) : there > here ? " · +" + (there - here) : "";
+    }
+    return `<div class="why-line"><span>${x.name}</span><span>${p.verifiedComplete?"":"≈ "}${there} ₽${delta}</span></div>`;
   }).join("");
   return `<div style="margin-top:8px">${rows}</div>`;
 }
@@ -293,7 +358,7 @@ window.addEventListener("popstate", event => {
   if (SCREENS.has(target)) navigate(target, { fromPop: true });
 });
 window.go = go; window.setQty = setQty; window.toggleCity = toggleCity; window.choosePlan = choosePlan; window.saleEasterEgg = saleEasterEgg; window.state = state; window.render = render; window.loadPrices = loadPrices;
-if (window.history && typeof history.replaceState === "function") history.replaceState({ ...(history.state || {}), tdScreen: SCREENS.has(state.screen) ? state.screen : "home" }, "");
+if (window.history && typeof history.replaceState === "function") history.replaceState({ ...(history.state || {}), tdScreen: state.screen }, "");
 render();
 setInterval(updateSaleTimer, 1000);
 loadPrices();
