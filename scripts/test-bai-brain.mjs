@@ -91,6 +91,18 @@ assert.equal(result.goal.days,3);
 assert.equal(result.goal.people,null);
 
 brain.reset();
+result=await brain.route('собери продукты на неделю');
+assert.ok(hasOp(result,'SET_DURATION',7),'natural «на неделю» must map to seven days');
+assert.equal(hasOp(result,'SET_PEOPLE'),false,'week duration must never become people count');
+assert.equal(result.goal.days,7);
+
+brain.reset();
+result=await brain.route('собери продукты на две недели');
+assert.ok(hasOp(result,'SET_DURATION',14),'numbered weeks must convert to days');
+assert.equal(hasOp(result,'SET_PEOPLE'),false,'numbered week duration must not become people count');
+assert.equal(result.goal.days,14);
+
+brain.reset();
 await brain.route('нас двое');
 result=await brain.route('собери на 3 дня');
 assert.ok(hasOp(result,'SET_DURATION',3),'follow-up duration must still be applied');
@@ -137,4 +149,4 @@ result=await brain.route('замени молоко на воду');
 assert.equal(result.goal.quantityTargets.milk,undefined,'replacement must remove stale source quantity');
 assert.deepEqual({...result.goal.quantityTargets.water},{amount:2,unit:'l'},'replacement must transfer an explicit quantity to the target');
 
-console.log('Bai brain regression suite passed: mixed edits, scoped exclusions, negation, replacement clarification, quantities, budget, people, duration, context and product-goal consistency.');
+console.log('Bai brain regression suite passed: mixed edits, scoped exclusions, negation, replacement clarification, quantities, budget, people, natural week durations, context and product-goal consistency.');
