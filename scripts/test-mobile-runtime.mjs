@@ -100,10 +100,10 @@ assert.match(priceSync,/__TDPriceSyncInitialized/,"price sync must be idempotent
 assert.doesNotMatch(priceSync,/setInterval\s*\(/,"price sync must not poll continuously with setInterval");
 assert.match(priceSync,/document\.hidden/,"price sync must pause in hidden tabs");
 assert.match(priceSync,/navigator\.onLine/,"price sync must avoid network work while offline");
-assert.match(priceSync,/window\.addEventListener\("pagehide",suspend\)/,"price sync must suspend on pagehide");
-assert.match(priceSync,/window\.addEventListener\("pageshow",resume\)/,"price sync must resume after BFCache/page restore");
-assert.match(priceSync,/window\.addEventListener\("offline",suspend\)/,"price sync must pause offline");
-assert.match(priceSync,/window\.addEventListener\("online",resume\)/,"price sync must resume online");
+assert.match(priceSync,/window\.addEventListener\(\s*["']pagehide["']\s*,\s*suspend\s*\)/,"price sync must suspend on pagehide");
+assert.match(priceSync,/window\.addEventListener\(\s*["']pageshow["']\s*,\s*resume\s*\)/,"price sync must resume after BFCache/page restore");
+assert.match(priceSync,/window\.addEventListener\(\s*["']offline["']\s*,\s*suspend\s*\)/,"price sync must pause offline");
+assert.match(priceSync,/window\.addEventListener\(\s*["']online["']\s*,\s*resume\s*\)/,"price sync must resume online");
 
 assert.match(androidCss,/data-td-keyboard-open/,"Android CSS must react to keyboard state");
 assert.match(androidCss,/var\(--td-vvh,100dvh\)/,"Android dialogs must use visual viewport height");
