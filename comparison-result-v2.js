@@ -154,7 +154,7 @@
     const root=document.createElement("section");root.className="td-compare-v2";
     root.innerHTML=`<div class="td-compare-v2-shell"><header><button data-compare-close aria-label="Закрыть сравнение">←</button><div><small>Решение Бая</small><b id="td-compare-v2-title">Как лучше купить</b></div></header><main>
       <section class="td-compare-hero">
-        <div class="td-compare-bay" aria-hidden="true"><img src="assets/bay-master-peek-alt.png" alt=""></div>
+        <div class="td-compare-bay" aria-hidden="true"><img src="assets/bai/bai-peek.webp" alt=""></div>
         <small>ВЫБОР БАЯ</small>
         <h2>Я бы взял этот вариант.</h2>
         <div class="td-compare-summary"><strong>${money(best.total)}</strong><span>${title(best)} · ${storeCount(best)} ${storeWord(storeCount(best))}</span></div>
