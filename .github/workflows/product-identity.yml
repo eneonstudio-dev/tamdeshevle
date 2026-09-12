@@ -4,14 +4,20 @@ on:
   pull_request:
     paths:
       - 'retailers/product-identity.mjs'
+      - 'scripts/import-product-identities.mjs'
       - 'scripts/test-product-identity.mjs'
+      - 'scripts/test-product-identity-importer.mjs'
+      - 'data/product-identity/**'
       - '.github/workflows/product-identity.yml'
   push:
     branches:
       - main
     paths:
       - 'retailers/product-identity.mjs'
+      - 'scripts/import-product-identities.mjs'
       - 'scripts/test-product-identity.mjs'
+      - 'scripts/test-product-identity-importer.mjs'
+      - 'data/product-identity/**'
       - '.github/workflows/product-identity.yml'
 
 permissions:
@@ -26,6 +32,12 @@ jobs:
         with:
           node-version: 22
       - name: Check syntax
-        run: node --check retailers/product-identity.mjs && node --check scripts/test-product-identity.mjs
+        run: |
+          node --check retailers/product-identity.mjs
+          node --check scripts/import-product-identities.mjs
+          node --check scripts/test-product-identity.mjs
+          node --check scripts/test-product-identity-importer.mjs
       - name: Test barcode identity cascade
         run: node scripts/test-product-identity.mjs
+      - name: Test sharded identity importer
+        run: node scripts/test-product-identity-importer.mjs

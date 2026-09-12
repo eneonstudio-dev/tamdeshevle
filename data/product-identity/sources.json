@@ -1,0 +1,25 @@
+{
+  "schema": "votonobay.product_identity_sources.v1",
+  "sources": [
+    {
+      "id": "open_food_facts",
+      "status": "approved_for_identity_enrichment",
+      "license": "ODbL-1.0",
+      "purpose": "barcode identity and food metadata only",
+      "price_authority": false,
+      "store_scope_authority": false,
+      "ingestion": "offline export or explicit API lookup",
+      "notes": "Keep attribution and provenance; never promote OFF data into price truth."
+    },
+    {
+      "id": "ru_barcode",
+      "status": "blocked_pending_license_review",
+      "upstream": "aioke/barcodes",
+      "known_size": 1816200,
+      "known_market_period": "2021-2022",
+      "price_authority": false,
+      "store_scope_authority": false,
+      "notes": "Public repository exposes CSV/SQLite archives, but no explicit license was found in the repository root. Do not redistribute or ingest into production until usage rights are confirmed."
+    }
+  ]
+}
