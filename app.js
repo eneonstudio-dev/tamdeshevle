@@ -25,6 +25,7 @@ const SCREENS = new Set(["home", "stores", "catalog", "cart", "compare"]);
 const CITIES = new Set(["msk", "spb"]);
 const STORE_IDS = new Set(STORES.map(store => store.id));
 const PRODUCT_IDS = new Set(PRODUCTS.map(product => product.id));
+const escapeHtml = value => String(value == null ? "" : value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 let PRICE_BOOK = null;
 let priceLoad = { status: "loading", error: "", seq: 0, promise: null };
 
@@ -174,7 +175,7 @@ function header(title, sub, back) {
   return `<header class="app">
     <div class="row">
       ${back ? `<button class="back" onclick="go('${back}')">←</button>` : `<button class="brand-home" onclick="go('home')" aria-label="На главную">${logoSvg()}</button>`}
-      <div class="grow"><h1>${title}</h1><div class="sub">${sub}</div></div>
+      <div class="grow"><h1>${escapeHtml(title)}</h1><div class="sub">${escapeHtml(sub)}</div></div>
       <button class="city" onclick="toggleCity()">${cityName()}</button>
     </div>
   </header>`;
@@ -193,7 +194,7 @@ function screenHome() {
     <div class="wrap">
       ${priceNotice()}
       <p class="note">Сравнение корзины. Не магазин, не доставка и не заказ. Цены учебные — витрина, не полка. Адрес сейчас ничего не считает.</p>
-      <input class="addr" placeholder="Адрес в Москве или Питере (пока не считается)" value="${state.address}"
+      <input class="addr" placeholder="Адрес в Москве или Питере (пока не считается)" value="${escapeHtml(state.address)}"
         onchange="state.address=this.value;persist()" />
       <button class="btn green" onclick="go('stores')">Выбрать магазин</button>
       <button class="ghost" onclick="go('cart')">Сразу к корзине</button>
@@ -255,11 +256,11 @@ function screenCatalog() {
   return `${header(s.name, "Добавь товары в корзину", "stores")}
     <div class="wrap">
       ${priceNotice()}
-      <input class="addr" placeholder="Поиск товара" value="${state.q}" oninput="state.q=this.value;render()" />
+      <input class="addr" placeholder="Поиск товара" value="${escapeHtml(state.q)}" oninput="state.q=this.value;render()" />
       <div class="products">${filtered.map(p => `<div class="item">
-        <div class="thumb">${p.emoji}</div>
-        <div><div class="title">${p.name}</div><div class="pack">${p.pack}</div><div class="price">${displayPrice(p, s.id, ch)}</div></div>
-        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${p.name}">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${p.name}">+</button></div>
+        <div class="thumb">${escapeHtml(p.emoji)}</div>
+        <div><div class="title">${escapeHtml(p.name)}</div><div class="pack">${escapeHtml(p.pack)}</div><div class="price">${displayPrice(p, s.id, ch)}</div></div>
+        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${escapeHtml(p.name)}">−</button><b>${state.cart[p.id]||0}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${escapeHtml(p.name)}">+</button></div>
       </div>`).join("")}</div>
     </div>${dockCart()}`;
 }
@@ -276,11 +277,11 @@ function screenCart() {
   const best = scenarios().find(x => !x.same && x.rankable && x.save > 0);
   return `${header("Корзина", s.name + " · " + cityName(), "catalog")}
     <div class="wrap">${priceNotice()}${entries.map(p => `<div class="item">
-      <div class="thumb">${p.emoji}</div>
+      <div class="thumb">${escapeHtml(p.emoji)}</div>
       <div>
-        <div class="title">${p.name}</div>
-        <div class="pack">${p.pack} · ${displayPrice(p, s.id, ch)}</div>
-        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${p.name}">−</button><b>${state.cart[p.id]}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${p.name}">+</button></div>
+        <div class="title">${escapeHtml(p.name)}</div>
+        <div class="pack">${escapeHtml(p.pack)} · ${displayPrice(p, s.id, ch)}</div>
+        <div class="step"><button onclick="setQty('${p.id}',-1)" aria-label="Уменьшить ${escapeHtml(p.name)}">−</button><b>${state.cart[p.id]}</b><button onclick="setQty('${p.id}',1)" aria-label="Добавить ${escapeHtml(p.name)}">+</button></div>
       </div>
       <div class="price">${displayPrice(p, s.id, ch, state.cart[p.id])}</div>
     </div>`).join("")}</div>
