@@ -1,4 +1,5 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { getLiveComparison, type BasketProductId } from "./live-price-source.ts";
 
 type AliceRequest = {
   version?: string;
@@ -19,7 +20,7 @@ type AliceRequest = {
 };
 
 type SessionState = {
-  basket?: string[];
+  basket?: BasketProductId[];
   city?: "msk" | "spb";
 };
 
@@ -35,7 +36,7 @@ const SHOP_IDS = ["pyat", "magnit", "perek", "lenta", "dixy"];
 const MAX_BASKET = 20;
 const EXPECTED_SKILL_ID = (Deno.env.get("ALICE_SKILL_ID") || "").trim();
 
-const ALIASES: Record<string, string[]> = {
+const ALIASES: Record<BasketProductId, string[]> = {
   milk: ["молоко", "молока"],
   bread: ["хлеб", "батон"],
   chicken: ["курица", "курицу", "куриное филе", "филе курицы", "филе"],
@@ -46,6 +47,19 @@ const ALIASES: Record<string, string[]> = {
   sour: ["сметана", "сметану", "сметаны"],
   sugar: ["сахар", "сахара"],
   pasta: ["макароны", "макарон", "паста"]
+};
+
+const PRODUCT_NAMES: Record<BasketProductId, string> = {
+  milk: "молоко",
+  bread: "хлеб",
+  chicken: "куриное филе",
+  banana: "бананы",
+  oil: "подсолнечное масло",
+  eggs: "яйца С1",
+  buck: "гречка",
+  sour: "сметана",
+  sugar: "сахар",
+  pasta: "макароны"
 };
 
 let priceCache: { at: number; data: PriceFile } | null = null;
@@ -80,10 +94,10 @@ function unique<T>(items: T[]) {
   return [...new Set(items)];
 }
 
-function detectProducts(text: string) {
+function detectProducts(text: string): BasketProductId[] {
   const normalized = normalize(text);
-  const found: string[] = [];
-  for (const [id, aliases] of Object.entries(ALIASES)) {
+  const found: BasketProductId[] = [];
+  for (const [id, aliases] of Object.entries(ALIASES) as Array<[BasketProductId, string[]]>) {
     if (aliases.some(alias => normalized.includes(normalize(alias)))) found.push(id);
   }
   return unique(found).slice(0, MAX_BASKET);
@@ -94,6 +108,20 @@ function cleanState(raw: SessionState | undefined): SessionState {
     ? unique(raw!.basket!.filter(id => Object.prototype.hasOwnProperty.call(ALIASES, id))).slice(0, MAX_BASKET)
     : [];
   return { basket, city: raw?.city === "spb" ? "spb" : "msk" };
+}
+
+function basketList(basket: BasketProductId[]) {
+  return basket.map(id => PRODUCT_NAMES[id] || id).join(", ");
+}
+
+function rubles(value: number) {
+  return `${Math.round(value * 100) / 100}`.replace(".", ",") + " ₽";
+}
+
+function sourceLabel(kind: "official" | "aggregator" | "unknown") {
+  if (kind === "official") return "официальный каталог";
+  if (kind === "aggregator") return "публичный агрегатор";
+  return "публичный источник";
 }
 
 async function getPrices(): Promise<PriceFile | null> {
@@ -112,12 +140,7 @@ async function getPrices(): Promise<PriceFile | null> {
   }
 }
 
-function productNames(data: PriceFile, basket: string[]) {
-  const names = new Map((data.products || []).map(p => [p.id, p.name]));
-  return basket.map(id => names.get(id) || id);
-}
-
-function compareBasket(data: PriceFile, basket: string[], city: "msk" | "spb") {
+function compareSimulator(data: PriceFile, basket: BasketProductId[], city: "msk" | "spb") {
   const cityPrices = data.flat?.[city];
   if (!cityPrices || !basket.length) return null;
 
@@ -134,47 +157,38 @@ function compareBasket(data: PriceFile, basket: string[], city: "msk" | "spb") {
 
   if (!totals.length) return null;
   totals.sort((a, b) => a.total - b.total);
-
-  let splitTotal = 0;
-  const split: Array<{ productId: string; storeId: string; price: number }> = [];
-  for (const productId of basket) {
-    const variants = SHOP_IDS
-      .map(storeId => ({ storeId, price: Number(cityPrices?.[productId]?.[storeId]) }))
-      .filter(v => Number.isFinite(v.price) && v.price > 0)
-      .sort((a, b) => a.price - b.price);
-    if (!variants.length) return null;
-    splitTotal += variants[0].price;
-    split.push({ productId, ...variants[0] });
-  }
-
-  return {
-    oneStore: totals[0],
-    splitTotal,
-    split,
-    saving: Math.max(0, totals[0].total - splitTotal)
-  };
-}
-
-function basketList(data: PriceFile, basket: string[]) {
-  return productNames(data, basket).join(", ");
+  return totals[0];
 }
 
 async function describeComparison(state: SessionState) {
   const basket = state.basket || [];
   if (!basket.length) return "Корзина пустая. Назови продукты, например: молоко, яйца, хлеб и курица.";
 
-  const data = await getPrices();
-  if (!data) return "Корзину запомнил, но ценовой файл сейчас не ответил. Ничего не придумал — попробуй сравнить ещё раз.";
+  const city = state.city || "msk";
+  const cityName = city === "spb" ? "Санкт-Петербург" : "Москва";
+  const live = await getLiveComparison(basket, city);
 
-  const result = compareBasket(data, basket, state.city || "msk");
-  if (!result) return "Корзину запомнил, но для части товаров пока нет сопоставимых цен. Показывать липовый итог не буду.";
+  if (live.covered === live.totalItems && live.totalItems > 0) {
+    const split = live.splitTotal == null ? "" : ` По лучшим подтверждённым ценам по магазинам — ${rubles(live.splitTotal)}.`;
+    if (live.bestSingleStore) {
+      const saving = live.splitTotal != null ? Math.max(0, live.bestSingleStore.total - live.splitTotal) : 0;
+      const savingText = saving >= 1 ? ` Разбивка дешевле ещё на ${rubles(saving)}.` : " Разбивать дальше смысла нет.";
+      return `Живые цены покрывают всю корзину. ${cityName}: один магазин — ${live.bestSingleStore.storeName}, ${rubles(live.bestSingleStore.total)}.${split}${savingText}`;
+    }
+    const details = live.bestByProduct.slice(0, 5).map(q => `${PRODUCT_NAMES[q.productId]} — ${q.storeName} ${rubles(q.price)}`).join("; ");
+    return `Живые цены покрывают всю корзину, но одного магазина с подтверждёнными ценами на всё пока нет. ${details}.${split}`;
+  }
 
-  const cityName = state.city === "spb" ? "Санкт-Петербург" : "Москва";
-  const saving = result.saving > 0
-    ? ` Если разбить по магазинам — ${result.splitTotal} ₽, экономия ${result.saving} ₽.`
-    : " Разбивать по магазинам смысла нет: дешевле не станет.";
+  if (live.covered > 0) {
+    const details = live.bestByProduct.slice(0, 5).map(q => `${PRODUCT_NAMES[q.productId]} — ${q.storeName} ${rubles(q.price)} (${sourceLabel(q.sourceKind)})`).join("; ");
+    const missing = live.missing.map(id => PRODUCT_NAMES[id]).join(", ");
+    return `Нашёл живые цены на ${live.covered} из ${live.totalItems}: ${details}. Пока не подтверждены: ${missing}. Полный итог не считаю — смешивать реальные и учебные цены было бы враньём.`;
+  }
 
-  return `Корзина: ${basketList(data, basket)}. ${cityName}: один магазин — ${result.oneStore.storeName}, ${result.oneStore.total} ₽.${saving} Это пока тестовый ценовой контур Votonobay, не живой ценник конкретной точки.`;
+  const simulator = await getPrices();
+  const fallback = simulator ? compareSimulator(simulator, basket, city) : null;
+  if (!fallback) return "Живые источники сейчас не дали сопоставимых цен. Ничего не придумал — попробуй позже.";
+  return `Живые источники сейчас не дали сопоставимых цен. Резервный учебный расчёт: ${fallback.storeName}, ${rubles(fallback.total)}. Это симулятор, не текущий ценник.`;
 }
 
 function isExit(text: string) {
@@ -208,11 +222,11 @@ Deno.serve(async (req: Request) => {
   if (isExit(text)) return aliceResponse("Есть. Корзину оставляю здесь. Возвращайся, когда снова захочется сравнивать макароны.", state, true);
 
   if (body.session.new && !text) {
-    return aliceResponse("Я Бай из Votonobay. Назови продукты обычной фразой — например: собери молоко, яйца, хлеб и курицу. Я запомню корзину и сравню варианты.", state);
+    return aliceResponse("Я Бай из Votonobay. Назови продукты обычной фразой — например: собери молоко, яйца, хлеб и курицу. Я запомню корзину и проверю живые цены.", state);
   }
 
   if (/что ты умеешь|помощ|команд/.test(text)) {
-    return aliceResponse("Могу собрать корзину из названных продуктов, добавить или убрать позиции, показать корзину и сравнить её по магазинам. Скажи, например: собери молоко, яйца, хлеб и курицу.", state);
+    return aliceResponse("Могу собрать корзину, добавить или убрать позиции и проверить подтверждённые цены по магазинам. Скажи, например: собери молоко, яйца, хлеб и курицу.", state);
   }
 
   if (/очист|сброс|заново/.test(text)) {
@@ -224,9 +238,7 @@ Deno.serve(async (req: Request) => {
 
   if (/что.*корзин|покажи.*корзин|корзина$/.test(text)) {
     if (!state.basket?.length) return aliceResponse("Корзина пустая.", state);
-    const data = await getPrices();
-    const names = data ? basketList(data, state.basket) : state.basket.join(", ");
-    return aliceResponse(`Сейчас в корзине: ${names}.`, state);
+    return aliceResponse(`Сейчас в корзине: ${basketList(state.basket)}.`, state);
   }
 
   if (/убер|удал|без /.test(text) && mentioned.length) {
@@ -239,7 +251,7 @@ Deno.serve(async (req: Request) => {
     return aliceResponse(`Добавил. ${await describeComparison(state)}`, state);
   }
 
-  if (/сравн|дешев|где купить|посчитай|итого/.test(text)) {
+  if (/сравн|дешев|где купить|посчитай|итого|цены|цена/.test(text)) {
     if (mentioned.length) state.basket = unique([...(state.basket || []), ...mentioned]).slice(0, MAX_BASKET);
     return aliceResponse(await describeComparison(state), state);
   }
