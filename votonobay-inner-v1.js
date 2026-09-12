@@ -4,10 +4,10 @@
   import("./app-store-guard.js?v=20260912-v1").catch(error=>console.warn("[Votonobay store guard] load failed",error));
 
   const SCREEN_COPY={
-    stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
-    catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
-    cart:{title:"Корзина",compare:"Сравнить варианты"},
-    compare:{title:"Сравнение вариантов",sub:"Одна корзина · цена, способ покупки и подтверждённость данных"}
+    stores:{title:"Магазины",sub:"Выбери магазин — Votonobay сравнит его с остальными"},
+    catalog:{sub:"Собери корзину — Votonobay поможет выбрать лучший способ покупки"},
+    cart:{title:"Корзина",compare:"Решить, как купить"},
+    compare:{title:"Как лучше купить",sub:"Одна корзина · цена, удобство, способ покупки и подтверждённость"}
   };
 
   function setText(node,text){if(node&&node.textContent!==text)node.textContent=text;}
@@ -71,6 +71,13 @@
     const dock=document.querySelector(".dock");
     if(dock)dock.setAttribute("aria-label","Действия с корзиной");
     document.querySelector(".voto-cart-constraint")?.remove();
+    const better=[...document.querySelectorAll(".dock > div")].find(node=>/Эту корзину можно собрать дешевле на/i.test(node.textContent||""));
+    if(better){
+      const match=(better.textContent||"").match(/([\d\s]+)\s*₽/);
+      const saving=match?.[1]?.trim();
+      better.classList.add("voto-cart-better");
+      better.textContent=saving?`Есть вариант лучше: можно сэкономить ${saving} ₽ без потери корзины.`:"Есть вариант лучше — сравним цену, способ покупки и удобство.";
+    }
     const plan=currentPlan();
     const copy=deliveryConstraint(plan);
     if(copy&&dock){
@@ -99,6 +106,10 @@
     document.querySelectorAll(".plan").forEach((plan,index)=>{
       const name=plan.querySelector("h3")?.textContent?.trim();
       if(name)plan.setAttribute("aria-label",`Вариант: ${name}`);
+      const badge=plan.querySelector(".badge");
+      if(badge)setText(badge,"рекомендую");
+      const why=[...plan.querySelectorAll("button")].find(button=>/Почему так/i.test(button.textContent||""));
+      if(why)setText(why,"Почему этот вариант");
       plan.querySelector(".voto-delivery-constraint")?.remove();
       const copy=deliveryConstraint(rows[index]);
       if(copy){
