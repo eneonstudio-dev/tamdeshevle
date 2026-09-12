@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-11T07:18:04.812Z",
+  "checked_at": "2026-09-12T07:10:02.767Z",
   "prices": {
     "buckwheat": 59.99,
     "eggs_c1": 75.89,
@@ -183,7 +183,7 @@
       "name": "Лук репчатый",
       "retailer_product_id": "9072651204",
       "source_url": "https://magnit.ru/product/9072651204-luk_repchatyy?shopCode=770105&shopType=1",
-      "price_rub": 39.89,
+      "price_rub": 34.99,
       "eligible": false,
       "reason": "pack_missing"
     },

@@ -4,7 +4,7 @@
   "city": "msk",
   "store_id": "magnit",
   "channel": "delivery_catalog",
-  "checked_at": "2026-09-11T07:18:04.812Z",
+  "checked_at": "2026-09-12T07:10:02.767Z",
   "source_url": "https://magnit.ru/",
   "method": "public_store_scoped_catalog_collector",
   "scope_verified": true,
@@ -20,7 +20,7 @@
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
   "collector": {
-    "discovered": 210,
+    "discovered": 216,
     "attempted": 24,
     "accepted": 24,
     "errors": []
@@ -147,7 +147,7 @@
       "id": "9072651204",
       "name": "Лук репчатый",
       "brand": null,
-      "price": 39.89,
+      "price": 34.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
