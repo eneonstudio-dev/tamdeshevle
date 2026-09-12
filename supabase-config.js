@@ -26,5 +26,5 @@ import("./bai-agent-client.js?v=20260912-agent-core-v1")
   .then(()=>import("./bai-literal-basket.js?v=20260912-literal-v1"))
   .then(()=>import("./bai-speech-lifecycle.js?v=20260912-speech-v1"))
   .then(()=>import("./bai-character.js?v=20260912-character-v2"))
-  .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v1"))
+  .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v2"))
   .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character] client load failed",error));
