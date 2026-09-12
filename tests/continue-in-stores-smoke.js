@@ -1,8 +1,14 @@
 const fs=require('fs');
+const {execFileSync}=require('child_process');
 const flow=fs.readFileSync('continue-in-stores-v1.js','utf8');
 const checkout=fs.readFileSync('bai-checkout.js','utf8');
-for(const needle of ['Продолжить в магазинах','TDContinueInStoresV1','data-store-id','td:continue-stores-progress:v1','data-store-progress','Добавил товар','Прогресс — твоя отметка'])if(!flow.includes(needle))throw new Error('missing flow contract: '+needle);
+const integration=fs.readFileSync('real-store-integration-v1.js','utf8');
+for(const needle of ['Продолжить в магазинах','TDContinueInStoresV1','data-store-id','td:continue-stores-progress:v1','data-store-progress','Добавил товар','Сайт не читает корзину магазина'])if(!flow.includes(needle))throw new Error('missing flow contract: '+needle);
 for(const needle of ['continue-in-stores-v1.js','data-bai-continue-stores','Продолжить в магазинах →'])if(!checkout.includes(needle))throw new Error('missing checkout wiring: '+needle);
 if(checkout.includes('data-bai-retailer='))throw new Error('legacy per-retailer checkout buttons still exposed');
 if(!flow.includes('v.signature===signature()'))throw new Error('progress must reset when basket signature changes');
+for(const id of ['perek','pyat','magnit','lenta','dixy'])if(!integration.includes(`${id}:{id:"${id}"`))throw new Error('missing retailer handoff: '+id);
+if(!flow.includes('без прямого шага')||!flow.includes('не скрываем из плана'))throw new Error('unsupported handoff lines must stay visible');
+if(integration.includes('<small>Перенос корзины</small>'))throw new Error('manual handoff must not be labelled as automatic transfer');
+execFileSync(process.execPath,['scripts/test-retailer-handoff.mjs'],{stdio:'inherit'});
 console.log('continue-in-stores progress smoke: ok');
