@@ -22,6 +22,14 @@ const planState = {
     ]
   }]
 };
+const explicitPlan = {
+  source: "basket-split",
+  mode: "multi",
+  products: [
+    { id: "milk", name: "Молоко", storeId: "pyat", quantity: 2 },
+    { id: "bread", name: "Хлеб", storeId: "magnit", quantity: 1 }
+  ]
+};
 const storage = new Map();
 const localStorage = {
   getItem(key) { return storage.has(key) ? storage.get(key) : null; },
@@ -88,18 +96,28 @@ assert(lentaRows.length === 1 && lentaRows[0].url === "https://lenta.com/catalog
 assert(lentaRows[0].linkKind === "catalog", "untrusted source URL must not be labelled as an official product page");
 assert(dixyRows.length === 1 && dixyRows[0].url === "https://dixy.ru/catalog/", "Dixy fallback must stay on the official catalog");
 
+const explicitSupported = integration.supportedRetailers(explicitPlan).map(r => r.id).sort();
+assert(JSON.stringify(explicitSupported) === JSON.stringify(["magnit", "pyat"]), "explicit split plan must override AI shopping state for retailer discovery");
+assert(integration.rows("pyat", explicitPlan).length === 1, "explicit split plan must expose its own Pyaterochka line");
+assert(integration.rows("lenta", explicitPlan).length === 0, "explicit split plan must not leak stores from AI shopping state");
+assert(integration.resolvePlan(explicitPlan) === explicitPlan, "explicit handoff plan must be preserved by reference");
+
 assert(continuation.storeKey("lenta_42") === "lenta", "point-scoped Lenta IDs must group under Lenta");
 assert(continuation.storeKey("dixy_42") === "dixy", "point-scoped Dixy IDs must group under Dixy");
 assert(continuation.storeKey("lentastic") === "lentastic", "unknown retailer IDs must remain explicit instead of being swallowed by a known prefix");
 const counts = continuation.counts();
 assert(counts.get("lenta") === 1 && counts.get("dixy") === 1 && counts.get("lentastic") === 1, "multi-store handoff counts must preserve supported and unsupported groups");
+const explicitCounts = continuation.counts(explicitPlan);
+assert(explicitCounts.get("pyat") === 1 && explicitCounts.get("magnit") === 1 && explicitCounts.size === 2, "explicit split plan counts must stay isolated from AI state");
+assert(continuation.signature(explicitPlan) !== continuation.signature(), "explicit split progress must use its own basket signature");
+assert(continuation.resolvePlan(explicitPlan) === explicitPlan, "continue flow must accept an explicit non-AI plan");
 
 for (const phrase of ["Пошаговая сборка", "не заявляет, что товары уже перенесены", "Официальный каталог магазина"]) {
   assert(integrationSource.includes(phrase), `missing truthful handoff copy: ${phrase}`);
 }
 assert(!integrationSource.includes("<small>Перенос корзины</small>"), "handoff must not present manual opening as an automatic cart transfer");
 assert(continueSource.includes("без прямого шага") && continueSource.includes("не скрываем из плана"), "unsupported store lines must be visible instead of silently disappearing");
-assert(!continueSource.includes("«Там дешевле» не читает корзину магазина"), "handoff copy must not reintroduce the retired brand name");
+assert(continueSource.includes("Votonobay не читает корзину магазина"), "handoff progress copy must use the current master brand");
 assert(!integrationSource.includes("TDBai") && !continueSource.includes("TDBai"), "retailer handoff must remain independent from Bai internals");
 
-console.log("Retailer handoff tests passed: five retailers, official fallbacks, unknown-store fail-closed and truthful manual progress.");
+console.log("Retailer handoff tests passed: five retailers, explicit split plans, official fallbacks, unknown-store fail-closed and truthful manual progress.");
