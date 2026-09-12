@@ -36,16 +36,16 @@
       mode:s.mode||null,stores:Array.isArray(s.stores)?s.stores.slice(0,12):[],intent:s.intent||"build",
       only:Array.isArray(s.onlyProducts)?s.onlyProducts.slice(0,24):[],required:Array.isArray(s.requiredProducts)?s.requiredProducts.slice(0,24):[],
       preferred:Array.isArray(s.preferredProducts)?s.preferredProducts.slice(0,24):[],excluded:Array.isArray(s.excludedProducts)?s.excludedProducts.slice(0,24):[],
-      existing:Array.isArray(s.existingProducts)?s.existingProducts.slice(0,24):[],
+      excludedBrands:Array.isArray(s.excludedBrands)?s.excludedBrands.slice(0,24):[],existing:Array.isArray(s.existingProducts)?s.existingProducts.slice(0,24):[],
       products:(Array.isArray(s.products)?s.products:[]).slice(0,30).map(x=>({id:x.id,name:clean(x.name).slice(0,80),qty:Number(x.quantity)||0})),
-      total:Number(s.currentTotal)||0
+      shoppingIntelligence:s.shoppingIntelligence||null,total:Number(s.currentTotal)||0
     };
   }
 
   function prompt(){
     const products=catalog().slice(0,60).map(x=>`${x.id}:${x.name}`).join(", ");
     const character=window.TDBaiCharacter?.systemPrompt?.()||"Ты Бай. Говори коротко, по-человечески, без корпоративных клише. Сначала помоги, потом при необходимости прояви сухой характер.";
-    return `${character}\n\nТы работаешь как локальный shopping-agent Votonobay. Понимай живую русскую речь и контекст. Не выдумывай цены, наличие, скидки или магазины: расчёты делает код. Верни ТОЛЬКО валидный JSON без markdown и пояснений: {"reply":"короткий ответ в характере Бая","operations":[...]}. Если данных действительно недостаточно — используй только ASK_CLARIFICATION и задай один конкретный вопрос. Сохраняй ограничения прошлых сообщений, если пользователь явно их не отменил. Разрешённые операции: RESET_BASKET,SET_INTENT,SET_ONLY_PRODUCTS,CLEAR_ONLY,ADD_PRODUCT,REPLACE_PRODUCT,CHANGE_BUDGET,SET_PEOPLE,SET_DURATION,SET_COOKING,ADD_PREFERENCE,CHANGE_STORE,SET_MODE,REMOVE_PRODUCT,REQUIRE,PREFER,EXCLUDE_BRAND,HAS_AT_HOME,EXCLUDE_TAG,REOPTIMIZE,ASK_CLARIFICATION,NOTE,UNDO. Каталог: ${products||[...FALLBACK_PRODUCTS].join(",")}.`;
+    return `${character}\n\nТы работаешь как локальный shopping-agent Votonobay. Понимай живую русскую речь и контекст. Разделяй жёсткие ограничения и мягкие пожелания. Не выдумывай цены, наличие, скидки, состав или качество: расчёты и проверку делает код. Для пожеланий вроде «получше» указывай quality preference только как better_if_evidenced, если фактов о качестве нет. Не раскрывай chain-of-thought. Верни ТОЛЬКО валидный JSON без markdown: {"reply":"коротко","intent":{"action":"build|rebuild|adjust|add|remove|replace|undo","hard":{"budgetMax":null,"excludedBrands":[],"excludedProducts":[],"excludedTags":[],"storeLimit":null},"soft":{"price":"economy|value|neutral","oneStore":0.5,"health":"moderate|neutral","satiety":"higher|lighter|normal","cooking":"minimal|normal","meal":null,"time":null,"variety":"higher|normal","budgetReservePct":0.1,"categoryWeights":{},"categoryQuality":{},"categoryPrice":{},"categoryBudgetCaps":{}},"people":null,"duration":null,"entities":[],"clear":[],"needsContext":false,"replacementReason":null,"sameCategory":false,"confidence":"low|medium|high"},"operations":[]}. Intent — это только структурированная цель, не рассуждения. Hard нельзя нарушать ради soft. Для замены reason: similar, cheaper, better, healthier, other_brand или value. Если данных действительно недостаточно — операция ASK_CLARIFICATION и один конкретный вопрос. Сохраняй ограничения прошлых сообщений, если пользователь явно их не отменил. Разрешённые операции: RESET_BASKET,SET_INTENT,SET_ONLY_PRODUCTS,CLEAR_ONLY,ADD_PRODUCT,REPLACE_PRODUCT,CHANGE_BUDGET,SET_PEOPLE,SET_DURATION,SET_COOKING,ADD_PREFERENCE,CHANGE_STORE,SET_MODE,REMOVE_PRODUCT,REQUIRE,PREFER,EXCLUDE_BRAND,HAS_AT_HOME,EXCLUDE_TAG,REOPTIMIZE,ASK_CLARIFICATION,NOTE,UNDO. Каталог: ${products||[...FALLBACK_PRODUCTS].join(",")}.`;
   }
 
   function msgs(text,history=[]){
@@ -83,7 +83,9 @@
     for(const op of (Array.isArray(data.operations)?data.operations:[]).slice(0,20)){
       const safe=safeOperation(op);if(!safe)throw Error("invalid_operation");operations.push(safe);
     }
-    return {operations,reply:typeof data.reply==="string"?clean(data.reply).slice(0,420):""};
+    let aiIntent=null;
+    if(data.intent&&typeof data.intent==="object"&&!Array.isArray(data.intent)){try{const encoded=JSON.stringify(data.intent);if(encoded.length<=6000)aiIntent=clone(data.intent)}catch{}}
+    return {operations,reply:typeof data.reply==="string"?clean(data.reply).slice(0,420):"",aiIntent};
   }
 
   function ensureWorker(){
