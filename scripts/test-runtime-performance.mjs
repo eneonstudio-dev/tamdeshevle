@@ -21,7 +21,12 @@ assert.match(app, /window\.addEventListener\("pageshow", syncSaleTimer\)/, "sale
 assert.match(gsap, /__TDGsapMotionInitialized/, "GSAP motion must be idempotent");
 assert.match(gsap, /script\[src\*="\$\{file\}"\]/, "GSAP loader must recognize statically loaded polish scripts");
 assert.match(gsap, /link\[href\*="\$\{file\}"\]/, "GSAP loader must recognize statically loaded polish styles");
-assert.match(gsap, /if \(document\.hidden \|\| playFrame\) return/, "motion scheduling must pause in hidden tabs");
+assert.match(gsap, /if \(document\.hidden \|\| reduce \|\| playFrame\) return/, "motion scheduling must pause in hidden tabs and while reduced motion is active");
+assert.match(gsap, /prev\.apply\(this, arguments\)/, "motion render wrapper must preserve render arguments and receiver");
+assert.match(gsap, /return result;/, "motion render wrapper must preserve the wrapped render return value");
+assert.match(gsap, /motionQuery\.addEventListener\("change", onMotionPreference\)/, "motion layer must react when reduced-motion preference changes at runtime");
+assert.match(gsap, /else motionQuery\?\.addListener\?\.\(onMotionPreference\)/, "motion preference listener must keep compatibility with legacy matchMedia implementations");
+assert.match(gsap, /cancelQueuedPlay\(\);\s*lastScreen = "";/, "changing motion preference must cancel queued animation work and reset screen animation state");
 assert.match(gsap, /window\.addEventListener\("pageshow", queuePlay\)/, "motion scheduling must recover after BFCache/page restore");
 assert.match(polish, /__TDV2PolishInitialized/, "v2 polish must refuse duplicate initialization");
 assert.match(polish, /if\(document\.hidden\|\|headerScrollFrame\) return/, "scroll work must pause while hidden");
@@ -58,4 +63,4 @@ assert.match(baiLife, /if\(document\.hidden\|\|motionQuery\?\.matches\)return/, 
 assert.match(baiLife, /window\.addEventListener\("pagehide",pause\)/, "Bai timers must stop on pagehide");
 assert.match(baiLife, /window\.addEventListener\("pageshow",resume\)/, "Bai timers must resume after page restore");
 
-console.log("Runtime performance guards passed: timer lifecycle, duplicate init, observer scope, BFCache recovery, hidden-tab work and image priority are controlled.");
+console.log("Runtime performance guards passed: render contract, live motion preference, timer lifecycle, duplicate init, observer scope, BFCache recovery, hidden-tab work and image priority are controlled.");
