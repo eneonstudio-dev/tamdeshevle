@@ -10,6 +10,7 @@ on:
       - "courier-handoff-v1.js"
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
+      - "scripts/test-bai-brain.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
     branches:
@@ -22,6 +23,7 @@ on:
       - "courier-handoff-v1.js"
       - "continue-in-stores-v1.js"
       - "real-store-integration-v1.js"
+      - "scripts/test-bai-brain.mjs"
       - ".github/workflows/validate-bai.yml"
 
 permissions:
@@ -55,3 +57,6 @@ jobs:
           node --check courier-handoff-v1.js
           node --check continue-in-stores-v1.js
           node --check real-store-integration-v1.js
+          node --check scripts/test-bai-brain.mjs
+      - name: Test Bai conversation regressions
+        run: node scripts/test-bai-brain.mjs
