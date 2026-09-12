@@ -1,0 +1,2 @@
+[functions.alice-bai-webhook]
+verify_jwt = false
