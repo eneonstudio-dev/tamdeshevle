@@ -4,12 +4,21 @@
   const M=new Set(["RESET_BASKET","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","CHANGE_STORE","SET_MODE","SET_COOKING","SET_ONLY_PRODUCTS","SET_PRODUCT_AMOUNT","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","REQUIRE","PREFER","ADD_PREFERENCE","CLEAR_ONLY"]);
   let correctedPeople;
   let statusPatched=false;
+  const originalReset=window.TDBaiBrain?.reset?.bind(window.TDBaiBrain);
 
   function hasExplicitPeople(text){
     const t=low(text);
-    return /(?:человек|чел\.?|персон|едок)/.test(t)||/(?:^|[\s,])(нас|для)\s+(?:\d+|один|одна|два|две|двое|двоих|три|трое|троих|четыре|четверо|пять|шесть|семь|восемь|девять|десять)(?=$|[\s,.!?])/.test(t);
+    return /(?:человек|чел\.?|персон|едок)/.test(t)||
+      /(?:^|[\s,])нас\s+(?:будет\s+)?(?:\d+|один|одна|два|две|двое|двоих|три|трое|троих|четыре|четверо|пять|шесть|семь|восемь|девять|десять)(?=$|[\s,.!?])/.test(t)||
+      /(?:^|[\s,])(?:на|для)\s+(?:одного|двоих|троих|четверых)(?=$|[\s,.!?])/.test(t)||
+      /(?:^|[\s,])будет\s+(?:двое|трое|четверо)(?=$|[\s,.!?])/.test(t)||
+      /(?:^|[\s,])мы\s+в(?:двоем|троем|четвером)(?=$|[\s,.!?])/.test(t);
   }
-  function hasDuration(text){return /(?:на|примерно на)\s+(?:\d+|[а-я]+)\s*(?:день|дня|дней|суток)/.test(low(text));}
+  function hasDuration(text){
+    const t=low(text);
+    return /(?:на|примерно на)\s+(?:\d+|[а-я]+)\s*(?:день|дня|дней|сутки|суток|недел(?:ю|и|ь))/.test(t)||
+      /(?:на|примерно на)\s+(?:сегодня|завтра|день|сутки|пару\s+дн(?:я|ей)|выходные)(?=$|[\s,.!?])/.test(t);
+  }
   function patchBrainStatus(){
     if(statusPatched||!window.TDBaiBrain?.status)return;
     const original=window.TDBaiBrain.status.bind(window.TDBaiBrain);
@@ -19,6 +28,13 @@
       return value;
     };
     statusPatched=true;
+  }
+  function reset(){correctedPeople=undefined;}
+  if(originalReset){
+    window.TDBaiBrain.reset=(...args)=>{
+      reset();
+      return originalReset(...args);
+    };
   }
   function stripFalsePeople(raw,r,current){
     if(!r||hasExplicitPeople(raw)||!hasDuration(raw))return r;
@@ -50,5 +66,5 @@
     const x=inspect(raw,r);
     return x.safe?{...r,selfCheck:x}:{ok:true,provider:"bai-self-check",operations:[],reply:"Не до конца понял. Что именно меняем?",suggestions:["Добавить","Убрать","Собрать заново"],expectsAnswer:true,selfCheck:x};
   }
-  window.TDBaiSelfCheck={inspect,guard};
+  window.TDBaiSelfCheck={inspect,guard,reset};
 })();
