@@ -36,16 +36,24 @@ body.td-votonobay-inner .receipt-entry-field input,body.td-votonobay-inner .rece
   border:1px solid var(--voto-line)!important;background:#0b1710!important;color:#f4fbf6!important;
 }
 body.td-votonobay-inner .receipt-entry-save,body.td-votonobay-inner .receipt-entry-submit{background:var(--voto-mint)!important;color:#032015!important}
+body.td-votonobay-inner .receipt-local-open{color:#82978b!important}
 
 /* Cart empty state is a product state, not a white legacy card. */
-body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint{
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state{
   padding:26px 22px!important;border:1px solid rgba(79,245,154,.16)!important;border-radius:24px!important;
   background:radial-gradient(circle at 92% 0,rgba(79,245,154,.11),transparent 35%),linear-gradient(155deg,#0d1a12,#07100b)!important;
   color:#93a79b!important;box-shadow:0 20px 55px rgba(0,0,0,.18)!important;text-align:center!important;
 }
-body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint b{color:#f7fff9!important}
-body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint .btn.green{
-  width:auto!important;display:inline-flex!important;margin:16px auto 0!important;padding:12px 18px!important;background:linear-gradient(135deg,var(--voto-mint-2),var(--voto-mint))!important;color:#032015!important;
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state b,
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state strong,
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state h2,
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state h3{color:#f7fff9!important}
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state p{color:#93a79b!important}
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state .btn,
+body.td-votonobay-inner[data-votonobay-screen="cart"] .td-flow-state button{
+  width:auto!important;display:inline-flex!important;justify-content:center!important;margin:16px auto 0!important;padding:12px 18px!important;
+  border:0!important;border-radius:14px!important;background:linear-gradient(135deg,var(--voto-mint-2),var(--voto-mint))!important;color:#032015!important;
+  box-shadow:0 12px 28px rgba(79,245,154,.10)!important;
 }
 
 /* ai-shopping-visual-v3 was designed for a centered 1080px modal. Bay-first desktop
@@ -68,7 +76,17 @@ body.td-votonobay-inner[data-votonobay-screen="cart"] .wrap>.hint .btn.green{
   /* Bottom nav already owns Bay on mobile; the floating mascot must not cover product controls. */
   body.td-votonobay-inner>.bai-assistant{display:none!important}
   .td-ai[data-visual-v3="1"] .td-ai-shell{width:100%!important;max-width:100%!important}
-  .td-ai-quick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
-  .td-ai-quick button{min-width:0!important;width:100%!important;white-space:normal!important;line-height:1.25!important;text-align:center!important;padding:10px 8px!important}
-  .td-ai-quick button:last-child:nth-child(odd){grid-column:1/-1!important}
+}
+
+@media(max-width:520px){
+  /* Runtime empty-state CSS is injected late and forces one horizontal row.
+     Override it with a compact two-column decision grid. */
+  .td-ai[data-visual-v3="1"] .td-ai-state-card>div{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;
+  }
+  .td-ai[data-visual-v3="1"] .td-ai-state-card button{
+    width:100%!important;min-width:0!important;max-width:none!important;flex:auto!important;white-space:normal!important;
+    line-height:1.22!important;text-align:center!important;padding:10px 8px!important;
+  }
+  .td-ai[data-visual-v3="1"] .td-ai-state-card button:last-child:nth-child(odd){grid-column:1/-1!important}
 }
