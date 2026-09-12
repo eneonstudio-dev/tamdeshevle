@@ -8,6 +8,16 @@
   const items=()=>products().filter(p=>window.state&&state.cart&&state.cart[p.id]>0);
   let headerScrollFrame=0;
 
+  function ensureDecisionHandoff(){
+    if(window.__TDVotonobayDecisionHandoffV1||document.querySelector('script[data-votonobay-decision-handoff]'))return;
+    const script=document.createElement("script");
+    script.src="votonobay-decision-handoff-v1.js?v=20260912-decision-v1";
+    script.defer=true;
+    script.dataset.votonobayDecisionHandoff="1";
+    script.onerror=()=>{script.remove();console.warn("[Votonobay] decision handoff failed to load")};
+    document.head.appendChild(script);
+  }
+
   function ensureMobileCart(){
     if(!window.state||state.screen!=="home") return removeMobileCart();
     let bar=document.querySelector(".v2-mobile-cartbar");
@@ -61,6 +71,7 @@
 
   function hydrate(){
     if(document.hidden)return;
+    ensureDecisionHandoff();
     ensureMobileCart();
     enhanceMobileMenu();
     syncHeaderScrollState();
