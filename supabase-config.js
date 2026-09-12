@@ -23,5 +23,6 @@ import("./bai-agent-client.js?v=20260912-agent-core-v1")
   .then(()=>import("./bai-decision-quality.js?v=20260912-decision-v1"))
   .then(()=>import("./bai-shopping-journey.js?v=20260912-journey-v2"))
   .then(()=>import("./bai-system-prompt-v1.js?v=20260912-system-v1"))
+  .then(()=>import("./bai-literal-basket.js?v=20260912-literal-v1"))
   .then(()=>import("./bai-character.js?v=20260912-character-v2"))
-  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Character] client load failed",error));
+  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Character] client load failed",error));
