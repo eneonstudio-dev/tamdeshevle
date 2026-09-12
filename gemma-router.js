@@ -1,10 +1,10 @@
 (()=>{
   "use strict";
-  if(window.TDQwenRouter)return;
+  if(window.TDGemmaRouter)return;
 
-  const STORAGE_KEY="td_bai_local_model_enabled";
-  const BROWSER_MODEL="onnx-community/Qwen3-0.6B-ONNX";
-  const MODEL_REVISION="558750086ed49d78cb701ed6fa85af33fd16453f";
+  const STORAGE_KEY="td_bai_gemma_local_enabled";
+  const BROWSER_MODEL="onnx-community/gemma-3-270m-it-ONNX";
+  const MODEL_REVISION="2dbbfdb1b59bd034eb959428c6a7da9dd7ea27f0";
   const ALLOWED=new Set(["UNDO","RESET_BASKET","SET_INTENT","SET_ONLY_PRODUCTS","CLEAR_ONLY","ADD_PRODUCT","REPLACE_PRODUCT","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","ADD_PREFERENCE","CHANGE_STORE","SET_MODE","REMOVE_PRODUCT","REQUIRE","PREFER","EXCLUDE_BRAND","HAS_AT_HOME","EXCLUDE_TAG","REOPTIMIZE","ASK_CLARIFICATION","NOTE"]);
   const FALLBACK_PRODUCTS=new Set(["milk","bread","chicken","banana","oil","eggs","buck","sour","sugar","pasta","water","apple","ham","dumplings","noodles","waffles","cottage"]);
   let worker=null,seq=0,lastProgress=null;
@@ -44,12 +44,12 @@
 
   function prompt(){
     const products=catalog().slice(0,60).map(x=>`${x.id}:${x.name}`).join(", ");
-    return `Ты Бай — локальный разговорный агент сервиса «Там дешевле». Понимай живую русскую речь и контекст. Не выдумывай цены, наличие, скидки или магазины: расчёты делает код. Верни только JSON {"reply":"короткий естественный ответ","operations":[...]}. Если данных недостаточно — только ASK_CLARIFICATION. Сохраняй ограничения прошлых сообщений, если пользователь их не отменил. /no_think\nРазрешённые операции: RESET_BASKET,SET_INTENT,SET_ONLY_PRODUCTS,CLEAR_ONLY,ADD_PRODUCT,REPLACE_PRODUCT,CHANGE_BUDGET,SET_PEOPLE,SET_DURATION,SET_COOKING,ADD_PREFERENCE,CHANGE_STORE,SET_MODE,REMOVE_PRODUCT,REQUIRE,PREFER,EXCLUDE_BRAND,HAS_AT_HOME,EXCLUDE_TAG,REOPTIMIZE,ASK_CLARIFICATION,NOTE,UNDO.\nКаталог: ${products||[...FALLBACK_PRODUCTS].join(",")}.`;
+    return `Ты Бай — локальный shopping-агент сервиса «Там дешевле». Понимай живую русскую речь и контекст. Не выдумывай цены, наличие, скидки или магазины: расчёты делает код. Верни ТОЛЬКО валидный JSON без markdown и пояснений: {"reply":"короткий естественный ответ","operations":[...]}. Если данных недостаточно — используй только ASK_CLARIFICATION. Сохраняй ограничения прошлых сообщений, если пользователь явно их не отменил. Разрешённые операции: RESET_BASKET,SET_INTENT,SET_ONLY_PRODUCTS,CLEAR_ONLY,ADD_PRODUCT,REPLACE_PRODUCT,CHANGE_BUDGET,SET_PEOPLE,SET_DURATION,SET_COOKING,ADD_PREFERENCE,CHANGE_STORE,SET_MODE,REMOVE_PRODUCT,REQUIRE,PREFER,EXCLUDE_BRAND,HAS_AT_HOME,EXCLUDE_TAG,REOPTIMIZE,ASK_CLARIFICATION,NOTE,UNDO. Каталог: ${products||[...FALLBACK_PRODUCTS].join(",")}.`;
   }
 
   function msgs(text,history=[]){
     const recent=(Array.isArray(history)?history:[]).slice(-8).map(m=>({role:m?.role==="assistant"?"assistant":"user",content:clean(m?.text).slice(0,500)})).filter(m=>m.content);
-    return [{role:"system",content:prompt()},...recent,{role:"user",content:`Состояние покупок: ${JSON.stringify(stateContext())}\nСообщение: ${clean(text).slice(0,500)}\n/no_think`}];
+    return [{role:"system",content:prompt()},...recent,{role:"user",content:`Состояние покупок: ${JSON.stringify(stateContext())}\nСообщение: ${clean(text).slice(0,500)}`}];
   }
 
   function safeOperation(op){
@@ -76,7 +76,7 @@
   }
 
   function parse(text){
-    const raw=String(text||"").replace(/<think>[\s\S]*?<\/think>/gi,"").trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,""),a=raw.indexOf("{"),b=raw.lastIndexOf("}");
+    const raw=String(text||"").trim().replace(/^```(?:json)?\s*/i,"").replace(/\s*```$/,""),a=raw.indexOf("{"),b=raw.lastIndexOf("}");
     if(a<0||b<a)throw Error("no_json");
     const data=JSON.parse(raw.slice(a,b+1)),operations=[];
     for(const op of (Array.isArray(data.operations)?data.operations:[]).slice(0,20)){
@@ -89,7 +89,7 @@
     if(worker)return worker;
     if(!enabled())throw Error("local_model_disabled");
     if(!supported())throw Error("webgpu_unavailable");
-    worker=new Worker(new URL("qwen-browser-worker.js",location.href),{type:"module"});
+    worker=new Worker(new URL("gemma-browser-worker.js",location.href),{type:"module"});
     worker.onmessage=e=>{
       const d=e.data||{};
       if(d.type==="progress"){lastProgress=d.data||null;return}
@@ -107,19 +107,19 @@
       pending.set(id,{resolve:v=>{clearTimeout(timer);resolve(v)},reject:e=>{clearTimeout(timer);reject(e)}});
       w.postMessage({type:"generate",id,messages:msgs(text,history)});
     });
-    return {ok:true,provider:"qwen-browser",model:BROWSER_MODEL,revision:MODEL_REVISION,...parse(out)};
+    return {ok:true,provider:"gemma-browser",model:BROWSER_MODEL,revision:MODEL_REVISION,...parse(out)};
   }
 
   async function route(text,history=[]){
-    if(!enabled())return{ok:false,provider:"qwen-browser",reason:"disabled",operations:null,reply:""};
-    if(!supported())return{ok:false,provider:"qwen-browser",reason:"webgpu_unavailable",operations:null,reply:""};
-    try{return await browser(text,history)}catch(error){console.warn("[Bai Local Qwen]",error);return{ok:false,provider:"qwen-browser",reason:String(error?.message||"failed").slice(0,80),operations:null,reply:""}}
+    if(!enabled())return{ok:false,provider:"gemma-browser",reason:"disabled",operations:null,reply:""};
+    if(!supported())return{ok:false,provider:"gemma-browser",reason:"webgpu_unavailable",operations:null,reply:""};
+    try{return await browser(text,history)}catch(error){console.warn("[Bai Local Gemma]",error);return{ok:false,provider:"gemma-browser",reason:String(error?.message||"failed").slice(0,80),operations:null,reply:""}}
   }
 
-  window.TDQwenRouter={
+  window.TDGemmaRouter={
     route,
     enable(){set(true);return this.status()},
     disable(){set(false);worker?.terminate?.();worker=null;return this.status()},
-    status:()=>({provider:"qwen-browser",enabled:enabled(),supported:supported(),model:BROWSER_MODEL,revision:MODEL_REVISION,progress:lastProgress})
+    status:()=>({provider:"gemma-browser",enabled:enabled(),supported:supported(),model:BROWSER_MODEL,revision:MODEL_REVISION,progress:lastProgress})
   };
 })();

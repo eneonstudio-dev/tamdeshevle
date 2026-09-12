@@ -1,5 +1,5 @@
-const MODEL="onnx-community/Qwen3-0.6B-ONNX";
-const MODEL_REVISION="558750086ed49d78cb701ed6fa85af33fd16453f";
+const MODEL="onnx-community/gemma-3-270m-it-ONNX";
+const MODEL_REVISION="2dbbfdb1b59bd034eb959428c6a7da9dd7ea27f0";
 const LIB="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/+esm";
 let generatorPromise=null;
 
@@ -29,7 +29,7 @@ self.onmessage=async event=>{
   if(type!=="generate")return;
   try{
     const pipe=await generator();
-    const output=await pipe(messages,{max_new_tokens:260,do_sample:false,return_full_text:false});
+    const output=await pipe(messages,{max_new_tokens:220,do_sample:false,return_full_text:false});
     self.postMessage({type:"result",id,text:outputText(output)});
   }catch(error){
     self.postMessage({type:"error",id,error:String(error?.message||error)});
