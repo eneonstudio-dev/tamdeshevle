@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import assert from "node:assert/strict";
 import {evaluateCandidate,assessConsensus,policy} from "../server/bai-learning-consensus.mjs";
 
@@ -45,4 +46,12 @@ const conflicted=[...six,event(7,{operations:[conflictOp]},1),event(8,{operation
 const conflictDecision=assessConsensus(conflicted,good.intentKey);
 assert.equal(conflictDecision.status,"quarantine","meaningful conflicting behavior must block promotion");
 
-console.log("Bai learning backend consensus checks passed");
+const sql=fs.readFileSync(new URL("../backend/bai-learning-supabase-schema.sql",import.meta.url),"utf8");
+for(const table of ["bai_learning_events","bai_learning_quarantine","bai_approved_patterns"]){
+  assert.ok(sql.includes(`alter table public.${table} enable row level security;`),`${table} must have RLS enabled`);
+  assert.ok(sql.includes(`revoke all on table public.${table} from anon, authenticated;`),`${table} must deny browser roles`);
+}
+assert.ok(!/security\s+definer/i.test(sql),"learning schema must not introduce SECURITY DEFINER helpers");
+assert.ok(/grant select, insert, update, delete on table public\.bai_learning_events to service_role;/i.test(sql));
+
+console.log("Bai learning backend consensus and schema checks passed");
