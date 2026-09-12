@@ -21,8 +21,15 @@ jobs:
         run: |
           node --check app.js
           node --check ui-layer-coordinator.js
+          node --check product-ui.js
+          node --check price-history.js
+          node --check v2-polish.js
+          node --check gsap-motion.js
           node --check scripts/test-catalog-resilience.mjs
+          node --check scripts/test-runtime-performance.mjs
       - name: Test app runtime resilience
         run: node scripts/test-app-runtime-resilience.mjs
       - name: Test catalog interaction resilience
         run: node scripts/test-catalog-resilience.mjs
+      - name: Test runtime performance guards
+        run: node scripts/test-runtime-performance.mjs
