@@ -6,7 +6,7 @@
   const SCREEN_COPY={
     stores:{title:"Магазины",sub:"Выбери магазин — сравнение останется на одной корзине"},
     catalog:{sub:"Собери список — Votonobay сравнит варианты целиком"},
-    cart:{title:"Корзина",compare:"Сравнить варианты"},
+    cart:{title:"Корзина",sub:"Проверь список — затем выберем лучший способ покупки",compare:"Решить по корзине →"},
     compare:{title:"Сравнение вариантов",sub:"Одна корзина · цена, способ покупки и подтверждённость данных"}
   };
 
@@ -67,14 +67,25 @@
 
   function tuneCart(){
     const primary=document.querySelector(".dock .btn.dark");
-    if(primary)setText(primary,SCREEN_COPY.cart.compare);
+    if(primary){
+      setText(primary,SCREEN_COPY.cart.compare);
+      primary.setAttribute("aria-label","Найти лучший способ купить эту корзину");
+    }
     const dock=document.querySelector(".dock");
     if(dock)dock.setAttribute("aria-label","Действия с корзиной");
     document.querySelector(".voto-cart-constraint")?.remove();
+    const summary=dock?.querySelector(":scope > div");
+    const opportunity=summary?.nextElementSibling;
+    if(opportunity?.tagName==="DIV"&&!opportunity.classList.contains("voto-cart-constraint")){
+      const text=opportunity.textContent||"";
+      if(/можно собрать дешевле/i.test(text)){
+        opportunity.classList.add("voto-cart-opportunity");
+        opportunity.textContent="Есть вариант дешевле. Сравним экономию с удобством и способом покупки.";
+      }
+    }
     const plan=currentPlan();
     const copy=deliveryConstraint(plan);
     if(copy&&dock){
-      const summary=dock.querySelector(":scope > div");
       const spans=summary?.querySelectorAll("span");
       if(spans?.length>=2){
         spans[0].textContent="Оценка здесь";
