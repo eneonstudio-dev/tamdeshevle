@@ -22,13 +22,16 @@
   function resetIdle(){clearTimeout(sleepyTimer);clearTimeout(sleepingTimer);if(["sleepy","sleeping"].includes(bai.dataset.state))setState("peek","Проснулся. Что решаем?",1500);if(bai.dataset.state==="hidden")return;sleepyTimer=setTimeout(()=>setState("sleepy",line("sleepy"),1800,false),50000);sleepingTimer=setTimeout(()=>setState("sleeping","",0,false),72000);}
   function getPanel(){return document.querySelector('.bai-panel[data-bai-panel="true"]');}
   function closePanel(){getPanel()?.remove();bai.classList.remove("panel-open");}
-  function action(label){closePanel();resetIdle();if(label==="compare"){setState("thinking","Сравню всю ситуацию, а не один ценник.",1800);go("compare");}if(label==="discount"){setState("suspicious","Проверю, что за этой скидкой",2200);go("catalog");}if(label==="search"){setState("curious","Пиши товар — посмотрим варианты",1800);go("home");requestAnimationFrame(()=>document.querySelector(".v2-search input")?.focus());}if(label==="basket"){setState("playful","Расскажи задачу — соберём решение",1800);window.TDShoppingAssistant?.open?.();}if(label==="sleep"){setState("goodbye","Ладно, свернусь клубком",1500,false);setTimeout(()=>setState("hidden","",0,false),1300);}}
+  async function openConversation(){
+    if(!window.TDShoppingAssistant?.open)return false;
+    await window.TDShoppingAssistant.open();window.tdBayFirstTuneAssistant?.();return true;
+  }
+  function action(label){closePanel();resetIdle();if(label==="compare"){setState("thinking","Сравню всю ситуацию, а не один ценник.",1800);go("compare");}if(label==="discount"){setState("suspicious","Проверю, что за этой скидкой",2200);go("catalog");}if(label==="search"){setState("curious","Пиши товар — посмотрим варианты",1800);go("home");requestAnimationFrame(()=>document.querySelector(".v2-search input")?.focus());}if(label==="basket"){setState("playful","Расскажи задачу — соберём решение",1800);openConversation();}if(label==="sleep"){setState("goodbye","Ладно, свернусь клубком",1500,false);setTimeout(()=>setState("hidden","",0,false),1300);}}
   async function openPanel(){
     if(bai.dataset.state==="hidden"){setState("peek","Снова в деле",1400);resetIdle();return;}
     if(window.TDShoppingAssistant?.open){
       closePanel();resetIdle();setState("curious","Рассказывай. Что хочешь решить?",1600,false);
-      await window.TDShoppingAssistant.open();
-      return;
+      await openConversation();return;
     }
     if(getPanel()){closePanel();return;}
     const panel=document.createElement("section");panel.className="bai-panel";panel.dataset.baiPanel="true";panel.setAttribute("aria-label","Быстрые действия Бая");panel.innerHTML=`<div class="bai-panel-head"><div><span>БАЙ</span><b>Что решаем?</b></div><button type="button" data-close aria-label="Закрыть">×</button></div><div class="bai-actions"><button data-action="compare"><i>↔</i><span><b>Сравнить варианты</b><small>Цена, удобство и время</small></span></button><button data-action="discount"><i>?</i><span><b>Проверить скидку</b><small>Понять, стоит ли брать</small></span></button><button data-action="search"><i>⌕</i><span><b>Найти товар</b><small>Посмотреть варианты самому</small></span></button><button data-action="basket"><i>＋</i><span><b>Собрать корзину</b><small>Решить задачу вместе</small></span></button></div><button class="bai-sleep-action" data-action="sleep">${SLEEP_LABEL}</button>`;document.body.appendChild(panel);bai.classList.add("panel-open");setState("curious","",0,false);panel.querySelector("[data-close]").onclick=closePanel;panel.querySelectorAll("[data-action]").forEach(button=>button.onclick=()=>action(button.dataset.action));
