@@ -64,6 +64,18 @@
     }).join("");
   }
 
+  function normalizeScopedWithoutAdd(raw){
+    const source=String(raw||""),t=low(source),items=mentions(source);
+    if(items.length!==2||!/(^|[^а-я])без(?=$|[^а-я])/.test(t)||!/(^|[^а-я])(?:добав[а-я]*|докин[а-я]*|положи)(?=$|[^а-я])/.test(t))return source;
+    const withoutMatch=/(^|[^а-я])без(?=$|[^а-я])/.exec(t),addMatch=/(^|[^а-я])(?:добав[а-я]*|докин[а-я]*|положи)(?=$|[^а-я])/.exec(t);
+    if(!withoutMatch||!addMatch)return source;
+    const withoutPos=withoutMatch.index+withoutMatch[1].length,addPos=addMatch.index+addMatch[1].length;
+    const excluded=items.find(item=>item.pos>withoutPos&&(withoutPos<addPos?item.pos<addPos:true));
+    const added=items.find(item=>item.pos>addPos&&(addPos<withoutPos?item.pos<withoutPos:true));
+    if(!excluded||!added||excluded.id===added.id)return source;
+    return `убери ${excluded.stem}, добавь ${added.stem}`;
+  }
+
   function ambiguousReplacementChoice(raw){
     const t=low(raw);
     if(!/(замени|поменяй|вместо)/.test(t)||!/(^|[^а-яa-z0-9_])или(?=$|[^а-яa-z0-9_])/.test(t))return null;
@@ -170,7 +182,8 @@
   }
 
   brain.route=async function(raw,...rest){
-    const normalized=normalizeTrailingExclusions(raw);
+    const trailingNormalized=normalizeTrailingExclusions(raw);
+    const normalized=normalizeScopedWithoutAdd(trailingNormalized);
     const ambiguous=ambiguousReplacementChoice(normalized);
     if(ambiguous){
       const left=LABEL[ambiguous.left.id]||ambiguous.left.stem,right=LABEL[ambiguous.right.id]||ambiguous.right.stem;
@@ -201,5 +214,5 @@
     return{...status,goal:{...status.goal,people:peopleShadow,...clone(productGoalShadow)}};
   };
 
-  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,ambiguousReplacementChoice,explicitPeople,guardPeople,guardGoalConsistency};
+  window.TDBaiReasoningGuard={directionalReplacement,normalizeTrailingExclusions,normalizeScopedWithoutAdd,ambiguousReplacementChoice,explicitPeople,guardPeople,guardGoalConsistency};
 })();
