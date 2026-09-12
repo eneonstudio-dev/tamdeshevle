@@ -2,12 +2,12 @@
   "use strict";
   const KEY="td:shopping-session:v1";
   const blank=()=>({
-    id:"shop_"+Date.now(),budget:null,currentTotal:0,location:"",stores:[],products:[],
+    id:"shop_"+Date.now(),budget:null,currentTotal:0,location:"",stores:[],products:[],lastPlans:[],
     existingProducts:[],requiredProducts:[],preferredProducts:[],excludedProducts:[],excludedBrands:[],
     onlyProducts:[],quantityTargets:{},selectionMode:"auto",intent:"build",preferences:[],cookingPreference:"normal",
     deliveryPreference:"any",peopleCount:1,duration:1,userNotes:[],mode:"multi",history:[],updatedAt:new Date().toISOString()
   });
-  const ARRAY_FIELDS=["stores","products","existingProducts","requiredProducts","preferredProducts","excludedProducts","excludedBrands","onlyProducts","preferences","userNotes","history"];
+  const ARRAY_FIELDS=["stores","products","lastPlans","existingProducts","requiredProducts","preferredProducts","excludedProducts","excludedBrands","onlyProducts","preferences","userNotes","history"];
   const clone=value=>JSON.parse(JSON.stringify(value));
   function normalize(raw){
     const source=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};
@@ -25,9 +25,10 @@
   }
   function load(){try{return normalize(JSON.parse(localStorage.getItem(KEY)||"null"))}catch{return normalize(null)}}
   let state=load();
-  const snapshot=()=>clone({...state,history:[]});
+  const snapshot=()=>{pruneStalePlans(state);return clone({...state,history:[]})};
   function save(){
     state=normalize(state);
+    pruneStalePlans(state);
     state.updatedAt=new Date().toISOString();
     try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}
     try{window.dispatchEvent(new CustomEvent("td:shopping-state",{detail:snapshot()}))}catch{}
@@ -56,6 +57,21 @@
     for(const line of Array.isArray(products)?products:[]){const id=line?.sourceId||line?.id,qty=Math.min(99,Math.max(0,Math.floor(Number(line?.quantity)||0)));if(id&&qty)map[id]=(map[id]||0)+qty;}
     return Object.entries(map).sort(([a],[b])=>a.localeCompare(b)).map(([id,qty])=>`${id}:${qty}`).join("|");
   }
+  function planMatchesProducts(plan,products=state.products){
+    if(!plan||!Array.isArray(plan.products)||!plan.products.length||!Array.isArray(products)||!products.length)return false;
+    const expected=productSignature(products),actual=productSignature(plan.products);
+    return Boolean(expected&&actual&&expected===actual);
+  }
+  function pruneStalePlans(target=state){
+    if(!target||typeof target!=="object")return false;
+    const raw=Array.isArray(target.lastPlans)?target.lastPlans:[];
+    if(!raw.length){if(!Array.isArray(target.lastPlans))target.lastPlans=[];return false}
+    const fresh=raw.filter(plan=>planMatchesProducts(plan,target.products));
+    if(fresh.length===raw.length)return false;
+    target.lastPlans=fresh;
+    return true;
+  }
+  function currentPlans(){pruneStalePlans(state);return state.lastPlans}
   function appProduct(id){
     const app=typeof PRODUCTS!=="undefined"&&Array.isArray(PRODUCTS)?PRODUCTS.find(product=>product?.id===id):null;
     if(app)return app;
@@ -111,5 +127,5 @@
     window.render?.();
     return true;
   }
-  window.TDShoppingState={get:()=>state,commit,undo,reset,save,snapshot,syncCart,syncFromCart,normalizedCart,cartSignature,productSignature,normalize,operations:["RESET_BASKET","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","CHANGE_QUANTITY","CHANGE_STORE","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","SET_MODE","CLEAR_ONLY","SET_ONLY_PRODUCTS","SET_PRODUCT_AMOUNT","SET_INTENT","ADD_PREFERENCE","REQUIRE","PREFER","EXCLUDE_BRAND","HAS_AT_HOME","EXCLUDE_TAG","NOTE","REOPTIMIZE"]};
+  window.TDShoppingState={get:()=>{pruneStalePlans(state);return state},commit,undo,reset,save,snapshot,syncCart,syncFromCart,normalizedCart,cartSignature,productSignature,planMatchesProducts,currentPlans,pruneStalePlans,normalize,operations:["RESET_BASKET","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","CHANGE_QUANTITY","CHANGE_STORE","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","SET_MODE","CLEAR_ONLY","SET_ONLY_PRODUCTS","SET_PRODUCT_AMOUNT","SET_INTENT","ADD_PREFERENCE","REQUIRE","PREFER","EXCLUDE_BRAND","HAS_AT_HOME","EXCLUDE_TAG","NOTE","REOPTIMIZE"]};
 })();
