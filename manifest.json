@@ -1,12 +1,16 @@
 {
-  "name": "Проще",
-  "short_name": "Проще",
-  "start_url": ".",
+  "id": "./",
+  "name": "Там дешевле",
+  "short_name": "Там дешевле",
+  "description": "Сравнение цен и умная сборка продуктовой корзины по магазинам.",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0F7B4A",
+  "background_color": "#F4F1EA",
   "theme_color": "#0F7B4A",
   "lang": "ru",
+  "orientation": "portrait-primary",
   "icons": [
-    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }
