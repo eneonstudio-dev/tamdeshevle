@@ -41,13 +41,15 @@ const brand=context.TDShoppingConversation.apply('Мираторг не хочу
 assert.ok(brand.state.excludedBrands.includes('мираторг'));
 
 const ui=fs.readFileSync(new URL('../ai-shopping-assistant.js',import.meta.url),'utf8');
+const checkout=fs.readFileSync(new URL('../bai-checkout.js',import.meta.url),'utf8');
 const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
 assert.match(ui,/SpeechRecognition/);
 assert.match(ui,/speechSynthesis/);
-assert.match(ui,/Как получить\?/);
+assert.match(ui,/bai-checkout\.js/);
+assert.match(checkout,/Что дальше\?/);
+assert.match(checkout,/Сам заберу/);
 assert.match(ui,/CHANGE_QUANTITY/);
-assert.match(ui,/REPLACE_PRODUCT/);
-assert.match(ui,/TDShoppingAssistant\.replace/);
+assert.match(ui,/TDShoppingAssistant=\{open,voice,submit,adjust,remove,newSession/);
 assert.match(ui,/newSession/);
-assert.match(html,/ai-shopping-assistant\.js\?v=20260911-mvp2/);
+assert.match(html,/ai-shopping-assistant\.js\?v=20260911-checkout-v1/);
 console.log('AI shopping assistant MVP passed: stateful dialogue, budget, optimizer, honest prices, undo, voice and fulfillment.');
