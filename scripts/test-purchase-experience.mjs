@@ -55,6 +55,7 @@ assert.doesNotMatch(checklist,/Яблоки/,"retailer checklist must not leak p
 const source=fs.readFileSync("purchase-experience-v1.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8");
 const css=fs.readFileSync("purchase-experience-v1.css","utf8");
+const comparisonCss=fs.readFileSync("comparison-result-v2.css","utf8");
 assert.match(polish,/purchase-experience-v1\.js\?v=/,"generic V2 lifecycle must load the purchase experience");
 assert.doesNotMatch(source,/TDBai|bai-/i,"purchase journey must stay usable without Bay");
 assert.match(source,/Как лучше собрать эту корзину/);
@@ -66,6 +67,11 @@ assert.match(source,/navigator\.clipboard/,"copy action should use the native cl
 assert.match(css,/\.td-continue-stores-card/);
 assert.match(css,/--td-purchase-mint/);
 assert.match(css,/\.td-copy-store-list/);
+assert.match(css,/\.td-compare-why\{background:linear-gradient\(160deg,rgba\(255,255,255,\.055\),rgba\(255,255,255,\.025\)\)!important/,"purchase overlay must keep the rationale card in the dark Votonobay surface");
+assert.doesNotMatch(css,/#eef8f2/i,"purchase overlay must not reintroduce the old light rationale card");
+assert.match(comparisonCss,/\.td-compare-why\{[^}]*background:linear-gradient\(160deg,rgba\(255,255,255,\.055\),rgba\(255,255,255,\.025\)\)/,"base comparison UI must stay dark even without the purchase overlay");
+assert.doesNotMatch(comparisonCss,/#f4f1e8/i,"base comparison UI must not fall back to the old beige rationale card");
+assert.match(comparisonCss,/\.td-compare-why>div b\{color:#6ff0a9\}/,"rationale savings must remain visually distinct on the dark card");
 assert.ok(appended.some(x=>String(x._href||"").includes("purchase-experience-v1.css")),"purchase CSS must load with the runtime layer");
 
-console.log("Votonobay purchase experience passed: decision → trust → chosen plan → truthful store handoff includes an offline-safe, copyable per-store checklist fallback.");
+console.log("Votonobay purchase experience passed: decision → trust → dark rationale → chosen plan → truthful store handoff includes an offline-safe, copyable per-store checklist fallback.");
