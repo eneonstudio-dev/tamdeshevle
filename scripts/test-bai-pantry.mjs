@@ -15,6 +15,11 @@ const applied=pantry.applyToState({existingProducts:[]});
 assert.ok(applied.existingProducts.includes('масло')&&applied.existingProducts.includes('гречка'),'pantry must project labels into optimizer existingProducts');
 const ops=pantry.operations();
 assert.ok(ops.every(x=>x.type==='HAS_AT_HOME'),'pantry projection must use existing safe HAS_AT_HOME operation');
+pantry.clear();
+pantry.observe('Дома есть гречка и сыр, нужна вода и фрукты',[]);
+assert.equal(pantry.has('гречка'),true);
+assert.equal(pantry.has('сыр'),true,'cheese at home must be remembered');
+assert.equal(pantry.has('вода'),false,'a required product after the home clause must not be mistaken for pantry stock');
 
 pantry.observe('Масло вкусное',[]);
 assert.equal(pantry.count(),2,'un-grounded mention must not change pantry');
