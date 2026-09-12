@@ -1,5 +1,6 @@
 import fs from "node:fs";
 
+const html = fs.readFileSync("index.html", "utf8");
 const shell = fs.readFileSync("v2-shell.js", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
 const legacy = fs.readFileSync("brand-prosche-v1.js", "utf8");
@@ -14,6 +15,11 @@ new Function(shell);
 new Function(brand);
 new Function(legacy);
 
+assert(/<title>Votonobay — как лучше собрать корзину<\/title>/.test(html), "HTML title must expose Votonobay before JavaScript runs");
+assert(/<meta name="theme-color" content="#102018"/.test(html), "first paint must use the canonical graphite-green theme color");
+assert(/votonobay-brand-v1\.css\?v=/.test(html), "Votonobay visual foundation must load from the document head");
+assert(/Votonobay помогает понять, как лучше собрать корзину/.test(html), "HTML metadata must carry the how-better positioning");
+assert(!/<title>[^<]*(Тамдешевле|Там дешевле|Проще)/.test(html), "legacy brand must not appear in the document title");
 assert(manifest.name === "Votonobay" && manifest.short_name === "Votonobay", "PWA identity must use Votonobay");
 assert(manifest.theme_color === "#102018", "PWA theme must use the canonical graphite-green brand color");
 assert(/Votonobay — на главную/.test(shell), "shopping shell must expose the Votonobay wordmark");
@@ -29,4 +35,4 @@ assert(/body\.td-votonobay/.test(css), "Votonobay visual foundation must be scop
 assert(!/[財财]/.test(brand + css + shell), "brand layer must not expose a visible Chinese easter egg");
 assert(!/content:\s*["']V["']/.test(css), "brand CSS must not invent an unapproved V monogram");
 
-console.log("Votonobay brand tests passed: one master brand, Bay-first positioning, no Bai mutation and no unapproved logo/easter-egg regressions.");
+console.log("Votonobay brand tests passed: first-paint identity, one master brand, Bay-first positioning, no Bai mutation and no unapproved logo/easter-egg regressions.");
