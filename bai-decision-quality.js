@@ -5,6 +5,7 @@
   const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
   const idsOf=s=>uniq((s?.productIds||s?.products?.map(x=>x?.id)||[]).map(String));
   const money=n=>Math.max(0,Math.round(Number(n)||0));
+  let plannerWrapped=false;
   function bestOneStore(list,current){return (list||[]).filter(x=>x&&x!==current&&Number(x.stores||0)<=1).sort((a,b)=>money(a.total)-money(b.total))[0]||null}
   function qualityStats(strategy){
     const products=Array.isArray(strategy?.products)?strategy.products:[];
@@ -48,5 +49,16 @@
     list.sort((a,b)=>Number(b.score||0)-Number(a.score||0)||Number(b.decisionScore||0)-Number(a.decisionScore||0));return list;
   }
   function explain(audit){if(!audit)return"";if(audit.verdict==="bad")return audit.reasons[0]||"Этот вариант выглядит плохим решением.";if(audit.verdict==="questionable")return audit.reasons[0]||"Вариант спорный.";return audit.reasons.slice(0,2).join(" ")}
-  window.TDBaiDecisionQuality={evaluate,apply,explain,policy:{minExtraStoreSaving:150,minExtraStoreShare:.05,strongExtraStoreSaving:350,strongExtraStoreShare:.1}};
+  function wrapPlanner(planner){
+    if(!planner?.build||planner.__baiDecisionQualityWrapped)return planner;
+    const originalBuild=planner.build.bind(planner),originalExplain=planner.explain?.bind(planner),originalAfter=planner.afterChoice?.bind(planner);
+    Object.defineProperty(planner,"__baiDecisionQualityWrapped",{value:true,configurable:true});
+    planner.build=function(state,text="",...rest){const result=originalBuild(state,text,...rest)||{};const strategies=apply(result.strategies||[],state);result.strategies=strategies;result.recommended=strategies[0]||null;return result};
+    if(originalExplain)planner.explain=function(result,state,...rest){const base=originalExplain(result,state,...rest)||"",extra=explain(result?.recommended?.decision);return [base,extra].filter(Boolean).join(" ").replace(/\s+/g," ").trim()};
+    if(originalAfter)planner.afterChoice=function(chosen,alternatives,state,...rest){const out=originalAfter(chosen,alternatives,state,...rest)||{text:"",suggestions:[]},extra=chosen?.decision&&["bad","questionable"].includes(chosen.decision.verdict)?explain(chosen.decision):"";if(extra)out.text=[out.text,extra].filter(Boolean).join(" ").trim();return out};
+    plannerWrapped=true;return planner;
+  }
+  function install(){const current=window.TDBaiPlanner;if(current){wrapPlanner(current);return true}let value;try{Object.defineProperty(window,"TDBaiPlanner",{configurable:true,enumerable:true,get(){return value},set(next){value=wrapPlanner(next)}});return true}catch{return false}}
+  window.TDBaiDecisionQuality={evaluate,apply,explain,install,status:()=>({plannerWrapped,version:"decision-quality-v1"}),policy:{minExtraStoreSaving:150,minExtraStoreShare:.05,strongExtraStoreSaving:350,strongExtraStoreShare:.1}};
+  install();
 })();
