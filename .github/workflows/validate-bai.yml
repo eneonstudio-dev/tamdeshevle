@@ -14,6 +14,7 @@ on:
       - "scripts/test-bai-self-check.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
+      - "scripts/test-bai-learning-safety.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - ".github/workflows/validate-bai.yml"
   push:
@@ -31,6 +32,7 @@ on:
       - "scripts/test-bai-self-check.mjs"
       - "scripts/test-shopping-state-consistency.mjs"
       - "scripts/test-bai-learning-loop.mjs"
+      - "scripts/test-bai-learning-safety.mjs"
       - "scripts/test-bai-handoff-e2e.mjs"
       - ".github/workflows/validate-bai.yml"
 
@@ -56,6 +58,7 @@ jobs:
           node --check bai-food-knowledge.js
           node --check bai-life.js
           node --check bai-memory.js
+          node --check bai-learning-safety.js
           node --check bai-learning-loop.js
           node --check bai-planner.js
           node --check bai-self-check.js
@@ -70,11 +73,13 @@ jobs:
           node --check scripts/test-bai-self-check.mjs
           node --check scripts/test-shopping-state-consistency.mjs
           node --check scripts/test-bai-learning-loop.mjs
+          node --check scripts/test-bai-learning-safety.mjs
           node --check scripts/test-bai-handoff-e2e.mjs
       - name: Test Bai conversation regressions
         run: |
           node scripts/test-bai-brain.mjs
           node scripts/test-bai-self-check.mjs
           node scripts/test-shopping-state-consistency.mjs
+          node scripts/test-bai-learning-safety.mjs
           node scripts/test-bai-learning-loop.mjs
           node scripts/test-bai-handoff-e2e.mjs
