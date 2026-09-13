@@ -56,6 +56,8 @@ jobs:
           node --check teacher-lab/training/benchmark-cli.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/promotion-cli.mjs
+          node --check teacher-lab/training/deterministic-seed.mjs
+          node --check teacher-lab/training/deterministic-seed-smoke.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/review-artifact.py
           python -m py_compile teacher-lab/review-artifact-smoke.py
@@ -71,6 +73,7 @@ jobs:
           grep -q "kaggle_runall.py" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
           grep -q -- "--through-batch 9" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
           grep -q "kaggle_train_pipeline.py" teacher-lab/training/bai_student_kaggle_train.ipynb
+          grep -q "deterministic-seed.mjs" teacher-lab/training/bai_student_kaggle_train.ipynb
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
@@ -97,6 +100,8 @@ jobs:
         run: node teacher-lab/gpu/prepare_review_batch_smoke.mjs
       - name: Validate cumulative Gold aggregation
         run: node teacher-lab/training/aggregate-gold-smoke.mjs
+      - name: Validate deterministic bootstrap seed
+        run: node teacher-lab/training/deterministic-seed-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Validate automatic train/eval/promotion orchestration
