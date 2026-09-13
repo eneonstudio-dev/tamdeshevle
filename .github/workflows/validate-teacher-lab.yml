@@ -28,6 +28,7 @@ jobs:
           node --check teacher-lab/firewall.mjs
           node --check teacher-lab/benchmark.mjs
           node --check teacher-lab/local-teacher-runner.mjs
+          node --check teacher-lab/consensus.mjs
           node --check teacher-lab/smoke.mjs
       - name: Run Teacher Lab smoke gate
         run: node teacher-lab/smoke.mjs
