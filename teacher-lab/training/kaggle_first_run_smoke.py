@@ -25,6 +25,10 @@ assert "device_map={'':training_device}" in train
 assert "torch.cuda.current_device()" in train
 assert "device_map='auto'" not in train
 assert 'bnb_4bit_compute_dtype=torch.float32' in train
+assert "model_env={**os.environ,'CUDA_VISIBLE_DEVICES':'0'}" in pipe
+assert 'call(train_cmd,env=model_env)' in pipe
+assert 'call(baseline_cmd,env=model_env)' in pipe
+assert "max-new-tokens',str(args.max_new_tokens)],env=model_env)" in pipe
 assert "PREFLIGHT=ROOT/'teacher-lab/training/kaggle_gpu_preflight.py'" in pipe
 assert "state['brain_release_bundle']" in pipe
 assert "bai-brain-release-bundle" in pipe
