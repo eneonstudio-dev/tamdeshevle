@@ -1,84 +1,461 @@
-/* Generated design pass — Stage 1 / Home.
-   Derived from the dark/mint flow concept while preserving the existing
-   Votonobay identity, Bai asset and Home behaviour. */
+/* Approved Roxy handoff — Home authority.
+   This remains visual-only: existing navigation, shopping actions and Bai
+   handlers stay intact while the first screen follows the approved direction. */
 
-@media (min-width:1001px){
-  .v2-hero.v2-bay-first{
-    grid-template-columns:minmax(0,1.32fr) minmax(220px,.68fr)!important;
-    min-height:448px!important;
-    padding:50px 54px 42px!important;
-    column-gap:34px!important;
-    border-radius:30px!important;
-  }
-  .v2-bay-first .v2-hero-copy h1{
-    max-width:620px!important;
-    font-size:clamp(58px,5.25vw,76px)!important;
-    line-height:.94!important;
-  }
-  .v2-bay-first .v2-hero-copy p{
-    max-width:560px!important;
-    margin-top:18px!important;
-    font-size:14px!important;
-    line-height:1.58!important;
-  }
-  .v2-bay-first .v2-hero-bai{
-    min-height:252px!important;
-    align-self:center!important;
-  }
-  .v2-bay-first .v2-hero-bai:before{
-    width:270px!important;
-    height:270px!important;
-  }
-  .v2-bay-first .v2-hero-bai img{
-    width:min(272px,100%)!important;
-    height:252px!important;
-  }
-  .v2-bay-first .v2-hero-bai span{
-    bottom:4px!important;
-    max-width:150px!important;
-  }
-  .v2-bay-actions{
-    grid-template-columns:minmax(290px,470px) max-content!important;
-    margin-top:24px!important;
-  }
-  .v2-bay-primary{
-    min-height:64px!important;
-    border-radius:18px!important;
-  }
-  .v2-self-search{
-    margin-top:24px!important;
-    padding-top:18px!important;
-  }
-  .v2-self-search .v2-search{
-    width:min(620px,100%)!important;
-  }
+:root{
+  --roxy-bg:#020907;
+  --roxy-panel:#07150f;
+  --roxy-panel-2:#0a1b13;
+  --roxy-green:#4ff59a;
+  --roxy-green-soft:#9cf4c0;
+  --roxy-text:#f4f8f5;
+  --roxy-muted:#8da296;
+  --roxy-line:rgba(189,255,219,.11);
 }
 
-@media (min-width:1180px){
-  .v2-main{align-items:start!important}
-  .v2-basket-card{
-    position:sticky!important;
-    top:96px!important;
-  }
+/* Home becomes one wide editorial canvas instead of hero + utility sidebar. */
+html body.td-votonobay:not(.td-votonobay-inner){background:var(--roxy-bg)!important}
+html body.td-votonobay:not(.td-votonobay-inner) .phone{background:var(--roxy-bg)!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-main{
+  width:min(1450px,100%)!important;
+  max-width:1450px!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:0!important;
+  padding:30px 38px 46px!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-main>.v2-basket-card{display:none!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-content{width:100%!important;min-width:0!important}
+
+/* Header: strong wordmark, quiet navigation, no light legacy islands. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-header{
+  padding:0 38px!important;
+  border-bottom:1px solid rgba(199,255,224,.07)!important;
+  background:rgba(2,9,7,.86)!important;
+  backdrop-filter:blur(20px)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-header-inner{
+  width:min(1374px,100%)!important;
+  max-width:1374px!important;
+  height:82px!important;
+  gap:28px!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-brand{
+  display:grid!important;
+  grid-template-columns:auto!important;
+  gap:2px!important;
+  color:#fff!important;
+  text-align:left!important;
+  line-height:1!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-brand span{
+  display:block!important;
+  color:#fff!important;
+  font-size:23px!important;
+  font-weight:950!important;
+  letter-spacing:-.06em!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-brand span b{color:var(--roxy-green)!important}
+html body.td-votonobay:not(.td-votonobay-inner) .voto-brand-tagline{
+  display:block!important;
+  color:#7f9388!important;
+  font-size:8px!important;
+  font-weight:650!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-nav{gap:2px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-nav button{
+  min-height:40px!important;
+  padding:0 12px!important;
+  background:transparent!important;
+  color:#9aacA1!important;
+  border:1px solid transparent!important;
+  border-radius:12px!important;
+  font-size:10px!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-nav button:hover{
+  border-color:rgba(199,255,224,.08)!important;
+  background:rgba(255,255,255,.035)!important;
+  color:#eff8f2!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-city,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-favorite,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-profile,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-menu{
+  min-height:42px!important;
+  border:1px solid rgba(199,255,224,.09)!important;
+  background:rgba(255,255,255,.035)!important;
+  color:#dce9e1!important;
+  box-shadow:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-city{padding-inline:13px!important;border-radius:14px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-favorite,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-profile,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-menu{width:42px!important;height:42px!important;border-radius:14px!important}
+
+/* Approved Bay-first hero: copy left, Bai large, assistant preview over the right. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,.88fr) minmax(470px,1.12fr)!important;
+  grid-template-areas:"copy bay" "actions bay" "proof bay" "self bay"!important;
+  column-gap:36px!important;
+  row-gap:0!important;
+  align-items:start!important;
+  min-height:620px!important;
+  padding:66px 64px 42px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(131,255,190,.11)!important;
+  border-radius:34px!important;
+  background:
+    radial-gradient(circle at 73% 34%,rgba(28,181,101,.24),transparent 28%),
+    radial-gradient(circle at 98% 84%,rgba(18,111,64,.20),transparent 30%),
+    linear-gradient(118deg,#020907 0%,#04110b 46%,#072216 100%)!important;
+  box-shadow:0 40px 110px rgba(0,0,0,.30)!important;
+  isolation:isolate!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first:before{
+  content:""!important;
+  position:absolute!important;
+  z-index:-1!important;
+  inset:0!important;
+  background:
+    linear-gradient(90deg,rgba(2,9,7,.97) 0%,rgba(2,9,7,.80) 42%,rgba(2,9,7,.18) 69%,rgba(2,9,7,.36) 100%),
+    radial-gradient(circle at 84% 18%,rgba(116,255,181,.08),transparent 17%)!important;
+  pointer-events:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first:after{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  z-index:-1!important;
+  right:-6%!important;
+  bottom:-22%!important;
+  width:58%!important;
+  height:78%!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(55,244,148,.10),rgba(55,244,148,0) 70%)!important;
+  transform:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy{
+  grid-area:copy!important;
+  z-index:5!important;
+  max-width:620px!important;
+  align-self:end!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-eyebrow{
+  margin-bottom:20px!important;
+  color:#a2b5aa!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.22em!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-eyebrow i{display:none!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1{
+  max-width:650px!important;
+  margin:0!important;
+  color:var(--roxy-text)!important;
+  font-size:clamp(57px,5.2vw,78px)!important;
+  font-weight:900!important;
+  line-height:.96!important;
+  letter-spacing:-.064em!important;
+  text-wrap:balance!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1 em{
+  color:var(--roxy-green)!important;
+  font-style:normal!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy p{
+  max-width:555px!important;
+  margin:22px 0 0!important;
+  color:#aebfb5!important;
+  font-size:15px!important;
+  font-weight:560!important;
+  line-height:1.62!important;
 }
 
-@media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:1100px){
-  .v2-hero.v2-bay-first{padding-top:26px!important}
-  .v2-bay-first .v2-hero-copy h1{max-width:340px!important}
-  .v2-bay-first .v2-hero-copy p{max-width:355px!important}
-  .v2-bay-first .v2-hero-bai{
-    min-height:128px!important;
-    margin-top:2px!important;
+/* Primary choice mirrors the approved two-path composition. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-actions{
+  grid-area:actions!important;
+  position:relative!important;
+  z-index:6!important;
+  display:grid!important;
+  grid-template-columns:minmax(210px,275px) minmax(180px,230px)!important;
+  gap:12px!important;
+  width:min(520px,100%)!important;
+  margin-top:32px!important;
+  align-items:stretch!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-secondary{
+  min-height:60px!important;
+  padding:0 22px!important;
+  border-radius:18px!important;
+  font-size:13px!important;
+  font-weight:850!important;
+  text-align:center!important;
+  justify-content:center!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary{
+  border:1px solid var(--roxy-green)!important;
+  background:linear-gradient(135deg,#63ffab,#3ee88b)!important;
+  color:#03140b!important;
+  box-shadow:0 14px 36px rgba(52,235,139,.14)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary:before{display:none!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary:after{
+  content:"→"!important;
+  position:static!important;
+  display:inline!important;
+  width:auto!important;height:auto!important;
+  margin-left:12px!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:#03140b!important;
+  transform:none!important;
+  font-size:18px!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-secondary{
+  border:1px solid rgba(119,255,184,.31)!important;
+  background:rgba(5,18,12,.74)!important;
+  color:#eff8f2!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary:hover{filter:brightness(1.04)!important;transform:translateY(-1px)!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-secondary:hover{border-color:rgba(119,255,184,.48)!important;background:rgba(79,245,154,.07)!important;color:#fff!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-scenarios{display:none!important}
+
+/* Trust row sits beneath the decision, not as noisy chips. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{
+  grid-area:proof!important;
+  position:relative!important;
+  z-index:5!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px 16px!important;
+  width:min(520px,100%)!important;
+  margin:28px 0 0!important;
+  color:#91a69a!important;
+  font-size:9px!important;
+  font-weight:720!important;
+  letter-spacing:.015em!important;
+  text-transform:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+
+/* Bai is a real co-pilot in the composition, not a tiny corner mascot. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
+  grid-area:bay!important;
+  position:relative!important;
+  z-index:2!important;
+  width:100%!important;
+  min-height:510px!important;
+  align-self:end!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  transform:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai:before{
+  width:510px!important;
+  height:510px!important;
+  top:42%!important;
+  background:radial-gradient(circle,rgba(71,245,153,.16),rgba(71,245,153,0) 66%)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+  width:min(455px,90%)!important;
+  height:390px!important;
+  margin:0 auto!important;
+  object-fit:contain!important;
+  object-position:center top!important;
+  filter:drop-shadow(0 34px 40px rgba(0,0,0,.42))!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai span{
+  left:auto!important;
+  right:4%!important;
+  top:72px!important;
+  bottom:auto!important;
+  max-width:150px!important;
+  padding:10px 12px!important;
+  border:0!important;
+  background:rgba(5,18,12,.58)!important;
+  color:#7dffb8!important;
+  font-size:10px!important;
+  font-weight:760!important;
+  transform:rotate(-3deg)!important;
+  backdrop-filter:blur(8px)!important;
+}
+
+/* The approved desktop preview reads like a side surface, not a floating chat bubble. */
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card{
+  position:absolute!important;
+  z-index:9!important;
+  right:42px!important;
+  bottom:36px!important;
+  width:min(600px,44vw)!important;
+  padding:22px!important;
+  border:1px solid rgba(76,255,160,.28)!important;
+  border-radius:26px!important;
+  background:linear-gradient(145deg,rgba(6,24,16,.93),rgba(3,14,10,.90))!important;
+  box-shadow:0 22px 58px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.035)!important;
+  backdrop-filter:blur(18px)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card-head{
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr)!important;
+  gap:13px!important;
+  align-items:center!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card-head img{
+  width:54px!important;height:54px!important;object-fit:contain!important;
+  border-radius:50%!important;background:rgba(79,245,154,.12)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card-head strong{
+  display:block!important;color:#f4fbf6!important;font-size:17px!important;line-height:1.08!important;letter-spacing:-.025em!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card-head span{
+  display:block!important;margin-top:5px!important;color:#80958a!important;font-size:10px!important;line-height:1.4!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-prompt{
+  width:100%!important;min-height:50px!important;margin-top:16px!important;padding:0 10px 0 15px!important;
+  display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important;gap:10px!important;
+  border:1px solid rgba(79,245,154,.24)!important;border-radius:16px!important;background:rgba(79,245,154,.055)!important;color:#dcebe3!important;text-align:left!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-prompt>span{color:var(--roxy-green)!important;font-size:14px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-prompt>b{font-size:10px!important;font-weight:650!important;color:#8fa49a!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-prompt>i{
+  width:34px!important;height:34px!important;display:grid!important;place-items:center!important;border-radius:12px!important;background:var(--roxy-green)!important;color:#03140b!important;font-style:normal!important;font-weight:900!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-quicks{
+  display:flex!important;flex-wrap:wrap!important;gap:7px!important;margin-top:11px!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-quicks button{
+  min-height:34px!important;padding:0 11px!important;border:1px solid rgba(79,245,154,.17)!important;border-radius:999px!important;background:transparent!important;color:#b7c8be!important;font-size:9px!important;font-weight:720!important
+}
+html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-quicks button:hover{border-color:rgba(79,245,154,.36)!important;background:rgba(79,245,154,.07)!important;color:#effaf3!important}
+
+/* Self-service remains a valid second route but does not fight Bai for attention. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search{
+  grid-area:self!important;
+  position:relative!important;
+  z-index:5!important;
+  width:min(520px,100%)!important;
+  margin-top:28px!important;
+  padding-top:17px!important;
+  border-top:1px solid rgba(199,255,224,.07)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-label{color:#697d72!important;font-size:8px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search .v2-search{
+  width:100%!important;
+  min-height:48px!important;
+  margin-top:10px!important;
+  border:1px solid rgba(199,255,224,.10)!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.035)!important;
+  box-shadow:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search .v2-search input{color:#e3eee7!important;font-size:12px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search .v2-search button{
+  min-height:38px!important;
+  margin:4px!important;
+  border:1px solid rgba(79,245,154,.14)!important;
+  background:rgba(79,245,154,.08)!important;
+  color:#baf7d2!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search .v2-categories{display:none!important}
+
+/* The old independent floating mascot duplicates the approved Home Bai. */
+html body.td-votonobay:not(.td-votonobay-inner)>.bai-assistant{display:none!important}
+
+/* Below the fold stays restrained and compatible with the existing product data. */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-section{margin-top:26px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-section-head h2{color:#edf6f0!important;font-size:23px!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-section-head span,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-section-head>button{color:#74eaaa!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-section-head>small{color:#6f8378!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-store-strip>button,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-product-card{
+  border:1px solid rgba(199,255,224,.075)!important;
+  background:rgba(255,255,255,.026)!important;
+  color:#edf6f0!important;
+  box-shadow:none!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-store-strip small,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-product-pack,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-product-store{color:#778b80!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-product-name{color:#eef7f1!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-product-price strong{color:#8ef1b7!important}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-footer{border:1px solid rgba(199,255,224,.07)!important;background:#06110c!important}
+
+@media (max-width:1100px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-main{padding-inline:24px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+    grid-template-columns:minmax(0,.96fr) minmax(350px,1.04fr)!important;
+    min-height:590px!important;
+    padding:54px 42px 38px!important;
+    column-gap:22px!important;
   }
-  .v2-bay-first .v2-hero-bai img{
-    width:min(164px,48vw)!important;
-    height:128px!important;
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1{font-size:clamp(50px,6.6vw,68px)!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{width:min(360px,92%)!important;height:330px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card{right:28px!important;bottom:30px!important;width:min(520px,48vw)!important}
+}
+
+@media (max-width:800px), (hover:none) and (pointer:coarse) and (max-width:1100px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-header{padding:0 14px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-header-inner{height:66px!important;gap:10px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-brand span{font-size:19px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .voto-brand-tagline{display:none!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-main{padding:14px 14px 30px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-areas:"copy" "bay" "actions" "proof" "self"!important;
+    min-height:auto!important;
+    padding:30px 21px 24px!important;
+    border-radius:28px!important;
+    background:radial-gradient(circle at 68% 39%,rgba(31,177,102,.19),transparent 26%),linear-gradient(150deg,#020907,#06180f 72%,#082216)!important;
   }
-  .v2-bay-actions{margin-top:6px!important}
-  .v2-self-search{margin-top:15px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-eyebrow{margin-bottom:14px!important;font-size:8px!important;letter-spacing:.16em!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1{
+    max-width:355px!important;
+    font-size:clamp(42px,11.4vw,55px)!important;
+    line-height:.96!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy p{max-width:355px!important;margin-top:16px!important;font-size:12px!important;line-height:1.55!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
+    min-height:158px!important;
+    height:158px!important;
+    margin:8px 0 0!important;
+    align-items:flex-end!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai:before{width:220px!important;height:220px!important;top:54%!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{width:min(205px,56vw)!important;height:158px!important;object-position:center bottom!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai span{right:0!important;top:18px!important;max-width:122px!important;padding:7px 8px!important;font-size:8px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-actions{
+    grid-template-columns:minmax(0,1fr) minmax(128px,.56fr)!important;
+    width:100%!important;
+    gap:8px!important;
+    margin-top:9px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary,
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-secondary{min-height:52px!important;padding:0 13px!important;border-radius:16px!important;font-size:11px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{grid-template-columns:1fr 1fr!important;gap:8px 10px!important;width:100%!important;margin-top:18px!important;font-size:8px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-self-search{width:100%!important;margin-top:18px!important;padding-top:14px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card{display:none!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-section{margin-top:24px!important}
+}
+
+@media(max-width:390px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-actions{grid-template-columns:1fr!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-secondary{min-height:46px!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{grid-template-columns:1fr!important}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .v2-hero.v2-bay-first,
-  .v2-bay-first .v2-hero-bai img{transition:none!important}
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first,
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img,
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-primary{transition:none!important;transform:none!important}
 }

@@ -1,10 +1,12 @@
 (()=>{
   "use strict";
 
+  import("./votonobay-roxy-home-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Home] load failed",error));
+
   const BRAND="Votonobay";
   const TAGLINE="Скажи, что нужно — поможем решить, как лучше";
   const TITLE="Votonobay — покупки, как лучше";
-  const THEME="#102018";
+  const THEME="#04100b";
   let raf=0;
   let observer=null;
 
@@ -35,7 +37,14 @@
     document.querySelectorAll(".v2-brand").forEach(button=>{
       button.setAttribute("aria-label","Votonobay — на главную");
       const span=button.querySelector("span");
-      if(span)span.textContent=BRAND;
+      const wordmark="VOTONO<b>BAY</b>";
+      if(span&&span.innerHTML!==wordmark)span.innerHTML=wordmark;
+      if(button.closest(".v2-header")&&!button.querySelector(".voto-brand-tagline")){
+        const small=document.createElement("small");
+        small.className="voto-brand-tagline";
+        small.textContent="Умный помощник для покупок.";
+        button.appendChild(small);
+      }
     });
   }
 
