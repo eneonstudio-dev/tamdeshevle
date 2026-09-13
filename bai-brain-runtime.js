@@ -10,6 +10,7 @@
   let failures=0,openUntil=0,last={attempted:false,used:false,reason:"idle",release:null,at:0};
 
   function fail(reason,release=null){failures++;if(failures>=3)openUntil=Date.now()+60000;last={attempted:true,used:false,reason,release:release?.id||null,at:Date.now()};return null}
+  function skipped(reason,release=null){last={attempted:true,used:false,reason,release:release?.id||null,at:Date.now()};return null}
   function success(release){failures=0;openUntil=0;last={attempted:true,used:true,reason:"trained_model",release:release.id,at:Date.now()}}
   function available(){return Date.now()>=openUntil}
   function timeout(promise,ms=TIMEOUT_MS){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error("trained_timeout")),ms))])}
@@ -55,12 +56,13 @@
     if(pin.id!==release.id||String(pin.checkpoint_sha256||"").toLowerCase()!==release.checkpoint_sha256||pin.action_contract!==release.action_contract)return{ok:false,reason:"release_pin_mismatch"};
     const output=raw.output;if(!output||typeof output!=="object"||Array.isArray(output))return{ok:false,reason:"output_missing"};
     if(forbiddenFacts(output).length)return{ok:false,reason:"unverified_facts"};
-    const input=Array.isArray(output.actions)?output.actions:[];if(input.length>MAX_ACTIONS)return{ok:false,reason:"too_many_actions"};
+    const input=Array.isArray(output.actions)?output.actions:[];if(!input.length)return{ok:false,reason:"no_actions"};if(input.length>MAX_ACTIONS)return{ok:false,reason:"too_many_actions"};
     const actions=[];
     for(const candidate of input){const checked=kernel.validateAction(clone(candidate),legacy);if(!checked?.ok)return{ok:false,reason:`invalid_action:${checked?.error?.code||"unknown"}`};actions.push(checked.action)}
     if(!retainsContext(output,actions,state))return{ok:false,reason:"hard_context_lost"};
     const legacyOps=[];
     for(const action of actions){const converted=kernel._test?.toLegacy?.(action);if(converted)legacyOps.push(converted);else if(MUTATING.has(action.type))return{ok:false,reason:`action_not_bridgeable:${action.type}`}}
+    if(!legacyOps.length)return{ok:false,reason:"passive_action_not_bridgeable"};
     return{ok:true,output,actions,legacyOps};
   }
 
@@ -69,7 +71,7 @@
     const release=registry?.current?.();
     if(!release||release.kind!=="trained"){last={attempted:false,used:false,reason:"safe_baseline",release:null,at:Date.now()};return null}
     if(!release.enabled||!release.endpoint||release.promotion?.pass!==true)return fail("release_not_runnable",release);
-    if(!available())return fail("circuit_open",release);
+    if(!available())return skipped("circuit_open",release);
     if(!kernel?.validateAction||!kernel?._test?.toLegacy)return fail("kernel_unavailable",release);
     const gate=kernel.domainGate?.(text);if(gate&&gate.allowed===false)return null;
     let access=null;if(release.auth==="supabase"){access=await token();if(!access)return fail("auth_unavailable",release)}
@@ -83,8 +85,7 @@
       if(!response.ok)return fail(`http_${response.status}`,release);
       const checked=validateEnvelope(body,release,kernel,state,legacy);if(!checked.ok)return fail(checked.reason,release);
       success(release);
-      const passive=checked.actions.length>0&&checked.legacyOps.length===0;
-      return {...(baseline||{}),ok:true,provider:"bai-trained-runtime",operations:passive?[]:checked.legacyOps,reply:baseline?.reply||"",suggestions:Array.isArray(baseline?.suggestions)?baseline.suggestions:[],expectsAnswer:Boolean(baseline?.expectsAnswer),agent:{version:release.id,model:release.model,checkpoint_sha256:release.checkpoint_sha256,trace:["trained","release-pin","kernel-validated"]},trained:{actions:clone(checked.actions),intent:checked.output.intent||null,passive}};
+      return {...(baseline||{}),ok:true,provider:"bai-trained-runtime",operations:checked.legacyOps,reply:baseline?.reply||"",suggestions:Array.isArray(baseline?.suggestions)?baseline.suggestions:[],expectsAnswer:false,agent:{version:release.id,model:release.model,checkpoint_sha256:release.checkpoint_sha256,trace:["trained","release-pin","kernel-validated"]},trained:{actions:clone(checked.actions),intent:checked.output.intent||null,passive:false}};
     }catch(error){return fail(error?.name==="AbortError"?"timeout":"runtime_error",release)}finally{clearTimeout(timer)}
   }
   function status(){return{...last,failures,openUntil,available:available(),release:window.TDBaiBrainRegistry?.current?.()||null}}
