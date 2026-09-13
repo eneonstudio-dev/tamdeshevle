@@ -112,6 +112,7 @@ jobs:
           node --check scripts/test-bai-handoff-e2e.mjs
           node --check scripts/test-bai-chat-runtime.mjs
           node --check scripts/test-bai-agent-core.mjs
+          node --check scripts/test-bai-domain-gate-boundary.mjs
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
           node --check scripts/test-bai-shopping-journey.mjs
@@ -145,6 +146,7 @@ jobs:
           node scripts/test-bai-handoff-e2e.mjs
           node scripts/test-bai-chat-runtime.mjs
           node scripts/test-bai-agent-core.mjs
+          node scripts/test-bai-domain-gate-boundary.mjs
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
           node scripts/test-bai-shopping-journey.mjs
