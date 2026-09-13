@@ -29,6 +29,7 @@
   }
   function shouldUse(text,baseline){
     const t=low(text),ops=Array.isArray(baseline?.operations)?baseline.operations:[];
+    const gate=window.TDBaiShoppingAgentKernel?.domainGate?.(text);if(gate&&gate.allowed===false)return false;
     if(!trim(text)||navigator.onLine===false)return false;
     if(baseline?.selfCheck?.safe===false)return false;
     if(!ops.length&&(/не понял|уточни|что именно|на что заменить/i.test(String(baseline?.reply||""))||baseline?.expectsAnswer))return true;
@@ -89,6 +90,8 @@
     return {...baseline,operations:[],reply:`Нейро-режим включён бесплатно. На первом сложном запросе браузер загрузит Gemma около ${LOCAL_MODEL_MB} МБ; дальше она работает локально на устройстве.`,suggestions:[],provider:"gemma-browser-control"};
   }
   async function route(text,history,baseline){
+    const gate=window.TDBaiShoppingAgentKernel?.domainGate?.(text);
+    if(gate&&gate.allowed===false){lastStatus={attempted:false,used:false,provider:"domain-gate",reason:gate.reason,at:Date.now()};return{...(baseline||{}),ok:false,status:"OUT_OF_SCOPE",provider:"domain-gate",operations:[],reply:"Я занимаюсь покупками: могу подобрать товар, собрать корзину, сравнить варианты или подготовить покупку.",suggestions:[],expectsAnswer:false,domainGate:gate}}
     const control=await localControl(text,baseline);if(control)return control;
     lastStatus={attempted:true,used:false,provider:"rules",reason:"fallback",at:Date.now()};
     if(!shouldUse(text,baseline)){lastStatus.reason="rules_sufficient";return baseline}

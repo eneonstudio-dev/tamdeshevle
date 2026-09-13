@@ -114,6 +114,7 @@ jobs:
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
           node --check scripts/test-bai-shopping-journey.mjs
+          node --check scripts/test-bai-shopping-agent-kernel.mjs
           node --check scripts/test-bai-sufficiency.mjs
           node --check scripts/test-bai-smart-substitutions.mjs
           node --check scripts/test-bai-meal-brain.mjs
@@ -146,6 +147,7 @@ jobs:
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
           node scripts/test-bai-shopping-journey.mjs
+          node scripts/test-bai-shopping-agent-kernel.mjs
           node scripts/test-bai-sufficiency.mjs
           node scripts/test-bai-smart-substitutions.mjs
           node scripts/test-bai-meal-brain.mjs
