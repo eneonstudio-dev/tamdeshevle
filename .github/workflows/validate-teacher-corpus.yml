@@ -39,14 +39,20 @@ jobs:
           node --check teacher-lab/teacher-run-smoke.mjs
           node --check teacher-lab/review-teacher-pair.mjs
           node --check teacher-lab/review-pair-smoke.mjs
+          node --check teacher-lab/review-decision.mjs
+          node --check teacher-lab/review-decision-smoke.mjs
           node --check teacher-lab/gpu/prepare_review.mjs
           node --check teacher-lab/training/prepare-sft.mjs
+          node --check teacher-lab/training/review-export.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
           python -m py_compile teacher-lab/gpu/kaggle_runall.py
+          python -m py_compile teacher-lab/training/train_student.py
           python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
+          python -m json.tool teacher-lab/training/bai_student_kaggle_train.ipynb >/dev/null
           grep -q "kaggle_runall.py" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
+          grep -q "train_student.py" teacher-lab/training/bai_student_kaggle_train.ipynb
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
@@ -57,6 +63,8 @@ jobs:
         run: node teacher-lab/teacher-run-smoke.mjs
       - name: Validate teacher pair review queue
         run: node teacher-lab/review-pair-smoke.mjs
+      - name: Validate explicit review decisions
+        run: node teacher-lab/review-decision-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
