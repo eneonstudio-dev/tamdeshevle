@@ -69,25 +69,28 @@ def main():
             seed_decision(driver)
             WebDriverWait(driver,10).until(lambda d:visible(d,'.td-ai-decision-cta[data-roxy-decision="1"]'))
             driver.execute_script("return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
-            time.sleep(.20)
+            time.sleep(.28)
             metrics=driver.execute_script("""
               const root=document.querySelector('body>.td-ai');
               const decision=root?.querySelector('.td-ai-decision-cta[data-roxy-decision="1"]');
               const alt=root?.querySelector('.roxy-decision-alternatives');
               const details=root?.querySelector('.roxy-decision-details');
+              const scroller=decision?.closest('.td-ai-messages');
               const primary=decision?.querySelector('.td-ai-decision-primary');
               const why=decision?.querySelector('.roxy-decision-why');
               const tradeoff=decision?.querySelector('.roxy-decision-tradeoff');
               const bay=decision?.querySelector('.roxy-decision-bay');
               const title=decision?.querySelector('.roxy-decision-heading>b')?.textContent?.trim()||'';
               const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
-              const dr=decision?.getBoundingClientRect(),pr=primary?.getBoundingClientRect();
+              const dr=decision?.getBoundingClientRect(),pr=primary?.getBoundingClientRect(),sr=scroller?.getBoundingClientRect();
+              const visibleHeight=dr&&sr?Math.max(0,Math.min(dr.bottom,sr.bottom)-Math.max(dr.top,sr.top)):0;
               return {
                 title,why:!!why,tradeoff:!!tradeoff,bay:!!bay,hasAlternatives:!!alt,
-                decisionBeforeAlternatives:order(decision,alt),
-                decisionBeforeDetails:order(decision,details),
+                decisionBeforeAlternatives:order(decision,alt),decisionBeforeDetails:order(decision,details),
                 primary:pr?{w:pr.width,h:pr.height,text:primary.textContent.trim()}:null,
                 decision:dr?{left:dr.left,right:dr.right,top:dr.top,bottom:dr.bottom,width:dr.width,height:dr.height}:null,
+                scroller:sr?{top:sr.top,bottom:sr.bottom,height:sr.height,scrollTop:scroller.scrollTop}:null,
+                visibleHeight,
                 stylesheet:!!document.querySelector('link[data-roxy-decision-v1="1"]'),
                 docWidth:document.documentElement.scrollWidth,vw:innerWidth,vh:innerHeight
               };
@@ -105,7 +108,9 @@ def main():
             if mobile and primary.get("h",0)<43.5: failures.append(f"{label}: primary action too short {primary}")
             decision=metrics.get("decision") or {}
             if decision and (decision.get("left",0)<-2 or decision.get("right",0)>metrics.get("vw",0)+2): failures.append(f"{label}: decision leaves viewport horizontally {metrics}")
-            if mobile and decision and not (decision.get("bottom",0)>100 and decision.get("top",99999)<metrics.get("vh",0)-100): failures.append(f"{label}: verdict is not revealed before basket details {metrics}")
+            if mobile and decision:
+                required=min(140,decision.get("height",0)*.45)
+                if metrics.get("visibleHeight",0)<required: failures.append(f"{label}: verdict is not visibly revealed before basket details {metrics}")
             driver.save_screenshot(str(OUT/f"{name}-decision.png"))
         except Exception as exc:
             failures.append(f"{name}/decision: {exc}")
