@@ -7,8 +7,9 @@ const here=new URL('./',import.meta.url),read=name=>JSON.parse(fs.readFileSync(n
 const registry=read('sources.json'),leftProfile=read('profiles/deepseek-r1-distill-qwen-7b.json'),rightProfile=read('profiles/qwen3-8b.json');
 const tasks=buildCorpus().slice(0,3);
 const output=(budget=2500)=>({intent:'build_basket',hard_constraints:{budget_max:budget},soft_preferences:{price:'balanced'},shopping_plan:{categories:['protein','base','fruit']},actions:[{type:'CHANGE_BUDGET',value:budget}],critic:{pass:true,issues:[]},confidence:{overall:'high'}});
-const leftRun={results:tasks.map(t=>({task_id:t.id,profile_id:leftProfile.id,output:output()}))};
-const rightRun={results:[{task_id:tasks[0].id,profile_id:rightProfile.id,output:output()},{task_id:tasks[1].id,profile_id:rightProfile.id,output:output(3000)}]};
+const raw=(task,profile,budget=2500)=>({task_id:task.id,profile_id:profile.id,model:profile.model,revision:profile.revision,output:output(budget)});
+const leftRun={results:tasks.map(t=>raw(t,leftProfile))};
+const rightRun={results:[raw(tasks[0],rightProfile),raw(tasks[1],rightProfile,3000)]};
 const result=buildTeacherReview({leftRun,rightRun,leftProfile,rightProfile,registry,tasks});
 assert.equal(result.left.candidates.length,3);
 assert.equal(result.right.candidates.length,2);
@@ -18,4 +19,6 @@ assert.equal(result.summary.conflicts,1);
 assert.equal(result.summary.missing,1);
 assert.equal(result.queue.every(x=>x.decision==='pending_review'),true);
 assert.ok(result.queue.find(x=>x.status==='conflict').flags.includes('hard_constraints'));
+assert.equal(result.left.candidates[0].provenance.sources[0].revision,leftProfile.revision);
+assert.equal(result.right.candidates[0].provenance.sources[0].revision,rightProfile.revision);
 console.log('Bai teacher pair review smoke passed');
