@@ -57,5 +57,5 @@ assert.match(ui,/verified:true/);
 assert.match(ui,/TDShoppingAssistant=\{open,voice,submit,adjust,remove,newSession/);
 assert.match(ui,/newSession/);
 assert.match(html,/ai-shopping-assistant\.js\?v=20260913-operation-origin-v1/);
-assert.match(html,/supabase-config\.js\?v=20260913-free-router-v1/);
+assert.match(html,/supabase-config\.js\?v=20260913-runtime-chain-v1/);
 console.log('AI shopping assistant MVP passed: stateful dialogue, budget, optimizer, honest prices, undo, voice and fulfillment.');
