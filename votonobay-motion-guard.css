@@ -1,7 +1,81 @@
 @import url("./votonobay-journey-polish-v1.css?v=20260913-v1");
 
-/* Accessibility guard loaded after the canonical Votonobay polish layers.
-   Keep the approved look while removing non-essential motion when requested. */
+/* Real-browser QA guards. Keep late legacy/injected widgets inside the approved
+   Votonobay visual system without touching their behavior. */
+html body.td-votonobay-inner .td-geo-card{
+  border:1px solid rgba(226,255,237,.085)!important;
+  border-radius:21px!important;
+  background:linear-gradient(150deg,rgba(255,255,255,.036),rgba(255,255,255,.018))!important;
+  color:#f4fbf6!important;
+  box-shadow:none!important;
+}
+html body.td-votonobay-inner .td-geo-card h3{color:#f4fbf6!important;letter-spacing:-.035em!important}
+html body.td-votonobay-inner .td-geo-card p{color:#82988c!important}
+html body.td-votonobay-inner .td-geo-card .td-geo-main{
+  min-height:44px!important;border:0!important;border-radius:13px!important;
+  background:linear-gradient(135deg,#8affbd,#4ff59a)!important;color:#042014!important;box-shadow:none!important
+}
+html body.td-votonobay-inner .td-geo-card .td-way-btn{
+  min-height:44px!important;border:1px solid rgba(79,245,154,.18)!important;border-radius:13px!important;
+  background:rgba(79,245,154,.07)!important;color:#bfffd8!important;box-shadow:none!important;white-space:nowrap!important
+}
+html body.td-votonobay-inner .td-geo-card .td-way-btn:hover{border-color:rgba(79,245,154,.28)!important;background:rgba(79,245,154,.11)!important}
+html body.td-votonobay-inner .td-geo-card .td-way-btn:focus-visible{outline:2px solid #4ff59a!important;outline-offset:2px!important}
+
+html body.td-votonobay-inner header.app .td-profile-btn,
+html body.td-votonobay-inner header.app .city{
+  min-width:44px!important;min-height:44px!important;border:1px solid rgba(226,255,237,.08)!important;
+  background:rgba(255,255,255,.045)!important;color:#e8f3ec!important;box-shadow:none!important
+}
+html body.td-votonobay-inner header.app .td-profile-btn{
+  width:44px!important;height:44px!important;border-radius:14px!important;color:#98edba!important;font-size:12px!important
+}
+html body.td-votonobay-inner header.app .city{border-radius:14px!important;padding-inline:12px!important}
+html body.td-votonobay-inner header.app .td-profile-btn:hover,
+html body.td-votonobay-inner header.app .city:hover{border-color:rgba(79,245,154,.16)!important;background:rgba(79,245,154,.065)!important}
+html body.td-votonobay-inner header.app .td-profile-btn:focus-visible,
+html body.td-votonobay-inner header.app .city:focus-visible{outline:2px solid #4ff59a!important;outline-offset:2px!important}
+
+html body .td-profile-sheet{background:#050a07!important;color:#f4fbf6!important}
+html body .td-profile-head{border-bottom:1px solid rgba(226,255,237,.06)!important;background:rgba(5,10,7,.92)!important;color:#f4fbf6!important}
+html body .td-profile-head .sub,
+html body .td-profile-note,
+html body .td-profile-stat span,
+html body .td-history-row span{color:#82988c!important}
+html body .td-profile-back{
+  min-width:44px!important;min-height:44px!important;border:1px solid rgba(226,255,237,.08)!important;border-radius:14px!important;
+  background:rgba(255,255,255,.045)!important;color:#f4fbf6!important;box-shadow:none!important
+}
+html body .td-profile-hero{border:1px solid rgba(79,245,154,.14)!important;background:linear-gradient(150deg,#0b1b12,#07100b 72%)!important;color:#f4fbf6!important;box-shadow:none!important}
+html body .td-profile-avatar{background:#4ff59a!important;color:#042014!important}
+html body .td-profile-edit input{border:1px solid rgba(226,255,237,.08)!important;background:rgba(255,255,255,.055)!important;color:#f4fbf6!important;outline:none!important}
+html body .td-profile-edit input:focus{border-color:rgba(79,245,154,.28)!important}
+html body .td-profile-edit button{min-height:44px!important;background:#4ff59a!important;color:#042014!important}
+html body .td-profile-stat,
+html body .td-profile-block,
+html body .td-today-card{border:1px solid rgba(226,255,237,.07)!important;background:rgba(255,255,255,.028)!important;color:#f4fbf6!important;box-shadow:none!important}
+html body .td-profile-stat b,
+html body .td-profile-block h3,
+html body .td-history-row b,
+html body .td-today-total{color:#f4fbf6!important}
+html body .td-history-row{border-top-color:rgba(226,255,237,.06)!important}
+html body .td-today-kicker,
+html body .td-today-meta{color:#82988c!important}
+html body .td-today-trend{background:rgba(255,255,255,.05)!important;color:#a7bbb0!important}
+html body .td-today-trend.good{background:rgba(79,245,154,.09)!important;color:#8be8b1!important}
+html body .td-today-trend.bad,
+html body .td-profile-storage{background:rgba(255,133,108,.08)!important;color:#dfa08f!important}
+
+@media (hover:none) and (pointer:coarse), (max-width:780px){
+  html body.td-votonobay-inner .dock{
+    left:max(10px,env(safe-area-inset-left))!important;right:max(10px,env(safe-area-inset-right))!important;
+    width:auto!important;transform:none!important
+  }
+  html body.td-votonobay-inner header.app .city{
+    max-width:112px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+  }
+}
+
 @media (prefers-reduced-motion: reduce){
   .v2-bay-first .v2-hero-bai img,
   .v2-bay-scenarios button,
@@ -9,16 +83,11 @@
   .v2-add,
   body.td-votonobay-inner .step button,
   .bai-actions>button,
-  .v2-easter{
-    transition:none!important;
-    animation:none!important;
-  }
+  .v2-easter{transition:none!important;animation:none!important}
 
   .v2-bay-first .v2-hero-bai:hover img,
   .v2-bay-scenarios button:hover,
-  body.td-votonobay-inner .step button:active{
-    transform:none!important;
-  }
+  body.td-votonobay-inner .step button:active{transform:none!important}
 
   html{scroll-behavior:auto!important}
 }
