@@ -39,6 +39,20 @@
     return summary;
   }
 
+  function revealDecision(root,section){
+    if(section.dataset.roxyDecisionRevealed==="1")return;
+    section.dataset.roxyDecisionRevealed="1";
+    if(!window.matchMedia?.("(max-width:820px), (hover:none) and (pointer:coarse) and (max-width:1100px)")?.matches)return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(!section.isConnected)return;
+      const scroller=section.closest(".td-ai-messages");
+      if(scroller){
+        const sr=scroller.getBoundingClientRect(),dr=section.getBoundingClientRect();
+        scroller.scrollTop+=dr.top-sr.top-8;
+      }else section.scrollIntoView({block:"start",inline:"nearest",behavior:"auto"});
+    }));
+  }
+
   function decorateDecision(root){
     const section=root.querySelector(".td-ai-decision-cta");
     if(!section)return false;
@@ -94,6 +108,7 @@
     const parent=section.parentElement;
     const anchor=alternatives||summary;
     if(parent&&anchor&&anchor.parentElement===parent&&section.nextElementSibling!==anchor)parent.insertBefore(section,anchor);
+    revealDecision(root,section);
     return true;
   }
 
