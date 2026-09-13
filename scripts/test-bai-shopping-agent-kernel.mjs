@@ -51,6 +51,14 @@ assert.equal(candidateResult.ok,true,JSON.stringify(candidateResult.error),"serv
 assert.equal(kernel.state.get().budget,5000);assert.equal(kernel.state.get().constraints.duration_days,7);assert.equal(kernel.state.get().store_constraints.mode,"one");assert.ok(kernel.state.get().constraints.excluded_brands.includes("мираторга"));
 assert.equal(kernel.state.get().basket.items.some(x=>x.id==="unavailable"),false,"an unavailable generated candidate may be dropped by the optimizer");
 kernel.state.reset();context.TDShoppingState.reset();
+candidateResult=await kernel.run({
+  text:"Собери до 5000 рублей в один магазин",
+  operations:[{type:"SET_MODE",value:"multi"},{type:"CHANGE_BUDGET",value:5000},{type:"SET_MODE",value:"one"},{type:"REQUIRE",value:"milk"},{type:"REOPTIMIZE"}],
+  generated_operations:[{type:"SET_MODE",value:"multi"},{type:"REQUIRE",value:"milk"},{type:"REOPTIMIZE"}]
+});
+assert.equal(candidateResult.ok,true,JSON.stringify(candidateResult.error),"overridden provider constraints must not fail verification when the final explicit value was applied");
+assert.equal(kernel.state.get().store_constraints.mode,"one");assert.equal(kernel.state.get().store_constraints.limit,1);
+kernel.state.reset();context.TDShoppingState.reset();
 let directResult=kernel.execute(kernel._test.legacyToActions([{type:"ADD_PRODUCT",value:"unavailable"},{type:"REOPTIMIZE"}]).actions,{input:"Добавь товар"});
 assert.equal(directResult.ok,false,"an explicit add must still be verified strictly");assert.equal(directResult.error.code,"EFFECT_NOT_VERIFIED");
 kernel.state.reset();context.TDShoppingState.reset();
