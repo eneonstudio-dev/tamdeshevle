@@ -19,7 +19,7 @@ window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
 };
 
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
-import("./bai-shopping-agent-kernel.js?v=20260913-kernel-v1")
+import("./bai-shopping-agent-kernel.js?v=20260913-kernel-hotfix-v1")
   .then(()=>import("./bai-provider-contract.js?v=20260913-contract-v1"))
   .then(()=>import("./bai-agent-client.js?v=20260913-free-router-v1"))
   .then(()=>import("./bai-decision-quality.js?v=20260912-decision-v1"))
