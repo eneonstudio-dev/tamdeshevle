@@ -20,9 +20,10 @@ export function shardCorpus(rows,batchSize=64){
 export function buildManifest({rows,profiles,batchSize=64}){
   const batches=shardCorpus(rows,batchSize),corpusBody=jsonl(rows);
   const teachers=(Array.isArray(profiles)?profiles:[]).map(profile=>({
-    id:clean(profile?.id),source_id:clean(profile?.source_id),model:clean(profile?.model),transport:clean(profile?.transport),endpoint:clean(profile?.endpoint)
+    id:clean(profile?.id),source_id:clean(profile?.source_id),model:clean(profile?.model),revision:clean(profile?.revision),transport:clean(profile?.transport),endpoint:clean(profile?.endpoint)
   }));
-  if(!teachers.length||teachers.some(x=>!x.id||!x.source_id||!x.model))throw Error('valid teacher profiles required');
+  if(!teachers.length||teachers.some(x=>!x.id||!x.source_id||!x.model||!x.revision))throw Error('valid teacher profiles required');
+  if(teachers.some(x=>!/^[0-9a-f]{40}$/i.test(x.revision)))throw Error('teacher revisions must be pinned commit hashes');
   return {
     schema_version:'1.0',
     corpus:{tasks:rows.length,sha256:sha256(corpusBody)},
