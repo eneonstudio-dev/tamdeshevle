@@ -11,6 +11,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-catalog-hints.py"
+      - "scripts/test-roxy-runtime-states.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -24,6 +25,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-catalog-hints.py"
+      - "scripts/test-roxy-runtime-states.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -66,6 +68,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-catalog-hints.py
+      - name: Validate Roxy runtime states
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-runtime-states.py
       - name: Upload UX screenshots and report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
