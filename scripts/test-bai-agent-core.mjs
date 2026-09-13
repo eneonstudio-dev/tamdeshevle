@@ -3,6 +3,7 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 
 const clientSource=fs.readFileSync(new URL('../bai-agent-client.js',import.meta.url),'utf8');
+const contractSource=fs.readFileSync(new URL('../bai-provider-contract.js',import.meta.url),'utf8');
 const gemmaSource=fs.readFileSync(new URL('../gemma-router.js',import.meta.url),'utf8');
 const gemmaWorkerSource=fs.readFileSync(new URL('../gemma-browser-worker.js',import.meta.url),'utf8');
 const serverSource=fs.readFileSync(new URL('../backend/bai-agent-core.ts',import.meta.url),'utf8');
@@ -45,22 +46,24 @@ assert.equal(gemmaSource.includes('MutationObserver'),false,'Gemma router must n
 let fetchCalls=0,lastPayload=null;
 const storage=new Map();
 const localStorage={getItem:key=>storage.has(key)?storage.get(key):null,setItem:(key,value)=>storage.set(key,String(value)),removeItem:key=>storage.delete(key)};
-const context={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise,AbortController,setTimeout,clearTimeout,localStorage,navigator:{onLine:true},fetch:async(_url,options)=>{fetchCalls++;lastPayload=JSON.parse(options.body);return{ok:true,status:200,json:async()=>({ok:true,version:'brain-2.0-agent-core-v1',model:'test-model',reply:'Собрал осмысленный вариант.',operations:[{type:'REQUIRE',value:'eggs'},{type:'HACK',value:'x'},{type:'REOPTIMIZE'}],suggestions:['Сделай дешевле'],expectsAnswer:false,trace:['normalize','reason','policy']})}}};
+const context={console,JSON,Math,Number,String,Object,Array,Set,Date,RegExp,Promise,AbortController,setTimeout,clearTimeout,localStorage,navigator:{onLine:true},fetch:async(_url,options)=>{fetchCalls++;lastPayload=JSON.parse(options.body);return{ok:true,status:200,json:async()=>({ok:true,version:'brain-2.0-agent-core-v1',model:'test-model',reply:'Собрал осмысленный вариант.',operations:[{type:'REQUIRE',value:'eggs'},{type:'REOPTIMIZE'}],suggestions:['Сделай дешевле'],expectsAnswer:false,trace:['normalize','reason','policy']})}}};
 context.window=context;context.globalThis=context;
 context.TD_BAI_AGENT={endpoint:'https://example.test/bai-agent-core'};
 context.TDAuth={init:async()=>({auth:{getSession:async()=>({data:{session:{access_token:'user-token'}},error:null})}}),user:()=>({id:'user-1'})};
 context.TDShoppingState={get:()=>({budget:3000,currentTotal:0,peopleCount:1,duration:4,mode:'multi',requiredProducts:[],products:[],secretField:'must-not-leak'})};
-context.TDStoreAdapters={catalog:()=>Array.from({length:90},(_,i)=>({id:`item_${i}`,name:`Товар ${i}`,tags:['food']}))};
-vm.createContext(context);vm.runInContext(clientSource,context);
+context.TDStoreAdapters={catalog:()=>[{id:'eggs',name:'Яйца'},{id:'water',name:'Вода'},...Array.from({length:88},(_,i)=>({id:`item_${i}`,name:`Товар ${i}`,tags:['food']}))]};
+vm.createContext(context);vm.runInContext(contractSource,context);vm.runInContext(clientSource,context);
 
 assert.ok(context.TDBaiAgentClient?.install,'Agent client must expose install()');
+assert.equal(context.TDBaiProviderContract.normalize({reply:'взлом',operations:[{type:'HACK',value:'x'}]},{catalog:context.TDStoreAdapters.catalog()}).ok,false,'one invalid provider action must fail the whole payload closed');
+assert.equal(context.TDBaiProviderContract.normalize({reply:'',operations:[{type:'REQUIRE',value:'missing'}]},{catalog:context.TDStoreAdapters.catalog()}).error.code,'INVALID_PROVIDER_ACTION','provider cannot invent a catalog product');
 assert.equal(context.TDBaiAgentClient.shouldUse('добавь молоко',{operations:[{type:'ADD_PRODUCT',value:'milk'}]}),false,'simple command must stay on fast rules');
 assert.equal(context.TDBaiAgentClient.shouldUse('собери мне нормальную еду, сам реши, готовить не хочу',{operations:[]}),true,'complex planning request must be agent-eligible');
 
 context.TDBaiBrain={route:async()=>({ok:true,provider:'rules',operations:[],reply:'Не понял, что изменить.',suggestions:[],expectsAnswer:false})};
 let result=await context.TDBaiBrain.route('собери мне нормальную еду, сам реши, готовить не хочу',[]);
 assert.equal(result.provider,'bai-agent-core','server agent must stay first priority when available');
-assert.deepEqual(Array.from(result.operations,o=>o.type),['REQUIRE','REOPTIMIZE'],'client must drop operations outside whitelist');
+assert.deepEqual(Array.from(result.operations,o=>o.type),['REQUIRE','REOPTIMIZE'],'valid provider actions must pass the strict contract');
 assert.equal(fetchCalls,1,'complex request should call Agent Core once');
 assert.equal(lastPayload.basket.secretField,undefined,'client must send strict basket projection');
 assert.equal(lastPayload.catalog.length,80,'catalog context must be capped');
@@ -89,13 +92,20 @@ assert.equal(localStorage.getItem('td_bai_gemma_local_enabled'),'1','explicit op
 assert.equal(result.provider,'gemma-browser-control','opt-in must be a control action');
 assert.equal(result.operations.length,0,'enabling local model must not mutate basket');
 
+context.TDAuth.user=()=>({id:'user-1'});const callsBeforeLocal=fetchCalls;
 result=await context.TDBaiAgentClient.route('собери рацион на неделю, сам реши что купить',[],baseline);
 assert.equal(result.provider,'gemma-browser','after consent, server-unavailable reasoning should fall back to local Gemma');
 assert.equal(localCalls,1,'local Gemma should run once');
+assert.equal(fetchCalls,callsBeforeLocal,'enabled free local model must run before the server provider');
 assert.deepEqual(Array.from(result.operations,o=>o.type),['REQUIRE'],'Gemma output must pass operation whitelist');
 
 result=await context.TDBaiAgentClient.route('Выключить нейро-режим',[],baseline);
 assert.equal(localStorage.getItem('td_bai_gemma_local_enabled'),'0','user must be able to disable local inference');
 assert.equal(result.operations.length,0,'disabling local inference must not mutate basket');
 
-console.log('Bai Agent Core regression suite passed: server-first routing, zero-budget opt-in Gemma fallback, no browser model secrets, safe tool policy and rules fallback.');
+let rejectedCalls=0;context.fetch=async()=>{rejectedCalls++;return{ok:true,status:200,json:async()=>({ok:true,reply:'Я всё сделал',operations:[{type:'HACK',value:'x'}]})}};
+for(let i=0;i<4;i++)result=await context.TDBaiAgentClient.route('собери рацион на неделю, сам реши что купить',[],baseline);
+assert.equal(rejectedCalls,3,'circuit breaker must stop repeatedly calling an invalid provider');
+assert.equal(result.agentError.code,'PROVIDER_UNAVAILABLE','provider failure must be structured for recovery UX');
+
+console.log('Bai Agent Core regression suite passed: free-local-first routing, strict provider contract, circuit breaker, no browser secrets and rules fallback.');

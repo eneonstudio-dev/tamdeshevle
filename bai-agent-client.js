@@ -3,7 +3,7 @@
   if(window.TDBaiAgentClient)return;
 
   const ALLOWED=new Set(["UNDO","RESET_BASKET","SET_INTENT","SET_ONLY_PRODUCTS","CLEAR_ONLY","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","ADD_PREFERENCE","CHANGE_STORE","SET_MODE","REQUIRE","PREFER","REOPTIMIZE","ASK_CLARIFICATION"]);
-  const MAX_HISTORY=8,MAX_TEXT=500,REQUEST_TIMEOUT_MS=9000,LOCAL_MODEL_MB=310;
+  const MAX_HISTORY=8,MAX_TEXT=500,REQUEST_TIMEOUT_MS=9000,LOCAL_TIMEOUT_MS=15000,LOCAL_MODEL_MB=310;
   const LOCAL_STORAGE_KEY="td_bai_gemma_local_enabled";
   const LOCAL_ENABLE=/включ(?:и|ить)\s+(?:локальн[а-я]*\s+)?нейро[-\s]?режим/i;
   const LOCAL_DISABLE=/выключ(?:и|ить)\s+(?:локальн[а-я]*\s+)?нейро[-\s]?режим/i;
@@ -12,6 +12,7 @@
   const low=v=>String(v||"").toLowerCase().replace(/ё/g,"е");
   const trim=v=>String(v||"").replace(/\s+/g," ").trim().slice(0,MAX_TEXT);
   let wrapped=false,localLoad=null,lastStatus={attempted:false,used:false,provider:"rules",reason:"idle",at:0};
+  const breakers={remote:{failures:0,openUntil:0},local:{failures:0,openUntil:0}};
 
   function safeOps(ops){return (Array.isArray(ops)?ops:[]).filter(op=>op&&ALLOWED.has(op.type)).slice(0,20).map(op=>({type:op.type,...(op.value===undefined?{}:{value:clone(op.value)})}))}
   function sanitizeHistory(history){return (Array.isArray(history)?history:[]).slice(-MAX_HISTORY).map(item=>({role:item?.role==="assistant"?"assistant":"user",text:trim(item?.text)})).filter(item=>item.text)}
@@ -27,6 +28,11 @@
     }
     return out;
   }
+  function contract(raw){return window.TDBaiProviderContract?.normalize?.(raw,{catalog:sanitizeCatalog(window.TDStoreAdapters?.catalog?.()||[])})||null}
+  function available(name){return Date.now()>=breakers[name].openUntil}
+  function success(name){breakers[name].failures=0;breakers[name].openUntil=0}
+  function failure(name){const b=breakers[name];b.failures++;if(b.failures>=3)b.openUntil=Date.now()+60000}
+  function timeout(promise,ms){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error("provider_timeout")),ms))])}
   function shouldUse(text,baseline){
     const t=low(text),ops=Array.isArray(baseline?.operations)?baseline.operations:[];
     const gate=window.TDBaiShoppingAgentKernel?.domainGate?.(text);if(gate&&gate.allowed===false)return false;
@@ -39,6 +45,7 @@
   }
   async function accessToken(){if(!window.TDAuth?.init)return null;try{const auth=await window.TDAuth.init();if(!auth||!window.TDAuth.user?.())return null;const {data,error}=await auth.auth.getSession();return error?null:(data?.session?.access_token||null)}catch{return null}}
   async function remoteRoute(text,history,baseline){
+    if(!available("remote"))return null;
     const endpoint=window.TD_BAI_AGENT?.endpoint;if(!endpoint)return null;
     const token=await accessToken();if(!token)return null;
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),REQUEST_TIMEOUT_MS);
@@ -47,10 +54,9 @@
       const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},signal:controller.signal,body:JSON.stringify({message:trim(text),history:sanitizeHistory(history),basket:sanitizeState(window.TDShoppingState?.get?.()||{}),catalog,baseline:{operations:safeOps(baseline?.operations),reply:trim(baseline?.reply),expectsAnswer:Boolean(baseline?.expectsAnswer)}})});
       let body=null;try{body=await response.json()}catch{}
       if(!response.ok||body?.ok===false)return null;
-      const operations=safeOps(body?.operations),reply=trim(body?.reply),suggestions=(Array.isArray(body?.suggestions)?body.suggestions:[]).map(trim).filter(Boolean).slice(0,3);
-      if(!operations.length&&!reply)return null;
-      return {...baseline,ok:true,provider:"bai-agent-core",operations,reply:reply||baseline?.reply||"",suggestions,expectsAnswer:Boolean(body?.expectsAnswer),agent:{version:String(body?.version||"v1"),model:String(body?.model||"server"),trace:Array.isArray(body?.trace)?body.trace.slice(0,8):[]}};
-    }catch{return null}finally{clearTimeout(timer)}
+      const checked=contract(body);if(!checked?.ok){failure("remote");return null}success("remote");
+      return {...baseline,ok:true,provider:"bai-agent-core",operations:checked.operations,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:checked.meta.version||"v1",model:checked.meta.model||"server",trace:checked.meta.trace}};
+    }catch{failure("remote");return null}finally{clearTimeout(timer)}
   }
   function localSupported(){return Boolean(globalThis.Worker&&navigator?.gpu)}
   function localEnabled(){try{return localStorage.getItem(LOCAL_STORAGE_KEY)==="1"}catch{return false}}
@@ -60,11 +66,9 @@
     await localLoad;return window.TDGemmaRouter||null;
   }
   async function localRoute(text,history,baseline){
-    if(!localSupported()||!localEnabled())return null;
+    if(!localSupported()||!localEnabled()||!available("local"))return null;
     const router=await ensureLocalRouter();if(!router?.route)return null;
-    const out=await router.route(text,history);if(!out?.ok)return null;
-    const operations=safeOps(out.operations),reply=trim(out.reply);if(!operations.length&&!reply)return null;
-    return {...baseline,ok:true,provider:"gemma-browser",operations,reply:reply||baseline?.reply||"",suggestions:[],agent:{version:"local-gemma-v1",model:String(out.model||"gemma-browser"),trace:["browser","policy"]}};
+    try{const out=await timeout(router.route(text,history),LOCAL_TIMEOUT_MS);if(!out?.ok){failure("local");return null}const checked=contract(out);if(!checked?.ok){failure("local");return null}success("local");return {...baseline,ok:true,provider:"gemma-browser",operations:checked.operations,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:"local-gemma-v1",model:checked.meta.model||"gemma-browser",trace:["browser","contract","policy"]}}}catch{failure("local");return null}
   }
   function offerLocal(baseline){
     if(!localSupported()||localEnabled())return baseline;
@@ -95,15 +99,15 @@
     const control=await localControl(text,baseline);if(control)return control;
     lastStatus={attempted:true,used:false,provider:"rules",reason:"fallback",at:Date.now()};
     if(!shouldUse(text,baseline)){lastStatus.reason="rules_sufficient";return baseline}
-    const remote=await remoteRoute(text,history,baseline);
-    if(remote){lastStatus={attempted:true,used:true,provider:"bai-agent-core",reason:"server_agent",at:Date.now()};return remote}
     const local=await localRoute(text,history,baseline);
     if(local){lastStatus={attempted:true,used:true,provider:"gemma-browser",reason:"local_model",at:Date.now()};return local}
+    const remote=await remoteRoute(text,history,baseline);
+    if(remote){lastStatus={attempted:true,used:true,provider:"bai-agent-core",reason:"server_agent",at:Date.now()};return remote}
     if(localSupported()&&!localEnabled()){
       lastStatus={attempted:true,used:false,provider:"rules",reason:"local_opt_in_required",at:Date.now()};
-      return offerLocal(baseline);
+      return{...offerLocal(baseline),agentError:{code:"PROVIDER_UNAVAILABLE",recoverable:true}};
     }
-    lastStatus.reason="agent_unavailable";return baseline;
+    lastStatus.reason="agent_unavailable";return{...(baseline||{}),agentError:{code:"PROVIDER_UNAVAILABLE",recoverable:true},suggestions:Array.isArray(baseline?.suggestions)?baseline.suggestions:[]};
   }
   function wrapBrain(brain){
     if(!brain?.route||brain.__baiAgentCoreWrapped)return brain;
@@ -114,6 +118,6 @@
     const current=window.TDBaiBrain;if(current){wrapBrain(current);return true}
     let value;try{Object.defineProperty(window,"TDBaiBrain",{configurable:true,enumerable:true,get(){return value},set(next){value=wrapBrain(next)}});return true}catch{return false}
   }
-  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,sanitizeCatalog,safeOps,enableLocal:async()=>{const router=await ensureLocalRouter();return router?.enable?.()||null},disableLocal:async()=>{const router=await ensureLocalRouter();return router?.disable?.()||null},status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint),localSupported:localSupported(),localEnabled:localEnabled(),localModel:"gemma-3-270m-it",localModelMB:LOCAL_MODEL_MB})};
+  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,sanitizeCatalog,safeOps,enableLocal:async()=>{const router=await ensureLocalRouter();return router?.enable?.()||null},disableLocal:async()=>{const router=await ensureLocalRouter();return router?.disable?.()||null},status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint),localSupported:localSupported(),localEnabled:localEnabled(),localModel:"gemma-3-270m-it",localModelMB:LOCAL_MODEL_MB,breakers:clone(breakers)})};
   install();
 })();

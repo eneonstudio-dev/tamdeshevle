@@ -82,6 +82,7 @@ jobs:
           node --check bai-learning-loop.js
           node --check bai-learning-admin.js
           node --check bai-agent-client.js
+          node --check bai-provider-contract.js
           node --check bai-autopilot.js
           node --check bai-shopping-journey.js
           node --check gemma-router.js
