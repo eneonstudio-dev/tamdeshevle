@@ -70,16 +70,16 @@ const beforePoison=kernel.state.get(),beforeCart=JSON.stringify(context.window.s
 assert.doesNotThrow(()=>JSON.parse(storage.get("td:bai-shopping-session:v2")),"shopping session must stay serializable");assert.ok(kernel.state.get().history.length>=4,"verified actions must be recorded");
 
 context.TDBaiTraceContext={current:()=>null};
+let applyCalls=0;const originalApply=context.TDShoppingConversation.apply.bind(context.TDShoppingConversation);context.TDShoppingConversation.apply=(...args)=>{applyCalls++;return originalApply(...args)};
 vm.runInContext(fs.readFileSync(new URL("../bai-idempotency-guard.js",import.meta.url),"utf8"),context);
 assert.equal(context.TDBaiIdempotencyGuard.status().installed,true,"idempotency guard must wrap the shopping kernel");
-const milkQty=()=>Number(context.TDShoppingState.get().products.find(item=>item.id==="milk")?.quantity||0),qtyBefore=milkQty();
-const idempotentInput={text:"Добавь ещё одну упаковку молока",operations:[{type:"CHANGE_QUANTITY",value:{id:"milk",delta:1}}],execution_id:"exec_quantity-0001"};
-const firstExecution=await kernel.run(idempotentInput),qtyAfterFirst=milkQty();
-assert.equal(firstExecution.ok,true,firstExecution.error?.code);assert.equal(firstExecution.idempotent_replay,false);assert.equal(qtyAfterFirst,qtyBefore+1,"first execution must mutate exactly once");
+const idempotentInput={text:"Поставь бюджет покупки 6000 рублей",operations:[{type:"CHANGE_BUDGET",value:6000}],execution_id:"exec_budget-0001"};
+const firstExecution=await kernel.run(idempotentInput);
+assert.equal(firstExecution.ok,true,firstExecution.error?.code);assert.equal(firstExecution.idempotent_replay,false);assert.equal(applyCalls,1,"first execution must reach the mutation pipeline exactly once");assert.equal(kernel.state.get().budget,6000);
 const duplicateExecution=await kernel.run(idempotentInput);
-assert.equal(duplicateExecution.ok,true);assert.equal(duplicateExecution.idempotent_replay,true,"same execution ID and payload must replay without a second mutation");assert.equal(duplicateExecution.provider_actions_executed,false);assert.equal(milkQty(),qtyAfterFirst,"duplicate execution must not change quantity twice");
-const independentExecution=await kernel.run({...idempotentInput,execution_id:"exec_quantity-0002"});
-assert.equal(independentExecution.ok,true);assert.equal(independentExecution.idempotent_replay,false);assert.equal(milkQty(),qtyAfterFirst+1,"new execution ID must allow an intentional repeated action");
+assert.equal(duplicateExecution.ok,true);assert.equal(duplicateExecution.idempotent_replay,true,"same execution ID and payload must replay without a second mutation");assert.equal(duplicateExecution.provider_actions_executed,false);assert.equal(applyCalls,1,"duplicate execution must not call the mutation pipeline again");
+const independentExecution=await kernel.run({...idempotentInput,execution_id:"exec_budget-0002"});
+assert.equal(independentExecution.ok,true);assert.equal(independentExecution.idempotent_replay,false);assert.equal(applyCalls,2,"new execution ID must allow an intentional repeated action");
 assert.ok(context.TDBaiIdempotencyGuard.status().entries>=2,"verified execution keys must be retained in a bounded local ledger");
 assert.doesNotThrow(()=>JSON.parse(storage.get("td:bai-shopping-session:v2")),"idempotency ledger must remain serializable with the shopping session");
 
