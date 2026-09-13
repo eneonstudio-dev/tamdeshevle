@@ -1,3 +1,5 @@
+@import url("./votonobay-journey-polish-v1.css?v=20260913-v1");
+
 /* Accessibility guard loaded after the canonical Votonobay polish layers.
    Keep the approved look while removing non-essential motion when requested. */
 @media (prefers-reduced-motion: reduce){
