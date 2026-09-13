@@ -2,7 +2,7 @@
   "use strict";
   if(window.TDBaiAgentClient)return;
 
-  const ALLOWED=new Set(["UNDO","RESET_BASKET","SET_INTENT","SET_ONLY_PRODUCTS","CLEAR_ONLY","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","ADD_PREFERENCE","CHANGE_STORE","SET_MODE","REQUIRE","PREFER","REOPTIMIZE","ASK_CLARIFICATION"]);
+  const ALLOWED=new Set(["UNDO","RESET_BASKET","SET_INTENT","SET_ONLY_PRODUCTS","CLEAR_ONLY","ADD_PRODUCT","REMOVE_PRODUCT","REPLACE_PRODUCT","CHANGE_QUANTITY","SET_PRODUCT_AMOUNT","CHANGE_BUDGET","SET_PEOPLE","SET_DURATION","SET_COOKING","ADD_PREFERENCE","CHANGE_STORE","SET_MODE","REQUIRE","PREFER","EXCLUDE_BRAND","HAS_AT_HOME","EXCLUDE_TAG","NOTE","REOPTIMIZE","ASK_CLARIFICATION"]);
   const MAX_HISTORY=8,MAX_TEXT=500,REQUEST_TIMEOUT_MS=9000,LOCAL_TIMEOUT_MS=15000,LOCAL_MODEL_MB=310;
   const LOCAL_STORAGE_KEY="td_bai_gemma_local_enabled";
   const LOCAL_ENABLE=/включ(?:и|ить)\s+(?:локальн[а-я]*\s+)?нейро[-\s]?режим/i;
@@ -15,6 +15,13 @@
   const breakers={remote:{failures:0,openUntil:0},local:{failures:0,openUntil:0}};
 
   function safeOps(ops){return (Array.isArray(ops)?ops:[]).filter(op=>op&&ALLOWED.has(op.type)).slice(0,20).map(op=>({type:op.type,...(op.value===undefined?{}:{value:clone(op.value)})}))}
+  function opKey(op){return `${String(op?.type||"")}:${JSON.stringify(op?.value??null)}`}
+  function operationOrigin(baseline,providerOperations){
+    const explicit=safeOps(baseline?.operations),provider=safeOps(providerOperations),explicitKeys=new Set(explicit.map(opKey));
+    const generated=provider.filter(op=>!explicitKeys.has(opKey(op))),seen=new Set(),operations=[];
+    for(const op of [...generated,...explicit]){const key=opKey(op);if(seen.has(key))continue;seen.add(key);operations.push(op)}
+    return{operations,explicitOperations:explicit,generatedOperations:generated};
+  }
   function sanitizeHistory(history){return (Array.isArray(history)?history:[]).slice(-MAX_HISTORY).map(item=>({role:item?.role==="assistant"?"assistant":"user",text:trim(item?.text)})).filter(item=>item.text)}
   function sanitizeState(raw){
     const s=raw&&typeof raw==="object"?raw:{},ids=value=>(Array.isArray(value)?value:[]).map(x=>String(x||"").slice(0,64)).filter(Boolean).slice(0,24);
@@ -55,7 +62,8 @@
       let body=null;try{body=await response.json()}catch{}
       if(!response.ok||body?.ok===false){failure("remote");return null}
       const checked=contract(body);if(!checked?.ok){failure("remote");return null}success("remote");
-      return {...baseline,ok:true,provider:"bai-agent-core",operations:checked.operations,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:checked.meta.version||"v1",model:checked.meta.model||"server",trace:checked.meta.trace}};
+      const origin=operationOrigin(baseline,checked.operations);
+      return {...baseline,ok:true,provider:"bai-agent-core",operations:origin.operations,operationOrigin:origin,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:checked.meta.version||"v1",model:checked.meta.model||"server",trace:checked.meta.trace}};
     }catch{failure("remote");return null}finally{clearTimeout(timer)}
   }
   function localSupported(){return Boolean(globalThis.Worker&&navigator?.gpu)}
@@ -68,7 +76,7 @@
   async function localRoute(text,history,baseline){
     if(!localSupported()||!localEnabled()||!available("local"))return null;
     const router=await ensureLocalRouter();if(!router?.route)return null;
-    try{const out=await timeout(router.route(text,history),LOCAL_TIMEOUT_MS);if(!out?.ok){failure("local");return null}const checked=contract(out);if(!checked?.ok){failure("local");return null}success("local");return {...baseline,ok:true,provider:"gemma-browser",operations:checked.operations,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:"local-gemma-v1",model:checked.meta.model||"gemma-browser",trace:["browser","contract","policy"]}}}catch{failure("local");return null}
+    try{const out=await timeout(router.route(text,history),LOCAL_TIMEOUT_MS);if(!out?.ok){failure("local");return null}const checked=contract(out);if(!checked?.ok){failure("local");return null}success("local");const origin=operationOrigin(baseline,checked.operations);return {...baseline,ok:true,provider:"gemma-browser",operations:origin.operations,operationOrigin:origin,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:"local-gemma-v1",model:checked.meta.model||"gemma-browser",trace:["browser","contract","policy"]}}}catch{failure("local");return null}
   }
   function offerLocal(baseline){
     if(!localSupported()||localEnabled())return baseline;
@@ -118,6 +126,6 @@
     const current=window.TDBaiBrain;if(current){wrapBrain(current);return true}
     let value;try{Object.defineProperty(window,"TDBaiBrain",{configurable:true,enumerable:true,get(){return value},set(next){value=wrapBrain(next)}});return true}catch{return false}
   }
-  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,sanitizeCatalog,safeOps,enableLocal:async()=>{const router=await ensureLocalRouter();return router?.enable?.()||null},disableLocal:async()=>{const router=await ensureLocalRouter();return router?.disable?.()||null},status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint),localSupported:localSupported(),localEnabled:localEnabled(),localModel:"gemma-3-270m-it",localModelMB:LOCAL_MODEL_MB,breakers:clone(breakers)})};
+  window.TDBaiAgentClient={install,route,shouldUse,sanitizeState,sanitizeCatalog,safeOps,operationOrigin,enableLocal:async()=>{const router=await ensureLocalRouter();return router?.enable?.()||null},disableLocal:async()=>{const router=await ensureLocalRouter();return router?.disable?.()||null},status:()=>({...lastStatus,wrapped,configured:Boolean(window.TD_BAI_AGENT?.endpoint),localSupported:localSupported(),localEnabled:localEnabled(),localModel:"gemma-3-270m-it",localModelMB:LOCAL_MODEL_MB,breakers:clone(breakers)})};
   install();
 })();
