@@ -1,6 +1,7 @@
 (()=>{
   "use strict";
   import("./bai-trace-context.js?v=20260913-trace-v1").catch(error=>console.warn("[Bai Trace] load failed",error));
+  import("./bai-request-trace.js?v=20260913-server-trace-v1").catch(error=>console.warn("[Bai Request Trace] load failed",error));
   if(window.TDBaiSessionOwnerGuard)return;
 
   const SESSION_KEY="td:bai-shopping-session:v2";
