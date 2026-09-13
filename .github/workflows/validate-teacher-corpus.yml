@@ -58,6 +58,8 @@ jobs:
           node --check teacher-lab/training/promotion-cli.mjs
           node --check teacher-lab/training/deterministic-seed.mjs
           node --check teacher-lab/training/deterministic-seed-smoke.mjs
+          node --check teacher-lab/training/prepare-brain-release.mjs
+          node --check teacher-lab/training/prepare-brain-release-smoke.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/review-artifact.py
           python -m py_compile teacher-lab/review-artifact-smoke.py
@@ -102,6 +104,8 @@ jobs:
         run: node teacher-lab/training/aggregate-gold-smoke.mjs
       - name: Validate deterministic bootstrap seed
         run: node teacher-lab/training/deterministic-seed-smoke.mjs
+      - name: Validate staged brain release manifest
+        run: node teacher-lab/training/prepare-brain-release-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Validate automatic train/eval/promotion orchestration
