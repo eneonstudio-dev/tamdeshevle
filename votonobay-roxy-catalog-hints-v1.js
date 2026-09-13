@@ -49,19 +49,20 @@
     });
   }
 
+  function dismissHint(hint=document.querySelector(`.${HINT_CLASS}`)){
+    rememberDismissed();
+    if(hint)hint.classList.add("is-leaving");
+    document.querySelectorAll(`.${HINT_CLASS}`).forEach(node=>node.remove());
+  }
+
   function openBay(){
+    dismissHint();
     window.TDBai?.setState?.("curious","Покажи, что выбираешь — посмотрю корзину целиком.",1800,false);
     if(window.TDShoppingAssistant?.open){
       Promise.resolve(window.TDShoppingAssistant.open()).finally(()=>window.TDRoxyBayPanel?.decorate?.());
       return;
     }
     window.TDBai?.openPanel?.();
-  }
-
-  function dismissHint(hint=document.querySelector(`.${HINT_CLASS}`)){
-    rememberDismissed();
-    if(hint)hint.classList.add("is-leaving");
-    document.querySelectorAll(`.${HINT_CLASS}`).forEach(node=>node.remove());
   }
 
   function makeHint(){
