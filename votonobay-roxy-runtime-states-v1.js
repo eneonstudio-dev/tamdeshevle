@@ -107,15 +107,14 @@
   }
 
   function attach(next){
-    if(next===root)return queue();
+    if(next===root)return decorate();
     observer?.disconnect?.();
     observer=null;
     root=next||null;
     if(!root)return false;
     observer=new MutationObserver(queue);
     observer.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:["data-bai-runtime-state","data-state","hidden","data-bai-busy"]});
-    queue();
-    return true;
+    return decorate();
   }
 
   function wrapOpen(){
