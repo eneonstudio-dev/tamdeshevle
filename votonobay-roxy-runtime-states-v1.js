@@ -10,7 +10,7 @@
     offline:"assets/bai/bai-sleeping-approved-v1.webp"
   };
   const LABELS={empty:"Готов включиться",loading:"Проверяю",error:"Спокойно, поправим",offline:"Жду сеть"};
-  let root=null,observer=null,frame=0;
+  let root=null,observer=null,frame=0,wrapped=false;
 
   function ensureStyle(){
     if(document.querySelector('link[data-roxy-runtime-states-v1="1"]'))return;
@@ -104,17 +104,42 @@
     return true;
   }
 
-  function discover(){attach(document.querySelector("body>.td-ai"))}
+  function wrapOpen(){
+    const api=window.TDShoppingAssistant;
+    if(!api||typeof api.open!=="function"||api.open.__roxyRuntimeWrapped)return false;
+    const original=api.open;
+    const wrappedOpen=function(...args){
+      const result=original.apply(api,args);
+      requestAnimationFrame(discover);
+      Promise.resolve(result).finally(()=>requestAnimationFrame(discover));
+      return result;
+    };
+    wrappedOpen.__roxyRuntimeWrapped=true;
+    wrappedOpen.__roxyRuntimeOriginal=original;
+    api.open=wrappedOpen;
+    wrapped=true;
+    return true;
+  }
 
-  const mountObserver=new MutationObserver(discover);
-  if(document.body)mountObserver.observe(document.body,{childList:true,subtree:true});
-  else document.addEventListener("DOMContentLoaded",()=>mountObserver.observe(document.body,{childList:true,subtree:true}),{once:true});
-  window.addEventListener("pageshow",discover);
-  window.addEventListener("td:v2-rendered",discover);
-  document.addEventListener("click",event=>{
-    if(event.target.closest?.(".v2-bay-primary,.v2-hero-bai,.td-ai-entry,[data-action='basket']"))requestAnimationFrame(discover);
-  },{passive:true});
-  discover();
+  function discover(){
+    ensureStyle();
+    wrapOpen();
+    return attach(document.querySelector("body>.td-ai"));
+  }
 
-  window.TDRoxyRuntimeStatesV1={decorate,discover,mode,assets:{...ASSETS}};
+  function boot(){
+    discover();
+    window.addEventListener("pageshow",discover);
+    window.addEventListener("td:v2-rendered",discover);
+    document.addEventListener("click",event=>{
+      if(!event.target.closest?.(".v2-bay-primary,.v2-hero-bai,.td-ai-entry,[data-action='basket']"))return;
+      requestAnimationFrame(discover);
+      setTimeout(discover,80);
+    },{passive:true});
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
+  else boot();
+
+  window.TDRoxyRuntimeStatesV1={decorate,discover,mode,assets:{...ASSETS},isWrapped:()=>wrapped};
 })();
