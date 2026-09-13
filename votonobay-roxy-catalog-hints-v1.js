@@ -7,6 +7,17 @@
   let dismissed=false;
   const SELECTOR=".voto-catalog-search";
   const HINT_CLASS="roxy-catalog-bay-hint";
+  const DISMISS_KEY="votonobay:catalog-hint-dismissed:v1";
+
+  function readDismissed(){
+    if(dismissed)return true;
+    try{dismissed=sessionStorage.getItem(DISMISS_KEY)==="1"}catch{}
+    return dismissed;
+  }
+  function rememberDismissed(){
+    dismissed=true;
+    try{sessionStorage.setItem(DISMISS_KEY,"1")}catch{}
+  }
 
   function ensureStyle(){
     if(document.querySelector('link[data-roxy-catalog-hints-v1="1"]'))return;
@@ -20,7 +31,7 @@
   function catalogSearch(){return document.querySelector(SELECTOR)}
   function anchorFor(search){
     if(!search)return null;
-    if(search.matches("input,textarea"))return search.closest("form")||search.parentElement;
+    if(search.matches("input,textarea"))return search.closest("form")||search;
     return search;
   }
   function isCatalogVisible(search){
@@ -44,6 +55,13 @@
     window.TDBai?.openPanel?.();
   }
 
+  function dismissHint(hint=document.querySelector(`.${HINT_CLASS}`)){
+    rememberDismissed();
+    if(!hint)return;
+    hint.classList.add("is-leaving");
+    setTimeout(()=>hint.remove(),180);
+  }
+
   function makeHint(){
     const hint=document.createElement("aside");
     hint.className=HINT_CLASS;
@@ -63,11 +81,7 @@
         <button class="roxy-catalog-bay-dismiss" type="button" aria-label="Скрыть подсказку">×</button>
       </div>`;
     hint.querySelector(".roxy-catalog-bay-ask")?.addEventListener("click",openBay);
-    hint.querySelector(".roxy-catalog-bay-dismiss")?.addEventListener("click",()=>{
-      dismissed=true;
-      hint.classList.add("is-leaving");
-      setTimeout(()=>hint.remove(),180);
-    });
+    hint.querySelector(".roxy-catalog-bay-dismiss")?.addEventListener("click",()=>dismissHint(hint));
     return hint;
   }
 
@@ -78,7 +92,10 @@
       removeStale();
       return false;
     }
-    if(dismissed)return false;
+    if(readDismissed()){
+      document.querySelectorAll(`.${HINT_CLASS}`).forEach(node=>node.remove());
+      return false;
+    }
     if(document.querySelector(`.${HINT_CLASS}`))return true;
     const anchor=anchorFor(search);
     if(!anchor?.parentElement)return false;
@@ -101,5 +118,5 @@
   document.addEventListener("input",event=>{if(event.target.closest?.(SELECTOR))schedule()},{passive:true});
   schedule();
 
-  window.TDRoxyCatalogHintsV1={decorate,schedule,dismiss:()=>{dismissed=true;document.querySelector(`.${HINT_CLASS}`)?.remove()}};
+  window.TDRoxyCatalogHintsV1={decorate,schedule,dismiss:()=>dismissHint()};
 })();
