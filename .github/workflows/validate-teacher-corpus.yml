@@ -48,6 +48,8 @@ jobs:
           node --check teacher-lab/training/review-export.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
+          python -m py_compile teacher-lab/review-artifact.py
+          python -m py_compile teacher-lab/review-artifact-smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
           python -m py_compile teacher-lab/gpu/kaggle_runall.py
           python -m py_compile teacher-lab/training/train_student.py
@@ -69,6 +71,8 @@ jobs:
         run: node teacher-lab/review-decision-smoke.mjs
       - name: Validate offline review console
         run: node teacher-lab/review-console-smoke.mjs
+      - name: Validate review artifact workflow
+        run: python teacher-lab/review-artifact-smoke.py
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
