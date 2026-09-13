@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {buildCorpus} from './corpus-builder.mjs';
 import {assertProfile,runTask,runBatch} from './run-local-batch.mjs';
-import {importTeacherResults} from './candidate-import.mjs';
+import {importTeacherResults,structuredHash} from './candidate-import.mjs';
 import {comparePair,buildConsensusQueue} from './teacher-consensus.mjs';
 
 const here=new URL('./',import.meta.url);
@@ -22,13 +22,16 @@ const one=await runTask({task:tasks[0],profile:deepseek,fetchImpl:fakeFetch});
 assert.equal(one.task_id,tasks[0].id);
 assert.equal(one.model,deepseek.model);
 assert.equal(one.revision,deepseek.revision);
+assert.match(one.prompt_sha256,/^[0-9a-f]{64}$/);
+assert.match(one.runtime_fingerprint,/^[0-9a-f]{64}$/);
+assert.equal(one.output_sha256,structuredHash(teacherOutput));
 assert.deepEqual(one.output,teacherOutput);
 assert.equal(JSON.stringify(one).includes('internal draft'),false,'raw teacher prose must not be persisted');
 const batch=await runBatch({tasks:tasks.slice(0,2),profile:deepseek,fetchImpl:fakeFetch});
-assert.equal(batch.results.length,2);assert.equal(batch.errors.length,0);assert.equal(calls,3);assert.equal(batch.revision,deepseek.revision);
+assert.equal(batch.results.length,2);assert.equal(batch.errors.length,0);assert.equal(calls,3);assert.equal(batch.revision,deepseek.revision);assert.equal(batch.runtime_fingerprint,one.runtime_fingerprint);
 
 const a=importTeacherResults({rows:[one],tasks,profile:deepseek,registry}).candidates[0];
-const qRaw={task_id:tasks[0].id,profile_id:qwen.id,model:qwen.model,revision:qwen.revision,output:teacherOutput};
+const qRaw={task_id:tasks[0].id,profile_id:qwen.id,model:qwen.model,revision:qwen.revision,prompt_version:'test-v1',prompt_sha256:'c'.repeat(64),output_sha256:structuredHash(teacherOutput),runtime_fingerprint:'d'.repeat(64),generation:{temperature:0.2,max_tokens:100},output:teacherOutput};
 const b=importTeacherResults({rows:[qRaw],tasks,profile:qwen,registry}).candidates[0];
 assert.equal(comparePair(a,b).pass,true);
 const bad=JSON.parse(JSON.stringify(b));bad.target.hard_constraints={budget_max:3000};
