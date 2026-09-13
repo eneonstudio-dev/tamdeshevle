@@ -7,7 +7,8 @@ const historyUi=fs.readFileSync("price-history.js","utf8"),substitutions=fs.read
 const app=fs.readFileSync("app.js","utf8");
 const polish=fs.readFileSync("v2-polish.js","utf8"),mobileDock=fs.readFileSync("v2-mobile-dock.js","utf8"),life=fs.readFileSync("bai-life.js","utf8"),decisionHandoff=fs.readFileSync("votonobay-decision-handoff-v1.js","utf8");
 const cards=fs.readFileSync("cards.css","utf8"),brand=fs.readFileSync("brand-votonobay-v1.js","utf8"),brandCss=fs.readFileSync("votonobay-brand-v1.css","utf8"),manifest=JSON.parse(fs.readFileSync("manifest.json","utf8"));
-new Function(ui);new Function(bai);new Function(decisionHandoff);
+const aiVisual=fs.readFileSync("ai-shopping-visual-v3.js","utf8"),roxyBayCss=fs.readFileSync("votonobay-roxy-bay-panel-v1.css","utf8"),roxyBayJs=fs.readFileSync("votonobay-roxy-bay-panel-v1.js","utf8");
+new Function(ui);new Function(bai);new Function(decisionHandoff);new Function(roxyBayJs);
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
@@ -29,6 +30,23 @@ assert.match(brand,/const BRAND="Votonobay"/);assert.match(brand,/помога(�
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);assert.doesNotMatch(bai,/Где корзина дешевле\?/);
 
+// Approved Roxy Bay conversation: late visual decorator only, no shopping logic fork.
+assert.match(aiVisual,/votonobay-roxy-bay-panel-v1\.js/);
+assert.match(roxyBayJs,/data-roxy-bay-panel-style/);
+assert.match(roxyBayJs,/готов помочь/);
+assert.match(roxyBayJs,/roxy-bay-sheet-toggle/);
+assert.match(roxyBayJs,/TDShoppingAssistant/);
+assert.match(roxyBayJs,/__roxyBayWrapped/);
+assert.doesNotMatch(roxyBayJs,/TDShoppingState|shopping-optimizer|provider|ranking|price/i);
+assert.match(roxyBayCss,/Desktop: Bai is a side room/);
+assert.match(roxyBayCss,/width:min\(438px,42vw\)!important/);
+assert.match(roxyBayCss,/Mobile: approved mini-Bai sheet/);
+assert.match(roxyBayCss,/height:min\(68dvh,620px\)!important/);
+assert.match(roxyBayCss,/inset:0 0 calc\(62px \+ env\(safe-area-inset-bottom\)\) 0!important/);
+assert.match(roxyBayCss,/data-roxy-bay-expanded="1"/);
+assert.match(roxyBayCss,/\.td-ai-summary \.td-ai-line/);
+assert.doesNotMatch(roxyBayCss,/background:#fff!important|background:white!important/i);
+
 assert.match(decisionHandoff,/TDShoppingState\?\.get/);assert.match(decisionHandoff,/lastPlans\?\.\[0\]/);assert.match(decisionHandoff,/TDContinueInStoresV1/);assert.match(decisionHandoff,/continue-in-stores-v1\.js/);assert.match(decisionHandoff,/bayContinuePlan/);assert.match(decisionHandoff,/Продолжить в/);assert.match(decisionHandoff,/не буду притворяться, что перенёс товары автоматически/);assert.match(decisionHandoff,/фактические цена и наличие подтверждаются/);assert.match(decisionHandoff,/td:bai-handoff-opened/);assert.match(decisionHandoff,/td:shopping-state/);assert.doesNotMatch(decisionHandoff,/MutationObserver/);assert.match(decisionHandoff,/body\.td-votonobay \.td-continue-stores-card/);assert.match(decisionHandoff,/@media\(max-width:520px\)/);
 
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
@@ -36,4 +54,4 @@ assert.match(app,/function comparisonLead\(/);assert.match(app,/Победите
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
 assert.equal(manifest.name,"Votonobay");assert.equal(manifest.short_name,"Votonobay");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.background_color,"#050A07");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
 assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
-console.log("V2 UI contract passed: native Bay-first shell, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and PWA identity are wired.");
+console.log("V2 UI contract passed: native Bay-first shell, approved Roxy Bay side panel/mobile sheet, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and PWA identity are wired.");

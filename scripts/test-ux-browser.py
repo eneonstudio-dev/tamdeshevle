@@ -3,8 +3,9 @@
 
 Runs the static app in Chrome, walks the primary purchase journey on desktop and
 mobile-sized viewports, checks for horizontal overflow and undersized core touch
-targets, locks late injected surfaces into the dark Votonobay system, and saves
-screenshots for human review.
+targets, validates the approved Bai side-panel / mobile-sheet composition, locks
+late injected surfaces into the dark Votonobay system, and saves screenshots for
+human review.
 """
 
 from __future__ import annotations
@@ -221,6 +222,91 @@ def screenshot(driver: webdriver.Chrome, viewport: Viewport, screen: str) -> Non
     driver.save_screenshot(str(path))
 
 
+def bay_panel_qa(driver: webdriver.Chrome, viewport: Viewport, failures: list[str]) -> None:
+    label = f"{viewport.name}/bay"
+    go(driver, "home")
+    WebDriverWait(driver, 10).until(
+        lambda d: d.execute_script("return !!window.TDShoppingAssistant && !!window.TDRoxyBayPanel")
+    )
+    driver.execute_script("window.TDShoppingAssistant.open()")
+    WebDriverWait(driver, 10).until(
+        lambda d: visible_count(d, 'body > .td-ai[data-roxy-bay-panel="1"] .td-ai-shell') > 0
+    )
+    driver.execute_script(
+        """
+        document.querySelector('body > .td-ai textarea')?.blur();
+        document.body.removeAttribute('data-td-keyboard-open');
+        const root=document.querySelector('body > .td-ai');
+        window.TDRoxyBayPanel?.setExpanded?.(root,false);
+        """
+    )
+    time.sleep(0.15)
+
+    metrics = driver.execute_script(
+        """
+        const root=document.querySelector('body > .td-ai[data-roxy-bay-panel="1"]');
+        const shell=root?.querySelector('.td-ai-shell');
+        const nav=[...document.querySelectorAll('.v2-bottom-nav')].find(el=>{
+          const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+          return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden';
+        });
+        const r=root?.getBoundingClientRect(), s=shell?.getBoundingClientRect(), n=nav?.getBoundingClientRect();
+        return {
+          vw:window.innerWidth,vh:window.innerHeight,
+          root:r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null,
+          shell:s?{left:s.left,right:s.right,top:s.top,bottom:s.bottom,width:s.width,height:s.height}:null,
+          nav:n?{top:n.top,bottom:n.bottom,height:n.height}:null,
+          toggleVisible:!!root?.querySelector('.roxy-bay-sheet-toggle') && getComputedStyle(root.querySelector('.roxy-bay-sheet-toggle')).display!=='none',
+          subtitle:root?.querySelector('.td-ai-head small')?.textContent?.trim()||'',
+          panelStyle:!!document.querySelector('link[data-roxy-bay-panel-style="1"]')
+        };
+        """
+    )
+    if not metrics.get("root") or not metrics.get("shell"):
+        failures.append(f"{label}: missing approved Bay panel metrics {metrics}")
+        return
+    if metrics.get("subtitle") != "готов помочь":
+        failures.append(f"{label}: approved Bay status copy missing {metrics}")
+    if not metrics.get("panelStyle"):
+        failures.append(f"{label}: approved Bay panel stylesheet not loaded")
+
+    shell = metrics["shell"]
+    if viewport.mobile:
+        if shell["top"] < 120:
+            failures.append(f"{label}: mobile Bay opened as near-fullscreen takeover {metrics}")
+        if shell["height"] > metrics["vh"] * 0.79:
+            failures.append(f"{label}: mobile Bay sheet too tall in collapsed state {metrics}")
+        if metrics.get("nav") and shell["bottom"] > metrics["nav"]["top"] + 3:
+            failures.append(f"{label}: mobile Bay covers bottom navigation {metrics}")
+        if not metrics.get("toggleVisible"):
+            failures.append(f"{label}: mobile Bay expand/collapse control is not visible")
+        targets = driver.execute_script(
+            """
+            const root=document.querySelector('body > .td-ai[data-roxy-bay-panel="1"]');
+            return [...root.querySelectorAll('.td-ai-head button,[data-ai-mic],.td-ai-send')].filter(el=>{
+              const r=el.getBoundingClientRect(),s=getComputedStyle(el);
+              return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden';
+            }).map(el=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height,label:el.getAttribute('aria-label')||el.textContent.trim()}});
+            """
+        )
+        for target in targets:
+            if target["w"] < 41.5 or target["h"] < 41.5:
+                failures.append(f"{label}: Bay touch target too small {target}")
+    else:
+        if metrics["root"]["width"] > 480:
+            failures.append(f"{label}: desktop Bay covers too much of the shopping canvas {metrics}")
+        if shell["left"] < metrics["vw"] * 0.62:
+            failures.append(f"{label}: desktop Bay is not a right-side room {metrics}")
+        if shell["right"] > metrics["vw"] + 2:
+            failures.append(f"{label}: desktop Bay leaves viewport {metrics}")
+
+    assert_not_legacy_white(driver, 'body > .td-ai[data-roxy-bay-panel="1"] .td-ai-shell', label, failures)
+    assert_no_horizontal_overflow(driver, label, failures)
+    screenshot(driver, viewport, "bay")
+    driver.execute_script("document.querySelector('body > .td-ai [data-ai-close]')?.click()")
+    WebDriverWait(driver, 10).until(lambda d: visible_count(d, "body > .td-ai") == 0)
+
+
 def profile_qa(driver: webdriver.Chrome, viewport: Viewport, failures: list[str]) -> None:
     go(driver, "stores")
     WebDriverWait(driver, 10).until(lambda d: visible_count(d, "header.app .td-profile-btn") > 0)
@@ -256,6 +342,7 @@ def run_viewport(viewport: Viewport, failures: list[str]) -> None:
                 assert_core_touch_targets(driver, screen, label, failures)
             screenshot(driver, viewport, screen)
 
+        bay_panel_qa(driver, viewport, failures)
         profile_qa(driver, viewport, failures)
     except (TimeoutException, JavascriptException) as exc:
         failures.append(f"{viewport.name}: browser automation failed: {exc}")
@@ -274,7 +361,7 @@ def main() -> int:
 
     report = {
         "base_url": BASE_URL,
-        "screens": list(SCREENS) + ["account"],
+        "screens": list(SCREENS) + ["bay", "account"],
         "viewports": [viewport.__dict__ for viewport in VIEWPORTS],
         "failures": failures,
     }
@@ -286,7 +373,7 @@ def main() -> int:
             print(f"- {failure}")
         return 1
 
-    print("UX browser QA passed on desktop and Android-sized viewports.")
+    print("UX browser QA passed on desktop and Android-sized viewports, including approved Bai panel/sheet geometry.")
     return 0
 
 
