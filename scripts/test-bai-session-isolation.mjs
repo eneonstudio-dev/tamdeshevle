@@ -48,6 +48,7 @@ assert.equal(resets,4,"user B -> user A transition must not leak user B state");
 assert.doesNotMatch(storage.get("td:bai-shopping-session:v2"),/b-private/);
 
 assert.equal(context.TDBaiSessionOwnerGuard.status().owner,"user-a");
+assert.match(source,/bai-request-trace\.js/,"request trace helper must bootstrap with the Bai session guard");
 
 const observability=fs.readFileSync(new URL("../bai-observability.js",import.meta.url),"utf8");
 assert.match(observability,/MAX_EVENTS=100/);
@@ -84,4 +85,24 @@ const telemetry={type:"kernel",stage:"run",status:"VERIFIED"};
 traceListeners.get("td:bai-telemetry")?.({detail:telemetry});
 assert.equal(telemetry.trace_id,routed.trace_id,"runtime telemetry must carry the same correlation ID without raw request content");
 
-console.log("Bai session isolation passed: account state fails closed and trace-safe observability correlates route and execution without raw shopping content.");
+const requestTraceSource=fs.readFileSync(new URL("../bai-request-trace.js",import.meta.url),"utf8");
+const requestTraceContext={
+  encodeURIComponent,
+  TD_BAI_AGENT:{endpoint:"https://example.test/functions/v1/bai-agent-core"},
+  TDBaiTraceContext:{current:()=>routed.trace_id}
+};
+requestTraceContext.window=requestTraceContext;requestTraceContext.globalThis=requestTraceContext;
+vm.createContext(requestTraceContext);vm.runInContext(requestTraceSource,requestTraceContext);
+assert.equal(requestTraceContext.TDBaiRequestTrace.current(),routed.trace_id);
+assert.match(requestTraceContext.TD_BAI_AGENT.endpoint,/\/bai-agent-core-traced\?trace_id=bai_/,"Agent Core URL must carry the active correlation ID through the traced boundary");
+assert.equal(requestTraceContext.TDBaiRequestTrace.withTrace({ok:true}).trace_id,routed.trace_id,"trace helper may annotate structured provider payloads without copying raw chat content");
+
+const proxySource=fs.readFileSync(new URL("../backend/bai-agent-core-traced.ts",import.meta.url),"utf8");
+assert.match(proxySource,/TRACE_RE/);
+assert.match(proxySource,/bai_agent_core_trace/);
+assert.match(proxySource,/X-Bai-Trace-Id/);
+assert.match(proxySource,/trace_id:id/);
+assert.match(proxySource,/bai-agent-core"/,"trace boundary must forward only to the fixed Agent Core endpoint");
+assert.doesNotMatch(proxySource,/service_role|BAI_LLM_API_KEY|BAI_LLM_MODEL/,"trace boundary must not contain model or service credentials");
+
+console.log("Bai session isolation passed: account state fails closed and one privacy-safe trace correlates browser route, execution and Agent Core boundary.");
