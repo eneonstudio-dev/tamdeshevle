@@ -1,5 +1,6 @@
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 const rate=(a,b)=>b?Number((a/b).toFixed(4)):null;
+const asArray=value=>Array.isArray(value)?value:[];
 
 function hardPass(expected,actual){
   return Object.entries(expected||{}).every(([key,value])=>eq(value,(actual||{})[key]));
@@ -25,13 +26,13 @@ export function benchmark(goldRows,predictionRows){
     const actual=predictions.get(gold.id);if(!actual)continue;count++;
     if(actual.intent===gold.target.intent)intents++;
     const hardOk=hardPass(gold.target.hard_constraints,actual.hard_constraints);if(hardOk)constraints++;
-    const expectedActions=new Set((gold.target.actions||[]).map(actionKey));
-    const actualActions=new Set((actual.actions||[]).map(actionKey));
+    const expectedActions=new Set(asArray(gold.target.actions).map(actionKey));
+    const actualActions=new Set(asArray(actual.actions).map(actionKey));
     if([...expectedActions].every(key=>actualActions.has(key)))actions++;
     const need=gold.session_context?.constraints||[];
-    if(need.length){retainedTotal++;const got=new Set(actual.retained_constraints||[]);if(need.every(x=>got.has(x)))retained++}
+    if(need.length){retainedTotal++;const got=new Set(asArray(actual.retained_constraints));if(need.every(x=>got.has(x)))retained++}
     const allowed=gold.target.shopping_plan?.allowed_replacements||{};
-    for(const action of actual.actions||[]){
+    for(const action of asArray(actual.actions)){
       const rep=replacement(action);if(!rep)continue;replacements++;
       if(!Array.isArray(allowed[rep.from])||!allowed[rep.from].includes(rep.to))badReplacements++;
     }
