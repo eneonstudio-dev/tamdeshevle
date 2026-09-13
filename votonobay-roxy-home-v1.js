@@ -4,6 +4,15 @@
   let raf=0;
   let observer=null;
 
+  function ensureCss(){
+    if(document.querySelector('link[data-roxy-home-tune]'))return;
+    const link=document.createElement("link");
+    link.rel="stylesheet";
+    link.href="votonobay-roxy-home-tune-v1.css?v=20260913-v1";
+    link.dataset.roxyHomeTune="1";
+    document.head.appendChild(link);
+  }
+
   function makePreview(hero){
     if(hero.querySelector(".roxy-bay-card"))return;
     const panel=document.createElement("div");
@@ -32,6 +41,7 @@
   }
 
   function decorate(){
+    ensureCss();
     const hero=document.querySelector(".v2-hero.v2-bay-first");
     if(!hero)return false;
     hero.dataset.roxyApproved="1";
@@ -52,7 +62,7 @@
     if(speech&&speech.innerHTML!==speechHtml)speech.innerHTML=speechHtml;
 
     const proof=hero.querySelector(".v2-hero-proof");
-    const proofHtml="<span>◈ Умные рекомендации</span><span>♥ Выгодные находки</span><span>✦ Экономия времени</span><span>▣ Надёжные магазины</span>";
+    const proofHtml="<span>Умные рекомендации</span><span>Выгодные находки</span><span>Экономия времени</span><span>Надёжные магазины</span>";
     if(proof&&proof.innerHTML!==proofHtml)proof.innerHTML=proofHtml;
 
     makePreview(hero);
@@ -65,7 +75,7 @@
   }
 
   function boot(){
-    decorate();
+    ensureCss();decorate();
     if(typeof MutationObserver==="function"&&document.body){
       observer?.disconnect?.();
       observer=new MutationObserver(queue);
