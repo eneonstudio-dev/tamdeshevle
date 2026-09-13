@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {aggregateGold,writeAggregate} from './aggregate-gold.mjs';
+
+const registry=JSON.parse(fs.readFileSync(new URL('../sources.json',import.meta.url),'utf8'));
+const mk=(id,budget=5000)=>({id,schema_version:'1.0',language:'ru',user_request:'собери еды на неделю',session_context:{},target:{intent:'build_basket',hard_constraints:{budget_max:budget},soft_preferences:{},shopping_plan:{},actions:[],critic:{pass:true,issues:[]},confidence:{overall:'high',price:'unknown',availability:'unknown',quality:'unknown'}},provenance:{sources:[{source_id:'deepseek_r1_local_mit',profile_id:'deepseek_r1_distill_qwen_7b',corpus_task_id:id},{source_id:'human_votonobay_reviewed',model:'human-reviewed',reviewer:'human'}]},review:{status:'approved',reviewer:'human'},privacy:{sanitized:true,contains_personal_data:false}});
+const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'bai-gold-'));
+const f1=path.join(tmp,'g1.jsonl'),f2=path.join(tmp,'g2.jsonl'),bad=path.join(tmp,'bad.jsonl');
+fs.writeFileSync(f1,JSON.stringify(mk('task.1'))+'\n');
+fs.writeFileSync(f2,[mk('task.1'),mk('task.2')].map(JSON.stringify).join('\n')+'\n');
+fs.writeFileSync(bad,JSON.stringify(mk('task.1',6000))+'\n');
+assert.equal(aggregateGold([f1,f2],registry).rows.length,2);
+assert.throws(()=>aggregateGold([f1,bad],registry),/conflicting duplicate task\.1/);
+const out=path.join(tmp,'out');
+const manifest=writeAggregate({files:[f1,f2],outDir:out,sourceRegistry:registry,studentConfig:{data:{minimum_examples:2}}});
+assert.equal(manifest.examples,2);assert.equal(manifest.ready_for_training,true);
+assert.equal(fs.readFileSync(path.join(out,'gold.jsonl'),'utf8').trim().split('\n').length,2);
+assert.equal(fs.readFileSync(path.join(out,'sft.jsonl'),'utf8').trim().split('\n').length,2);
+console.log('Gold aggregate gate passed.');
