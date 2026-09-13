@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { validateRegistry, validateExample, trainingEligibility, exportTraining } from './firewall.mjs';
 import { benchmark } from './benchmark.mjs';
 import { assertLocalEndpoint, toCandidate } from './local-teacher-runner.mjs';
+import { compareCandidates } from './consensus.mjs';
 
 const here=new URL('./',import.meta.url);
 const registry=JSON.parse(fs.readFileSync(new URL('sources.json',here),'utf8'));
@@ -15,9 +16,19 @@ assert.equal(trainingEligibility(gold[0],registry).eligible,true);
 assert.equal(assertLocalEndpoint('http://127.0.0.1:8000'),'http://127.0.0.1:8000');
 assert.throws(()=>assertLocalEndpoint('https://example.com'));
 
-const candidate=toCandidate(gold[0],gold[0].target,{sourceId:'deepseek_r1_local_mit',model:'deepseek-r1'});
-assert.equal(validateExample(candidate,registry).ok,true);
-assert.equal(trainingEligibility(candidate,registry).eligible,false,'teacher candidates require review before training');
+const deepseek=toCandidate(gold[0],gold[0].target,{sourceId:'deepseek_r1_local_mit',model:'deepseek-r1'});
+const qwen=toCandidate(gold[0],gold[0].target,{sourceId:'qwen3_open_weights_apache2',model:'qwen3'});
+assert.equal(validateExample(deepseek,registry).ok,true);
+assert.equal(trainingEligibility(deepseek,registry).eligible,false,'teacher candidates require review before training');
+const agreed=compareCandidates([deepseek,qwen]);
+assert.equal(agreed.pass,true);
+
+const qwenConflict=structuredClone(qwen);
+qwenConflict.target.hard_constraints={budget_max:6000};
+const conflict=compareCandidates([deepseek,qwenConflict]);
+assert.equal(conflict.pass,false);
+assert.equal(conflict.requires_review,true);
+assert.ok(conflict.conflicts.includes('hard_constraints'));
 
 const predictions=gold.map(row=>({id:row.id,intent:row.target.intent,hard_constraints:row.target.hard_constraints,actions:row.target.actions,retained_constraints:row.session_context.constraints||[],critic:{pass:true},repair_attempted:false}));
 const metrics=benchmark(gold,predictions);
