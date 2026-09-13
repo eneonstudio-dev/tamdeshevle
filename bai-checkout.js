@@ -1,7 +1,7 @@
 (()=>{
   "use strict";
   import("./brand-prosche-v1.js?v=20260911-prosche-tone-v1").catch(e=>console.warn("[Brand Prosche] load failed",e));
-  import("./bai-fallback-bridge.js?v=20260911-fallback-only-v1").catch(e=>console.warn("[Bai Fallback Bridge] load failed",e));
+  import("./bai-fallback-bridge.js?v=20260913-natural-constraints-v1").catch(e=>console.warn("[Bai Fallback Bridge] load failed",e));
   import("./price-freshness-ui-v2.js?v=20260911-price-freshness-v2").catch(e=>console.warn("[Price Freshness v2] load failed",e));
   import("./store-constraints-v1.js?v=20260911-store-constraints-v1").catch(e=>console.warn("[Store Constraints] load failed",e));
   import("./basket-price-history.js?v=20260911-basket-history-v1").then(()=>import("./saved-baskets.js?v=20260911-basket-history-v1")).catch(e=>console.warn("[Saved Baskets] load failed",e));
