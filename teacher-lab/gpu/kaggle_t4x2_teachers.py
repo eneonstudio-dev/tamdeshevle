@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,json,re,subprocess,threading
+import argparse,gc,json,re,subprocess,threading
 from pathlib import Path
 
 SYSTEM=("Ты teacher для shopping-мозга Votonobay. Верни только один JSON-объект без markdown и без рассуждений. "
@@ -56,15 +56,33 @@ def prompt_for(task):
     payload={"user_request":task["user_request"],"session_context":task.get("session_context",{}),"guards":task.get("guards",{})}
     return SYSTEM+"\nINPUT="+json.dumps(payload,ensure_ascii=False,separators=(",",":"))
 
-def worker(profile_id,cfg,tasks,outdir,max_new_tokens):
+def load_teacher(profile_id,cfg):
     import torch
     from transformers import AutoModelForCausalLM,AutoTokenizer,BitsAndBytesConfig
-    path=outdir/f"{profile_id}.jsonl"; done=load_done(path)
-    print(f"[{profile_id}] loading {cfg['repo']} on cuda:{cfg['gpu']} done={len(done)}",flush=True)
+    print(f"[{profile_id}] loading {cfg['repo']} on cuda:{cfg['gpu']}",flush=True)
     quant=BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type="nf4",bnb_4bit_compute_dtype=torch.float16,bnb_4bit_use_double_quant=True)
     tok=AutoTokenizer.from_pretrained(cfg["repo"],trust_remote_code=True)
     model=AutoModelForCausalLM.from_pretrained(cfg["repo"],quantization_config=quant,device_map={"":cfg["gpu"]},torch_dtype=torch.float16,trust_remote_code=True)
     model.eval()
+    print(f"[{profile_id}] loaded",flush=True)
+    return tok,model
+
+def load_teachers(loader=load_teacher):
+    loaded={}
+    for profile_id,cfg in MODELS.items():
+        loaded[profile_id]=loader(profile_id,cfg)
+        gc.collect()
+        try:
+            import torch
+            torch.cuda.empty_cache()
+        except Exception: pass
+    return loaded
+
+def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens):
+    import torch
+    tok,model=loaded
+    path=outdir/f"{profile_id}.jsonl"; done=load_done(path)
+    print(f"[{profile_id}] generating on cuda:{cfg['gpu']} done={len(done)}",flush=True)
     with path.open("a",encoding="utf-8",buffering=1) as f:
         for idx,task in enumerate(tasks,1):
             if task["id"] in done: continue
@@ -87,6 +105,11 @@ def worker(profile_id,cfg,tasks,outdir,max_new_tokens):
             if idx%10==0: print(f"[{profile_id}] {idx}/{len(tasks)}",flush=True)
     print(f"[{profile_id}] complete -> {path}",flush=True)
 
+def run_parallel(loaded,tasks,outdir,max_new_tokens=700):
+    outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True)
+    threads=[threading.Thread(target=worker,args=(pid,cfg,loaded[pid],tasks,outdir,max_new_tokens),daemon=False) for pid,cfg in MODELS.items()]
+    [t.start() for t in threads]; [t.join() for t in threads]
+
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--repo",default="."); ap.add_argument("--out",default="/kaggle/working/bai_teacher_runs"); ap.add_argument("--batch-index",type=int,default=1); ap.add_argument("--limit",type=int,default=0); ap.add_argument("--max-new-tokens",type=int,default=700); args=ap.parse_args()
     if args.batch_index<0 or args.batch_index>9: raise SystemExit("--batch-index must be 0 (all) or 1..9")
@@ -98,7 +121,6 @@ def main():
         if torch.cuda.device_count()<2: raise SystemExit("Need Kaggle T4x2: two CUDA devices required")
         print("GPUs:",[torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
     except ImportError: raise SystemExit("PyTorch/CUDA required")
-    threads=[threading.Thread(target=worker,args=(pid,cfg,tasks,outdir,args.max_new_tokens),daemon=False) for pid,cfg in MODELS.items()]
-    [t.start() for t in threads]; [t.join() for t in threads]
+    loaded=load_teachers(); run_parallel(loaded,tasks,outdir,args.max_new_tokens)
     print("Teacher generation finished. Run prepare_review.mjs next.")
 if __name__=="__main__": main()
