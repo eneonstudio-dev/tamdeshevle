@@ -45,6 +45,8 @@ jobs:
           node --check teacher-lab/review-console-smoke.mjs
           node --check teacher-lab/student-teacher-loop.mjs
           node --check teacher-lab/student-teacher-loop-smoke.mjs
+          node --check teacher-lab/run-local-student-loop.mjs
+          node --check teacher-lab/local-student-loop-smoke.mjs
           node --check teacher-lab/gpu/prepare_review.mjs
           node --check teacher-lab/gpu/prepare_review_batch_smoke.mjs
           node --check teacher-lab/training/prepare-sft.mjs
@@ -80,6 +82,8 @@ jobs:
         run: node teacher-lab/review-console-smoke.mjs
       - name: Validate Bai student teacher loop
         run: node teacher-lab/student-teacher-loop-smoke.mjs
+      - name: Validate local Bai student critic transport
+        run: node teacher-lab/local-student-loop-smoke.mjs
       - name: Validate review artifact workflow
         run: python teacher-lab/review-artifact-smoke.py
       - name: Validate Kaggle teacher load order
