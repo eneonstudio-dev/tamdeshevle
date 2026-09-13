@@ -68,6 +68,16 @@ assert.equal(fetchCalls,1,'complex request should call Agent Core once');
 assert.equal(lastPayload.basket.secretField,undefined,'client must send strict basket projection');
 assert.equal(lastPayload.catalog.length,80,'catalog context must be capped');
 
+const explicitBaseline={ok:true,provider:'rules',operations:[{type:'CHANGE_BUDGET',value:5000},{type:'SET_DURATION',value:7},{type:'SET_MODE',value:'one'},{type:'EXCLUDE_BRAND',value:'мираторга'}],reply:'Собираю.',suggestions:[],expectsAnswer:false};
+result=await context.TDBaiAgentClient.route('Собери на неделю до 5000 рублей, ПП, без Мираторга, один магазин',[],explicitBaseline);
+assert.ok(result.operations.some(op=>op.type==='REQUIRE'&&op.value==='eggs'),'provider suggestions must be retained');
+assert.ok(result.operations.some(op=>op.type==='CHANGE_BUDGET'&&op.value===5000),'provider must not erase deterministic budget parsing');
+assert.ok(result.operations.some(op=>op.type==='SET_DURATION'&&op.value===7),'provider must not erase deterministic duration parsing');
+assert.ok(result.operations.some(op=>op.type==='SET_MODE'&&op.value==='one'),'provider must not erase deterministic store mode');
+assert.ok(result.operations.some(op=>op.type==='EXCLUDE_BRAND'&&op.value==='мираторга'),'provider must not erase deterministic exclusions');
+assert.deepEqual(Array.from(result.operationOrigin.explicitOperations,op=>op.type),['CHANGE_BUDGET','SET_DURATION','SET_MODE','EXCLUDE_BRAND']);
+assert.deepEqual(Array.from(result.operationOrigin.generatedOperations,op=>op.type),['REQUIRE','REOPTIMIZE'],'provider-only operations must be marked generated');
+
 fetchCalls=0;
 context.TDBaiBrain={route:async()=>({ok:true,provider:'rules',operations:[{type:'ADD_PRODUCT',value:'milk'}],reply:'Добавил.',suggestions:[],expectsAnswer:false})};
 result=await context.TDBaiBrain.route('добавь молоко',[]);
