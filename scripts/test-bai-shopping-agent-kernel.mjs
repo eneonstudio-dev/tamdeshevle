@@ -15,7 +15,7 @@ const storage=new Map(),products=[
 const context={console,JSON,Math,Number,String,Object,Array,Set,Map,Date,RegExp,Promise,AbortController,setTimeout,clearTimeout,CustomEvent:class{constructor(type,init){this.type=type;this.detail=init?.detail}},localStorage:{getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},dispatchEvent(){},addEventListener(){},render(){},navigator:{onLine:true}};
 context.window=context;context.globalThis=context;context.state={city:"msk",storeId:"pyat",cart:{}};
 vm.createContext(context);vm.runInContext(`const STORES=${JSON.stringify([{id:"pyat",name:"Пятёрочка",city:["msk"],kind:"shop"}])};const PRODUCTS=${JSON.stringify(products)};`,context);
-for(const file of ["store-adapters.js","shopping-state.js","shopping-optimizer.js","shopping-conversation.js","bai-shopping-agent-kernel.js"])vm.runInContext(fs.readFileSync(new URL(`../${file}`,import.meta.url),"utf8"),context);
+for(const file of ["store-adapters.js","shopping-state.js","shopping-optimizer.js","shopping-conversation.js","bai-brain.js","bai-shopping-agent-kernel.js"])vm.runInContext(fs.readFileSync(new URL(`../${file}`,import.meta.url),"utf8"),context);
 
 const kernel=context.TDBaiShoppingAgentKernel;
 assert.deepEqual(new Set(kernel.actions),new Set(["add_item","remove_item","replace_item","change_quantity","set_constraint","rebuild_basket","compare_stores","optimize_basket","explain_choice","prepare_purchase"]));
@@ -25,10 +25,10 @@ assert.equal(kernel.domainGate("Посоветуй ноутбук для про�
 assert.equal(kernel.domainGate("Включить нейро-режим (~310 МБ)").code,"ALLOWED");
 assert.equal(kernel.domainGate("Собери на неделю до 5000, ПП, без Мираторга, один магазин").code,"ALLOWED");
 
-let productionResult=await kernel.run({text:"Собери на неделю до 5000 рублей, ПП, без Мираторга, один магазин",operations:[
-  {type:"CHANGE_BUDGET",value:5000},{type:"SET_DURATION",value:7},{type:"SET_MODE",value:"one"},{type:"ADD_PREFERENCE",value:"healthy"},{type:"EXCLUDE_BRAND",value:"мираторга"},{type:"CLEAR_ONLY"},{type:"SET_INTENT",value:"build"},{type:"REOPTIMIZE"}
-]});
+const productionText="Собери на неделю до 5000 рублей, ПП, без Мираторга, один магазин",productionRoute=await context.TDBaiBrain.route(productionText);
+let productionResult=await kernel.run({text:productionText,operations:productionRoute.operations});
 assert.equal(productionResult.ok,true,JSON.stringify(productionResult.error));
+assert.equal(kernel.state.get().store_constraints.mode,"one");assert.ok(kernel.state.get().constraints.excluded_brands.includes("мираторга"));
 kernel.state.reset();context.TDShoppingState.reset();
 
 let candidateResult=await kernel.run({text:"Собери корзину",operations:[{type:"SET_INTENT",value:"build"},{type:"ADD_PRODUCT",value:"unavailable"},{type:"REOPTIMIZE"}]});
