@@ -1,0 +1,33 @@
+name: Validate Bai Teacher Lab
+
+on:
+  pull_request:
+    paths:
+      - "teacher-lab/**"
+      - ".github/workflows/validate-teacher-lab.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "teacher-lab/**"
+      - ".github/workflows/validate-teacher-lab.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Check Teacher Lab syntax
+        run: |
+          node --check teacher-lab/firewall.mjs
+          node --check teacher-lab/benchmark.mjs
+          node --check teacher-lab/local-teacher-runner.mjs
+          node --check teacher-lab/smoke.mjs
+      - name: Run Teacher Lab smoke gate
+        run: node teacher-lab/smoke.mjs
