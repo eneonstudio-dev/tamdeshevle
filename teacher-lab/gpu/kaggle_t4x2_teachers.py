@@ -105,6 +105,11 @@ def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens):
             if idx%10==0: print(f"[{profile_id}] {idx}/{len(tasks)}",flush=True)
     print(f"[{profile_id}] complete -> {path}",flush=True)
 
+def run_parallel(loaded,tasks,outdir,max_new_tokens=700):
+    outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True)
+    threads=[threading.Thread(target=worker,args=(pid,cfg,loaded[pid],tasks,outdir,max_new_tokens),daemon=False) for pid,cfg in MODELS.items()]
+    [t.start() for t in threads]; [t.join() for t in threads]
+
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--repo",default="."); ap.add_argument("--out",default="/kaggle/working/bai_teacher_runs"); ap.add_argument("--batch-index",type=int,default=1); ap.add_argument("--limit",type=int,default=0); ap.add_argument("--max-new-tokens",type=int,default=700); args=ap.parse_args()
     if args.batch_index<0 or args.batch_index>9: raise SystemExit("--batch-index must be 0 (all) or 1..9")
@@ -116,8 +121,6 @@ def main():
         if torch.cuda.device_count()<2: raise SystemExit("Need Kaggle T4x2: two CUDA devices required")
         print("GPUs:",[torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
     except ImportError: raise SystemExit("PyTorch/CUDA required")
-    loaded=load_teachers()
-    threads=[threading.Thread(target=worker,args=(pid,cfg,loaded[pid],tasks,outdir,args.max_new_tokens),daemon=False) for pid,cfg in MODELS.items()]
-    [t.start() for t in threads]; [t.join() for t in threads]
+    loaded=load_teachers(); run_parallel(loaded,tasks,outdir,args.max_new_tokens)
     print("Teacher generation finished. Run prepare_review.mjs next.")
 if __name__=="__main__": main()
