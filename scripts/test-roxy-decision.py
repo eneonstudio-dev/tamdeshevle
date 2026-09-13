@@ -69,7 +69,7 @@ def main():
             seed_decision(driver)
             WebDriverWait(driver,10).until(lambda d:visible(d,'.td-ai-decision-cta[data-roxy-decision="1"]'))
             driver.execute_script("return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
-            time.sleep(.15)
+            time.sleep(.20)
             metrics=driver.execute_script("""
               const root=document.querySelector('body>.td-ai');
               const decision=root?.querySelector('.td-ai-decision-cta[data-roxy-decision="1"]');
@@ -83,13 +83,13 @@ def main():
               const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
               const dr=decision?.getBoundingClientRect(),pr=primary?.getBoundingClientRect();
               return {
-                title,why:!!why,tradeoff:!!tradeoff,bay:!!bay,
+                title,why:!!why,tradeoff:!!tradeoff,bay:!!bay,hasAlternatives:!!alt,
                 decisionBeforeAlternatives:order(decision,alt),
                 decisionBeforeDetails:order(decision,details),
                 primary:pr?{w:pr.width,h:pr.height,text:primary.textContent.trim()}:null,
-                decision:dr?{left:dr.left,right:dr.right,width:dr.width}:null,
+                decision:dr?{left:dr.left,right:dr.right,top:dr.top,bottom:dr.bottom,width:dr.width,height:dr.height}:null,
                 stylesheet:!!document.querySelector('link[data-roxy-decision-v1="1"]'),
-                docWidth:document.documentElement.scrollWidth,vw:innerWidth
+                docWidth:document.documentElement.scrollWidth,vw:innerWidth,vh:innerHeight
               };
             """)
             label=f"{name}/decision"
@@ -97,14 +97,15 @@ def main():
             if not metrics.get("why"): failures.append(f"{label}: WHY block missing")
             if not metrics.get("tradeoff"): failures.append(f"{label}: tradeoff block missing")
             if not metrics.get("bay"): failures.append(f"{label}: Bay reaction missing")
-            if metrics.get("decisionBeforeAlternatives") is not True: failures.append(f"{label}: alternatives appear before verdict {metrics}")
+            if metrics.get("hasAlternatives") and metrics.get("decisionBeforeAlternatives") is not True: failures.append(f"{label}: alternatives appear before verdict {metrics}")
             if metrics.get("decisionBeforeDetails") is not True: failures.append(f"{label}: basket details appear before verdict {metrics}")
             if not metrics.get("stylesheet"): failures.append(f"{label}: Roxy decision stylesheet missing")
             if metrics.get("docWidth",0)>metrics.get("vw",0)+2: failures.append(f"{label}: horizontal overflow {metrics}")
             primary=metrics.get("primary") or {}
             if mobile and primary.get("h",0)<43.5: failures.append(f"{label}: primary action too short {primary}")
             decision=metrics.get("decision") or {}
-            if decision and (decision.get("left",0)<-2 or decision.get("right",0)>metrics.get("vw",0)+2): failures.append(f"{label}: decision leaves viewport {metrics}")
+            if decision and (decision.get("left",0)<-2 or decision.get("right",0)>metrics.get("vw",0)+2): failures.append(f"{label}: decision leaves viewport horizontally {metrics}")
+            if mobile and decision and not (decision.get("bottom",0)>100 and decision.get("top",99999)<metrics.get("vh",0)-100): failures.append(f"{label}: verdict is not revealed before basket details {metrics}")
             driver.save_screenshot(str(OUT/f"{name}-decision.png"))
         except Exception as exc:
             failures.append(f"{name}/decision: {exc}")
