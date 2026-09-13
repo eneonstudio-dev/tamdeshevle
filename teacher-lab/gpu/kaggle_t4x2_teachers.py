@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import argparse,gc,json,re,subprocess,threading
+import argparse,datetime,gc,hashlib,importlib.metadata,json,platform,re,subprocess,threading
 from pathlib import Path
 
+PROMPT_VERSION="bai-shopping-teacher-v1"
 SYSTEM=("Ты teacher для shopping-мозга Votonobay. Верни только один JSON-объект без markdown и без рассуждений. "
 "Поля: intent, hard_constraints, soft_preferences, shopping_plan, actions, critic, confidence. "
 "Не выдумывай цены, наличие, магазин, состав или качество. Hard constraints не ослабляй. "
@@ -10,6 +11,12 @@ MODELS={
  "deepseek_r1_distill_qwen_7b":{"repo":"deepseek-ai/DeepSeek-R1-Distill-Qwen-7B","revision":"916b56a44061fd5cd7d6a8fb632557ed4f724f60","gpu":0,"temperature":0.6,"thinking":None},
  "qwen3_8b":{"repo":"Qwen/Qwen3-8B","revision":"b968826d9c46dd6066d109eabc6255188de91218","gpu":1,"temperature":0.2,"thinking":False},
 }
+
+def canonical_json(value): return json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(",",":"))
+def sha256_text(text): return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def package_version(name):
+    try:return importlib.metadata.version(name)
+    except Exception:return None
 
 def extract_json(text):
     text=re.sub(r"<think>.*?</think>","",text,flags=re.S|re.I).strip()
@@ -48,16 +55,37 @@ def load_done(path,cfg):
     for line in path.read_text(encoding="utf-8").splitlines():
         try: row=json.loads(line)
         except Exception: continue
-        if row.get("model") not in (None,cfg["repo"]):
-            raise RuntimeError(f"existing run model mismatch in {path}; use a clean output directory")
-        if row.get("ok") and row.get("revision")!=cfg["revision"]:
-            raise RuntimeError(f"existing run revision mismatch in {path}; use a clean output directory")
+        if row.get("model") not in (None,cfg["repo"]): raise RuntimeError(f"existing run model mismatch in {path}; use a clean output directory")
+        if row.get("ok") and row.get("revision")!=cfg["revision"]: raise RuntimeError(f"existing run revision mismatch in {path}; use a clean output directory")
+        if row.get("ok") and not all(row.get(k) for k in ("prompt_sha256","output_sha256","runtime_fingerprint")):
+            raise RuntimeError(f"existing run lacks provenance fingerprints in {path}; use a clean output directory")
         if row.get("task_id") and row.get("ok"): done.add(row["task_id"])
     return done
 
 def prompt_for(task):
     payload={"user_request":task["user_request"],"session_context":task.get("session_context",{}),"guards":task.get("guards",{})}
     return SYSTEM+"\nINPUT="+json.dumps(payload,ensure_ascii=False,separators=(",",":"))
+
+def runtime_record(max_new_tokens):
+    import torch
+    base={
+      "schema_version":"1.0","prompt_version":PROMPT_VERSION,"system_prompt_sha256":sha256_text(SYSTEM),
+      "models":{pid:{"repo":cfg["repo"],"revision":cfg["revision"],"gpu":cfg["gpu"],"temperature":cfg["temperature"],"thinking":cfg.get("thinking")} for pid,cfg in MODELS.items()},
+      "generation":{"do_sample":True,"top_p":0.9,"max_new_tokens":int(max_new_tokens)},
+      "environment":{"python":platform.python_version(),"torch":getattr(torch,"__version__",None),"transformers":package_version("transformers"),"bitsandbytes":package_version("bitsandbytes"),"cuda":getattr(torch.version,"cuda",None),"gpus":[torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())]}
+    }
+    fingerprint=sha256_text(canonical_json(base))
+    return {**base,"runtime_fingerprint":fingerprint,"created_at":datetime.datetime.now(datetime.timezone.utc).isoformat()}
+
+def ensure_runtime_record(outdir,max_new_tokens):
+    outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True); path=outdir/"run-manifest.jsonl"; record=runtime_record(max_new_tokens)
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            try: existing=json.loads(line)
+            except Exception: continue
+            if existing.get("runtime_fingerprint")==record["runtime_fingerprint"]: return record["runtime_fingerprint"]
+    with path.open("a",encoding="utf-8",buffering=1) as f:f.write(json.dumps(record,ensure_ascii=False,separators=(",",":"))+"\n")
+    return record["runtime_fingerprint"]
 
 def load_teacher(profile_id,cfg):
     import torch
@@ -81,43 +109,42 @@ def load_teachers(loader=load_teacher):
         except Exception: pass
     return loaded
 
-def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens):
+def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens,runtime_fingerprint):
     import torch
     tok,model=loaded
     path=outdir/f"{profile_id}.jsonl"; done=load_done(path,cfg)
     print(f"[{profile_id}] generating on cuda:{cfg['gpu']} done={len(done)}",flush=True)
+    generation={"temperature":cfg["temperature"],"top_p":0.9,"do_sample":True,"max_new_tokens":int(max_new_tokens)}
     with path.open("a",encoding="utf-8",buffering=1) as f:
         for idx,task in enumerate(tasks,1):
             if task["id"] in done: continue
-            messages=[{"role":"user","content":prompt_for(task)}]
+            prompt=prompt_for(task); prompt_hash=sha256_text(prompt)
+            messages=[{"role":"user","content":prompt}]
             kw={"tokenize":False,"add_generation_prompt":True}
             if cfg.get("thinking") is False: kw["enable_thinking"]=False
             try: rendered=tok.apply_chat_template(messages,**kw)
             except TypeError:
                 kw.pop("enable_thinking",None); rendered=tok.apply_chat_template(messages,**kw)
             inputs=tok(rendered,return_tensors="pt").to(f"cuda:{cfg['gpu']}")
+            base={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"revision":cfg["revision"],"prompt_version":PROMPT_VERSION,"prompt_sha256":prompt_hash,"runtime_fingerprint":runtime_fingerprint,"generation":generation}
             try:
-                with torch.inference_mode():
-                    out=model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True,temperature=cfg["temperature"],top_p=0.9,pad_token_id=tok.eos_token_id)
-                text=tok.decode(out[0][inputs["input_ids"].shape[1]:],skip_special_tokens=True)
-                obj=extract_json(text)
-                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"revision":cfg["revision"],"ok":True,"output":obj}
-            except Exception as e:
-                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"revision":cfg["revision"],"ok":False,"error":type(e).__name__}
+                with torch.inference_mode(): out=model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True,temperature=cfg["temperature"],top_p=0.9,pad_token_id=tok.eos_token_id)
+                text=tok.decode(out[0][inputs["input_ids"].shape[1]:],skip_special_tokens=True); obj=extract_json(text)
+                row={**base,"ok":True,"output_sha256":sha256_text(canonical_json(obj)),"output":obj}
+            except Exception as e: row={**base,"ok":False,"error":type(e).__name__}
             f.write(json.dumps(row,ensure_ascii=False,separators=(",",":"))+"\n")
             if idx%10==0: print(f"[{profile_id}] {idx}/{len(tasks)}",flush=True)
     print(f"[{profile_id}] complete -> {path}",flush=True)
 
 def run_parallel(loaded,tasks,outdir,max_new_tokens=700):
-    outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True)
-    threads=[threading.Thread(target=worker,args=(pid,cfg,loaded[pid],tasks,outdir,max_new_tokens),daemon=False) for pid,cfg in MODELS.items()]
+    outdir=Path(outdir); outdir.mkdir(parents=True,exist_ok=True); runtime_fingerprint=ensure_runtime_record(outdir,max_new_tokens)
+    threads=[threading.Thread(target=worker,args=(pid,cfg,loaded[pid],tasks,outdir,max_new_tokens,runtime_fingerprint),daemon=False) for pid,cfg in MODELS.items()]
     [t.start() for t in threads]; [t.join() for t in threads]
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("--repo",default="."); ap.add_argument("--out",default="/kaggle/working/bai_teacher_runs"); ap.add_argument("--batch-index",type=int,default=1); ap.add_argument("--limit",type=int,default=0); ap.add_argument("--max-new-tokens",type=int,default=700); args=ap.parse_args()
     if args.batch_index<0 or args.batch_index>9: raise SystemExit("--batch-index must be 0 (all) or 1..9")
-    repo=Path(args.repo).resolve(); outdir=Path(args.out); outdir.mkdir(parents=True,exist_ok=True)
-    tasks=load_tasks(repo,outdir,args.batch_index)
+    repo=Path(args.repo).resolve(); outdir=Path(args.out); outdir.mkdir(parents=True,exist_ok=True); tasks=load_tasks(repo,outdir,args.batch_index)
     if args.limit>0: tasks=tasks[:args.limit]
     try:
         import torch
