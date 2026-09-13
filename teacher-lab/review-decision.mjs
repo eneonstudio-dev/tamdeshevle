@@ -43,3 +43,11 @@ export function applyReviewDecisions({left,right,queue,decisions,registry}){
   }
   return {approved,rejected,pending,summary:{approved:approved.length,rejected:rejected.length,pending:pending.length,total:(queue||[]).length}};
 }
+
+export function mergeApprovedGold(existing,incoming){
+  const byId=new Map();
+  for(const row of [...(Array.isArray(existing)?existing:[]),...(Array.isArray(incoming)?incoming:[])]){
+    if(row?.id&&row?.review?.status==='approved')byId.set(row.id,clone(row));
+  }
+  return [...byId.values()].sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+}
