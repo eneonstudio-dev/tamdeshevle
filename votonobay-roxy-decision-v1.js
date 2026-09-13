@@ -43,14 +43,22 @@
     if(section.dataset.roxyDecisionRevealed==="1")return;
     section.dataset.roxyDecisionRevealed="1";
     if(!window.matchMedia?.("(max-width:820px), (hover:none) and (pointer:coarse) and (max-width:1100px)")?.matches)return;
-    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+
+    const active=document.activeElement;
+    if(active&&root.contains(active)&&active.matches?.("textarea,input"))active.blur();
+    document.body.removeAttribute("data-td-keyboard-open");
+
+    const align=()=>{
       if(!section.isConnected)return;
       const scroller=section.closest(".td-ai-messages");
       if(scroller){
         const sr=scroller.getBoundingClientRect(),dr=section.getBoundingClientRect();
         scroller.scrollTop+=dr.top-sr.top-8;
       }else section.scrollIntoView({block:"start",inline:"nearest",behavior:"auto"});
-    }));
+    };
+    requestAnimationFrame(()=>requestAnimationFrame(align));
+    setTimeout(align,80);
+    setTimeout(align,180);
   }
 
   function decorateDecision(root){
