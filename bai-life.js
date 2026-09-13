@@ -16,6 +16,7 @@
   if(!character||!image)return;
 
   const APPROVED_HERO="assets/bai/bai-idle-approved.webp";
+  const MICRO_CLASSES=["micro-ear","micro-blink","micro-tail","micro-look","micro-purr","micro-listen"];
   function ensureApprovedStyle(){
     if(document.querySelector("style[data-approved-bay-v1]"))return;
     const style=document.createElement("style");
@@ -44,15 +45,28 @@
   if(!wake){wake=document.createElement("span");wake.className="bai-wake";wake.textContent="Нажми, чтобы разбудить";character.appendChild(wake)}
   const motionQuery=window.matchMedia?.("(prefers-reduced-motion: reduce)");
   let timer=0,settleTimer=0,lastMicro="";
+  function clearMicro(){bai.classList.remove(...MICRO_CLASSES)}
   function clearTimers(){clearTimeout(timer);clearTimeout(settleTimer);timer=0;settleTimer=0}
-  function schedule(){clearTimeout(timer);timer=0;if(document.hidden||motionQuery?.matches)return;timer=setTimeout(ambient,7000+Math.random()*6500)}
+  function schedule(){clearTimeout(timer);timer=0;if(document.hidden||motionQuery?.matches)return;timer=setTimeout(ambient,5400+Math.random()*5200)}
+  function chooseMicro(){
+    const state=bai.dataset.state;
+    const pools={
+      idle:["micro-blink","micro-ear","micro-tail","micro-look"],
+      peek:["micro-look","micro-ear","micro-blink"],
+      curious:["micro-listen","micro-look","micro-ear"],
+      thinking:["micro-look","micro-listen","micro-blink"],
+      happy:["micro-purr","micro-tail","micro-blink"],
+      "big-saving":["micro-purr","micro-tail","micro-ear"]
+    };
+    const pool=(pools[state]||pools.idle).filter(x=>x!==lastMicro);
+    return pool[Math.floor(Math.random()*pool.length)]||"micro-blink";
+  }
   function ambient(){
     clearTimeout(timer);timer=0;
-    bai.classList.remove("micro-ear","micro-blink","micro-tail");
+    clearMicro();
     if(document.hidden||motionQuery?.matches)return;
-    if(["idle","peek"].includes(bai.dataset.state)&&!bai.classList.contains("panel-open")){
-      const variants=["micro-ear","micro-blink","micro-tail"].filter(x=>x!==lastMicro);
-      const micro=variants[Math.floor(Math.random()*variants.length)]||"micro-blink";
+    if(["idle","peek","curious","thinking","happy","big-saving"].includes(bai.dataset.state)&&!bai.classList.contains("panel-open")){
+      const micro=chooseMicro();
       lastMicro=micro;
       requestAnimationFrame(()=>{if(!document.hidden&&!motionQuery?.matches)bai.classList.add(micro)});
     }
@@ -60,10 +74,16 @@
   }
   function settleResult(){settleTimer=0;if(document.hidden||window.state?.screen!=="compare")return;const verified=document.querySelector(".v2-verdict:not(.v2-verdict-wait)");window.TDBai?.setState(verified?"big-saving":"suspicious",verified?"Вот это уже настоящая экономия":"Не буду выдумывать победителя",3000)}
   function scheduleSettle(delay){clearTimeout(settleTimer);settleTimer=0;if(document.hidden)return;settleTimer=setTimeout(settleResult,delay)}
-  function pause(){clearTimers();bai.classList.remove("micro-ear","micro-blink","micro-tail")}
+  function pause(){clearTimers();clearMicro()}
   function resume(){if(document.hidden)return;syncHeroVisual();ambient();scheduleSettle(180)}
   function visibilityChanged(){document.hidden?pause():resume()}
-  window.addEventListener("td:bai-state",event=>character.setAttribute("aria-label",event.detail?.state==="hidden"?"Разбудить Бая":"Открыть Бая"));
+  window.addEventListener("td:bai-state",event=>{
+    character.setAttribute("aria-label",event.detail?.state==="hidden"?"Разбудить Бая":"Открыть Бая");
+    clearMicro();
+    if(!motionQuery?.matches&&["curious","thinking","happy","big-saving"].includes(event.detail?.state||"")){
+      const micro=chooseMicro();lastMicro=micro;requestAnimationFrame(()=>bai.classList.add(micro));
+    }
+  });
   window.addEventListener("td:v2-rendered",()=>{syncHeroVisual();scheduleSettle(180)});
   document.addEventListener("click",event=>{if(event.target.closest(".v2-compare,.btn.dark"))scheduleSettle(520)});
   document.addEventListener("visibilitychange",visibilityChanged);

@@ -10,3 +10,17 @@
 @keyframes bai-pop-in{0%{opacity:0;transform:translate(18px,22px) rotate(8deg)}70%{opacity:1;transform:translate(-2px,-3px) rotate(-2deg)}100%{transform:none}}@keyframes bai-curious{to{transform:translate(-3px,-2px) rotate(-1.5deg)}}@keyframes bai-purr{45%{transform:translateY(-5px) rotate(-2deg) scale(1.025)}70%{transform:translateY(1px) rotate(1deg)}}
 @media(max-width:700px){.bai-life{right:10px;top:8px;transform:scale(.65)}.bai-wake{right:35px;bottom:3px}.bai-panel{bottom:136px}}
 @media(prefers-reduced-motion:reduce){.bai-life i,.bai-assistant.micro-ear .bai-image,.bai-assistant.micro-tail .bai-image{animation:none!important}}
+
+/* Living Bay v2: richer, still quiet. */
+.bai-assistant .bai-character{transition:transform .34s cubic-bezier(.2,.85,.2,1),filter .3s ease}.bai-assistant .bai-character:hover{transform:translateY(-2px)}
+.bai-assistant.micro-look .bai-image{animation:bai-look 1.25s cubic-bezier(.3,.7,.2,1) 1}.bai-assistant.micro-purr .bai-image{animation:bai-soft-purr 1.15s ease-in-out 2}.bai-assistant.micro-listen .bai-image{animation:bai-listen .78s ease-in-out 1}.bai-assistant.is-talking .bai-character{filter:drop-shadow(0 10px 16px rgba(69,240,145,.12))}.bai-assistant.is-talking .bai-bubble{animation:bai-bubble-live 2.8s ease-in-out infinite}
+.bai-assistant[data-state=checking] .bai-character,.bai-assistant[data-state=thinking] .bai-character{filter:drop-shadow(0 10px 18px rgba(72,239,150,.1))}.bai-assistant[data-state=happy] .bai-character,.bai-assistant[data-state=big-saving] .bai-character{filter:drop-shadow(0 12px 22px rgba(72,239,150,.18))}
+.v2-hero-bai img[src*="bai-idle-approved.webp"]{transform-origin:52% 90%;animation:bai-hero-breathe 7.2s ease-in-out infinite;will-change:transform}.v2-hero-bai:hover img[src*="bai-idle-approved.webp"]{animation:bai-hero-greet .9s cubic-bezier(.2,.9,.2,1) 1 forwards}.v2-hero-bai:focus-visible img[src*="bai-idle-approved.webp"]{animation:bai-hero-greet .9s cubic-bezier(.2,.9,.2,1) 1 forwards}
+@keyframes bai-look{0%,100%{transform:none}30%{transform:translateX(-3px) rotate(-1.8deg)}58%{transform:translateX(2px) rotate(.8deg)}80%{transform:translateX(-1px)}}
+@keyframes bai-soft-purr{0%,100%{transform:none}42%{transform:translateY(-2px) scale(1.012)}68%{transform:translateY(1px) scale(.997)}}
+@keyframes bai-listen{0%,100%{transform:none}45%{transform:translateY(-2px) rotate(-1.6deg) scale(1.01)}}
+@keyframes bai-bubble-live{0%,100%{box-shadow:0 14px 34px rgba(6,31,17,.13)}50%{box-shadow:0 16px 38px rgba(46,205,119,.18)}}
+@keyframes bai-hero-breathe{0%,100%{transform:translate3d(0,0,0) rotate(0)}36%{transform:translate3d(0,-3px,0) rotate(-.45deg)}70%{transform:translate3d(1px,1px,0) rotate(.25deg)}}
+@keyframes bai-hero-greet{0%{transform:none}35%{transform:translateY(-7px) rotate(-1.7deg) scale(1.018)}65%{transform:translateY(-2px) rotate(.7deg) scale(1.008)}100%{transform:none}}
+@media(max-width:700px){.v2-hero-bai img[src*="bai-idle-approved.webp"]{animation-duration:8.4s}.bai-assistant .bai-character:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.bai-assistant.micro-look .bai-image,.bai-assistant.micro-purr .bai-image,.bai-assistant.micro-listen .bai-image,.bai-assistant.is-talking .bai-bubble,.v2-hero-bai img[src*="bai-idle-approved.webp"]{animation:none!important}.bai-assistant .bai-character{transition:none!important}}
