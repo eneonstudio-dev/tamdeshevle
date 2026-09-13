@@ -102,8 +102,7 @@ function criticVerdict(raw,deterministic){
 function safeFeedback(verdict){
   return {
     failures:[...verdict.reasons],
-    feedback:verdict.feedback,
-    instruction:'Исправь только перечисленные ошибки. Не ослабляй hard constraints и не выдумывай price/availability/store/composition/quality.'
+    instruction:'Исправь только перечисленные типы ошибок. Не ослабляй hard constraints и не выдумывай price/availability/store/composition/quality. Эталон teacher тебе не предоставляется.'
   };
 }
 
@@ -170,22 +169,22 @@ export async function runTrainingCase({task,teacherOutput,bayRunner,criticRunner
 }
 
 export async function runTrainingBatch({tasks,teacherResults,bayRunner,criticRunner,maxRepairs=2,onProgress}){
-  const teacherById=new Map(array(teacherResults).map(row=>[clean(row?.task_id||row?.id),row?.output||row?.target||row]));
+  const taskList=array(tasks),teacherById=new Map(array(teacherResults).map(row=>[clean(row?.task_id||row?.id),row?.output||row?.target||row]));
   const results=[],errors=[];
-  for(let index=0;index<array(tasks).length;index++){
-    const task=tasks[index],teacherOutput=teacherById.get(clean(task?.id));
+  for(let index=0;index<taskList.length;index++){
+    const task=taskList[index],teacherOutput=teacherById.get(clean(task?.id));
     try{
       if(!teacherOutput)throw Error('teacher_target_missing');
       results.push(await runTrainingCase({task,teacherOutput,bayRunner,criticRunner,maxRepairs}));
     }catch(error){
       errors.push({task_id:task?.id||null,error:String(error?.message||error)});
     }
-    if(typeof onProgress==='function')onProgress({done:index+1,total:tasks.length,errors:errors.length});
+    if(typeof onProgress==='function')onProgress({done:index+1,total:taskList.length,errors:errors.length});
   }
   const passed=results.filter(row=>row.pass).length,repaired=results.filter(row=>row.repaired).length;
   return {
     schema_version:'1.0',
-    summary:{total:tasks.length,evaluated:results.length,passed,repaired,failed:results.length-passed,errors:errors.length,pass_rate:results.length?Number((passed/results.length).toFixed(4)):null},
+    summary:{total:taskList.length,evaluated:results.length,passed,repaired,failed:results.length-passed,errors:errors.length,pass_rate:results.length?Number((passed/results.length).toFixed(4)):null},
     results,
     errors,
     regression_candidates:results.filter(row=>!row.pass).map(row=>row.learning_record),
