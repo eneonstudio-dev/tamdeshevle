@@ -44,16 +44,23 @@ jobs:
           node --check teacher-lab/review-console.mjs
           node --check teacher-lab/review-console-smoke.mjs
           node --check teacher-lab/gpu/prepare_review.mjs
+          node --check teacher-lab/gpu/prepare_review_batch_smoke.mjs
           node --check teacher-lab/training/prepare-sft.mjs
           node --check teacher-lab/training/review-export.mjs
+          node --check teacher-lab/training/aggregate-gold.mjs
+          node --check teacher-lab/training/aggregate-gold-smoke.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
+          python -m py_compile teacher-lab/review-artifact.py
+          python -m py_compile teacher-lab/review-artifact-smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
+          python -m py_compile teacher-lab/gpu/kaggle_load_order_smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_runall.py
           python -m py_compile teacher-lab/training/train_student.py
           python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
           python -m json.tool teacher-lab/training/bai_student_kaggle_train.ipynb >/dev/null
           grep -q "kaggle_runall.py" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
+          grep -q -- "--through-batch 9" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
           grep -q "train_student.py" teacher-lab/training/bai_student_kaggle_train.ipynb
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
@@ -69,6 +76,14 @@ jobs:
         run: node teacher-lab/review-decision-smoke.mjs
       - name: Validate offline review console
         run: node teacher-lab/review-console-smoke.mjs
+      - name: Validate review artifact workflow
+        run: python teacher-lab/review-artifact-smoke.py
+      - name: Validate Kaggle teacher load order
+        run: python teacher-lab/gpu/kaggle_load_order_smoke.py
+      - name: Validate batch-scoped teacher review
+        run: node teacher-lab/gpu/prepare_review_batch_smoke.mjs
+      - name: Validate cumulative Gold aggregation
+        run: node teacher-lab/training/aggregate-gold-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
