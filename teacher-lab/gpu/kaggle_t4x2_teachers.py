@@ -7,8 +7,8 @@ SYSTEM=("Ты teacher для shopping-мозга Votonobay. Верни толь�
 "Не выдумывай цены, наличие, магазин, состав или качество. Hard constraints не ослабляй. "
 "confidence должен содержать overall, price, availability, quality; если фактов нет, price/availability/quality=unknown.")
 MODELS={
- "deepseek_r1_distill_qwen_7b":{"repo":"deepseek-ai/DeepSeek-R1-Distill-Qwen-7B","gpu":0,"temperature":0.6,"thinking":None},
- "qwen3_8b":{"repo":"Qwen/Qwen3-8B","gpu":1,"temperature":0.2,"thinking":False},
+ "deepseek_r1_distill_qwen_7b":{"repo":"deepseek-ai/DeepSeek-R1-Distill-Qwen-7B","revision":"916b56a44061fd5cd7d6a8fb632557ed4f724f60","gpu":0,"temperature":0.6,"thinking":None},
+ "qwen3_8b":{"repo":"Qwen/Qwen3-8B","revision":"b968826d9c46dd6066d109eabc6255188de91218","gpu":1,"temperature":0.2,"thinking":False},
 }
 
 def extract_json(text):
@@ -42,14 +42,17 @@ def load_tasks(repo,outdir,batch_index):
         if not source.exists(): raise SystemExit(f"batch {batch_index} does not exist (valid: 1..9)")
     return [json.loads(x) for x in source.read_text(encoding="utf-8").splitlines() if x.strip()]
 
-def load_done(path):
+def load_done(path,cfg):
     if not path.exists(): return set()
     done=set()
     for line in path.read_text(encoding="utf-8").splitlines():
-        try:
-            row=json.loads(line)
-            if row.get("task_id") and row.get("ok"): done.add(row["task_id"])
-        except Exception: pass
+        try: row=json.loads(line)
+        except Exception: continue
+        if row.get("model") not in (None,cfg["repo"]):
+            raise RuntimeError(f"existing run model mismatch in {path}; use a clean output directory")
+        if row.get("ok") and row.get("revision")!=cfg["revision"]:
+            raise RuntimeError(f"existing run revision mismatch in {path}; use a clean output directory")
+        if row.get("task_id") and row.get("ok"): done.add(row["task_id"])
     return done
 
 def prompt_for(task):
@@ -59,10 +62,10 @@ def prompt_for(task):
 def load_teacher(profile_id,cfg):
     import torch
     from transformers import AutoModelForCausalLM,AutoTokenizer,BitsAndBytesConfig
-    print(f"[{profile_id}] loading {cfg['repo']} on cuda:{cfg['gpu']}",flush=True)
+    print(f"[{profile_id}] loading {cfg['repo']}@{cfg['revision']} on cuda:{cfg['gpu']}",flush=True)
     quant=BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type="nf4",bnb_4bit_compute_dtype=torch.float16,bnb_4bit_use_double_quant=True)
-    tok=AutoTokenizer.from_pretrained(cfg["repo"],trust_remote_code=True)
-    model=AutoModelForCausalLM.from_pretrained(cfg["repo"],quantization_config=quant,device_map={"":cfg["gpu"]},torch_dtype=torch.float16,trust_remote_code=True)
+    tok=AutoTokenizer.from_pretrained(cfg["repo"],revision=cfg["revision"],trust_remote_code=True)
+    model=AutoModelForCausalLM.from_pretrained(cfg["repo"],revision=cfg["revision"],quantization_config=quant,device_map={"":cfg["gpu"]},torch_dtype=torch.float16,trust_remote_code=True)
     model.eval()
     print(f"[{profile_id}] loaded",flush=True)
     return tok,model
@@ -81,7 +84,7 @@ def load_teachers(loader=load_teacher):
 def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens):
     import torch
     tok,model=loaded
-    path=outdir/f"{profile_id}.jsonl"; done=load_done(path)
+    path=outdir/f"{profile_id}.jsonl"; done=load_done(path,cfg)
     print(f"[{profile_id}] generating on cuda:{cfg['gpu']} done={len(done)}",flush=True)
     with path.open("a",encoding="utf-8",buffering=1) as f:
         for idx,task in enumerate(tasks,1):
@@ -98,9 +101,9 @@ def worker(profile_id,cfg,loaded,tasks,outdir,max_new_tokens):
                     out=model.generate(**inputs,max_new_tokens=max_new_tokens,do_sample=True,temperature=cfg["temperature"],top_p=0.9,pad_token_id=tok.eos_token_id)
                 text=tok.decode(out[0][inputs["input_ids"].shape[1]:],skip_special_tokens=True)
                 obj=extract_json(text)
-                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"ok":True,"output":obj}
+                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"revision":cfg["revision"],"ok":True,"output":obj}
             except Exception as e:
-                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"ok":False,"error":type(e).__name__}
+                row={"task_id":task["id"],"profile_id":profile_id,"model":cfg["repo"],"revision":cfg["revision"],"ok":False,"error":type(e).__name__}
             f.write(json.dumps(row,ensure_ascii=False,separators=(",",":"))+"\n")
             if idx%10==0: print(f"[{profile_id}] {idx}/{len(tasks)}",flush=True)
     print(f"[{profile_id}] complete -> {path}",flush=True)
