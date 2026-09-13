@@ -53,14 +53,14 @@ export function importTeacherResults({rows,tasks,profile,registry}){
       if(!hex64(raw?.prompt_sha256))throw Error('invalid_prompt_hash');
       if(!hex64(raw?.output_sha256))throw Error('invalid_output_hash');
       if(!hex64(raw?.runtime_fingerprint))throw Error('invalid_runtime_fingerprint');
-      if(structuredHash(raw?.output)!==clean(raw?.output_sha256))throw Error('output_hash_mismatch');
       if(hasForbidden(raw?.output))throw Error('forbidden_reasoning_field');
       const generation=raw?.generation&&typeof raw.generation==='object'&&!Array.isArray(raw.generation)?clone(raw.generation):{};
+      const canonicalOutputHash=structuredHash(raw?.output);
       seen.add(taskId);
       const task=taskMap.get(taskId),candidate={
         id:`${taskId}.${profile.id}`.slice(0,80),schema_version:'1.0',language:'ru',user_request:task.user_request,
         session_context:clone(task.session_context||{}),target:normalizeTarget(raw.output),
-        provenance:{sources:[{source_id:profile.source_id,model:profile.model,revision:profile.revision,profile_id:profile.id,corpus_task_id:taskId,prompt_version:clean(raw.prompt_version),prompt_sha256:clean(raw.prompt_sha256),output_sha256:clean(raw.output_sha256),runtime_fingerprint:clean(raw.runtime_fingerprint),generation}]},
+        provenance:{sources:[{source_id:profile.source_id,model:profile.model,revision:profile.revision,profile_id:profile.id,corpus_task_id:taskId,prompt_version:clean(raw.prompt_version),prompt_sha256:clean(raw.prompt_sha256),output_sha256:canonicalOutputHash,producer_output_sha256:clean(raw.output_sha256),runtime_fingerprint:clean(raw.runtime_fingerprint),generation}]},
         review:{status:'candidate'},privacy:{sanitized:true,contains_personal_data:false},
         evaluation:{category:task.category,scenario_id:task.scenario_id||null,turn:task.turn||null,expected:clone(task.expected||{})}
       };
