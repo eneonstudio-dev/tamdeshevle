@@ -4,7 +4,7 @@
   "city": "msk",
   "store_id": "magnit",
   "channel": "delivery_catalog",
-  "checked_at": "2026-09-12T19:56:18.236Z",
+  "checked_at": "2026-09-13T07:29:43.289Z",
   "source_url": "https://magnit.ru/",
   "method": "public_store_scoped_catalog_collector",
   "scope_verified": true,
@@ -105,17 +105,17 @@
       "url": "https://magnit.ru/product/1000167333-makarony_makfa_spagetti_grechnevye_500g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000027434",
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
+      "id": "1000027433",
+      "name": "Батон Летний дар Краснодарский хлебозавод №6 350г",
       "brand": "Краснодарский",
       "price": 66.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/WNaLPtPw5SD_qBBYDRHfPy6b8wK9F3dMp-NRYVL7OUg/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/470/47085334e1d3a42aaa7cf9917a0436a9/670b2fff6ffb2ab59395d086b24e672f.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/JYzXmyBDkY-fjNhmatnocR27GggDg1kSTs1gXtSiBvM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/1e4/1e40c3fecaf872e9f99e3894116e341a/bb1e6128383ccd9517365688e18ca507.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000027434-baton_letniy_narez_v_s_0_35kg_p_up_khlebozavod_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000027433-baton_letniy_v_s_0_35kg_ne_upak_khlebozavod_6?shopCode=770105&shopType=1"
     },
     {
       "id": "9072651501",
@@ -131,17 +131,17 @@
       "url": "https://magnit.ru/product/9072651501-banany?shopCode=770105&shopType=1"
     },
     {
-      "id": "1445100062",
-      "name": "Картофель фасованный",
-      "brand": null,
-      "price": 198.37,
+      "id": "1000142375",
+      "name": "Пирожок жареный с картофельной начинкой 100г",
+      "brand": "Магнит",
+      "price": 49.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/8vzZyVFLKKeVkNExvmObTQD348_EWsWpK00FhN8iGiU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1445100062/image/d7ac31042bc6effb5824904d3450dbca.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/Z_7V7LNNmrRESufwFzamFSLIAgIt2WOEi6p1pK_8xvo/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000142375/image/0f471ae00e79105c5da8e076cf64e030.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1"
     },
     {
       "id": "9072651204",
@@ -248,30 +248,30 @@
       "url": "https://magnit.ru/product/1000303406-krupa_grechnevaya_magnit_yadritsa_bystrogo_prigotovleniya_900g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000076773",
-      "name": "Хлеб Бородинский ржаной нарезанный 330г",
-      "brand": "Аютинский Хлеб",
-      "price": 35.99,
+      "id": "1000027434",
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
+      "brand": "Краснодарский",
+      "price": 66.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/r07glRudoagILRf5L3MQ-HTB-utgt4TDLYnC7pld4fs/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b6a/b6a77973b5ddd13a5c9ea39de421a360/c2f927580deda666ff614f7250e61004.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/WNaLPtPw5SD_qBBYDRHfPy6b8wK9F3dMp-NRYVL7OUg/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/470/47085334e1d3a42aaa7cf9917a0436a9/670b2fff6ffb2ab59395d086b24e672f.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000076773-khleb_borodinskiy_narez_rzhan_0_33kg_fl_p_gukovskaya_m_yu?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000027434-baton_letniy_narez_v_s_0_35kg_p_up_khlebozavod_6?shopCode=770105&shopType=1"
     },
     {
-      "id": "9072651210",
-      "name": "Картофель",
+      "id": "1445100062",
+      "name": "Картофель фасованный",
       "brand": null,
-      "price": 87.98,
+      "price": 198.37,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/IR0JEq0w08VLH798j8pFHaH4Qm6QAWmQELga349NePY/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/9072651210/image/d62a2e839d84ab0f609f50ab7c91fc6a.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/8vzZyVFLKKeVkNExvmObTQD348_EWsWpK00FhN8iGiU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1445100062/image/d7ac31042bc6effb5824904d3450dbca.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1"
     },
     {
       "id": "9072651201",
@@ -352,17 +352,30 @@
       "url": "https://magnit.ru/product/1000572754-imperial_cuisine_lapsha_grech_soba_400g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000088181",
-      "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
-      "brand": "Краснодарский",
-      "price": 95.99,
+      "id": "1000059771",
+      "name": "Хлеб Тостовый половинка нарезанный 280г",
+      "brand": "Аютинский Хлеб",
+      "price": 46.19,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/MdNgG5wfPk6ws6-uWBnwem4obmlqubNqgbUp_QNe4s4/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/91f/91fe33ca1079abbf82e1020a59cb772e/a2f78ce5a878051aa2645d193de5edf2.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/-Vl_WhbUpYRdOe71oUcOP5v1_6T4ihAhNvd3LX9SBmI/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f3f/f3f593c65423607954b00385de0ba06e/e1003fea305f66c26ca88e06f2ac7385.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000088181-khleb_podovyy_belyy_v_narez_v_s_0_55kg_p_up_krasnodarkhz_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000059771-khleb_tostovyy_polov_0_28kg_p_up_gukovskaya_m_yu?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "9072651210",
+      "name": "Картофель",
+      "brand": null,
+      "price": 87.98,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/IR0JEq0w08VLH798j8pFHaH4Qm6QAWmQELga349NePY/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/9072651210/image/d62a2e839d84ab0f609f50ab7c91fc6a.jpeg@webp",
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1"
     },
     {
       "id": "1000098747",
@@ -430,17 +443,17 @@
       "url": "https://magnit.ru/product/1393100200-grechka_yadritsa_uvelka_ekstra_800g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000111868",
-      "name": "Хлеб Ржано-пшеничный половина нарезанный 330г",
+      "id": "1000076773",
+      "name": "Хлеб Бородинский ржаной нарезанный 330г",
       "brand": "Аютинский Хлеб",
-      "price": 32.99,
+      "price": 35.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/WUzLm2d3akOuIiSd4UAvsmqUW00JfOF3_9514ZwmUH8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/70c/70c8819693bd224c3ce05c3b171ebcd9/95565303da2de4ddccf5c005efb2021b.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/r07glRudoagILRf5L3MQ-HTB-utgt4TDLYnC7pld4fs/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b6a/b6a77973b5ddd13a5c9ea39de421a360/c2f927580deda666ff614f7250e61004.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000111868-khleb_bogorodskiy_narez_rzhan_pshen_330g_p_up_gukovskaya_m_yu?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000076773-khleb_borodinskiy_narez_rzhan_0_33kg_fl_p_gukovskaya_m_yu?shopCode=770105&shopType=1"
     },
     {
       "id": "1000177162",
@@ -495,17 +508,17 @@
       "url": "https://magnit.ru/product/2400008418-grechnevaya_krupa_agro_alyans_elitnaya_900g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000134831",
-      "name": "Хлеб Бородинский нарезанный ржано-пшеничный Краснодарский хлебозавод №6 450г",
+      "id": "1000088181",
+      "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
       "brand": "Краснодарский",
-      "price": 75.99,
+      "price": 92.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/PiktfLWX-B9jCRVeTsx8HQU2_pfWmDlbmDlYRhMXXaY/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/231/2317b200044e6f19121a759d7985f6e3/99fa8af9a2cbe2e51f82e5445fb2fc42.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/MdNgG5wfPk6ws6-uWBnwem4obmlqubNqgbUp_QNe4s4/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/91f/91fe33ca1079abbf82e1020a59cb772e/a2f78ce5a878051aa2645d193de5edf2.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000134831-khleb_borodinskiy_form_narez_rzhan_pshen_0_45kg_khlebzavod_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000088181-khleb_podovyy_belyy_v_narez_v_s_0_55kg_p_up_krasnodarkhz_6?shopCode=770105&shopType=1"
     },
     {
       "id": "1000203957",
@@ -677,17 +690,17 @@
       "url": "https://magnit.ru/product/1000443805-federici_makaronnye_izdeliya_spagetti_400g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000210710",
-      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
+      "id": "1000294726",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
       "brand": "Аютинский Хлеб",
-      "price": 81.99,
+      "price": 46.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/H_1XnW-bNIJpPI0MbBpJhWFrsC6QqkHFfGQOQe2O5Kw/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/08f/08fc180515c72ee95f65aa41af5e6121/0a97d4a9e5775872d731056fa3e939af.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/QeakEixgrpuAsLbqusR6YvhsToVqoExldOsxEycfM-8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/146/146d7be3b349f1db1d206509bb89bacc/32eb4078241e4219a50e9cdf68b2feeb.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000210710-khleb_premium_supersemechkov_narez_tost_pshen_0_33kg_gukovskaya?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000294726-ayutinskiy_khleb_khleb_tostovyy_narez_psh_0_28kg_p_up_15?shopCode=770105&shopType=1"
     },
     {
       "id": "1000389629",
@@ -729,17 +742,17 @@
       "url": "https://magnit.ru/product/3174070006-makarony_shebekinskie_spagetti_450g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000294726",
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "brand": "Аютинский Хлеб",
-      "price": 46.99,
+      "id": "1000295084",
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "brand": "ХК Лавина",
+      "price": 76.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/QeakEixgrpuAsLbqusR6YvhsToVqoExldOsxEycfM-8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/146/146d7be3b349f1db1d206509bb89bacc/32eb4078241e4219a50e9cdf68b2feeb.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/tWHqYpbIG1qon_ooGetTW5ZYxUcquFpg4cyeUcvOyqM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/6fa/6fa8c15a6039fe3d192c96cdcdd6b3c0/2667dca5599c2e8d48c6803087f85115.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000294726-ayutinskiy_khleb_khleb_tostovyy_narez_psh_0_28kg_p_up_15?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000295084-lavina_khleb_tostovyy_pshenichnyy_v_narezke_0_4_kg_polietilenovaya_upakovka_ooo_khlebokombinat_lavin?shopCode=770105&shopType=1"
     },
     {
       "id": "1000475806",
@@ -768,17 +781,17 @@
       "url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000295084",
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "brand": "ХК Лавина",
-      "price": 76.99,
+      "id": "1000310437",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "brand": "Аютинский Хлеб",
+      "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/tWHqYpbIG1qon_ooGetTW5ZYxUcquFpg4cyeUcvOyqM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/6fa/6fa8c15a6039fe3d192c96cdcdd6b3c0/2667dca5599c2e8d48c6803087f85115.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/_TWPGaW8tH2Vnk9RfDx-AhaBu8ywL1W4GQW9Yi5QXqc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/40a/40a2d3f76fb3074562138d4cf56c1bd7/8594892999e36d620242757e94bf0346.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000295084-lavina_khleb_tostovyy_pshenichnyy_v_narezke_0_4_kg_polietilenovaya_upakovka_ooo_khlebokombinat_lavin?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000310437-ayutinskiy_khleb_khdeb_remeslennyy_na_zakvaske_v_s_pshenichnyy_v_narezke_0_55kg_polietilenovaya_upak?shopCode=770105&shopType=1"
     },
     {
       "id": "1000551012",
@@ -807,17 +820,17 @@
       "url": "https://magnit.ru/product/1000383833-rogachev_moloko_sgushchennoe_tselnoe_8_5_270g_doy_pak_24?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000310437",
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "id": "1000310438",
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
       "brand": "Аютинский Хлеб",
       "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/_TWPGaW8tH2Vnk9RfDx-AhaBu8ywL1W4GQW9Yi5QXqc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/40a/40a2d3f76fb3074562138d4cf56c1bd7/8594892999e36d620242757e94bf0346.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/OyfT56IPOf9gKuZdObnhTJp2aA7HGuiHqX4kUvhDQ6s/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/898/8984e6d5870ce57303ae14271b384e8b/67eb8c1e35cf7655b38717f5b217ca5d.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000310437-ayutinskiy_khleb_khdeb_remeslennyy_na_zakvaske_v_s_pshenichnyy_v_narezke_0_55kg_polietilenovaya_upak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000310438-ayutinskiy_khleb_khdeb_remeslennyy_iz_tselnozernovoy_muki_tselnozernovoy_pshenichnyy_v_narezke_0_55k?shopCode=770105&shopType=1"
     },
     {
       "id": "1032420004",
@@ -924,17 +937,17 @@
       "url": "https://magnit.ru/product/1000495985-pavlovskoe_moloko_past_2_5_900g_pl_but?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000421005",
-      "name": "Хлеб Порционный овсяный нарезанный Аютинский хлеб 300г",
-      "brand": "Аютинский Хлеб",
-      "price": 79.99,
+      "id": "1000452288",
+      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
+      "brand": "ХК Лавина",
+      "price": 56.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/hfQwRbLT1JhOeH22rj4nZjwcHKT25MDjXcYOKLL3IiY/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/860/860cdb49636178837d0ded2f54bae142/bdfd56c938b076435a1ad1096ee6b924.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/JNzxBrDjOt1JLSRYpkXs_Gl9ZOGJUfXZ22t7lPqduJM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b9c/b9c0e8a5429c1b587e89271d1c744a68/091d7fcf691627334a44184c7a237a11.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000421005-khleb_portsionnyy_ovsyanyy_narez_0_3_kg_fl_p_gukovskaya?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000452288-khleb_artizian_v_narezke_300g_p_up_lavina?shopCode=770105&shopType=1"
     },
     {
       "id": "1524200012",
@@ -1002,17 +1015,17 @@
       "url": "https://magnit.ru/product/1000568396-domik_v_derevne_moloko_bezlakt_ultrapast_1_8_950g_t_pak?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000516053",
-      "name": "Хлеб Кубанская лоза нарезанный Хлебозавод №6 300г",
-      "brand": "ХЗ №6",
-      "price": 79.99,
+      "id": "1119990141",
+      "name": "Хлеб Кукурузный с сыром 400г",
+      "brand": "Магнит",
+      "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/Lyu9396OhcPqkkz6X4g8nf_b-ips1lQRJNYgCwsLnfk/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000516053/image/32e9af6498db1c4f79fa9db5779e912b.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/KAgOMhsyWNqir_s3_Qw96RrVOU8yQ3uCemvcz7Auvp0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1119990141/image/b3fb93e5a7cf4b9bd90854cfc0999c13.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000516053-khleb_kubanskaya_loza_0_3_kg_narez_v_s_afipskiy_khk_?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1119990141-khleb_kukuruznyy_s_syrom_0_4kg_sp_gm?shopCode=770105&shopType=1"
     },
     {
       "id": "1524200089",
@@ -1028,43 +1041,30 @@
       "url": "https://magnit.ru/product/1524200089-chay_chernyy_greenfield_spring_melody_25pak?shopCode=770105&shopType=1"
     },
     {
-      "id": "1391400209",
-      "name": "Круассан со сгущенным молоком 75г",
-      "brand": "Аютинский Хлеб",
-      "price": 32.99,
+      "id": "1829990260",
+      "name": "Молоко Коровка из Кореновки пастеризованное 2.7% 900г",
+      "brand": "Коровка из Кореновки",
+      "price": 94.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/h5AHeQ9B1OcHmNP8QclW-qtk5TRiAHHISbY_rwLmVes/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/bf3/bf317693d8ba763d88517d2a0ae57112/755b34589e37df547c85a30394089718.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/hjtaqqO35J6-q2Rq6Dbk2raRTDNnFCw8osU3p1iFlCY/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/fe1/fe1280bd2d7e8c7df1c872b47cca4a8d/e6e94dc402b04eeb2e59dd1da99c3d61.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1391400209-kruassan_so_sgushch_molokom_0_075kg_p_up_gukovskaya_m_yu?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1829990260-korovka_iz_korenovki_moloko_past_0_9l_pl_but_kmkk_6?shopCode=770105&shopType=1"
     },
     {
-      "id": "1391400234",
-      "name": "Батон Нарезной нарезанный Аютинский хлеб 380г",
+      "id": "1391400233",
+      "name": "Хлеб Тостовый нарезанный Аютинский хлеб 570г",
       "brand": "Аютинский Хлеб",
-      "price": 64.99,
+      "price": 85.69,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/DUExobKwGX3ATZwaSypb8qQkq_G_1nVhsi2XHXAl5ws/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/df1/df124b64839a2c33caaf7c1a5801ec30/c95fce78a4349faf604b09f9ce2de68a.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/mRNCt5YooazOzwxhP8pcVSKjNzQ_FZ-NTw1zea1l2fs/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/417/4179cd58c72e3150b55ee7242e088146/f158aeeb217f67f41d04c167b60605b0.jpeg@webp",
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1391400234-baton_nareznoy_narez_0_38kg_p_up_ayutinskiy_khleb?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "1524200094",
-      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
-      "brand": "Принцесса Нури",
-      "price": 69.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/DvtYCwhDLBte0lF3sun_Yq7OggmlUUa1Y-7WX7ICwRU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f16/f16acee2d63fd2fe45f1bdc1659e3833/26660d881c395bda556668db26d2cd12.jpeg@webp",
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1524200094-chay_chernyy_printsessa_nuri_s_chernoy_smorodinoy_25pak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1391400233-khleb_tostovyy_0_57kg_fl_p_ayutinskiy_khleb?shopCode=770105&shopType=1"
     }
   ]
 }

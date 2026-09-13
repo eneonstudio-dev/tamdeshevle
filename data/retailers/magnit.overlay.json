@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-12T19:56:18.236Z",
+  "checked_at": "2026-09-13T07:29:43.289Z",
   "prices": {
     "buckwheat": 59.99,
     "eggs_c1": 75.89,
@@ -122,8 +122,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
-      "retailer_product_id": "1000027434",
+      "name": "Батон Летний дар Краснодарский хлебозавод №6 350г",
+      "retailer_product_id": "1000027433",
       "reason": "no_rule_match"
     },
     {
@@ -147,8 +147,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Бородинский ржаной нарезанный 330г",
-      "retailer_product_id": "1000076773",
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 350г",
+      "retailer_product_id": "1000027434",
       "reason": "no_rule_match"
     },
     {
@@ -162,8 +162,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
-      "retailer_product_id": "1000088181",
+      "name": "Хлеб Тостовый половинка нарезанный 280г",
+      "retailer_product_id": "1000059771",
       "reason": "no_rule_match"
     },
     {
@@ -182,8 +182,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ржано-пшеничный половина нарезанный 330г",
-      "retailer_product_id": "1000111868",
+      "name": "Хлеб Бородинский ржаной нарезанный 330г",
+      "retailer_product_id": "1000076773",
       "reason": "no_rule_match"
     },
     {
@@ -197,8 +197,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Бородинский нарезанный ржано-пшеничный Краснодарский хлебозавод №6 450г",
-      "retailer_product_id": "1000134831",
+      "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
+      "retailer_product_id": "1000088181",
       "reason": "no_rule_match"
     },
     {
@@ -237,8 +237,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
-      "retailer_product_id": "1000210710",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "retailer_product_id": "1000294726",
       "reason": "no_rule_match"
     },
     {
@@ -252,8 +252,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "retailer_product_id": "1000294726",
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "retailer_product_id": "1000295084",
       "reason": "no_rule_match"
     },
     {
@@ -262,8 +262,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "retailer_product_id": "1000295084",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310437",
       "reason": "no_rule_match"
     },
     {
@@ -277,8 +277,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310437",
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310438",
       "reason": "no_rule_match"
     },
     {
@@ -322,8 +322,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Порционный овсяный нарезанный Аютинский хлеб 300г",
-      "retailer_product_id": "1000421005",
+      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
+      "retailer_product_id": "1000452288",
       "reason": "no_rule_match"
     },
     {
@@ -352,8 +352,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Кубанская лоза нарезанный Хлебозавод №6 300г",
-      "retailer_product_id": "1000516053",
+      "name": "Хлеб Кукурузный с сыром 400г",
+      "retailer_product_id": "1119990141",
       "reason": "no_rule_match"
     },
     {
@@ -362,18 +362,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Круассан со сгущенным молоком 75г",
-      "retailer_product_id": "1391400209",
+      "name": "Молоко Коровка из Кореновки пастеризованное 2.7% 900г",
+      "retailer_product_id": "1829990260",
       "reason": "no_rule_match"
     },
     {
-      "name": "Батон Нарезной нарезанный Аютинский хлеб 380г",
-      "retailer_product_id": "1391400234",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
-      "retailer_product_id": "1524200094",
+      "name": "Хлеб Тостовый нарезанный Аютинский хлеб 570г",
+      "retailer_product_id": "1391400233",
       "reason": "no_rule_match"
     }
   ],
@@ -406,12 +401,20 @@
     },
     {
       "sku": "potato",
-      "name": "Картофель фасованный",
-      "retailer_product_id": "1445100062",
-      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
-      "price_rub": 198.37,
+      "name": "Пирожок жареный с картофельной начинкой 100г",
+      "retailer_product_id": "1000142375",
+      "source_url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1",
+      "price_rub": 49.99,
       "eligible": false,
-      "reason": "pack_missing"
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 100,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      }
     },
     {
       "sku": "onion",
@@ -458,10 +461,10 @@
     },
     {
       "sku": "potato",
-      "name": "Картофель",
-      "retailer_product_id": "9072651210",
-      "source_url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1",
-      "price_rub": 87.98,
+      "name": "Картофель фасованный",
+      "retailer_product_id": "1445100062",
+      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
+      "price_rub": 198.37,
       "eligible": false,
       "reason": "pack_missing"
     },
@@ -507,6 +510,15 @@
         "value": 450,
         "unit": "g"
       }
+    },
+    {
+      "sku": "potato",
+      "name": "Картофель",
+      "retailer_product_id": "9072651210",
+      "source_url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1",
+      "price_rub": 87.98,
+      "eligible": false,
+      "reason": "pack_missing"
     },
     {
       "sku": "pasta",
