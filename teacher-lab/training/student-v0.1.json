@@ -1,8 +1,9 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "name": "bai-shopping-brain-v0.1",
   "stage": "open-base-sft",
   "base_model": "Qwen/Qwen3-1.7B",
+  "base_revision": "70d244cc86ccca08cf5af4e1e306ecf908b1ad5e",
   "base_license": "Apache-2.0",
   "method": "qlora_sft",
   "seed": 42,
@@ -11,6 +12,10 @@
   "learning_rate": 0.0002,
   "micro_batch_size": 2,
   "gradient_accumulation_steps": 16,
+  "gradient_checkpointing": true,
+  "chat_template": {
+    "enable_thinking": false
+  },
   "lora": {
     "r": 32,
     "alpha": 64,
