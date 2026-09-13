@@ -18,6 +18,7 @@
   function plan(){return window.TDShoppingState?.get?.()?.lastPlans?.[0]||null}
   function storeCount(best){return new Set((best?.products||[]).map(item=>String(item?.storeId||"").split("_")[0]).filter(Boolean)).size}
   function wordStores(count){if(count===1)return"1 магазин";if(count>1&&count<5)return`${count} магазина`;return`${count} магазинов`}
+  function wordPositions(count){if(count===1)return"1 позиция";if(count>1&&count<5)return`${count} позиции`;return`${count} позиций`}
 
   function decorateAlternatives(root){
     const strategies=root.querySelector(".td-ai-strategies");
@@ -25,8 +26,8 @@
     strategies.classList.add("roxy-decision-alternatives");
     const head=strategies.querySelector(".td-ai-strategies-head");
     const title=head?.querySelector("b"),sub=head?.querySelector("span");
-    if(title)title.textContent="Альтернативы";
-    if(sub)sub.textContent="если приоритет другой";
+    if(title&&title.textContent!=="Альтернативы")title.textContent="Альтернативы";
+    if(sub&&sub.textContent!=="если приоритет другой")sub.textContent="если приоритет другой";
     return strategies;
   }
 
@@ -34,7 +35,7 @@
     const summary=root.querySelector(".td-ai-summary");
     if(!summary)return null;
     summary.classList.add("roxy-decision-details");
-    summary.dataset.resultLabel="ДЕТАЛИ КОРЗИНЫ";
+    if(summary.dataset.resultLabel!=="ДЕТАЛИ КОРЗИНЫ")summary.dataset.resultLabel="ДЕТАЛИ КОРЗИНЫ";
     return summary;
   }
 
@@ -49,7 +50,7 @@
       const title=section.querySelector(":scope>b");
       const copy=section.querySelector(":scope>p");
       const note=section.querySelector(":scope>.td-ai-decision-note");
-      const verified=best.quality==="VERIFIED";
+      const trusted=["VERIFIED","LIVE"].includes(String(best.quality||"").toUpperCase());
       const count=storeCount(best);
 
       if(eyebrow)eyebrow.textContent="РЕКОМЕНДАЦИЯ БАЯ";
@@ -59,7 +60,7 @@
       lead.className="roxy-decision-lead";
       const avatar=document.createElement("img");
       avatar.className="roxy-decision-bay";
-      avatar.src=verified?ASSETS.happy:ASSETS.checking;
+      avatar.src=trusted?ASSETS.happy:ASSETS.checking;
       avatar.alt="";
       avatar.setAttribute("aria-hidden","true");
       const heading=document.createElement("div");
@@ -72,7 +73,7 @@
       const reasons=document.createElement("div");
       reasons.className="roxy-decision-reasons";
       const productCount=(best.products||[]).length;
-      [productCount?`${productCount} позиций`:"Корзина собрана",count?wordStores(count):"Маршрут готов",verified?"Данные проверены":"Расчёт ориентировочный"].forEach(text=>{
+      [productCount?wordPositions(productCount):"Корзина собрана",count?wordStores(count):"Маршрут готов",trusted?"Данные проверены":"Расчёт ориентировочный"].forEach(text=>{
         const chip=document.createElement("span");chip.textContent=text;reasons.appendChild(chip);
       });
       lead.insertAdjacentElement("afterend",reasons);
