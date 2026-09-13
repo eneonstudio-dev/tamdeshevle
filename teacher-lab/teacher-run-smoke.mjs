@@ -13,19 +13,22 @@ const qwen=read('profiles/qwen3-8b.json');
 const tasks=buildCorpus();
 assert.equal(assertProfile(deepseek).id,deepseek.id);
 assert.throws(()=>assertProfile({...deepseek,endpoint:'https://example.com'}));
+assert.throws(()=>assertProfile({...deepseek,revision:'main'}));
 
 const teacherOutput={intent:'build_basket',hard_constraints:{budget_max:2500},soft_preferences:{price:'balanced'},shopping_plan:{categories:['protein','base','fruit']},actions:[{type:'CHANGE_BUDGET',value:2500}],critic:{pass:true,issues:[]},confidence:{overall:'high'}};
 let calls=0;
 const fakeFetch=async()=>{calls++;return{ok:true,status:200,json:async()=>({choices:[{message:{content:`internal draft that must not be stored\n${JSON.stringify(teacherOutput)}`}}]})}};
 const one=await runTask({task:tasks[0],profile:deepseek,fetchImpl:fakeFetch});
 assert.equal(one.task_id,tasks[0].id);
+assert.equal(one.model,deepseek.model);
+assert.equal(one.revision,deepseek.revision);
 assert.deepEqual(one.output,teacherOutput);
 assert.equal(JSON.stringify(one).includes('internal draft'),false,'raw teacher prose must not be persisted');
 const batch=await runBatch({tasks:tasks.slice(0,2),profile:deepseek,fetchImpl:fakeFetch});
-assert.equal(batch.results.length,2);assert.equal(batch.errors.length,0);assert.equal(calls,3);
+assert.equal(batch.results.length,2);assert.equal(batch.errors.length,0);assert.equal(calls,3);assert.equal(batch.revision,deepseek.revision);
 
 const a=importTeacherResults({rows:[one],tasks,profile:deepseek,registry}).candidates[0];
-const qRaw={task_id:tasks[0].id,profile_id:qwen.id,output:teacherOutput};
+const qRaw={task_id:tasks[0].id,profile_id:qwen.id,model:qwen.model,revision:qwen.revision,output:teacherOutput};
 const b=importTeacherResults({rows:[qRaw],tasks,profile:qwen,registry}).candidates[0];
 assert.equal(comparePair(a,b).pass,true);
 const bad=JSON.parse(JSON.stringify(b));bad.target.hard_constraints={budget_max:3000};

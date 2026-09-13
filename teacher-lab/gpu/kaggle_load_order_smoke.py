@@ -8,6 +8,7 @@ mod=importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
 
 seen=[]
 def fake_loader(profile_id,cfg):
+    assert len(cfg['revision'])==40
     seen.append((profile_id,cfg['gpu']))
     return f'tok:{profile_id}',f'model:{profile_id}'
 
@@ -15,4 +16,4 @@ loaded=mod.load_teachers(fake_loader)
 assert seen==[('deepseek_r1_distill_qwen_7b',0),('qwen3_8b',1)],seen
 assert list(loaded)==['deepseek_r1_distill_qwen_7b','qwen3_8b']
 assert loaded['deepseek_r1_distill_qwen_7b'][1]=='model:deepseek_r1_distill_qwen_7b'
-print('Kaggle teacher load order passed.')
+print('Kaggle teacher load order and pinned revisions passed.')

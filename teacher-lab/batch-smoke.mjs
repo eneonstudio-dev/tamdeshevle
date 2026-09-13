@@ -15,7 +15,10 @@ assert.equal(renderCorpusJsonl(rowsA),renderCorpusJsonl(rowsB));
 assert.equal(a.batches.length,9);
 assert.deepEqual(a.batches,b.batches,'batch manifests must be deterministic');
 assert.equal(a.teachers.length,2);
-for(const teacher of a.teachers)assert.ok(/^http:\/\/127\.0\.0\.1:\d+$/.test(teacher.endpoint));
+for(const teacher of a.teachers){
+  assert.ok(/^http:\/\/127\.0\.0\.1:\d+$/.test(teacher.endpoint));
+  assert.match(teacher.revision,/^[0-9a-f]{40}$/i);
+}
 const batches=shardCorpus(rowsA,64),ids=batches.flatMap(x=>x.task_ids);
 assert.equal(ids.length,560);
 assert.equal(new Set(ids).size,560,'every task must appear exactly once');

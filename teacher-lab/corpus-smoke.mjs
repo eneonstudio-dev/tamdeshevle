@@ -13,6 +13,7 @@ assert.equal(checked.ok,true);
 for(const profile of [deepseek,qwen]){
   assert.equal(profile.profile_version,'1.0');
   assert.equal(profile.enabled_by_default,false);
+  assert.match(profile.revision,/^[0-9a-f]{40}$/i,'teacher revision must be a pinned commit');
   assert.ok(/^http:\/\/127\.0\.0\.1:\d+$/.test(profile.endpoint),'teacher endpoint must stay loopback-only');
   const source=registry.sources.find(x=>x.id===profile.source_id);
   assert.ok(source,`unknown source ${profile.source_id}`);

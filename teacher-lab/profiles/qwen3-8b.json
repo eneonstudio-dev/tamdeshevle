@@ -3,6 +3,7 @@
   "id": "qwen3_8b",
   "source_id": "qwen3_open_weights_apache2",
   "model": "Qwen/Qwen3-8B",
+  "revision": "b968826d9c46dd6066d109eabc6255188de91218",
   "transport": "local",
   "endpoint": "http://127.0.0.1:8002",
   "temperature": 0.2,

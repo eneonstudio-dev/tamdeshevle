@@ -30,6 +30,7 @@ export function importTeacherResults({rows,tasks,profile,registry}){
   const sources=sourceMap(registry),source=sources.get(profile?.source_id);
   if(!source||source.status!=='training_allowed')throw Error('profile source is not training_allowed');
   if(profile?.enabled_by_default!==false)throw Error('teacher profile must be opt-in');
+  if(!/^[0-9a-f]{40}$/i.test(clean(profile?.revision)))throw Error('teacher profile revision must be pinned');
   const taskMap=new Map((Array.isArray(tasks)?tasks:[]).map(x=>[x.id,x]));
   const seen=new Set(),candidates=[],rejected=[];
   for(const raw of Array.isArray(rows)?rows:[]){
@@ -38,12 +39,14 @@ export function importTeacherResults({rows,tasks,profile,registry}){
       if(!taskMap.has(taskId))throw Error('unknown_task');
       if(seen.has(taskId))throw Error('duplicate_task');
       if(profileId!==profile.id)throw Error('profile_mismatch');
+      if(clean(raw?.model)!==clean(profile.model))throw Error('model_mismatch');
+      if(clean(raw?.revision)!==clean(profile.revision))throw Error('revision_mismatch');
       if(hasForbidden(raw?.output))throw Error('forbidden_reasoning_field');
       seen.add(taskId);
       const task=taskMap.get(taskId),candidate={
         id:`${taskId}.${profile.id}`.slice(0,80),schema_version:'1.0',language:'ru',user_request:task.user_request,
         session_context:clone(task.session_context||{}),target:normalizeTarget(raw.output),
-        provenance:{sources:[{source_id:profile.source_id,model:profile.model,profile_id:profile.id,corpus_task_id:taskId}]},
+        provenance:{sources:[{source_id:profile.source_id,model:profile.model,revision:profile.revision,profile_id:profile.id,corpus_task_id:taskId}]},
         review:{status:'candidate'},privacy:{sanitized:true,contains_personal_data:false},
         evaluation:{category:task.category,scenario_id:task.scenario_id||null,turn:task.turn||null,expected:clone(task.expected||{})}
       };
