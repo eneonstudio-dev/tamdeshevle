@@ -1,0 +1,217 @@
+/* Approved Roxy runtime states — visual-only layer for Empty / Loading / Error / Offline. */
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:84px minmax(0,1fr)!important;
+  column-gap:13px!important;
+  row-gap:5px!important;
+  align-items:start!important;
+  min-height:112px!important;
+  margin:7px 0 13px!important;
+  padding:13px 14px 13px 11px!important;
+  overflow:hidden!important;
+  border:1px solid rgba(79,245,154,.13)!important;
+  border-radius:19px!important;
+  background:
+    radial-gradient(circle at 8% 34%,rgba(79,245,154,.085),transparent 27%),
+    linear-gradient(150deg,rgba(11,35,23,.94),rgba(5,18,12,.97))!important;
+  box-shadow:0 15px 34px rgba(0,0,0,.16)!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]:before{
+  content:"";
+  position:absolute;
+  left:0;top:14px;bottom:14px;
+  width:2px;border-radius:3px;
+  background:#4ff59a;
+  opacity:.72;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>small,
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>b,
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>p,
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>div:not(.roxy-runtime-state-visual):not(.roxy-runtime-state-progress),
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>i{
+  grid-column:2!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>small{
+  margin-top:2px!important;
+  color:#75e4a5!important;
+  font-size:8px!important;
+  letter-spacing:.13em!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>b{
+  color:#f2faf5!important;
+  font-size:15px!important;
+  line-height:1.22!important;
+  letter-spacing:-.02em!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>p{
+  max-width:470px!important;
+  color:#8fa69a!important;
+  font-size:10px!important;
+  line-height:1.48!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>div:not(.roxy-runtime-state-visual):not(.roxy-runtime-state-progress){
+  display:flex!important;
+  gap:7px!important;
+  flex-wrap:wrap!important;
+  margin-top:3px!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"] button{
+  min-height:39px!important;
+  padding:8px 11px!important;
+  border:1px solid rgba(79,245,154,.18)!important;
+  border-radius:12px!important;
+  background:#4ff59a!important;
+  color:#03130a!important;
+  font-size:9px!important;
+  font-weight:850!important;
+}
+body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"] button.secondary{
+  border-color:rgba(199,255,224,.09)!important;
+  background:rgba(255,255,255,.045)!important;
+  color:#c8d8cf!important;
+}
+
+.roxy-runtime-state-visual{
+  grid-column:1!important;
+  grid-row:1/7!important;
+  position:relative!important;
+  width:84px;height:84px!important;
+  align-self:center!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  border:1px solid rgba(79,245,154,.12)!important;
+  border-radius:22px!important;
+  background:radial-gradient(circle at 50% 56%,rgba(79,245,154,.12),rgba(79,245,154,.02) 58%,transparent 76%)!important;
+  isolation:isolate!important;
+}
+.roxy-runtime-state-visual:after{
+  content:"";
+  position:absolute;inset:auto 12px 10px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(79,245,154,.7),transparent);
+  opacity:.6;
+  z-index:3;
+}
+.roxy-runtime-state-visual img{
+  position:relative;z-index:2;
+  width:92px;height:92px!important;
+  object-fit:cover!important;
+  object-position:50% 50%!important;
+  border-radius:24px!important;
+  -webkit-mask-image:radial-gradient(ellipse 78% 76% at 50% 50%,#000 59%,rgba(0,0,0,.95) 73%,transparent 100%);
+  mask-image:radial-gradient(ellipse 78% 76% at 50% 50%,#000 59%,rgba(0,0,0,.95) 73%,transparent 100%);
+  filter:drop-shadow(0 9px 14px rgba(0,0,0,.24)) saturate(1.03)!important;
+}
+.roxy-runtime-state-visual em{
+  position:absolute;z-index:4;
+  left:8px;right:8px;bottom:4px;
+  overflow:hidden;
+  color:#a9e8c4;
+  font:800 6px/1.2 Manrope,Inter,sans-serif;
+  letter-spacing:.04em;
+  text-align:center;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  opacity:.82;
+}
+.roxy-runtime-state-glow{
+  position:absolute;z-index:1;
+  width:54px;height:54px;border-radius:50%;
+  background:rgba(79,245,154,.14);
+  filter:blur(17px);
+  opacity:.72;
+}
+
+body>.td-ai[data-roxy-runtime-state="empty"] .roxy-runtime-state-visual img{
+  animation:roxy-runtime-curious 4.8s ease-in-out infinite!important;
+}
+body>.td-ai[data-roxy-runtime-state="loading"] .roxy-runtime-state-visual{
+  border-color:rgba(79,245,154,.22)!important;
+}
+body>.td-ai[data-roxy-runtime-state="loading"] .roxy-runtime-state-visual img{
+  animation:roxy-runtime-check 2.6s ease-in-out infinite!important;
+}
+body>.td-ai[data-roxy-runtime-state="loading"] .roxy-runtime-state-visual:before{
+  content:"";position:absolute;z-index:3;left:9px;right:9px;top:12px;height:1px;
+  background:linear-gradient(90deg,transparent,#74ffb3,transparent);
+  box-shadow:0 0 10px rgba(79,245,154,.5);
+  animation:roxy-runtime-scan 2.2s ease-in-out infinite;
+}
+body>.td-ai[data-roxy-runtime-state="error"] .td-ai-state-card[data-roxy-runtime-visual="1"]{
+  border-color:rgba(255,145,122,.17)!important;
+  background:radial-gradient(circle at 8% 34%,rgba(255,125,102,.07),transparent 28%),linear-gradient(150deg,rgba(31,21,17,.92),rgba(12,16,12,.97))!important;
+}
+body>.td-ai[data-roxy-runtime-state="error"] .td-ai-state-card[data-roxy-runtime-visual="1"]:before{background:#ff9f89}
+body>.td-ai[data-roxy-runtime-state="error"] .td-ai-state-card[data-roxy-runtime-visual="1"]>small{color:#ffb6a5!important}
+body>.td-ai[data-roxy-runtime-state="error"] .roxy-runtime-state-visual{
+  border-color:rgba(255,145,122,.16)!important;
+  background:radial-gradient(circle at 50% 56%,rgba(255,145,122,.08),transparent 70%)!important;
+}
+body>.td-ai[data-roxy-runtime-state="error"] .roxy-runtime-state-visual img{
+  filter:drop-shadow(0 9px 14px rgba(0,0,0,.28)) saturate(.92) contrast(1.03)!important;
+  animation:roxy-runtime-worry 5.2s ease-in-out infinite!important;
+}
+body>.td-ai[data-roxy-runtime-state="offline"] .td-ai-state-card[data-roxy-runtime-visual="1"]{
+  border-color:rgba(255,206,126,.16)!important;
+  background:radial-gradient(circle at 8% 34%,rgba(255,203,111,.065),transparent 28%),linear-gradient(150deg,rgba(28,25,15,.9),rgba(10,16,11,.97))!important;
+}
+body>.td-ai[data-roxy-runtime-state="offline"] .td-ai-state-card[data-roxy-runtime-visual="1"]:before{background:#f0c771}
+body>.td-ai[data-roxy-runtime-state="offline"] .td-ai-state-card[data-roxy-runtime-visual="1"]>small{color:#e9cd91!important}
+body>.td-ai[data-roxy-runtime-state="offline"] .roxy-runtime-state-visual img{
+  filter:drop-shadow(0 7px 12px rgba(0,0,0,.23)) saturate(.8) brightness(.92)!important;
+  animation:roxy-runtime-sleep 5.8s ease-in-out infinite!important;
+}
+
+.roxy-runtime-state-progress{
+  grid-column:2!important;
+  height:3px!important;
+  margin-top:2px!important;
+  overflow:hidden!important;
+  border-radius:999px!important;
+  background:rgba(79,245,154,.09)!important;
+}
+.roxy-runtime-state-progress span{
+  display:block;width:38%;height:100%;border-radius:inherit;
+  background:linear-gradient(90deg,rgba(79,245,154,.15),#4ff59a,rgba(79,245,154,.15));
+  box-shadow:0 0 13px rgba(79,245,154,.24);
+  animation:roxy-runtime-progress 1.65s ease-in-out infinite;
+}
+body>.td-ai[data-roxy-runtime-state="loading"] .td-ai-state-card>i{
+  margin-top:1px!important;
+  opacity:.6!important;
+}
+
+@keyframes roxy-runtime-curious{0%,100%{transform:translate3d(0,0,0) rotate(0deg)}48%{transform:translate3d(1px,-2px,0) rotate(.9deg)}58%{transform:translate3d(-1px,-1px,0) rotate(-.5deg)}}
+@keyframes roxy-runtime-check{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(0,-2px,0) scale(1.015)}}
+@keyframes roxy-runtime-scan{0%,100%{transform:translateY(4px);opacity:.25}50%{transform:translateY(51px);opacity:.85}}
+@keyframes roxy-runtime-worry{0%,100%{transform:translateX(0)}48%{transform:translateX(-1px)}52%{transform:translateX(1px)}}
+@keyframes roxy-runtime-sleep{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(1px) scale(.99)}}
+@keyframes roxy-runtime-progress{0%{transform:translateX(-110%)}100%{transform:translateX(285%)}}
+
+@media(max-width:700px){
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]{
+    grid-template-columns:64px minmax(0,1fr)!important;
+    column-gap:10px!important;
+    min-height:96px!important;
+    margin:5px 0 10px!important;
+    padding:10px 9px!important;
+    border-radius:16px!important;
+  }
+  .roxy-runtime-state-visual{width:64px;height:64px!important;border-radius:18px!important}
+  .roxy-runtime-state-visual img{width:70px;height:70px!important;border-radius:19px!important}
+  .roxy-runtime-state-visual em{display:none}
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>b{font-size:13px!important}
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>p{font-size:9px!important;line-height:1.42!important}
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>div:not(.roxy-runtime-state-visual):not(.roxy-runtime-state-progress){grid-column:1/-1!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-top:3px!important;scrollbar-width:none!important}
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"]>div:not(.roxy-runtime-state-visual):not(.roxy-runtime-state-progress)::-webkit-scrollbar{display:none}
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-state-card[data-roxy-runtime-visual="1"] button{min-height:44px!important;white-space:nowrap!important;flex:0 0 auto!important}
+  .roxy-runtime-state-progress{grid-column:1/-1!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .roxy-runtime-state-visual img,
+  body>.td-ai[data-roxy-runtime-state="loading"] .roxy-runtime-state-visual:before,
+  .roxy-runtime-state-progress span{animation:none!important;transform:none!important}
+}

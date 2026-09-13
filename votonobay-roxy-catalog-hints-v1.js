@@ -8,14 +8,17 @@
   const SELECTOR=".voto-catalog-search";
   const HINT_CLASS="roxy-catalog-bay-hint";
   const DISMISS_KEY="votonobay:catalog-hint-dismissed:v1";
+  const WINDOW_DISMISS_KEY="__TDRoxyCatalogHintDismissedV1";
 
   function readDismissed(){
-    if(dismissed)return true;
+    if(dismissed||window[WINDOW_DISMISS_KEY]===true)return true;
     try{dismissed=sessionStorage.getItem(DISMISS_KEY)==="1"}catch{}
+    if(dismissed)window[WINDOW_DISMISS_KEY]=true;
     return dismissed;
   }
   function rememberDismissed(){
     dismissed=true;
+    window[WINDOW_DISMISS_KEY]=true;
     try{sessionStorage.setItem(DISMISS_KEY,"1")}catch{}
   }
 
