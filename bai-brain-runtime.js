@@ -13,7 +13,6 @@
   function skipped(reason,release=null){last={attempted:true,used:false,reason,release:release?.id||null,at:Date.now()};return null}
   function success(release){failures=0;openUntil=0;last={attempted:true,used:true,reason:"trained_model",release:release.id,at:Date.now()}}
   function available(){return Date.now()>=openUntil}
-  function timeout(promise,ms=TIMEOUT_MS){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(Error("trained_timeout")),ms))])}
   async function token(){
     if(!window.TDAuth?.init)return null;
     try{const auth=await window.TDAuth.init();if(!auth||!window.TDAuth.user?.())return null;const {data,error}=await auth.auth.getSession();return error?null:(data?.session?.access_token||null)}catch{return null}
@@ -80,7 +79,7 @@
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),TIMEOUT_MS);
     try{
       const headers={"Content-Type":"application/json"};if(access)headers.Authorization=`Bearer ${access}`;
-      const response=await timeout(fetch(release.endpoint,{method:"POST",headers,signal:controller.signal,body:JSON.stringify({release:{id:release.id,checkpoint_sha256:release.checkpoint_sha256,action_contract:release.action_contract},message:clean(text).slice(0,1000),history:sanitizeHistory(history),session:state,basket:window.TDBaiAgentClient?.sanitizeState?.(legacy)||legacy})}));
+      const response=await fetch(release.endpoint,{method:"POST",headers,signal:controller.signal,body:JSON.stringify({release:{id:release.id,checkpoint_sha256:release.checkpoint_sha256,action_contract:release.action_contract},message:clean(text).slice(0,1000),history:sanitizeHistory(history),session:state,basket:window.TDBaiAgentClient?.sanitizeState?.(legacy)||legacy})});
       let body=null;try{body=await response.json()}catch{}
       if(!response.ok)return fail(`http_${response.status}`,release);
       const checked=validateEnvelope(body,release,kernel,state,legacy);if(!checked.ok)return fail(checked.reason,release);
