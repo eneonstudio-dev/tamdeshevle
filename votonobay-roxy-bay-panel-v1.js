@@ -4,12 +4,20 @@
   let wrapped=false;
 
   function ensureStyles(){
-    if(document.querySelector('link[data-roxy-bay-panel-style="1"]'))return;
-    const link=document.createElement("link");
-    link.rel="stylesheet";
-    link.href="votonobay-roxy-bay-panel-v1.css?v=20260913-v1";
-    link.dataset.roxyBayPanelStyle="1";
-    document.head.appendChild(link);
+    if(!document.querySelector('link[data-roxy-bay-panel-style="1"]')){
+      const link=document.createElement("link");
+      link.rel="stylesheet";
+      link.href="votonobay-roxy-bay-panel-v1.css?v=20260913-v1";
+      link.dataset.roxyBayPanelStyle="1";
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('link[data-roxy-bay-panel-tune="1"]')){
+      const tune=document.createElement("link");
+      tune.rel="stylesheet";
+      tune.href="votonobay-roxy-bay-panel-tune-v1.css?v=20260913-v1";
+      tune.dataset.roxyBayPanelTune="1";
+      document.head.appendChild(tune);
+    }
   }
 
   function isTouchLayout(){
