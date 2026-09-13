@@ -49,4 +49,12 @@ result=await brain.route("будет трое, собери на выходны�
 assert.ok(hasOp(result,"SET_PEOPLE",3),"standalone collective form must set people count");
 assert.ok(hasOp(result,"SET_DURATION",2),"weekend request must resolve to two days");
 
+brain.reset();
+result=await brain.route("Собери на неделю до 5000 рублей, ПП, без Мираторга, один магазин");
+assert.ok(hasOp(result,"SET_MODE","one"),"natural 'one store' wording must set one-store mode");
+assert.ok(hasOp(result,"EXCLUDE_BRAND","мираторга"),"natural 'without brand' wording must persist the excluded brand");
+assert.ok(hasOp(result,"CHANGE_BUDGET",5000));
+assert.ok(hasOp(result,"SET_DURATION",7));
+assert.ok(hasOp(result,"ADD_PREFERENCE","healthy"));
+
 console.log("Bai core parser passed: people and duration grammar are independent without guard/self-check assistance.");
