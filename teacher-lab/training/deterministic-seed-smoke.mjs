@@ -13,4 +13,7 @@ for(const row of [...seed.train,...seed.eval]){
 }
 const sample=seed.eval[0],prediction={id:sample.id,...sample.target};
 const metrics=benchmark([sample],[prediction]);assert.equal(metrics.intent_accuracy,1);assert.equal(metrics.constraint_pass_rate,1);assert.equal(metrics.action_success_rate,1);
+const retainedSample=seed.eval.find(row=>(row.session_context?.constraints||[]).length>0)||sample;
+const malformed=benchmark([retainedSample],[{id:retainedSample.id,intent:retainedSample.target.intent,hard_constraints:retainedSample.target.hard_constraints,actions:{type:'not-an-array'},retained_constraints:{bad:true}}]);
+assert.equal(malformed.examples,1);assert.equal(malformed.action_success_rate,0);assert.equal(malformed.context_retention_rate,0);
 console.log('Bai deterministic seed smoke passed');
