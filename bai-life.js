@@ -15,24 +15,24 @@
   const image=bai.querySelector(".bai-image");
   if(!character||!image)return;
 
-  const APPROVED_PEEK="assets/bai/bai-peek-approved.webp";
+  const APPROVED_HERO="assets/bai/bai-idle-approved.webp";
   function ensureApprovedStyle(){
     if(document.querySelector("style[data-approved-bay-v1]"))return;
     const style=document.createElement("style");
     style.dataset.approvedBayV1="1";
     style.textContent=`
-      .v2-hero-bai img[src*="bai-peek-approved.webp"]{
-        object-fit:contain!important;object-position:50% 100%!important;border-radius:0!important;
-        -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 100%);
-        mask-image:linear-gradient(to bottom,transparent 0,#000 14%,#000 100%);
-        filter:drop-shadow(0 24px 34px rgba(0,0,0,.30)) saturate(1.03)!important;
+      .v2-hero-bai img[src*="bai-idle-approved.webp"]{
+        object-fit:contain!important;object-position:50% 100%!important;border-radius:30px!important;
+        -webkit-mask-image:radial-gradient(ellipse 82% 82% at 50% 55%,#000 62%,rgba(0,0,0,.94) 76%,transparent 100%);
+        mask-image:radial-gradient(ellipse 82% 82% at 50% 55%,#000 62%,rgba(0,0,0,.94) 76%,transparent 100%);
+        filter:drop-shadow(0 24px 34px rgba(0,0,0,.28)) saturate(1.02)!important;
       }
     `;
     document.head.appendChild(style);
   }
   function syncHeroVisual(){
     document.querySelectorAll(".v2-hero-bai img").forEach(node=>{
-      if(!node.src.includes("bai-peek-approved.webp"))node.src=APPROVED_PEEK;
+      if(!node.src.includes("bai-idle-approved.webp"))node.src=APPROVED_HERO;
       node.alt="Бай — помощник Votonobay";
     });
   }
