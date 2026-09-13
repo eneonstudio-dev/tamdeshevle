@@ -66,6 +66,11 @@ assert.ok(result.journey.generatedOperations.some(op=>op.type==='REQUIRE'&&op.va
 assert.deepEqual(Array.from(result.journey.recommendation.productIds),['eggs','banana'],'chosen products must be available for outcome learning');
 assert.equal(result.journey.mealPlan.days,7,'meal plan metadata must flow through journey');
 
+brainOutput={ok:true,provider:'bai-agent-core',reply:'Собираю.',suggestions:[],expectsAnswer:false,operations:[{type:'REQUIRE',value:'eggs'},{type:'CHANGE_BUDGET',value:3000},{type:'SET_DURATION',value:7},{type:'SET_INTENT',value:'build'}],operationOrigin:{explicitOperations:[{type:'CHANGE_BUDGET',value:3000},{type:'SET_DURATION',value:7},{type:'SET_INTENT',value:'build'}],generatedOperations:[{type:'REQUIRE',value:'eggs'}]}};
+result=await context.TDBaiBrain.route('собери мне на неделю до 3000',[]);
+assert.ok(result.journey.explicitOperations.every(op=>op.type!=='REQUIRE'),'provider product suggestions must not be promoted to explicit user requirements');
+assert.ok(result.journey.generatedOperations.some(op=>op.type==='REQUIRE'&&op.value==='eggs'),'provider product suggestions must remain generated through the journey layer');
+
 brainOutput={ok:true,provider:'rules',reply:'Вот варианты.',suggestions:[],expectsAnswer:false,operations:[{type:'SET_INTENT',value:'build'}]};
 result=await context.TDBaiBrain.route('сравни варианты, что лучше',[]);
 assert.equal(result.provider,'rules','comparison request must not be auto-committed');
