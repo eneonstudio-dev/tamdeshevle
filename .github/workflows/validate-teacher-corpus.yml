@@ -39,9 +39,11 @@ jobs:
           node --check teacher-lab/teacher-run-smoke.mjs
           node --check teacher-lab/review-teacher-pair.mjs
           node --check teacher-lab/review-pair-smoke.mjs
+          node --check teacher-lab/gpu/prepare_review.mjs
           node --check teacher-lab/training/prepare-sft.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
+          python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
