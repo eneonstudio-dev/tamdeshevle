@@ -44,6 +44,9 @@ jobs:
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
+          python -m py_compile teacher-lab/gpu/kaggle_runall.py
+          python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
+          grep -q "kaggle_runall.py" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
