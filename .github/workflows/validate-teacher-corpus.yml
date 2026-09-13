@@ -34,12 +34,17 @@ jobs:
           node --check teacher-lab/batch-smoke.mjs
           node --check teacher-lab/candidate-import.mjs
           node --check teacher-lab/candidate-smoke.mjs
+          node --check teacher-lab/training/prepare-sft.mjs
+          node --check teacher-lab/training/promotion-gate.mjs
+          node --check teacher-lab/training/training-smoke.mjs
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
         run: node teacher-lab/batch-smoke.mjs
       - name: Validate candidate import gates
         run: node teacher-lab/candidate-smoke.mjs
+      - name: Validate student training recipe
+        run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
         run: |
           rm -rf /tmp/bai-teacher-export
