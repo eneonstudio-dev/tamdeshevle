@@ -72,5 +72,8 @@
   window.TDBaiFallbackBridge={special,clearOldOnly};
   import("./bai-brain.js?v=20260913-natural-constraints-v1")
     .then(()=>import("./bai-reasoning-guard.js?v=20260912-direction-v1"))
+    .then(()=>import("./bai-brain-registry.js?v=20260913-runtime-v1"))
+    .then(()=>import("./bai-brain-runtime.js?v=20260913-runtime-v1"))
+    .then(()=>import("./bai-trained-bridge.js?v=20260913-runtime-v1"))
     .catch(e=>console.warn("[Bai Brain preload] load failed",e));
 })();

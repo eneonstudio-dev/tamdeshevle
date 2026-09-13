@@ -8,6 +8,7 @@ TRAIN=ROOT/'teacher-lab/training/train_student.py'
 EVAL=ROOT/'teacher-lab/training/evaluate_student.py'
 BENCH=ROOT/'teacher-lab/training/benchmark-cli.mjs'
 PROMOTE=ROOT/'teacher-lab/training/promotion-cli.mjs'
+RELEASE=ROOT/'teacher-lab/training/prepare-brain-release.mjs'
 CONFIG=ROOT/'teacher-lab/training/student-v0.1.json'
 
 
@@ -60,11 +61,12 @@ def main():
     manifest=json.loads((dataset/'manifest.json').read_text(encoding='utf-8'))
     if not manifest.get('ready_for_training'): raise SystemExit(f"Gold not ready: {manifest.get('examples')} / {manifest.get('minimum_examples')}")
     state={'schema_version':'1.0','status':'VALIDATED','split':split,'dataset':manifest,'baseline_adapter':args.baseline_adapter or None}
-    (out/'pipeline-manifest.json').write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    pipeline_manifest=out/'pipeline-manifest.json'
+    pipeline_manifest.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     if args.dry_run:
         print(json.dumps(state,ensure_ascii=False,indent=2)); return
     call([sys.executable,TRAIN,'--data',dataset/'sft.jsonl','--out',candidate,'--config',args.config])
-    state['status']='TRAINED_AWAITING_EVAL'; (out/'pipeline-manifest.json').write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    state['status']='TRAINED_AWAITING_EVAL'; pipeline_manifest.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     baseline_pred=out/'baseline-predictions.jsonl'; candidate_pred=out/'candidate-predictions.jsonl'
     baseline_cmd=[sys.executable,EVAL,'--eval',args.eval_gold,'--out',baseline_pred,'--config',args.config,'--max-new-tokens',str(args.max_new_tokens)]
     if args.baseline_adapter: baseline_cmd += ['--adapter',args.baseline_adapter]
@@ -80,7 +82,9 @@ def main():
         release_root=out/'promotable'; shutil.rmtree(release_root,ignore_errors=True); release_root.mkdir(parents=True)
         shutil.copytree(candidate/'adapter',release_root/'adapter'); shutil.copy2(candidate/'manifest.json',release_root/'training-manifest.json'); shutil.copy2(promotion,release_root/'promotion.json')
         state['promotable_artifact']=shutil.make_archive(str(out/'bai-promotable-checkpoint'),'zip',release_root)
-    (out/'pipeline-manifest.json').write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+        state['brain_release_manifest']=str(out/'brain-release.json')
+    pipeline_manifest.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    if report.get('pass'): call(['node',RELEASE,pipeline_manifest,out/'brain-release.json'])
     print(json.dumps(state,ensure_ascii=False,indent=2));
     if verdict.returncode!=0: raise SystemExit('Candidate trained but rejected by promotion gate')
 

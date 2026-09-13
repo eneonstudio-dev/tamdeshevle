@@ -1,0 +1,23 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
+import {prepareBrainRelease} from './prepare-brain-release.mjs';
+
+const root=fs.mkdtempSync(path.join(os.tmpdir(),'bai-release-'));
+const artifact=path.join(root,'bai-promotable-checkpoint.zip');fs.writeFileSync(artifact,'checkpoint-bytes');
+fs.mkdirSync(path.join(root,'candidate'),{recursive:true});
+fs.writeFileSync(path.join(root,'candidate','manifest.json'),JSON.stringify({name:'bai-shopping-brain-v0.1',base_model:'Qwen/Qwen3-1.7B',data_sha256:'d'.repeat(64),seed:42}));
+const manifest=path.join(root,'pipeline-manifest.json'),out=path.join(root,'brain-release.json');
+const state={schema_version:'1.0',status:'PROMOTION_READY',dataset:{examples:500,gold_sha256:'d'.repeat(64)},promotion:{pass:true,reasons:[]},promotable_artifact:artifact};
+fs.writeFileSync(manifest,JSON.stringify(state));
+const release=prepareBrainRelease({pipelineManifest:manifest,outFile:out});
+assert.equal(release.status,'promoted');assert.equal(release.enabled,false,'release must stage disabled until an inference endpoint is bound');
+assert.equal(release.action_contract,'bai-actions-v1');assert.equal(release.id,`bai-trained-${'d'.repeat(12)}`);
+assert.equal(release.checkpoint_sha256,crypto.createHash('sha256').update(fs.readFileSync(artifact)).digest('hex'));
+assert.equal(release.promotion.pass,true);assert.ok(fs.existsSync(out));
+fs.writeFileSync(manifest,JSON.stringify({...state,status:'REJECTED',promotion:{pass:false,reasons:['intent_regressed']}}));
+assert.throws(()=>prepareBrainRelease({pipelineManifest:manifest,outFile:out}),/promotion_not_passed/);
+fs.rmSync(root,{recursive:true,force:true});
+console.log('Bai brain release smoke passed');
