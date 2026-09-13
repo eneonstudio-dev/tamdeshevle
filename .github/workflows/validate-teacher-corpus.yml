@@ -37,6 +37,8 @@ jobs:
           node --check teacher-lab/run-local-batch.mjs
           node --check teacher-lab/teacher-consensus.mjs
           node --check teacher-lab/teacher-run-smoke.mjs
+          node --check teacher-lab/review-teacher-pair.mjs
+          node --check teacher-lab/review-pair-smoke.mjs
           node --check teacher-lab/training/prepare-sft.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
@@ -48,6 +50,8 @@ jobs:
         run: node teacher-lab/candidate-smoke.mjs
       - name: Validate local teacher runner and consensus
         run: node teacher-lab/teacher-run-smoke.mjs
+      - name: Validate teacher pair review queue
+        run: node teacher-lab/review-pair-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
