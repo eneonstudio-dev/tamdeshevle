@@ -14,6 +14,41 @@
   const character=bai.querySelector(".bai-character");
   const image=bai.querySelector(".bai-image");
   if(!character||!image)return;
+
+  const APPROVED_PEEK="assets/bai/bai-peek-approved.webp";
+  const APPROVED_PEEK_STATES=new Set(["greeting","peek","curious","thinking","excited","big-saving"]);
+  function ensureApprovedStyle(){
+    if(document.querySelector("style[data-approved-bay-v1]"))return;
+    const style=document.createElement("style");
+    style.dataset.approvedBayV1="1";
+    style.textContent=`
+      #bai-assistant .bai-image[src*="bai-peek-approved.webp"]{
+        object-fit:cover!important;object-position:50% 68%!important;border-radius:34px!important;
+        -webkit-mask-image:radial-gradient(ellipse 78% 72% at 50% 63%,#000 56%,rgba(0,0,0,.94) 68%,transparent 92%);
+        mask-image:radial-gradient(ellipse 78% 72% at 50% 63%,#000 56%,rgba(0,0,0,.94) 68%,transparent 92%);
+        filter:drop-shadow(0 14px 22px rgba(0,0,0,.28)) saturate(1.02)!important;
+      }
+      .v2-hero-bai img[src*="bai-peek-approved.webp"]{
+        object-fit:cover!important;object-position:50% 72%!important;border-radius:38px!important;
+        -webkit-mask-image:radial-gradient(ellipse 82% 76% at 50% 66%,#000 58%,rgba(0,0,0,.96) 70%,transparent 94%);
+        mask-image:radial-gradient(ellipse 82% 76% at 50% 66%,#000 58%,rgba(0,0,0,.96) 70%,transparent 94%);
+        filter:drop-shadow(0 26px 36px rgba(0,0,0,.34)) saturate(1.03)!important;
+      }
+      @media(max-width:700px){.v2-hero-bai img[src*="bai-peek-approved.webp"]{border-radius:28px!important}}
+    `;
+    document.head.appendChild(style);
+  }
+  function syncApprovedVisual(state=bai.dataset.state){
+    if(APPROVED_PEEK_STATES.has(String(state||"")))image.src=APPROVED_PEEK;
+  }
+  function syncHeroVisual(){
+    document.querySelectorAll(".v2-hero-bai img").forEach(node=>{
+      if(!node.src.includes("bai-peek-approved.webp"))node.src=APPROVED_PEEK;
+      node.alt="Бай — помощник Votonobay";
+    });
+  }
+
+  ensureApprovedStyle();
   let life=bai.querySelector(".bai-life");
   if(!life){life=document.createElement("span");life.className="bai-life";life.setAttribute("aria-hidden","true");life.innerHTML="<i></i><i></i>";character.insertBefore(life,image)}
   let wake=bai.querySelector(".bai-wake");
@@ -39,12 +74,16 @@
   function pause(){clearTimers();bai.classList.remove("micro-ear","micro-blink","micro-tail")}
   function resume(){if(document.hidden)return;ambient();scheduleSettle(180)}
   function visibilityChanged(){document.hidden?pause():resume()}
-  window.addEventListener("td:bai-state",event=>character.setAttribute("aria-label",event.detail?.state==="hidden"?"Разбудить Бая":"Открыть Бая"));
-  window.addEventListener("td:v2-rendered",()=>scheduleSettle(180));
+  window.addEventListener("td:bai-state",event=>{
+    character.setAttribute("aria-label",event.detail?.state==="hidden"?"Разбудить Бая":"Открыть Бая");
+    syncApprovedVisual(event.detail?.state);
+  });
+  window.addEventListener("td:v2-rendered",()=>{syncHeroVisual();syncApprovedVisual();scheduleSettle(180)});
   document.addEventListener("click",event=>{if(event.target.closest(".v2-compare,.btn.dark"))scheduleSettle(520)});
   document.addEventListener("visibilitychange",visibilityChanged);
   window.addEventListener("pagehide",pause);
-  window.addEventListener("pageshow",resume);
+  window.addEventListener("pageshow",()=>{syncHeroVisual();syncApprovedVisual();resume()});
   motionQuery?.addEventListener?.("change",()=>motionQuery.matches?pause():resume());
+  syncHeroVisual();syncApprovedVisual();
   ambient();scheduleSettle(900);
 })();
