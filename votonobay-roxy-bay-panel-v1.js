@@ -3,6 +3,15 @@
 
   let wrapped=false;
 
+  function ensureStyles(){
+    if(document.querySelector('link[data-roxy-bay-panel-style="1"]'))return;
+    const link=document.createElement("link");
+    link.rel="stylesheet";
+    link.href="votonobay-roxy-bay-panel-v1.css?v=20260913-v1";
+    link.dataset.roxyBayPanelStyle="1";
+    document.head.appendChild(link);
+  }
+
   function isTouchLayout(){
     return window.matchMedia?.("(max-width:820px), (hover:none) and (pointer:coarse) and (max-width:1100px)")?.matches;
   }
@@ -18,6 +27,7 @@
   }
 
   function decorate(){
+    ensureStyles();
     const root=document.querySelector("body>.td-ai");
     if(!root)return false;
     root.dataset.roxyBayPanel="1";
@@ -78,6 +88,7 @@
   }
 
   function boot(){
+    ensureStyles();
     wrapOpen();
     decorate();
     document.addEventListener("click",event=>{
