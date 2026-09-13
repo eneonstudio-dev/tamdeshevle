@@ -1,0 +1,84 @@
+/* Generated design pass — Stage 1 / Home.
+   Derived from the dark/mint flow concept while preserving the existing
+   Votonobay identity, Bai asset and Home behaviour. */
+
+@media (min-width:1001px){
+  .v2-hero.v2-bay-first{
+    grid-template-columns:minmax(0,1.32fr) minmax(220px,.68fr)!important;
+    min-height:448px!important;
+    padding:50px 54px 42px!important;
+    column-gap:34px!important;
+    border-radius:30px!important;
+  }
+  .v2-bay-first .v2-hero-copy h1{
+    max-width:620px!important;
+    font-size:clamp(58px,5.25vw,76px)!important;
+    line-height:.94!important;
+  }
+  .v2-bay-first .v2-hero-copy p{
+    max-width:560px!important;
+    margin-top:18px!important;
+    font-size:14px!important;
+    line-height:1.58!important;
+  }
+  .v2-bay-first .v2-hero-bai{
+    min-height:252px!important;
+    align-self:center!important;
+  }
+  .v2-bay-first .v2-hero-bai:before{
+    width:270px!important;
+    height:270px!important;
+  }
+  .v2-bay-first .v2-hero-bai img{
+    width:min(272px,100%)!important;
+    height:252px!important;
+  }
+  .v2-bay-first .v2-hero-bai span{
+    bottom:4px!important;
+    max-width:150px!important;
+  }
+  .v2-bay-actions{
+    grid-template-columns:minmax(290px,470px) max-content!important;
+    margin-top:24px!important;
+  }
+  .v2-bay-primary{
+    min-height:64px!important;
+    border-radius:18px!important;
+  }
+  .v2-self-search{
+    margin-top:24px!important;
+    padding-top:18px!important;
+  }
+  .v2-self-search .v2-search{
+    width:min(620px,100%)!important;
+  }
+}
+
+@media (min-width:1180px){
+  .v2-main{align-items:start!important}
+  .v2-basket-card{
+    position:sticky!important;
+    top:96px!important;
+  }
+}
+
+@media (max-width:700px), (hover:none) and (pointer:coarse) and (max-width:1100px){
+  .v2-hero.v2-bay-first{padding-top:26px!important}
+  .v2-bay-first .v2-hero-copy h1{max-width:340px!important}
+  .v2-bay-first .v2-hero-copy p{max-width:355px!important}
+  .v2-bay-first .v2-hero-bai{
+    min-height:128px!important;
+    margin-top:2px!important;
+  }
+  .v2-bay-first .v2-hero-bai img{
+    width:min(164px,48vw)!important;
+    height:128px!important;
+  }
+  .v2-bay-actions{margin-top:6px!important}
+  .v2-self-search{margin-top:15px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .v2-hero.v2-bay-first,
+  .v2-bay-first .v2-hero-bai img{transition:none!important}
+}
