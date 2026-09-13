@@ -40,6 +40,21 @@ const State=Annotation.Root({
 const clean=(v:unknown,n=MAX_MESSAGE)=>String(v??"").replace(/[\u0000-\u001f<>]/g," ").replace(/\s+/g," ").trim().slice(0,n);
 const slug=(v:unknown)=>typeof v==="string"&&/^[a-z0-9_-]{1,64}$/.test(v);
 const clone=<T>(v:T):T=>JSON.parse(JSON.stringify(v));
+const low=(v:unknown)=>String(v??"").toLowerCase().replace(/ё/g,"е").replace(/\s+/g," ").trim();
+const INJECTION=/(?:забудь|игнорируй|отмени)\s+(?:все\s+)?(?:инструкц|ограничен|правил)|system\s*prompt|developer\s*message|раскрой\s+(?:промпт|инструкц)/i;
+const NON_SHOP_TASK=/(?:напиши|сделай|создай|сгенерируй|разработай|почини)\s+.{0,64}(?:сайт|приложение|код|скрипт|программ|функци|класс|бота|react|python|javascript|typescript|html|css|sql)/i;
+const SHOP_ACTION=/(?:собер|куп|товар|цен|магазин|корзин|достав|самовывоз|заказ|дешев|бюджет|добав|убер|удал|замен|количеств|сравн|выбер|подбер|посовет|оптимиз|покуп|бренд)/i;
+const SHOP_PRODUCT=/(?:ноутбук|телефон|смартфон|наушник|телевизор|холодильник|продукт|ед[ау]|молок|хлеб|мяс|куриц|ветчин|фрукт|овощ|вода|одежд|обув|косметик|мебел|инструмент|лекарств)/i;
+function domainGate(text:unknown){
+  const t=low(text);
+  if(!t)return{allowed:false,code:"OUT_OF_SCOPE",reason:"empty"};
+  if(INJECTION.test(t))return{allowed:false,code:"OUT_OF_SCOPE",reason:"prompt_injection"};
+  if(/(?:включ|выключ).{0,24}нейро[-\s]?режим/.test(t))return{allowed:true,code:"ALLOWED",reason:"shopping_agent_control"};
+  if(SHOP_PRODUCT.test(t)&&/(?:посовет|выбер|подбер|сравн|куп)/.test(t))return{allowed:true,code:"ALLOWED",reason:"product_advice"};
+  if(NON_SHOP_TASK.test(t))return{allowed:false,code:"OUT_OF_SCOPE",reason:"non_shopping_task"};
+  if(SHOP_ACTION.test(t)&&(SHOP_PRODUCT.test(t)||/(?:корзин|магазин|цен|достав|заказ|покуп)/.test(t)))return{allowed:true,code:"ALLOWED",reason:"shopping_intent"};
+  return{allowed:false,code:"OUT_OF_SCOPE",reason:"no_shopping_intent"};
+}
 
 function cors(req:Request){
   const origin=req.headers.get("origin")||"";
@@ -250,6 +265,8 @@ export default {fetch:withSupabase({auth:"none"},async(req,ctx)=>{
   try{payload=await req.json()}catch{return json(req,{ok:false,error:"invalid_json"},400)}
   const message=clean(payload?.message);
   if(!message)return json(req,{ok:false,error:"empty_message"},400);
+  const gate=domainGate(message);
+  if(!gate.allowed)return json(req,{ok:false,error:"out_of_scope",status:"OUT_OF_SCOPE",domainGate:gate,fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:["domain_gate"]},422);
   const actorHash=await sha256(`bai-agent-v1:${userId}`);
   const reservation=await ctx.supabaseAdmin.rpc("reserve_bai_agent_request",{p_actor_hash:actorHash,p_limit:MAX_PER_HOUR});
   if(reservation.error)return json(req,{ok:false,error:"rate_check_failed"},503);
