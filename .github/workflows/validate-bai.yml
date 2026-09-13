@@ -86,6 +86,7 @@ jobs:
           node --check bai-autopilot.js
           node --check bai-shopping-journey.js
           node --check bai-session-owner-guard.js
+          node --check bai-execution-state-machine.js
           node --check gemma-router.js
           node --check gemma-browser-worker.js
           node --check bai-planner.js
@@ -115,6 +116,7 @@ jobs:
           node --check scripts/test-bai-agent-core.mjs
           node --check scripts/test-bai-domain-gate-boundary.mjs
           node --check scripts/test-bai-session-isolation.mjs
+          node --check scripts/test-bai-execution-state-machine.mjs
           node --check scripts/test-bai-evolution.mjs
           node --check scripts/test-bai-autopilot.mjs
           node --check scripts/test-bai-shopping-journey.mjs
@@ -150,6 +152,7 @@ jobs:
           node scripts/test-bai-agent-core.mjs
           node scripts/test-bai-domain-gate-boundary.mjs
           node scripts/test-bai-session-isolation.mjs
+          node scripts/test-bai-execution-state-machine.mjs
           node scripts/test-bai-evolution.mjs
           node scripts/test-bai-autopilot.mjs
           node scripts/test-bai-shopping-journey.mjs
