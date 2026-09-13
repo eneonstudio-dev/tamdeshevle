@@ -61,4 +61,27 @@ assert.doesNotMatch(observability,/detail\.input/);
 assert.doesNotMatch(observability,/detail\.history/);
 assert.doesNotMatch(observability,/detail\.payload/);
 
-console.log("Bai session isolation passed: account state fails closed and observability keeps raw shopping content out of telemetry.");
+const traceSource=fs.readFileSync(new URL("../bai-trace-context.js",import.meta.url),"utf8");
+assert.match(traceSource,/trace_id/);
+assert.match(traceSource,/td:bai-telemetry/);
+assert.doesNotMatch(traceSource,/message|history|basket|payload/i,"trace layer must not capture shopping content");
+
+const traceListeners=new Map();
+const traceContext={
+  console,JSON,Math,Date,setTimeout,clearTimeout,
+  crypto:{randomUUID:()=>"12345678-1234-4234-8234-123456789abc"},
+  addEventListener:(name,fn)=>traceListeners.set(name,fn),
+  TDBaiBrain:{route:async()=>({ok:true,status:"OK",provider:"rules",operations:[{type:"ADD_PRODUCT",value:"milk"}]})},
+  TDBaiShoppingAgentKernel:{run:async()=>({ok:true,status:"VERIFIED",actions:[{type:"add_item"}]}),execute:()=>({ok:true,status:"VERIFIED",actions:[{type:"add_item"}]})}
+};
+traceContext.window=traceContext;traceContext.globalThis=traceContext;
+vm.createContext(traceContext);vm.runInContext(traceSource,traceContext);
+const routed=await traceContext.TDBaiBrain.route("shopping request",[]);
+const executed=await traceContext.TDBaiShoppingAgentKernel.run({text:"shopping request",operations:[]});
+assert.match(routed.trace_id,/^bai_/);
+assert.equal(executed.trace_id,routed.trace_id,"provider route and verified execution must share one correlation ID");
+const telemetry={type:"kernel",stage:"run",status:"VERIFIED"};
+traceListeners.get("td:bai-telemetry")?.({detail:telemetry});
+assert.equal(telemetry.trace_id,routed.trace_id,"runtime telemetry must carry the same correlation ID without raw request content");
+
+console.log("Bai session isolation passed: account state fails closed and trace-safe observability correlates route and execution without raw shopping content.");
