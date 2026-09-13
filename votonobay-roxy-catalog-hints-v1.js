@@ -57,9 +57,8 @@
 
   function dismissHint(hint=document.querySelector(`.${HINT_CLASS}`)){
     rememberDismissed();
-    if(!hint)return;
-    hint.classList.add("is-leaving");
-    setTimeout(()=>hint.remove(),180);
+    if(hint)hint.classList.add("is-leaving");
+    document.querySelectorAll(`.${HINT_CLASS}`).forEach(node=>node.remove());
   }
 
   function makeHint(){
