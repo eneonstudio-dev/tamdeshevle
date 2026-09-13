@@ -21,6 +21,9 @@ for source,label in [(train,'train'),(ev,'eval')]:
     assert 'revision=revision' in source,f'{label} must pin base revision'
     assert 'enable_thinking=enable_thinking' in source,f'{label} must explicitly control Qwen3 thinking'
 assert 'use_gradient_checkpointing=grad_ckpt' in train
+assert "device_map={'':training_device}" in train
+assert "torch.cuda.current_device()" in train
+assert "device_map='auto'" not in train
 assert "PREFLIGHT=ROOT/'teacher-lab/training/kaggle_gpu_preflight.py'" in pipe
 assert "state['brain_release_bundle']" in pipe
 assert "bai-brain-release-bundle" in pipe

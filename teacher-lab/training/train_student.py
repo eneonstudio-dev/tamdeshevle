@@ -30,7 +30,13 @@ def main():
     thinking=bool(cfg.get('chat_template',{}).get('enable_thinking',False)); grad_ckpt=bool(cfg.get('gradient_checkpointing',True))
     tok=AutoTokenizer.from_pretrained(base,revision=revision,trust_remote_code=True); tok.pad_token=tok.pad_token or tok.eos_token
     quant=BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_compute_dtype=torch.float16,bnb_4bit_use_double_quant=True)
-    model=AutoModelForCausalLM.from_pretrained(base,revision=revision,quantization_config=quant,device_map='auto',torch_dtype=torch.float16,trust_remote_code=True)
+    # QLoRA models must be loaded onto the same device that Trainer will use.
+    # `device_map="auto"` can shard a tiny model across both Kaggle T4s; the
+    # single-process Trainer then rejects the 4-bit model during prepare().
+    if not torch.cuda.is_available():
+        raise RuntimeError('QLoRA training requires a CUDA GPU')
+    training_device = torch.cuda.current_device()
+    model=AutoModelForCausalLM.from_pretrained(base,revision=revision,quantization_config=quant,device_map={'':training_device},torch_dtype=torch.float16,trust_remote_code=True)
     model=prepare_model_for_kbit_training(model,use_gradient_checkpointing=grad_ckpt)
     lc=cfg['lora']; model=get_peft_model(model,LoraConfig(r=int(lc['r']),lora_alpha=int(lc['alpha']),lora_dropout=float(lc['dropout']),bias='none',task_type='CAUSAL_LM',target_modules=list(lc['target_modules'])))
     def encode(row):
