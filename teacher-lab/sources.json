@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "default_status": "blocked",
+  "sources": [
+    {"id":"human_votonobay_reviewed","provider":"Votonobay","model":"human-reviewed","mode":"internal","status":"training_allowed","license":"internal","checked_at":"2026-09-13","training_other_models":true,"network_data_sent":false},
+    {"id":"deepseek_r1_local_mit","provider":"DeepSeek","model":"DeepSeek-R1","mode":"self_hosted","status":"training_allowed","license":"MIT","license_url":"https://github.com/deepseek-ai/DeepSeek-R1/blob/main/LICENSE","checked_at":"2026-09-13","training_other_models":true,"network_data_sent":false,"note":"Official repository explicitly permits derivative works including distillation for training other LLMs. Exact checkpoint upstream license still must be pinned."},
+    {"id":"qwen3_open_weights_apache2","provider":"Qwen","model":"Qwen3 open-weight","mode":"self_hosted","status":"training_allowed","license":"Apache-2.0","license_url":"https://github.com/QwenLM/Qwen3","checked_at":"2026-09-13","training_other_models":true,"network_data_sent":false,"note":"Applies only to pinned open-weight Qwen3 models, not arbitrary hosted Qwen services."},
+    {"id":"yandex_foundation_models_api","provider":"Yandex","model":"Foundation Models / AI Studio","mode":"hosted_api","status":"evaluation_only","license":"service_terms","checked_at":"2026-09-13","training_other_models":null,"network_data_sent":true,"note":"Do not ingest outputs into training until exact service terms or written permission explicitly cover model training/distillation."},
+    {"id":"yandex_alice_consumer","provider":"Yandex","model":"Alice consumer features","mode":"consumer_service","status":"blocked","license":"service_terms","checked_at":"2026-09-13","training_other_models":false,"network_data_sent":true,"note":"Consumer/product-specific Yandex terms can prohibit using outputs to test or train AI models."},
+    {"id":"gigachat_api","provider":"Sber/SDevices","model":"GigaChat API","mode":"hosted_api","status":"evaluation_only","license":"service_terms","checked_at":"2026-09-13","training_other_models":null,"network_data_sent":true,"note":"No explicit distillation permission accepted in this review; Freemium is non-commercial."},
+    {"id":"mistral_unspecified","provider":"Mistral AI","model":"unspecified","mode":"unspecified","status":"evaluation_only","license":"model_specific_review_required","checked_at":"2026-09-13","training_other_models":null,"network_data_sent":null,"note":"Pin exact model and terms before allowing training use."}
+  ]
+}
