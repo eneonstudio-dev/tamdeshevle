@@ -1,0 +1,25 @@
+/* Browser-QA tuning for the approved Roxy Bay panel.
+   Desktop composer stays one horizontal control row, matching the handoff. */
+
+@media (min-width:821px){
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-compose,
+  body>.td-ai[data-roxy-bay-panel="1"][data-visual-v3="1"] .td-ai-compose{
+    grid-template-columns:minmax(0,1fr) 46px 46px!important;
+    align-items:end!important;
+  }
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-compose textarea{
+    grid-column:1!important;
+    grid-row:1!important;
+    width:100%!important;
+  }
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-compose [data-ai-mic]{
+    grid-column:2!important;
+    grid-row:1!important;
+  }
+  body>.td-ai[data-roxy-bay-panel="1"] .td-ai-compose .td-ai-send{
+    grid-column:3!important;
+    grid-row:1!important;
+    width:46px!important;
+    height:46px!important;
+  }
+}
