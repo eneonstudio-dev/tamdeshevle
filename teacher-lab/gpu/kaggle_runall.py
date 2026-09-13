@@ -23,6 +23,12 @@ def review(run_dir,out_dir,batch_index=0):
     if batch_index: cmd.append(str(batch_index))
     call(cmd)
     call(['node',CONSOLE,out_dir,out_dir/'review.html'])
+    runtime=Path(run_dir)/'run-manifest.jsonl'
+    corpus=OUT/'export'/'manifest.json'
+    if not runtime.is_file(): raise SystemExit(f'missing runtime manifest: {runtime}')
+    if not corpus.is_file(): raise SystemExit(f'missing corpus manifest: {corpus}')
+    shutil.copy2(runtime,out_dir/'run-manifest.jsonl')
+    shutil.copy2(corpus,out_dir/'corpus-manifest.json')
     data=json.loads((out_dir/'summary.json').read_text(encoding='utf-8'))
     print(json.dumps(data,ensure_ascii=False,indent=2),flush=True)
     return data
