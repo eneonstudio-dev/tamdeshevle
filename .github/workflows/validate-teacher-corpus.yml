@@ -51,6 +51,7 @@ jobs:
           python -m py_compile teacher-lab/review-artifact.py
           python -m py_compile teacher-lab/review-artifact-smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_t4x2_teachers.py
+          python -m py_compile teacher-lab/gpu/kaggle_load_order_smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_runall.py
           python -m py_compile teacher-lab/training/train_student.py
           python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
@@ -73,6 +74,8 @@ jobs:
         run: node teacher-lab/review-console-smoke.mjs
       - name: Validate review artifact workflow
         run: python teacher-lab/review-artifact-smoke.py
+      - name: Validate Kaggle teacher load order
+        run: python teacher-lab/gpu/kaggle_load_order_smoke.py
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
