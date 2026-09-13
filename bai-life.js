@@ -2,6 +2,7 @@
   "use strict";
   if(window.__TDBaiLifeInitialized)return;
   window.__TDBaiLifeInitialized=true;
+  import("./votonobay-bay-expressions-v1.js?v=20260913-v1").catch(error=>console.warn("[Bay Approved Expressions] load failed",error));
   import("./bai-runtime-states-v1.js?v=20260912-states-v1").catch(error=>console.warn("[Bay Runtime States] load failed",error));
   import("./unified-cart-state-v1.js?v=20260912-v1")
     .then(()=>Promise.all([
