@@ -1,0 +1,74 @@
+/* Roxy catalog hint: Bay is useful in self-service without taking over the catalog. */
+.roxy-catalog-bay-hint{
+  position:relative!important;
+  display:grid!important;
+  grid-template-columns:54px minmax(0,1fr) auto!important;
+  gap:12px!important;
+  align-items:center!important;
+  width:100%!important;
+  margin:12px 0 18px!important;
+  padding:12px 12px 12px 10px!important;
+  border:1px solid rgba(79,245,154,.14)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 5% 45%,rgba(79,245,154,.085),transparent 20%),
+    linear-gradient(145deg,rgba(12,31,22,.92),rgba(7,18,13,.96))!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.17)!important;
+  overflow:hidden!important;
+  opacity:0;
+  transform:translateY(5px);
+  transition:opacity .2s ease,transform .2s ease,border-color .2s ease!important;
+}
+.roxy-catalog-bay-hint:before{
+  content:"";position:absolute;left:0;top:12px;bottom:12px;width:2px;border-radius:2px;background:#4ff59a;opacity:.7;
+}
+.roxy-catalog-bay-hint.is-ready{opacity:1;transform:none}
+.roxy-catalog-bay-hint.is-leaving{opacity:0;transform:translateY(-3px)}
+.roxy-catalog-bay-media{width:54px;height:54px;display:grid;place-items:center;overflow:hidden;border-radius:16px;background:rgba(79,245,154,.045)}
+.roxy-catalog-bay-media img{
+  width:58px;height:58px;object-fit:cover;object-position:50% 49%;border-radius:16px;
+  filter:drop-shadow(0 8px 13px rgba(0,0,0,.25)) saturate(1.035);
+  transform-origin:50% 76%;
+}
+.roxy-catalog-bay-hint.is-ready .roxy-catalog-bay-media img{animation:roxy-catalog-bay-arrive .48s cubic-bezier(.22,.8,.24,1) both}
+.roxy-catalog-bay-copy{display:grid;gap:3px;min-width:0}
+.roxy-catalog-bay-copy small{color:#72dda1;font:900 8px/1.1 Manrope,Inter,sans-serif;letter-spacing:.12em}
+.roxy-catalog-bay-copy b{color:#f0faf4;font:850 13px/1.25 Manrope,Inter,sans-serif;letter-spacing:-.015em}
+.roxy-catalog-bay-copy p{margin:0!important;max-width:720px;color:#8fa99a;font:650 10px/1.45 Manrope,Inter,sans-serif}
+.roxy-catalog-bay-actions{display:flex;align-items:center;gap:7px}
+.roxy-catalog-bay-actions button{font-family:Manrope,Inter,sans-serif;cursor:pointer}
+.roxy-catalog-bay-ask{
+  min-height:44px;padding:0 14px;border:1px solid rgba(79,245,154,.2);border-radius:12px;
+  background:rgba(79,245,154,.085);color:#9bf5bf;font-size:10px;font-weight:850;white-space:nowrap;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease;
+}
+.roxy-catalog-bay-ask:hover,.roxy-catalog-bay-ask:focus-visible{background:rgba(79,245,154,.14);border-color:rgba(79,245,154,.35);outline:none}
+.roxy-catalog-bay-ask:active{transform:translateY(1px)}
+.roxy-catalog-bay-dismiss{
+  width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:12px;
+  background:transparent;color:#72877b;font-size:19px;line-height:1;
+}
+.roxy-catalog-bay-dismiss:hover,.roxy-catalog-bay-dismiss:focus-visible{background:rgba(255,255,255,.045);color:#c4d3ca;outline:none}
+@keyframes roxy-catalog-bay-arrive{0%{transform:translateY(5px) scale(.95)}65%{transform:translateY(-1px) scale(1.015)}100%{transform:none}}
+
+@media(max-width:700px){
+  .roxy-catalog-bay-hint{
+    grid-template-columns:48px minmax(0,1fr) 44px!important;
+    gap:9px!important;margin:10px 0 14px!important;padding:10px 8px 10px 9px!important;border-radius:16px!important;
+  }
+  .roxy-catalog-bay-media{width:48px;height:48px;border-radius:14px}
+  .roxy-catalog-bay-media img{width:52px;height:52px;border-radius:14px}
+  .roxy-catalog-bay-copy small{font-size:7px}
+  .roxy-catalog-bay-copy b{font-size:12px}
+  .roxy-catalog-bay-copy p{font-size:9px;line-height:1.38;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .roxy-catalog-bay-actions{display:contents}
+  .roxy-catalog-bay-ask{
+    grid-column:1/-1;grid-row:2;min-height:44px;width:100%;padding:0 12px;border-radius:12px;font-size:10px;
+  }
+  .roxy-catalog-bay-dismiss{
+    grid-column:3;grid-row:1;width:44px;height:44px;align-self:start;border-radius:12px;font-size:18px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .roxy-catalog-bay-hint,.roxy-catalog-bay-ask,.roxy-catalog-bay-media img{transition:none!important;animation:none!important;transform:none!important}
+}
