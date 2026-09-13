@@ -75,6 +75,13 @@ html body.td-votonobay-inner .td-journey-unavailable{
   color:#d8a899!important;
   box-shadow:none!important;
 }
+html body.td-votonobay-inner .td-coverage.incomplete{
+  border:1px solid rgba(240,186,90,.16)!important;
+  background:rgba(240,186,90,.075)!important;
+  color:#d6b36f!important;
+  box-shadow:none!important;
+}
+html body.td-votonobay-inner .td-coverage.incomplete small{color:#aa936d!important}
 
 @media (hover:none) and (pointer:coarse), (max-width:780px){
   html body.td-votonobay-inner .dock{
