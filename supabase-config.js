@@ -32,4 +32,5 @@ import("./bai-session-owner-guard.js?v=20260913-owner-v1")
   .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v2"))
   .then(()=>import("./bai-observability.js?v=20260913-observability-v1"))
   .then(()=>import("./bai-idempotency-guard.js?v=20260913-idempotency-v1"))
-  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character/Observability/Idempotency] client load failed",error));
+  .then(()=>import("./bai-execution-state-machine.js?v=20260913-execution-state-v1"))
+  .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character/Observability/Idempotency/ExecutionState] client load failed",error));
