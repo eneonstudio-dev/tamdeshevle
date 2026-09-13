@@ -29,7 +29,10 @@ def main():
     base=cfg['base_model']; revision=cfg.get('base_revision'); max_len=int(cfg['max_seq_length'])
     thinking=bool(cfg.get('chat_template',{}).get('enable_thinking',False)); grad_ckpt=bool(cfg.get('gradient_checkpointing',True))
     tok=AutoTokenizer.from_pretrained(base,revision=revision,trust_remote_code=True); tok.pad_token=tok.pad_token or tok.eos_token
-    quant=BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_compute_dtype=torch.float16,bnb_4bit_use_double_quant=True)
+    # T4 + current Kaggle CUDA/bitsandbytes can reject the fp16 4-bit GEMM
+    # kernel at the first backward pass. FP32 compute keeps the model 4-bit
+    # in memory but uses the universally supported T4 GEMM path.
+    quant=BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_compute_dtype=torch.float32,bnb_4bit_use_double_quant=True)
     # QLoRA models must be loaded onto the same device that Trainer will use.
     # `device_map="auto"` can shard a tiny model across both Kaggle T4s; the
     # single-process Trainer then rejects the 4-bit model during prepare().
@@ -51,5 +54,6 @@ def main():
     trainer.train(resume_from_checkpoint=True if args.resume else None); model.save_pretrained(out/'adapter'); tok.save_pretrained(out/'adapter')
     digest=hashlib.sha256(Path(args.data).read_bytes()).hexdigest(); manifest={'name':cfg['name'],'base_model':base,'base_revision':revision,'method':cfg['method'],'examples':len(rows),'data_sha256':digest,'seed':seed,'output':'adapter','chat_template':{'enable_thinking':thinking},'gradient_checkpointing':grad_ckpt,'torch':torch.__version__,'transformers':transformers.__version__}
     (out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8'); print(json.dumps(manifest,ensure_ascii=False))
+
 
 if __name__=='__main__': main()
