@@ -1,0 +1,24 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {buildCorpus} from './corpus-builder.mjs';
+import {buildManifest,shardCorpus,renderCorpusJsonl} from './batch-manifest.mjs';
+
+const here=new URL('./',import.meta.url);
+const read=name=>JSON.parse(fs.readFileSync(new URL(name,here),'utf8'));
+const profiles=[read('profiles/deepseek-r1-distill-qwen-7b.json'),read('profiles/qwen3-8b.json')];
+const rowsA=buildCorpus(),rowsB=buildCorpus();
+const a=buildManifest({rows:rowsA,profiles,batchSize:64});
+const b=buildManifest({rows:rowsB,profiles,batchSize:64});
+assert.equal(rowsA.length,560);
+assert.equal(a.corpus.sha256,b.corpus.sha256,'corpus hash must be deterministic');
+assert.equal(renderCorpusJsonl(rowsA),renderCorpusJsonl(rowsB));
+assert.equal(a.batches.length,9);
+assert.deepEqual(a.batches,b.batches,'batch manifests must be deterministic');
+assert.equal(a.teachers.length,2);
+for(const teacher of a.teachers)assert.ok(/^http:\/\/127\.0\.0\.1:\d+$/.test(teacher.endpoint));
+const batches=shardCorpus(rowsA,64),ids=batches.flatMap(x=>x.task_ids);
+assert.equal(ids.length,560);
+assert.equal(new Set(ids).size,560,'every task must appear exactly once');
+assert.deepEqual(ids,rowsA.map(x=>x.id),'batch order must preserve corpus order');
+assert.equal(batches.at(-1).count,48);
+console.log(`Bai teacher batches smoke passed: ${rowsA.length} tasks / ${batches.length} batches / ${a.corpus.sha256.slice(0,12)}`);
