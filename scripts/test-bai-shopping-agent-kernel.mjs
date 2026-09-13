@@ -69,8 +69,22 @@ result=kernel.execute([{type:"set_constraint",payload:{key:"store_ids",value:["i
 const beforePoison=kernel.state.get(),beforeCart=JSON.stringify(context.window.state.cart);result=kernel.execute([{type:"set_constraint",payload:{key:"budget",value:1}},{type:"optimize_basket",payload:{}}],{input:"Уложи в рубль"});assert.equal(result.ok,false);assert.equal(result.error.code,"CONSTRAINT_VIOLATION");assert.equal(kernel.state.get().budget,beforePoison.budget,"failed constraints must roll back in both state stores");assert.equal(JSON.stringify(context.window.state.cart),beforeCart,"rollback must restore the shared visible cart, not only the hidden shopping session");
 assert.doesNotThrow(()=>JSON.parse(storage.get("td:bai-shopping-session:v2")),"shopping session must stay serializable");assert.ok(kernel.state.get().history.length>=4,"verified actions must be recorded");
 
+context.TDBaiTraceContext={current:()=>null};
+vm.runInContext(fs.readFileSync(new URL("../bai-idempotency-guard.js",import.meta.url),"utf8"),context);
+assert.equal(context.TDBaiIdempotencyGuard.status().installed,true,"idempotency guard must wrap the shopping kernel");
+const milkQty=()=>Number(context.TDShoppingState.get().products.find(item=>item.id==="milk")?.quantity||0),qtyBefore=milkQty();
+const idempotentInput={text:"Добавь ещё одну упаковку молока",operations:[{type:"CHANGE_QUANTITY",value:{id:"milk",delta:1}}],execution_id:"exec_quantity-0001"};
+const firstExecution=await kernel.run(idempotentInput),qtyAfterFirst=milkQty();
+assert.equal(firstExecution.ok,true,firstExecution.error?.code);assert.equal(firstExecution.idempotent_replay,false);assert.equal(qtyAfterFirst,qtyBefore+1,"first execution must mutate exactly once");
+const duplicateExecution=await kernel.run(idempotentInput);
+assert.equal(duplicateExecution.ok,true);assert.equal(duplicateExecution.idempotent_replay,true,"same execution ID and payload must replay without a second mutation");assert.equal(duplicateExecution.provider_actions_executed,false);assert.equal(milkQty(),qtyAfterFirst,"duplicate execution must not change quantity twice");
+const independentExecution=await kernel.run({...idempotentInput,execution_id:"exec_quantity-0002"});
+assert.equal(independentExecution.ok,true);assert.equal(independentExecution.idempotent_replay,false);assert.equal(milkQty(),qtyAfterFirst+1,"new execution ID must allow an intentional repeated action");
+assert.ok(context.TDBaiIdempotencyGuard.status().entries>=2,"verified execution keys must be retained in a bounded local ledger");
+assert.doesNotThrow(()=>JSON.parse(storage.get("td:bai-shopping-session:v2")),"idempotency ledger must remain serializable with the shopping session");
+
 let providerCalls=0;context.fetch=async()=>{providerCalls++;throw new Error("must not call")};context.TD_BAI_AGENT={endpoint:"https://example.invalid/agent"};context.TDAuth={init:async()=>({auth:{getSession:async()=>({data:{session:{access_token:"x"}}})}}),user:()=>({id:"u"})};
 vm.runInContext(fs.readFileSync(new URL("../bai-agent-client.js",import.meta.url),"utf8"),context);
 const out=await context.TDBaiAgentClient.route("Напиши сайт на React",[],{operations:[],reply:""});assert.equal(out.status,"OUT_OF_SCOPE");assert.equal(providerCalls,0,"domain gate must run before any provider call");
 
-console.log("Bai shopping agent kernel passed: domain gate, persistent constraints, allowlisted execution, verify-before-reply, recovery and pre-provider blocking.");
+console.log("Bai shopping agent kernel passed: domain gate, persistent constraints, allowlisted execution, idempotent duplicate guard, verify-before-reply, recovery and pre-provider blocking.");
