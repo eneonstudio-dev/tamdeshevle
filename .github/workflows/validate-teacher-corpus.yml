@@ -53,7 +53,9 @@ jobs:
           node --check teacher-lab/training/review-export.mjs
           node --check teacher-lab/training/aggregate-gold.mjs
           node --check teacher-lab/training/aggregate-gold-smoke.mjs
+          node --check teacher-lab/training/benchmark-cli.mjs
           node --check teacher-lab/training/promotion-gate.mjs
+          node --check teacher-lab/training/promotion-cli.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/review-artifact.py
           python -m py_compile teacher-lab/review-artifact-smoke.py
@@ -61,11 +63,14 @@ jobs:
           python -m py_compile teacher-lab/gpu/kaggle_load_order_smoke.py
           python -m py_compile teacher-lab/gpu/kaggle_runall.py
           python -m py_compile teacher-lab/training/train_student.py
+          python -m py_compile teacher-lab/training/evaluate_student.py
+          python -m py_compile teacher-lab/training/kaggle_train_pipeline.py
+          python -m py_compile teacher-lab/training/automated-pipeline-smoke.py
           python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
           python -m json.tool teacher-lab/training/bai_student_kaggle_train.ipynb >/dev/null
           grep -q "kaggle_runall.py" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
           grep -q -- "--through-batch 9" teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb
-          grep -q "train_student.py" teacher-lab/training/bai_student_kaggle_train.ipynb
+          grep -q "kaggle_train_pipeline.py" teacher-lab/training/bai_student_kaggle_train.ipynb
       - name: Validate profiles and generated corpus
         run: node teacher-lab/corpus-smoke.mjs
       - name: Validate deterministic batches
@@ -94,6 +99,8 @@ jobs:
         run: node teacher-lab/training/aggregate-gold-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
+      - name: Validate automatic train/eval/promotion orchestration
+        run: python teacher-lab/training/automated-pipeline-smoke.py
       - name: Exercise offline export
         run: |
           rm -rf /tmp/bai-teacher-export
