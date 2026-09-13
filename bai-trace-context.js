@@ -36,7 +36,15 @@
     return true;
   }
 
-  function install(){return{brain:wrapBrain(),kernel:wrapKernel()}}
+  function bindTelemetry(){
+    window.addEventListener("td:bai-telemetry",event=>{
+      const id=current(),detail=event?.detail;
+      if(id&&detail&&typeof detail==="object"&&!Array.isArray(detail)&&!detail.trace_id)detail.trace_id=id;
+    });
+    return true;
+  }
+
+  function install(){return{brain:wrapBrain(),kernel:wrapKernel(),telemetry:bindTelemetry()}}
   function status(){return{version:VERSION,active,current:current(),last,lastAt,ttl_ms:TTL_MS}}
   window.TDBaiTraceContext={version:VERSION,begin,current,ensure,end,status,install};
   install();
