@@ -1,0 +1,77 @@
+/* Final browser-QA tuning for the approved Roxy Home direction.
+   Loaded dynamically after the historical visual stack so this layer only
+   resolves real viewport composition issues. */
+
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span{
+  min-width:0!important;
+  min-height:28px!important;
+  padding:0 11px!important;
+  display:flex!important;
+  align-items:center!important;
+  border:1px solid rgba(199,255,224,.07)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.022)!important;
+  color:#81968a!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:before{
+  content:"✓";
+  flex:0 0 auto;
+  margin-right:7px;
+  color:#65e9a2;
+  font-size:9px;
+}
+
+@media (min-width:1101px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+    grid-template-columns:minmax(0,1.04fr) minmax(440px,.96fr)!important;
+    column-gap:30px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy{
+    max-width:690px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1{
+    max-width:690px!important;
+    font-size:clamp(55px,4.45vw,64px)!important;
+    line-height:.95!important;
+    letter-spacing:-.07em!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
+    min-height:430px!important;
+    justify-content:center!important;
+    padding-top:24px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai:before{
+    width:410px!important;
+    height:410px!important;
+    top:43%!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+    width:min(350px,78%)!important;
+    height:305px!important;
+    object-position:center top!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai span{
+    right:8%!important;
+    top:66px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .roxy-bay-card{
+    right:34px!important;
+    bottom:32px!important;
+    width:min(570px,42vw)!important;
+  }
+}
+
+@media (max-width:800px), (hover:none) and (pointer:coarse) and (max-width:1100px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span{
+    min-height:30px!important;
+    padding-inline:10px!important;
+    font-size:8px!important;
+  }
+}
+
+@media(max-width:390px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span{white-space:normal!important}
+}
