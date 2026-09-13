@@ -83,7 +83,6 @@
         <button class="roxy-catalog-bay-dismiss" type="button" aria-label="Скрыть подсказку">×</button>
       </div>`;
     hint.querySelector(".roxy-catalog-bay-ask")?.addEventListener("click",openBay);
-    hint.querySelector(".roxy-catalog-bay-dismiss")?.addEventListener("click",()=>dismissHint(hint));
     return hint;
   }
 
@@ -112,6 +111,16 @@
     queued=true;
     requestAnimationFrame(()=>{queued=false;decorate()});
   }
+
+  // Capture dismissal at the document boundary so a simultaneous panel/render
+  // mutation cannot replace the hint before its own button listener runs.
+  document.addEventListener("click",event=>{
+    const target=event.target instanceof Element?event.target:null;
+    const dismiss=target?.closest?.(`.${HINT_CLASS} .roxy-catalog-bay-dismiss`);
+    if(!dismiss)return;
+    event.preventDefault();
+    dismissHint(dismiss.closest(`.${HINT_CLASS}`));
+  },true);
 
   const observer=new MutationObserver(schedule);
   observer.observe(document.documentElement,{childList:true,subtree:true});
