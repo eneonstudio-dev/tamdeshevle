@@ -1,0 +1,51 @@
+import fs from "node:fs";
+import vm from "node:vm";
+import assert from "node:assert/strict";
+
+const source=fs.readFileSync(new URL("../bai-session-owner-guard.js",import.meta.url),"utf8");
+const storage=new Map([["td:bai-shopping-session:v2",JSON.stringify({history:["legacy"],budget:5000})]]);
+const listeners=new Map();
+let resets=0;
+const context={
+  console,
+  localStorage:{
+    getItem:key=>storage.get(key)??null,
+    setItem:(key,value)=>storage.set(key,String(value)),
+    removeItem:key=>storage.delete(key)
+  },
+  addEventListener:(name,fn)=>listeners.set(name,fn),
+  TDBaiShoppingAgentKernel:{state:{reset(){resets++;storage.set("td:bai-shopping-session:v2",JSON.stringify({history:[],budget:null}));}}}
+};
+context.window=context;context.globalThis=context;
+vm.createContext(context);vm.runInContext(source,context);
+
+const fire=detail=>listeners.get("td:auth-state")?.({detail});
+
+fire({session:{user:{id:"user-a"}}});
+assert.equal(storage.get("td:bai-shopping-session-owner:v1"),"user-a");
+assert.equal(resets,1,"legacy/unowned session must be cleared when first authenticated owner is known");
+
+storage.set("td:bai-shopping-session:v2",JSON.stringify({history:["a-private"],budget:4200}));
+fire({session:{user:{id:"user-a"}}});
+assert.equal(resets,1,"same owner must keep its active Bai shopping session");
+assert.match(storage.get("td:bai-shopping-session:v2"),/a-private/);
+
+fire({session:null});
+assert.equal(storage.get("td:bai-shopping-session-owner:v1"),"guest");
+assert.equal(resets,2,"sign out must clear the authenticated Bai session");
+assert.doesNotMatch(storage.get("td:bai-shopping-session:v2"),/a-private/);
+
+storage.set("td:bai-shopping-session:v2",JSON.stringify({history:["guest-private"],budget:700}));
+fire({session:{user:{id:"user-b"}}});
+assert.equal(storage.get("td:bai-shopping-session-owner:v1"),"user-b");
+assert.equal(resets,3,"guest -> user transition must clear guest Bai state");
+assert.doesNotMatch(storage.get("td:bai-shopping-session:v2"),/guest-private/);
+
+storage.set("td:bai-shopping-session:v2",JSON.stringify({history:["b-private"],budget:9000}));
+fire({session:{user:{id:"user-a"}}});
+assert.equal(storage.get("td:bai-shopping-session-owner:v1"),"user-a");
+assert.equal(resets,4,"user B -> user A transition must not leak user B state");
+assert.doesNotMatch(storage.get("td:bai-shopping-session:v2"),/b-private/);
+
+assert.equal(context.TDBaiSessionOwnerGuard.status().owner,"user-a");
+console.log("Bai session isolation passed: user, guest and account-switch transitions fail closed without cross-account state leakage.");
