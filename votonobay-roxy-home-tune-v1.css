@@ -12,6 +12,7 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof spa
   border-radius:999px!important;
   background:rgba(255,255,255,.022)!important;
   color:#81968a!important;
+  font-size:0!important;
   white-space:nowrap!important;
   overflow:hidden!important;
   text-overflow:ellipsis!important;
@@ -23,6 +24,19 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof spa
   color:#65e9a2;
   font-size:9px;
 }
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:after{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:#81968a;
+  font-size:9px;
+  font-weight:720;
+  line-height:1.2;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:nth-child(1):after{content:"Умные рекомендации"}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:nth-child(2):after{content:"Выгодные находки"}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:nth-child(3):after{content:"Экономия времени"}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:nth-child(4):after{content:"Надёжные магазины"}
 
 @media (min-width:1101px){
   html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
@@ -68,8 +82,8 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof spa
   html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span{
     min-height:30px!important;
     padding-inline:10px!important;
-    font-size:8px!important;
   }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof span:after{font-size:8px}
 }
 
 @media(max-width:390px){
