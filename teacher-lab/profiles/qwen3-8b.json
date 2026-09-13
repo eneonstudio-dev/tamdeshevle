@@ -1,0 +1,11 @@
+{
+  "profile_version": "1.0",
+  "id": "qwen3_8b",
+  "source_id": "qwen3_open_weights_apache2",
+  "model": "Qwen/Qwen3-8B",
+  "transport": "local",
+  "endpoint": "http://127.0.0.1:8002",
+  "temperature": 0.2,
+  "max_tokens": 1200,
+  "enabled_by_default": false
+}
