@@ -5,7 +5,18 @@ function hardPass(expected,actual){
   return Object.entries(expected||{}).every(([key,value])=>eq(value,(actual||{})[key]));
 }
 
-function actionKey(action){return `${action?.type||''}:${JSON.stringify(action?.value??null)}`}
+function actionKey(action){
+  const type=String(action?.type||'').toLowerCase();
+  const payload=action?.payload??action?.value??null;
+  return `${type}:${JSON.stringify(payload)}`;
+}
+
+function replacement(action){
+  const type=String(action?.type||'').toLowerCase(),payload=action?.payload??action?.value??{};
+  if(type==='replace_item')return {from:String(payload?.from_product_id||''),to:String(payload?.to_product_id||'')};
+  if(type==='replace_product')return {from:String(payload?.from||''),to:String(payload?.to||'')};
+  return null;
+}
 
 export function benchmark(goldRows,predictionRows){
   const predictions=new Map(predictionRows.map(row=>[row.id,row]));
@@ -21,9 +32,8 @@ export function benchmark(goldRows,predictionRows){
     if(need.length){retainedTotal++;const got=new Set(actual.retained_constraints||[]);if(need.every(x=>got.has(x)))retained++}
     const allowed=gold.target.shopping_plan?.allowed_replacements||{};
     for(const action of actual.actions||[]){
-      if(action?.type!=='REPLACE_PRODUCT')continue;replacements++;
-      const from=String(action.value?.from||''),to=String(action.value?.to||'');
-      if(!Array.isArray(allowed[from])||!allowed[from].includes(to))badReplacements++;
+      const rep=replacement(action);if(!rep)continue;replacements++;
+      if(!Array.isArray(allowed[rep.from])||!allowed[rep.from].includes(rep.to))badReplacements++;
     }
     if(actual.repair_attempted===true){repairs++;if(actual.critic?.pass===true&&hardOk)repairSuccess++}
   }
