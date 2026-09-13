@@ -41,6 +41,8 @@ jobs:
           node --check teacher-lab/review-pair-smoke.mjs
           node --check teacher-lab/review-decision.mjs
           node --check teacher-lab/review-decision-smoke.mjs
+          node --check teacher-lab/review-console.mjs
+          node --check teacher-lab/review-console-smoke.mjs
           node --check teacher-lab/gpu/prepare_review.mjs
           node --check teacher-lab/training/prepare-sft.mjs
           node --check teacher-lab/training/review-export.mjs
@@ -65,6 +67,8 @@ jobs:
         run: node teacher-lab/review-pair-smoke.mjs
       - name: Validate explicit review decisions
         run: node teacher-lab/review-decision-smoke.mjs
+      - name: Validate offline review console
+        run: node teacher-lab/review-console-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
