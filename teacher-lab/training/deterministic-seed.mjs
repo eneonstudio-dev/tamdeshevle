@@ -33,7 +33,7 @@ function hardConstraints(task){
   if(/на\s+недел/.test(text))h.duration_days=7;
   if(/без\s+мираторг/.test(text))brands.push('Мираторг');
   if(/одн.*магаз|в одном месте|таскаться/.test(text)){h.store_mode='one';h.store_limit=1}
-  if(/\bпп\b/.test(text))h.healthy=true;
+  if(/пп/.test(text))h.healthy=true;
   if(/фрукт/.test(text)&&/(больше|побольше|еще|маловато|добав)/.test(text))h.required_categories=['fruit'];
   if(/убер.*ветчин|без\s+ветчин/.test(text))h.excluded_products=['ham'];
   if(brands.length)h.excluded_brands=uniq(brands);if(tags.length)h.excluded_tags=uniq(tags);return h;
@@ -44,7 +44,7 @@ function preferences(task){
   if(/дешевле|подешевле|эконом/.test(t))p.price='economy';
   if(/не\s+(самое|самый|настолько)\s+деш|не\s+дешман/.test(t))p.avoid_cheapest=true;
   if(/мяс.*(получше|хорош|классом выше|не эконом)/.test(t))p.protein_tier='higher';
-  if(/фрукт/.test(t))p.fruit='more';if(/перекус/.test(t))p.snacks='more';if(/\bпп\b/.test(t))p.healthy=true;return p;
+  if(/фрукт/.test(t))p.fruit='more';if(/перекус/.test(t))p.snacks='more';if(/пп/.test(t))p.healthy=true;return p;
 }
 
 function actionsFor(task,h,p){
@@ -59,7 +59,7 @@ function actionsFor(task,h,p){
   if(h.healthy)add('set_constraint',{key:'healthy',value:true});if(/перекус/.test(t))add('set_constraint',{key:'required_category',value:'snacks'});
   if(/убер.*ветчин/.test(t)&&(task.session_context?.basket||[]).includes('ham'))add('remove_item',{product_id:'ham'});
   if(/замен/.test(t))add('set_constraint',{key:'user_note',value:'replace_with_verified_similar'});if(/верни\s+как\s+было/.test(t))add('set_constraint',{key:'user_note',value:'restore_previous_safe_state'});
-  add(out.some(x=>x.type==='remove_item')?'rebuild_basket':'optimize_basket',{reset:false});return out;
+  if(!out.some(x=>x.type==='remove_item'))add('optimize_basket',{});return out;
 }
 
 export function makeSeedRow(task){
