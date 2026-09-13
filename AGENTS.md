@@ -1,0 +1,65 @@
+# Votonobay Agent Operating Contract
+
+This repository is worked on by multiple specialized agents/chats. This file defines the mandatory entry protocol so work does not drift across conversations.
+
+## Before changing anything
+
+1. Fresh-read `main`.
+2. Read `VOTONOBAI_MASTER_ROADMAP.md`.
+3. Read `PROJECT_STATUS.md`.
+4. Read the files and recent PRs relevant to your workstream.
+5. Check `DECISIONS/`, `SOURCE_PROVIDER_REGISTRY.md`, and `REGRESSION_BANK.md` when the task touches architecture, providers/data/truth, or known failure behavior.
+6. Do not work from stale chat memory when repository state can answer the question.
+
+## Source-of-truth order
+
+1. Current merged implementation in `main` for factual code state.
+2. `VOTONOBAI_MASTER_ROADMAP.md` for approved product direction and invariants.
+3. Active ADRs in `DECISIONS/` for durable decisions.
+4. `PROJECT_STATUS.md` for current priorities/blockers.
+5. Specialized docs/tests for subsystem contracts.
+6. Chat memory only as context, never as authority when it conflicts with the repository.
+
+If code and MASTER conflict, do not guess or silently rewrite strategy. Inspect history/decision context and reconcile explicitly.
+
+## Ownership boundaries
+
+- Vi: shopping kernel/state/actions/validator/engineering architecture.
+- Price 2: price/data/provenance/source truth.
+- Умняша Бая: reasoning/planner/critic/evaluation and training quality.
+- Roxy/design: approved UX/visual direction.
+- Reinhard: security/release risk.
+
+Stay inside the task and ownership boundary unless a cross-cutting defect must be fixed to keep P0/P1 behavior safe.
+
+## Mandatory invariants
+
+- Bay is a specialized shopping agent, not a general-purpose assistant.
+- UniversalBasket is retailer-independent.
+- StoreBasket is a retailer/store/channel projection.
+- PurchasePlan is the executable strategy and may contain bounded multiple StoreBaskets.
+- Neural output never bypasses deterministic action/truth/constraint validation.
+- Discovery is not proof.
+- Missing/ambiguous price/store/stock evidence never becomes fake verified truth.
+- Partner revenue never changes recommendation ranking.
+- Never imply deeper retailer integration than actually exists.
+- No auth/protection/anti-bot/ban bypass.
+- Zero-budget mode must not silently incur paid provider usage.
+
+## Bug policy
+
+P0/P1 discovered in the active workstream: reproduce → root cause → fix → test → verify adjacent behavior. Do not stop at an audit note when a safe in-scope fix can be made.
+
+## Definition of Done
+
+Use the MASTER Definition of Done. Writing code alone is not completion. Relevant tests/contracts must pass; the intended scenario must be verified; truth/security boundaries must hold; material status/decision docs must be updated.
+
+## After substantial work
+
+- Convert important failures into regression coverage and update `REGRESSION_BANK.md` when materially useful.
+- Update `SOURCE_PROVIDER_REGISTRY.md` when adding/changing a provider or data source.
+- Add/supersede an ADR for durable strategy/architecture changes.
+- Update `PROJECT_STATUS.md` when a real blocker or priority changes.
+- Never silently change foundational scope/strategy; obtain explicit owner approval.
+
+When an unblocked next task is already unambiguous in the MASTER/STATUS and belongs to your role, proceed without asking the owner to restate the roadmap.
