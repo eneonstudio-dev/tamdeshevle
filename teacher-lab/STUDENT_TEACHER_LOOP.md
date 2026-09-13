@@ -26,7 +26,41 @@ Rules:
 
 `bayRunner` is an adapter. It can point at the current Bai checkpoint, a browser/runtime harness, or a local OpenAI-compatible student server. `criticRunner` is separate so the critic can be a second local model or a deterministic/LLM hybrid.
 
-The loop intentionally has no network code and no production import. Local model transports stay behind adapters, following the same offline-first policy as `run-local-batch.mjs`.
+The core loop intentionally has no network code and no production import. Local model transports stay behind adapters, following the same offline-first policy as `run-local-batch.mjs`.
+
+## Local runnable loop
+
+`teacher-lab/run-local-student-loop.mjs` wires the generic loop to two opt-in OpenAI-compatible loopback servers: one Bai student and one independent critic. Both runtime profiles must be pinned by a 40-character model revision or a 64-character checkpoint SHA-256. Remote endpoints are rejected.
+
+Example student profile:
+
+```json
+{
+  "id": "bai-shopping-brain-v0.1-local",
+  "model": "bai-shopping-brain-v0.1",
+  "checkpoint_sha256": "<64 hex chars>",
+  "endpoint": "http://127.0.0.1:8002",
+  "enabled_by_default": false,
+  "temperature": 0,
+  "max_tokens": 1200
+}
+```
+
+Example critic profile can point at a separately served pinned Qwen/DeepSeek checkpoint on another loopback port. Do not reuse the student process as its own critic for promotion decisions.
+
+Run a batch after exporting the frozen corpus and obtaining reviewed teacher results:
+
+```bash
+node teacher-lab/run-local-student-loop.mjs \
+  /tmp/bai-teacher-export/batches/batch_001.jsonl \
+  /tmp/reviewed-teacher-results.json \
+  /tmp/bai-student-profile.json \
+  /tmp/bai-critic-profile.json \
+  /tmp/bai-student-eval.json \
+  2
+```
+
+The output contains runtime fingerprints, per-attempt verdicts, pending review records and regression candidates. Critic free-form feedback is retained for review but is not forwarded to the student; repairs receive only failure labels plus a fixed safety instruction, so the reviewed teacher answer is not leaked as a shortcut.
 
 ## Promotion path
 
