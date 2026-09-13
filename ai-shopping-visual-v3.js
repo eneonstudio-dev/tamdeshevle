@@ -1,11 +1,12 @@
 import("./votonobay-roxy-bay-panel-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Bay Panel] load failed",error));
+import("./votonobay-roxy-decision-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Decision] load failed",error));
 
 (function(){
   "use strict";
   const PHOTOS={
     "молоко":"https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=320&q=78",
     "яйца":"https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=320&q=78",
-    "курица":"https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=320&q=78",
+    "курица":"https://images.unsplash.com/photo-1604503468506-a8da13d82791b?auto=format&fit=crop&w=320&q=78",
     "хлеб":"https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=320&q=78",
     "бананы":"https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=320&q=78",
     "яблоки":"https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=320&q=78",
