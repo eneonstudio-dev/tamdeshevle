@@ -9,7 +9,11 @@ const registry=JSON.parse(fs.readFileSync(new URL('sources.json',root),'utf8'));
 const student=JSON.parse(fs.readFileSync(new URL('training/student-v0.1.json',root),'utf8'));
 const readJsonl=file=>fs.readFileSync(file,'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
-const canon=value=>JSON.stringify(value,Object.keys(value&&typeof value==='object'&&!Array.isArray(value)?value:{}).sort());
+const stable=value=>{
+  if(Array.isArray(value))return `[${value.map(stable).join(',')}]`;
+  if(value&&typeof value==='object')return `{${Object.keys(value).sort().map(k=>`${JSON.stringify(k)}:${stable(value[k])}`).join(',')}}`;
+  return JSON.stringify(value);
+};
 
 export function aggregateGold(files,sourceRegistry=registry){
   const byId=new Map(),inputs=[];
@@ -18,7 +22,7 @@ export function aggregateGold(files,sourceRegistry=registry){
     for(const row of rows){
       if(!row?.id)throw Error(`missing id in ${file}`);
       const existing=byId.get(row.id);
-      if(existing&&canon(existing.target)!==canon(row.target))throw Error(`conflicting duplicate ${row.id}`);
+      if(existing&&stable(existing.target)!==stable(row.target))throw Error(`conflicting duplicate ${row.id}`);
       if(!existing)byId.set(row.id,row);
     }
   }
