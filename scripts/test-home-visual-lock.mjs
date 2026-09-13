@@ -5,6 +5,7 @@ const touch = fs.readFileSync("touch-layout-fix.css", "utf8");
 const home = fs.readFileSync("votonobay-home-lock-v4.css", "utf8");
 const approved = fs.readFileSync("votonobay-generated-home-v5.css", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
+const decorator = fs.readFileSync("votonobay-roxy-home-v1.js", "utf8");
 
 assert.match(touch, /votonobay-home-lock-v4\.css\?v=/);
 assert.ok(
@@ -27,11 +28,16 @@ assert.match(approved, /--roxy-green:#4ff59a/);
 assert.match(approved, />\.bai-assistant\{display:none!important\}/);
 assert.doesNotMatch(approved, /Там дешевле|ТД↓|white-green|Duolingo/i);
 
-// Brand + hero copy follows the approved Votonobay / Bay-first direction.
+// Brand stays brand-only and loads the visual Home decorator separately.
 assert.match(brand, /VOTONO<b>BAY<\/b>/);
-assert.match(brand, /Спросить Бая —<br><em>самый простой путь\.<\/em>/);
-assert.match(brand, /Бай подберёт лучшие товары, сравнит варианты, соберёт корзину/);
-assert.match(brand, /class=\"roxy-bay-card\"/);
-assert.match(brand, /Что решаем сегодня\?/);
+assert.match(brand, /votonobay-roxy-home-v1\.js/);
+assert.doesNotMatch(brand, /td-ai-|TDBai|bai-/);
+
+// Approved Home content follows the Bay-first handoff without changing V2 handlers.
+assert.match(decorator, /Спросить Бая —<br><em>самый простой путь\.<\/em>/);
+assert.match(decorator, /Бай подберёт лучшие товары, сравнит варианты, соберёт корзину/);
+assert.match(decorator, /class=\"roxy-bay-card\"/);
+assert.match(decorator, /Что решаем сегодня\?/);
+assert.match(decorator, /window\.tdBayFirstAsk/);
 
 console.log("home visual lock tests: approved Roxy Bay-first Home is protected");
