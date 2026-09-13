@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 const touch = fs.readFileSync("touch-layout-fix.css", "utf8");
 const home = fs.readFileSync("votonobay-home-lock-v4.css", "utf8");
 const approved = fs.readFileSync("votonobay-generated-home-v5.css", "utf8");
+const tune = fs.readFileSync("votonobay-roxy-home-tune-v1.css", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
 const decorator = fs.readFileSync("votonobay-roxy-home-v1.js", "utf8");
 
@@ -34,10 +35,18 @@ assert.match(brand, /votonobay-roxy-home-v1\.js/);
 assert.doesNotMatch(brand, /td-ai-|TDBai|bai-/);
 
 // Approved Home content follows the Bay-first handoff without changing V2 handlers.
+assert.match(decorator, /votonobay-roxy-home-tune-v1\.css/);
 assert.match(decorator, /Спросить Бая —<br><em>самый простой путь\.<\/em>/);
 assert.match(decorator, /Бай подберёт лучшие товары, сравнит варианты, соберёт корзину/);
 assert.match(decorator, /class=\"roxy-bay-card\"/);
 assert.match(decorator, /Что решаем сегодня\?/);
+assert.match(decorator, /Надёжные магазины/);
 assert.match(decorator, /window\.tdBayFirstAsk/);
+
+// Real-browser tuning protects the intended desktop hierarchy without inflating the peeking asset.
+assert.match(tune, /grid-template-columns:minmax\(0,1\.04fr\) minmax\(440px,\.96fr\)!important/);
+assert.match(tune, /font-size:clamp\(55px,4\.45vw,64px\)!important/);
+assert.match(tune, /width:min\(350px,78%\)!important/);
+assert.match(tune, /\.v2-hero-proof span:before/);
 
 console.log("home visual lock tests: approved Roxy Bay-first Home is protected");
