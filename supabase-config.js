@@ -20,7 +20,7 @@ window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
 
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
 import("./bai-session-owner-guard.js?v=20260913-owner-v1")
-  .then(()=>import("./bai-shopping-agent-kernel.js?v=20260913-kernel-hotfix-v1"))
+  .then(()=>import("./bai-shopping-agent-kernel.js?v=20260913-operation-origin-v1"))
   .then(()=>import("./bai-provider-contract.js?v=20260913-contract-v1"))
   .then(()=>import("./bai-agent-client.js?v=20260913-free-router-v1"))
   .then(()=>import("./bai-decision-quality.js?v=20260912-decision-v1"))
@@ -31,5 +31,5 @@ import("./bai-session-owner-guard.js?v=20260913-owner-v1")
   .then(()=>import("./bai-character.js?v=20260912-character-v2"))
   .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v2"))
   .then(()=>import("./bai-observability.js?v=20260913-observability-v1"))
-  .then(()=>import("./bai-idempotency-guard.js?v=20260913-idempotency-v1"))
+  .then(()=>import("./bai-idempotency-guard.js?v=20260913-operation-origin-v1"))
   .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character/Observability/Idempotency] client load failed",error));
