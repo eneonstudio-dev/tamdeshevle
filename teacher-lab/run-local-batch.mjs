@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const LOOPBACK=/^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?$/i;
+const REVISION=/^[0-9a-f]{40}$/i;
 const clean=v=>String(v??'').trim();
 
 export function assertProfile(profile){
@@ -8,6 +9,7 @@ export function assertProfile(profile){
   if(!LOOPBACK.test(clean(profile.endpoint)))throw Error('teacher endpoint must be loopback-only');
   if(profile.enabled_by_default!==false)throw Error('teacher profile must be opt-in');
   if(!clean(profile.id)||!clean(profile.model)||!clean(profile.source_id))throw Error('profile identity incomplete');
+  if(!REVISION.test(clean(profile.revision)))throw Error('teacher profile revision must be pinned');
   return profile;
 }
 
@@ -31,7 +33,7 @@ export async function runTask({task,profile,fetchImpl=globalThis.fetch}){
   if(!response?.ok)throw Error(`teacher_http_${response?.status||0}`);
   const body=await response.json();
   const output=extractObject(body?.choices?.[0]?.message?.content);
-  return {task_id:task.id,profile_id:profile.id,output};
+  return {task_id:task.id,profile_id:profile.id,model:profile.model,revision:profile.revision,output};
 }
 
 export async function runBatch({tasks,profile,fetchImpl=globalThis.fetch,onProgress}){
@@ -42,7 +44,7 @@ export async function runBatch({tasks,profile,fetchImpl=globalThis.fetch,onProgr
     try{results.push(await runTask({task,profile,fetchImpl}))}catch(error){errors.push({task_id:task?.id||null,error:String(error?.message||error)})}
     if(typeof onProgress==='function')onProgress({done:i+1,total:tasks.length,errors:errors.length});
   }
-  return {profile_id:profile.id,model:profile.model,results,errors};
+  return {profile_id:profile.id,model:profile.model,revision:profile.revision,results,errors};
 }
 
 function readJsonl(file){return fs.readFileSync(file,'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse)}
@@ -53,5 +55,5 @@ if(import.meta.url===`file://${process.argv[1]}`){
   const profile=JSON.parse(fs.readFileSync(profileFile,'utf8')),tasks=readJsonl(batchFile);
   const result=await runBatch({tasks,profile,onProgress:p=>console.error(`${p.done}/${p.total} errors=${p.errors}`)});
   fs.writeFileSync(outFile,JSON.stringify(result,null,2)+'\n');
-  console.log(JSON.stringify({profile_id:result.profile_id,results:result.results.length,errors:result.errors.length}));
+  console.log(JSON.stringify({profile_id:result.profile_id,revision:result.revision,results:result.results.length,errors:result.errors.length}));
 }
