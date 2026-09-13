@@ -28,7 +28,9 @@
 .roxy-catalog-bay-media img{
   width:58px;height:58px;object-fit:cover;object-position:50% 49%;border-radius:16px;
   filter:drop-shadow(0 8px 13px rgba(0,0,0,.25)) saturate(1.035);
+  transform-origin:50% 76%;
 }
+.roxy-catalog-bay-hint.is-ready .roxy-catalog-bay-media img{animation:roxy-catalog-bay-arrive .48s cubic-bezier(.22,.8,.24,1) both}
 .roxy-catalog-bay-copy{display:grid;gap:3px;min-width:0}
 .roxy-catalog-bay-copy small{color:#72dda1;font:900 8px/1.1 Manrope,Inter,sans-serif;letter-spacing:.12em}
 .roxy-catalog-bay-copy b{color:#f0faf4;font:850 13px/1.25 Manrope,Inter,sans-serif;letter-spacing:-.015em}
@@ -36,17 +38,18 @@
 .roxy-catalog-bay-actions{display:flex;align-items:center;gap:7px}
 .roxy-catalog-bay-actions button{font-family:Manrope,Inter,sans-serif;cursor:pointer}
 .roxy-catalog-bay-ask{
-  min-height:42px;padding:0 14px;border:1px solid rgba(79,245,154,.2);border-radius:12px;
+  min-height:44px;padding:0 14px;border:1px solid rgba(79,245,154,.2);border-radius:12px;
   background:rgba(79,245,154,.085);color:#9bf5bf;font-size:10px;font-weight:850;white-space:nowrap;
   transition:background .18s ease,border-color .18s ease,transform .18s ease;
 }
 .roxy-catalog-bay-ask:hover,.roxy-catalog-bay-ask:focus-visible{background:rgba(79,245,154,.14);border-color:rgba(79,245,154,.35);outline:none}
 .roxy-catalog-bay-ask:active{transform:translateY(1px)}
 .roxy-catalog-bay-dismiss{
-  width:42px;height:42px;display:grid;place-items:center;padding:0;border:0;border-radius:12px;
+  width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;border-radius:12px;
   background:transparent;color:#72877b;font-size:19px;line-height:1;
 }
 .roxy-catalog-bay-dismiss:hover,.roxy-catalog-bay-dismiss:focus-visible{background:rgba(255,255,255,.045);color:#c4d3ca;outline:none}
+@keyframes roxy-catalog-bay-arrive{0%{transform:translateY(5px) scale(.95)}65%{transform:translateY(-1px) scale(1.015)}100%{transform:none}}
 
 @media(max-width:700px){
   .roxy-catalog-bay-hint{
@@ -67,5 +70,5 @@
   }
 }
 @media(prefers-reduced-motion:reduce){
-  .roxy-catalog-bay-hint,.roxy-catalog-bay-ask{transition:none!important;transform:none!important}
+  .roxy-catalog-bay-hint,.roxy-catalog-bay-ask,.roxy-catalog-bay-media img{transition:none!important;animation:none!important;transform:none!important}
 }
