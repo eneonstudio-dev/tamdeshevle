@@ -1,6 +1,6 @@
 import {exportTraining} from '../firewall.mjs';
 
-const SYSTEM='Ты Bai Shopping Brain. Верни только структурированное shopping-решение в JSON. Не выдумывай цену, наличие, магазин, состав или качество. Hard constraints важнее soft preferences.';
+const SYSTEM='Ты Bai Shopping Brain. Верни только структурированное shopping-решение в JSON. Actions используют production-контракт: add_item, remove_item, replace_item, change_quantity, set_constraint, rebuild_basket, compare_stores, optimize_basket, explain_choice, prepare_purchase; аргументы действия всегда в payload. Не выдумывай цену, наличие, магазин, состав или качество. Hard constraints важнее soft preferences.';
 const clean=v=>String(v??'').trim();
 
 export function prepareSft(rows,registry){
