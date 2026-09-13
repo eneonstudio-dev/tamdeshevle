@@ -72,7 +72,7 @@
   function settleResult(){settleTimer=0;if(document.hidden||window.state?.screen!=="compare")return;const verified=document.querySelector(".v2-verdict:not(.v2-verdict-wait)");window.TDBai?.setState(verified?"big-saving":"suspicious",verified?"Вот это уже настоящая экономия":"Не буду выдумывать победителя",3000)}
   function scheduleSettle(delay){clearTimeout(settleTimer);settleTimer=0;if(document.hidden)return;settleTimer=setTimeout(settleResult,delay)}
   function pause(){clearTimers();bai.classList.remove("micro-ear","micro-blink","micro-tail")}
-  function resume(){if(document.hidden)return;ambient();scheduleSettle(180)}
+  function resume(){if(document.hidden)return;syncHeroVisual();syncApprovedVisual();ambient();scheduleSettle(180)}
   function visibilityChanged(){document.hidden?pause():resume()}
   window.addEventListener("td:bai-state",event=>{
     character.setAttribute("aria-label",event.detail?.state==="hidden"?"Разбудить Бая":"Открыть Бая");
@@ -82,7 +82,7 @@
   document.addEventListener("click",event=>{if(event.target.closest(".v2-compare,.btn.dark"))scheduleSettle(520)});
   document.addEventListener("visibilitychange",visibilityChanged);
   window.addEventListener("pagehide",pause);
-  window.addEventListener("pageshow",()=>{syncHeroVisual();syncApprovedVisual();resume()});
+  window.addEventListener("pageshow",resume);
   motionQuery?.addEventListener?.("change",()=>motionQuery.matches?pause():resume());
   syncHeroVisual();syncApprovedVisual();
   ambient();scheduleSettle(900);
