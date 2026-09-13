@@ -50,7 +50,7 @@
 
     const align=()=>{
       if(!section.isConnected)return;
-      const scroller=section.closest(".td-ai-messages");
+      const scroller=root.querySelector(".td-ai-main");
       if(scroller){
         const sr=scroller.getBoundingClientRect(),dr=section.getBoundingClientRect();
         scroller.scrollTop+=dr.top-sr.top-8;
