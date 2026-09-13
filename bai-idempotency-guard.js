@@ -44,7 +44,7 @@
     const originalRun=typeof kernel.run==="function"?kernel.run.bind(kernel):null;
     const originalExecute=typeof kernel.execute==="function"?kernel.execute.bind(kernel):null;
     if(originalRun)kernel.run=async function(input={}){
-      const id=executionId(input?.execution_id),fp=fingerprint("run",{text:String(input?.text||"").trim().slice(0,500),operations:Array.isArray(input?.operations)?input.operations:[]});
+      const id=executionId(input?.execution_id),fp=fingerprint("run",{text:String(input?.text||"").trim().slice(0,500),operations:Array.isArray(input?.operations)?input.operations:[],generated_operations:Array.isArray(input?.generated_operations)?input.generated_operations:[]});
       const prior=findReplay(kernel,id,fp);if(prior)return replay(kernel,prior);
       return remember(kernel,id,fp,await originalRun(input));
     };
