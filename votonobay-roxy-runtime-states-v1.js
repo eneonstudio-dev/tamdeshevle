@@ -13,12 +13,26 @@
   let root=null,observer=null,frame=0,wrapped=false;
 
   function ensureStyle(){
-    if(document.querySelector('link[data-roxy-runtime-states-v1="1"]'))return;
-    const link=document.createElement("link");
-    link.rel="stylesheet";
-    link.href="votonobay-roxy-runtime-states-v1.css?v=20260913-v1";
-    link.dataset.roxyRuntimeStatesV1="1";
-    document.head.appendChild(link);
+    if(!document.querySelector('link[data-roxy-runtime-states-v1="1"]')){
+      const link=document.createElement("link");
+      link.rel="stylesheet";
+      link.href="votonobay-roxy-runtime-states-v1.css?v=20260913-v1";
+      link.dataset.roxyRuntimeStatesV1="1";
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('style[data-roxy-runtime-reduced-motion-v1="1"]')){
+      const guard=document.createElement("style");
+      guard.dataset.roxyRuntimeReducedMotionV1="1";
+      guard.textContent=`@media(prefers-reduced-motion:reduce){
+        body>.td-ai[data-roxy-runtime-state] .roxy-runtime-state-visual img,
+        body>.td-ai[data-roxy-runtime-state] .roxy-runtime-state-visual:before,
+        body>.td-ai[data-roxy-runtime-state] .roxy-runtime-state-progress span{
+          animation:none!important;
+          transform:none!important;
+        }
+      }`;
+      document.head.appendChild(guard);
+    }
   }
 
   function stateCard(){return root?.querySelector(".td-ai-state-card")||null}
