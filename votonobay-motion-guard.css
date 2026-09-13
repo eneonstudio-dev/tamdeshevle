@@ -1,4 +1,5 @@
 @import url("./votonobay-journey-polish-v1.css?v=20260913-v1");
+@import url("./votonobay-generated-home-v5.css?v=20260913-v1");
 
 /* Real-browser QA guards. Keep late legacy/injected widgets inside the approved
    Votonobay visual system without touching their behavior. */
