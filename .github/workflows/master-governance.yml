@@ -22,9 +22,14 @@ jobs:
           required=(
             "VOTONOBAI_MASTER_ROADMAP.md"
             "PROJECT_STATUS.md"
+            "AGENTS.md"
             "SOURCE_PROVIDER_REGISTRY.md"
             "REGRESSION_BANK.md"
             "DECISIONS/README.md"
+            "RELEASE_GATE.md"
+            "RETAILER_CAPABILITIES.md"
+            "MVP_SCENARIOS.md"
+            "KNOWN_LIMITATIONS.md"
           )
           for file in "${required[@]}"; do
             test -s "$file" || { echo "Missing or empty required project file: $file"; exit 1; }
@@ -44,6 +49,31 @@ jobs:
           grep -Fq "rankable" SOURCE_PROVIDER_REGISTRY.md
           grep -Fq "does_not_prove" SOURCE_PROVIDER_REGISTRY.md
           grep -Fq "REG-" REGRESSION_BANK.md
+          grep -Fq "COMPARE_ONLY" RETAILER_CAPABILITIES.md
+          grep -Fq "API_ORDER" RETAILER_CAPABILITIES.md
+          grep -Fq "MVP-001" MVP_SCENARIOS.md
+          grep -Fq "Public launch" RELEASE_GATE.md
+          grep -Fq "legacy `tamdeshevle`" KNOWN_LIMITATIONS.md
+
+      - name: Validate project status freshness metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          updated=$(grep -m1 -E '^\*\*Updated:\*\* [0-9]{4}-[0-9]{2}-[0-9]{2}' PROJECT_STATUS.md | sed -E 's/^\*\*Updated:\*\* ([0-9]{4}-[0-9]{2}-[0-9]{2}).*/\1/')
+          test -n "$updated" || { echo "PROJECT_STATUS.md must contain **Updated:** YYYY-MM-DD"; exit 1; }
+          python - "$updated" <<'PY'
+          from datetime import date
+          import sys
+          stamp = date.fromisoformat(sys.argv[1])
+          age = (date.today() - stamp).days
+          if age < -1:
+              raise SystemExit(f"PROJECT_STATUS.md update date is in the future: {stamp}")
+          # Warn after 14 days; do not block solely on age because quiet periods are legitimate.
+          if age > 14:
+              print(f"::warning::PROJECT_STATUS.md is {age} days old; fresh-read main and refresh it if project state changed.")
+          else:
+              print(f"PROJECT_STATUS.md freshness: {age} day(s).")
+          PY
 
       - name: Prevent accidental legacy-source-of-truth inversion
         shell: bash
