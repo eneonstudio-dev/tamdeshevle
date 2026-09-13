@@ -74,11 +74,22 @@
     card.querySelectorAll("[data-bai-state-quick]").forEach(button=>button.onclick=()=>quick(button.dataset.baiStateQuick));
   }
   function queue(){cancelAnimationFrame(frame);frame=requestAnimationFrame(paint)}
+  function visualOnlyMutation(mutation){
+    if(mutation.type!=="childList")return false;
+    const target=mutation.target;
+    if(target?.nodeType===1&&target.closest?.(".roxy-runtime-state-visual,.roxy-runtime-state-progress"))return true;
+    const changed=[...mutation.addedNodes,...mutation.removedNodes].filter(node=>node.nodeType===1);
+    return changed.length>0&&changed.every(node=>node.matches?.(".roxy-runtime-state-visual,.roxy-runtime-state-progress"));
+  }
+  function observeRoot(mutations){
+    if(mutations.length&&mutations.every(visualOnlyMutation))return;
+    queue();
+  }
   function attach(next){
     if(next===root)return;
     rootObserver?.disconnect?.();rootObserver=null;root=next||null;
     if(!root)return;
-    rootObserver=new MutationObserver(queue);rootObserver.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:["data-bai-busy"]});queue();
+    rootObserver=new MutationObserver(observeRoot);rootObserver.observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:["data-bai-busy"]});queue();
   }
   function discover(){attach(document.querySelector(".td-ai"))}
   const mountObserver=new MutationObserver(discover);mountObserver.observe(document.body,{childList:true,subtree:true});
