@@ -53,7 +53,7 @@
       const catalog=sanitizeCatalog(window.TDStoreAdapters?.catalog?.()||[]);
       const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${token}`},signal:controller.signal,body:JSON.stringify({message:trim(text),history:sanitizeHistory(history),basket:sanitizeState(window.TDShoppingState?.get?.()||{}),catalog,baseline:{operations:safeOps(baseline?.operations),reply:trim(baseline?.reply),expectsAnswer:Boolean(baseline?.expectsAnswer)}})});
       let body=null;try{body=await response.json()}catch{}
-      if(!response.ok||body?.ok===false)return null;
+      if(!response.ok||body?.ok===false){failure("remote");return null}
       const checked=contract(body);if(!checked?.ok){failure("remote");return null}success("remote");
       return {...baseline,ok:true,provider:"bai-agent-core",operations:checked.operations,reply:checked.reply||baseline?.reply||"",suggestions:checked.suggestions,expectsAnswer:checked.expectsAnswer,agent:{version:checked.meta.version||"v1",model:checked.meta.model||"server",trace:checked.meta.trace}};
     }catch{failure("remote");return null}finally{clearTimeout(timer)}
