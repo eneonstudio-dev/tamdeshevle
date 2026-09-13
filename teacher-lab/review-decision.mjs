@@ -7,12 +7,14 @@ const index=rows=>new Map((Array.isArray(rows)?rows:[]).map(x=>[taskId(x),x]));
 
 export function buildReviewPacket({left,right,queue}){
   const lm=index(left),rm=index(right);
-  return (Array.isArray(queue)?queue:[]).map(item=>({
-    task_id:item.task_id,status:item.status,conflicts:[...(item.conflicts||[])],flags:[...(item.flags||[])],
-    left:lm.get(item.task_id)?clone(lm.get(item.task_id).target):null,
-    right:rm.get(item.task_id)?clone(rm.get(item.task_id).target):null,
-    decision:'pending_review'
-  }));
+  return (Array.isArray(queue)?queue:[]).map(item=>{
+    const l=lm.get(item.task_id),r=rm.get(item.task_id),base=l||r;
+    return {
+      task_id:item.task_id,status:item.status,conflicts:[...(item.conflicts||[])],flags:[...(item.flags||[])],
+      user_request:base?.user_request||'',session_context:clone(base?.session_context||{}),
+      left:l?clone(l.target):null,right:r?clone(r.target):null,decision:'pending_review'
+    };
+  });
 }
 
 function addHumanProvenance(row,decision){
