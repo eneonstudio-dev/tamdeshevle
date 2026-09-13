@@ -8,6 +8,7 @@ on:
       - "*.css"
       - "*.js"
       - "scripts/test-ux-browser.py"
+      - "scripts/debug-compare-light.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -18,6 +19,7 @@ on:
       - "*.css"
       - "*.js"
       - "scripts/test-ux-browser.py"
+      - "scripts/debug-compare-light.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -44,6 +46,10 @@ jobs:
           done
           cat /tmp/votonobay-http.log
           exit 1
+      - name: Inspect comparison legacy notice
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/debug-compare-light.py
       - name: Run real-browser UX smoke QA
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
