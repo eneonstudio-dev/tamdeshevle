@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,json,shutil,subprocess,sys
+import argparse,json,os,shutil,subprocess,sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -17,9 +17,9 @@ def read_jsonl(path):
     return [json.loads(x) for x in Path(path).read_text(encoding='utf-8').splitlines() if x.strip()]
 
 
-def call(cmd,check=True):
+def call(cmd,check=True,env=None):
     print('+',' '.join(map(str,cmd)),flush=True)
-    return subprocess.run([str(x) for x in cmd],cwd=ROOT,check=check)
+    return subprocess.run([str(x) for x in cmd],cwd=ROOT,check=check,env=env)
 
 
 def ids(rows,label):
@@ -73,13 +73,19 @@ def main():
 
     train_cmd=[sys.executable,TRAIN,'--data',dataset/'sft.jsonl','--out',candidate,'--config',args.config]
     if args.resume: train_cmd.append('--resume')
-    call(train_cmd)
+    # Kaggle exposes two T4s, but a single-process Transformers Trainer wraps
+    # the 4-bit QLoRA model in DataParallel. Replicating bitsandbytes modules
+    # across devices causes illegal CUDA memory access on the first forward.
+    # Keep the real run deterministic and supported by isolating all model
+    # train/eval subprocesses to one T4; preflight still records both GPUs.
+    model_env={**os.environ,'CUDA_VISIBLE_DEVICES':'0'}
+    call(train_cmd,env=model_env)
     state['status']='TRAINED_AWAITING_EVAL'; pipeline_manifest.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     baseline_pred=out/'baseline-predictions.jsonl'; candidate_pred=out/'candidate-predictions.jsonl'
     baseline_cmd=[sys.executable,EVAL,'--eval',args.eval_gold,'--out',baseline_pred,'--config',args.config,'--max-new-tokens',str(args.max_new_tokens)]
     if args.baseline_adapter: baseline_cmd += ['--adapter',args.baseline_adapter]
-    call(baseline_cmd)
-    call([sys.executable,EVAL,'--eval',args.eval_gold,'--out',candidate_pred,'--config',args.config,'--adapter',candidate/'adapter','--max-new-tokens',str(args.max_new_tokens)])
+    call(baseline_cmd,env=model_env)
+    call([sys.executable,EVAL,'--eval',args.eval_gold,'--out',candidate_pred,'--config',args.config,'--adapter',candidate/'adapter','--max-new-tokens',str(args.max_new_tokens)],env=model_env)
     baseline_metrics=metrics/'baseline.json'; candidate_metrics=metrics/'candidate.json'; promotion=metrics/'promotion.json'
     call(['node',BENCH,args.eval_gold,baseline_pred,baseline_metrics]); call(['node',BENCH,args.eval_gold,candidate_pred,candidate_metrics])
     verdict=call(['node',PROMOTE,baseline_metrics,candidate_metrics,promotion],check=False)
