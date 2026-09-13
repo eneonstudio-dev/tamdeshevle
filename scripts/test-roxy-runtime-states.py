@@ -91,6 +91,7 @@ def open_bay(driver: webdriver.Chrome, mobile: bool) -> None:
     WebDriverWait(driver, 10).until(
         lambda d: visible(d, "body>.td-ai[data-roxy-bay-panel='1'] .td-ai-shell")
     )
+    driver.execute_script("window.TDRoxyRuntimeStatesV1.discover()")
     if mobile:
         driver.execute_script(
             """
@@ -124,7 +125,7 @@ def restore_online(driver: webdriver.Chrome) -> None:
         try{delete window.navigator.onLine}catch(e){}
         window.dispatchEvent(new Event('online'));
         window.TDBaiRuntimeStatesV1?.paint?.();
-        window.TDRoxyRuntimeStatesV1?.decorate?.();
+        window.TDRoxyRuntimeStatesV1?.discover?.();
         """
     )
 
@@ -151,7 +152,7 @@ def reset_messages(driver: webdriver.Chrome, *, user: bool, error: bool) -> None
           : 'Понял. Сейчас посмотрю.';
         messages.appendChild(assistant);
         window.TDBaiRuntimeStatesV1.paint();
-        window.TDRoxyRuntimeStatesV1.decorate();
+        window.TDRoxyRuntimeStatesV1.discover();
         """,
         user,
         error,
@@ -169,7 +170,7 @@ def force_mode(driver: webdriver.Chrome, mode: str) -> None:
             const root=document.querySelector('body>.td-ai');
             root.setAttribute('data-bai-busy','1');
             window.TDBaiRuntimeStatesV1.paint();
-            window.TDRoxyRuntimeStatesV1.decorate();
+            window.TDRoxyRuntimeStatesV1.discover();
             """
         )
     elif mode == "error":
@@ -181,7 +182,7 @@ def force_mode(driver: webdriver.Chrome, mode: str) -> None:
             Object.defineProperty(window.navigator,'onLine',{configurable:true,value:false});
             window.dispatchEvent(new Event('offline'));
             window.TDBaiRuntimeStatesV1.paint();
-            window.TDRoxyRuntimeStatesV1.decorate();
+            window.TDRoxyRuntimeStatesV1.discover();
             """
         )
     else:
@@ -192,7 +193,15 @@ def force_mode(driver: webdriver.Chrome, mode: str) -> None:
         ) == mode
     )
     WebDriverWait(driver, 10).until(
-        lambda d: visible(d, ".td-ai-state-card .roxy-runtime-state-visual")
+        lambda d: d.execute_script(
+            """
+            const root=document.querySelector('body>.td-ai');
+            const visual=root?.querySelector('.td-ai-state-card .roxy-runtime-state-visual');
+            const img=visual?.querySelector('img');
+            return visual?.dataset.state===arguments[0] && !!img?.complete && img.naturalWidth>0;
+            """,
+            mode,
+        )
     )
     time.sleep(0.08)
 
@@ -294,6 +303,14 @@ def assert_recovery(driver: webdriver.Chrome, viewport: Viewport, failures: list
         lambda d: d.execute_script(
             "return document.querySelector('body>.td-ai')?.dataset.baiRuntimeState"
         ) == "normal"
+    )
+    WebDriverWait(driver, 10).until(
+        lambda d: d.execute_script(
+            """
+            const card=document.querySelector('body>.td-ai .td-ai-state-card');
+            return !!card?.hidden && !card?.querySelector('.roxy-runtime-state-visual') && !card?.querySelector('.roxy-runtime-state-progress');
+            """
+        )
     )
     recovered = driver.execute_script(
         """
