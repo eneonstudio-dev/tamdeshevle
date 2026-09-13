@@ -48,4 +48,17 @@ assert.equal(resets,4,"user B -> user A transition must not leak user B state");
 assert.doesNotMatch(storage.get("td:bai-shopping-session:v2"),/b-private/);
 
 assert.equal(context.TDBaiSessionOwnerGuard.status().owner,"user-a");
-console.log("Bai session isolation passed: user, guest and account-switch transitions fail closed without cross-account state leakage.");
+
+const observability=fs.readFileSync(new URL("../bai-observability.js",import.meta.url),"utf8");
+assert.match(observability,/MAX_EVENTS=100/);
+assert.match(observability,/td:bai-telemetry/);
+assert.match(observability,/function wrapKernel\(\)/);
+assert.match(observability,/function wrapBrain\(\)/);
+assert.match(observability,/provider_route/);
+assert.match(observability,/breaker_open/);
+assert.doesNotMatch(observability,/detail\.text/);
+assert.doesNotMatch(observability,/detail\.input/);
+assert.doesNotMatch(observability,/detail\.history/);
+assert.doesNotMatch(observability,/detail\.payload/);
+
+console.log("Bai session isolation passed: account state fails closed and observability keeps raw shopping content out of telemetry.");
