@@ -1,0 +1,60 @@
+name: Master governance gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require operational project files
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            "VOTONOBAI_MASTER_ROADMAP.md"
+            "PROJECT_STATUS.md"
+            "SOURCE_PROVIDER_REGISTRY.md"
+            "REGRESSION_BANK.md"
+            "DECISIONS/README.md"
+          )
+          for file in "${required[@]}"; do
+            test -s "$file" || { echo "Missing or empty required project file: $file"; exit 1; }
+          done
+
+      - name: Guard foundational invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "independent AI shopper" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "UniversalBasket" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "StoreBasket" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "PurchasePlan" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "Money comes after Bay's decision" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "P0" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "Definition of Done" VOTONOBAI_MASTER_ROADMAP.md
+          grep -Fq "rankable" SOURCE_PROVIDER_REGISTRY.md
+          grep -Fq "does_not_prove" SOURCE_PROVIDER_REGISTRY.md
+          grep -Fq "REG-" REGRESSION_BANK.md
+
+      - name: Prevent accidental legacy-source-of-truth inversion
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RIl --exclude='VOTONOBAI_MASTER_ROADMAP.md' --exclude='PROJECT_STATUS.md' --exclude='master-governance.yml' \
+            -E 'single source of truth.*tamdeshevle|master roadmap.*deprecated' . >/tmp/master_conflicts.txt 2>/dev/null; then
+            echo "Potential governance conflict found:"
+            cat /tmp/master_conflicts.txt
+            exit 1
+          fi
+
+      - name: Governance summary
+        run: echo "Votonobay MASTER governance contract is present."
