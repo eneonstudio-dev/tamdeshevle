@@ -1,0 +1,14 @@
+{
+  "profile_version": "1.0",
+  "id": "deepseek_r1_distill_qwen_7b",
+  "source_id": "deepseek_r1_local_mit",
+  "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+  "transport": "openai_compatible_local",
+  "endpoint": "http://127.0.0.1:8001",
+  "temperature": 0.6,
+  "max_tokens": 1200,
+  "enabled_by_default": false,
+  "training_output_allowed": true,
+  "requires_local_weights": true,
+  "purpose": ["intent", "hard_constraints", "shopping_plan", "critic"]
+}

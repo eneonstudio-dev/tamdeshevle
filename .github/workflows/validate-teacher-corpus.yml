@@ -1,0 +1,33 @@
+name: Validate Bai Teacher Corpus
+
+on:
+  pull_request:
+    paths:
+      - "teacher-lab/**"
+      - ".github/workflows/validate-teacher-corpus.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "teacher-lab/**"
+      - ".github/workflows/validate-teacher-corpus.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Check corpus tooling syntax
+        run: |
+          node --check teacher-lab/firewall.mjs
+          node --check teacher-lab/benchmark.mjs
+          node --check teacher-lab/corpus-builder.mjs
+          node --check teacher-lab/corpus-smoke.mjs
+      - name: Validate profiles and generated corpus
+        run: node teacher-lab/corpus-smoke.mjs
