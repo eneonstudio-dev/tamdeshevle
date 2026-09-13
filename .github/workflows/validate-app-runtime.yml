@@ -40,6 +40,9 @@ jobs:
           node --check unified-cart-state-v1.js
           node --check bai-change-intelligence-v1.js
           node --check bai-tradeoff-advisor-v1.js
+          node --check bai-brain-registry.js
+          node --check bai-brain-runtime.js
+          node --check bai-trained-bridge.js
           node --check account-auth-ui.js
           node --check purchase-flow.js
           node --check purchase-experience-v1.js
@@ -69,6 +72,7 @@ jobs:
           node --check scripts/test-unified-cart-state.mjs
           node --check scripts/test-bai-change-intelligence.mjs
           node --check scripts/test-bai-tradeoff-advisor.mjs
+          node --check scripts/test-bai-brain-runtime.mjs
           node --check scripts/test-price-trust-quality.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
@@ -127,6 +131,8 @@ jobs:
         run: node scripts/test-bai-change-intelligence.mjs
       - name: Test Bay price-convenience tradeoffs
         run: node scripts/test-bai-tradeoff-advisor.mjs
+      - name: Test promoted Bai brain runtime
+        run: node scripts/test-bai-brain-runtime.mjs
       - name: Test price trust quality
         run: node scripts/test-price-trust-quality.mjs
       - name: Test account modal resilience
