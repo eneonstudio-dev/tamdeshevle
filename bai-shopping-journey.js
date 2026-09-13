@@ -89,9 +89,9 @@
     if(!shouldAuto(text,routed))return routed;
 
     await ensureMemory();const planner=await ensurePlanner();if(!planner?.build||!window.TDShoppingOptimizer)return routed;
-    const explicit=clone(routed?.operations||[]),base=window.TDShoppingState?.get?.()||{};
+    const routedOps=clone(routed?.operations||[]),explicit=clone(routed?.operationOrigin?.explicitOperations||routedOps),base=window.TDShoppingState?.get?.()||{};
     const goalDefaults=personal.goal?.defaultOperations?.(explicit)||[],pantryOps=personal.pantry?.operations?.()||[];
-    const contextOps=uniqueOps([...explicit,...goalDefaults,...pantryOps]);
+    const contextOps=uniqueOps([...routedOps,...goalDefaults,...pantryOps]);
     let scenario=project(base,contextOps,text);scenario=personal.pantry?.applyToState?.(scenario)||scenario;
 
     const question=personal.question?.choose?.({text,routed:{...routed,operations:explicit},state:scenario,goal:personal.goal,pantry:personal.pantry});
