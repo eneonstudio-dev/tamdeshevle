@@ -1,0 +1,145 @@
+/* Approved Roxy motion polish — restrained life, not gamification. */
+body[data-roxy-motion="1"] .roxy-screen-enter{
+  animation:roxy-screen-in .34s cubic-bezier(.2,.72,.25,1) both;
+}
+body[data-roxy-motion="1"] .roxy-screen-enter [data-roxy-reveal="1"]{
+  animation:roxy-reveal-in .42s cubic-bezier(.2,.72,.25,1) both;
+  animation-delay:calc(var(--roxy-i,0) * 34ms);
+}
+@keyframes roxy-screen-in{
+  from{opacity:.72;transform:translateY(4px)}
+  to{opacity:1;transform:none}
+}
+@keyframes roxy-reveal-in{
+  from{opacity:0;transform:translateY(10px) scale(.992)}
+  to{opacity:1;transform:none}
+}
+
+/* Make important controls feel physical without turning the product into a game. */
+body[data-roxy-motion="1"] :is(
+  .v2-bay-primary,.v2-bay-secondary,.v2-compare,.v2-add,.voto-cart-primary,
+  .voto-decision-lead>button,.td-compare-hero-actions button,.td-compare-plan button,
+  .v2-store-strip>button,.v2-categories button,.v2-bottom-nav button,.btn,.step button
+){
+  transition:transform .16s ease,border-color .2s ease,background-color .2s ease,box-shadow .2s ease,filter .2s ease,color .2s ease;
+}
+body[data-roxy-motion="1"] :is(
+  .v2-bay-primary,.v2-compare,.voto-cart-primary,.voto-decision-lead>button,
+  .td-compare-hero-actions button:first-child
+){
+  box-shadow:0 10px 28px rgba(53,224,128,.16);
+}
+body[data-roxy-motion="1"] :is(button,[role="button"],input,textarea):focus-visible{
+  outline:2px solid rgba(79,245,154,.88)!important;
+  outline-offset:3px!important;
+}
+body[data-roxy-motion="1"] :is(button,[role="button"]):active{
+  transform:scale(.978);
+}
+
+/* Premium desktop depth: tiny lift only on devices that actually hover. */
+@media(hover:hover) and (pointer:fine){
+  body[data-roxy-motion="1"] :is(
+    .v2-product-card,.v2-store-strip>button,.voto-product-card,.voto-store-choice,
+    .voto-cart-item,.td-compare-plan,.plan,.voto-decision-lead,.roxy-catalog-bay-hint
+  ){
+    transition:transform .22s cubic-bezier(.2,.72,.25,1),border-color .22s ease,box-shadow .22s ease,filter .22s ease;
+    will-change:transform;
+  }
+  body[data-roxy-motion="1"] :is(
+    .v2-product-card,.v2-store-strip>button,.voto-product-card,.voto-store-choice,
+    .voto-cart-item,.td-compare-plan,.plan
+  ):hover{
+    transform:translateY(-3px);
+    box-shadow:0 20px 44px rgba(0,0,0,.24);
+  }
+  body[data-roxy-motion="1"] :is(
+    .v2-bay-primary,.v2-compare,.voto-cart-primary,.voto-decision-lead>button,
+    .td-compare-hero-actions button:first-child
+  ):hover{
+    transform:translateY(-1px);
+    box-shadow:0 15px 34px rgba(53,224,128,.24);
+    filter:saturate(1.05) brightness(1.02);
+  }
+  body[data-roxy-motion="1"] :is(.v2-bay-secondary,.v2-categories button,.v2-nav button):hover{
+    transform:translateY(-1px);
+  }
+}
+
+/* Home Bay follows the cursor by just a few pixels on pointer devices. */
+body[data-roxy-motion="1"] .v2-hero[data-roxy-parallax="1"] .v2-hero-bai img{
+  transform:translate3d(var(--roxy-bay-x,0px),var(--roxy-bay-y,0px),0);
+  transition:transform .24s cubic-bezier(.2,.72,.25,1),filter .22s ease;
+  will-change:transform;
+}
+body[data-roxy-motion="1"] .v2-hero[data-roxy-parallax="1"]:hover .v2-hero-bai img{
+  filter:drop-shadow(0 32px 31px rgba(0,0,0,.43)) saturate(1.025)!important;
+}
+
+/* Short, purposeful Bay reactions to shopping actions. */
+#bai-assistant.roxy-bay-nod .bai-character{
+  animation:roxy-bay-nod .44s cubic-bezier(.2,.75,.3,1) both;
+}
+#bai-assistant.roxy-bay-focus .bai-character{
+  animation:roxy-bay-focus .58s cubic-bezier(.2,.75,.3,1) both;
+}
+@keyframes roxy-bay-nod{
+  0%,100%{transform:translateY(0) rotate(0)}
+  42%{transform:translateY(3px) rotate(-1.4deg)}
+  70%{transform:translateY(-2px) rotate(.7deg)}
+}
+@keyframes roxy-bay-focus{
+  0%,100%{transform:translateY(0) scale(1)}
+  42%{transform:translateY(-3px) scale(1.025)}
+  72%{transform:translateY(1px) scale(.995)}
+}
+
+/* Mobile nav gets a quiet active marker instead of a loud filled pill. */
+body[data-roxy-motion="1"] .v2-bottom-nav button{position:relative}
+body[data-roxy-motion="1"] .v2-bottom-nav .is-active:after{
+  content:"";
+  position:absolute;
+  left:50%;bottom:-3px;
+  width:16px;height:2px;
+  border-radius:999px;
+  background:#4ff59a;
+  box-shadow:0 0 12px rgba(79,245,154,.38);
+  transform:translateX(-50%);
+}
+
+/* Existing add confirmation becomes visible but stays restrained. */
+body[data-roxy-motion="1"] .v2-product-card.td-added{
+  animation:roxy-card-added .42s cubic-bezier(.2,.72,.25,1) both;
+}
+@keyframes roxy-card-added{
+  0%,100%{box-shadow:0 16px 38px rgba(0,0,0,.2)}
+  45%{box-shadow:0 18px 42px rgba(40,218,119,.28);transform:translateY(-2px)}
+}
+
+@media(max-width:700px){
+  body[data-roxy-motion="1"] .roxy-screen-enter [data-roxy-reveal="1"]{
+    animation-duration:.30s;
+    animation-delay:calc(var(--roxy-i,0) * 20ms);
+  }
+  body[data-roxy-motion="1"] :is(button,[role="button"]):active{transform:scale(.965)}
+  body[data-roxy-motion="1"] .v2-bottom-nav .is-active:after{bottom:-2px;width:14px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  body[data-roxy-motion="1"] .roxy-screen-enter,
+  body[data-roxy-motion="1"] .roxy-screen-enter [data-roxy-reveal="1"],
+  body[data-roxy-motion="1"] .v2-product-card.td-added,
+  #bai-assistant.roxy-bay-nod .bai-character,
+  #bai-assistant.roxy-bay-focus .bai-character{
+    animation:none!important;
+  }
+  body[data-roxy-motion="1"] .v2-hero[data-roxy-parallax="1"] .v2-hero-bai img,
+  body[data-roxy-motion="1"] :is(
+    .v2-product-card,.v2-store-strip>button,.voto-product-card,.voto-store-choice,
+    .voto-cart-item,.td-compare-plan,.plan,.voto-decision-lead,.roxy-catalog-bay-hint,
+    button,[role="button"]
+  ){
+    transition:none!important;
+    transform:none!important;
+  }
+}
