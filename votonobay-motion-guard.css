@@ -66,6 +66,16 @@ html body .td-today-trend.good{background:rgba(79,245,154,.09)!important;color:#
 html body .td-today-trend.bad,
 html body .td-profile-storage{background:rgba(255,133,108,.08)!important;color:#dfa08f!important}
 
+/* Incomplete comparison plans are valid states, but their old beige notice was
+   the last light island in the dark decision screen. Keep the warning semantic
+   while making it visually continuous with the rest of Votonobay. */
+html body.td-votonobay-inner .td-journey-unavailable{
+  border:1px solid rgba(255,133,108,.16)!important;
+  background:rgba(255,133,108,.075)!important;
+  color:#d8a899!important;
+  box-shadow:none!important;
+}
+
 @media (hover:none) and (pointer:coarse), (max-width:780px){
   html body.td-votonobay-inner .dock{
     left:max(10px,env(safe-area-inset-left))!important;right:max(10px,env(safe-area-inset-right))!important;
