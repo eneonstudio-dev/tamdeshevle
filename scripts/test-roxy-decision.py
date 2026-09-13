@@ -75,7 +75,7 @@ def main():
               const decision=root?.querySelector('.td-ai-decision-cta[data-roxy-decision="1"]');
               const alt=root?.querySelector('.roxy-decision-alternatives');
               const details=root?.querySelector('.roxy-decision-details');
-              const scroller=decision?.closest('.td-ai-messages');
+              const scroller=root?.querySelector('.td-ai-main');
               const primary=decision?.querySelector('.td-ai-decision-primary');
               const why=decision?.querySelector('.roxy-decision-why');
               const tradeoff=decision?.querySelector('.roxy-decision-tradeoff');
