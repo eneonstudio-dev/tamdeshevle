@@ -46,6 +46,8 @@ jobs:
           node --check teacher-lab/gpu/prepare_review.mjs
           node --check teacher-lab/training/prepare-sft.mjs
           node --check teacher-lab/training/review-export.mjs
+          node --check teacher-lab/training/aggregate-gold.mjs
+          node --check teacher-lab/training/aggregate-gold-smoke.mjs
           node --check teacher-lab/training/promotion-gate.mjs
           node --check teacher-lab/training/training-smoke.mjs
           python -m py_compile teacher-lab/review-artifact.py
@@ -76,6 +78,8 @@ jobs:
         run: python teacher-lab/review-artifact-smoke.py
       - name: Validate Kaggle teacher load order
         run: python teacher-lab/gpu/kaggle_load_order_smoke.py
+      - name: Validate cumulative Gold aggregation
+        run: node teacher-lab/training/aggregate-gold-smoke.mjs
       - name: Validate student training recipe
         run: node teacher-lab/training/training-smoke.mjs
       - name: Exercise offline export
