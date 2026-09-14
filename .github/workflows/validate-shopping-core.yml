@@ -1,0 +1,40 @@
+name: Validate golden shopping core
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  shopping-core:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Split optimizer regression
+        run: node scripts/test-basket-split.mjs
+      - name: Split UI and handoff contract
+        run: node scripts/test-basket-split-ui.mjs
+      - name: One-store optimizer choice
+        run: node scripts/test-one-store-choice.mjs
+      - name: Shopping state consistency
+        run: node scripts/test-shopping-state-consistency.mjs
+      - name: Unified cart state
+        run: node scripts/test-unified-cart-state.mjs
+      - name: Bay multi-store retailer scope
+        run: node scripts/test-bai-multistore-scope.mjs
+      - name: First shopping journey
+        run: node scripts/test-first-shopping-journey.mjs
+      - name: Bay shopping journey
+        run: node scripts/test-bai-shopping-journey.mjs
+      - name: Bay handoff end to end
+        run: node scripts/test-bai-handoff-e2e.mjs
+      - name: Mobile Bay-first end to end
+        run: node scripts/test-mobile-bay-first-e2e.mjs

@@ -131,7 +131,7 @@
     const travelKnown = mode === "delivery" || extraStopCost != null;
     const operationalCost = mode === "delivery" ? 0 : travelKnown ? extraStopCost : null;
     const netSaving = bestOne && bestTwo && operationalCost != null ? bestOne.total - bestTwo.total - operationalCost : null;
-    const worthSplitting = Boolean(bestOne && bestTwo && (netSaving == null ? bestTwo.total < bestOne.total : netSaving > 0));
+    const worthSplitting = Boolean(bestOne && bestTwo && netSaving != null && netSaving > 0);
     return { bestOne, bestTwo, extraSaving, operationalCost, travelKnown, worthSplitting, netSaving: worthSplitting ? netSaving : null, pairCount: pairs.length };
   }
 
