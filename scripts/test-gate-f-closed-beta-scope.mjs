@@ -28,6 +28,14 @@ assert.match(auth,/remoteAccount/,"auth initialization must be gated by remoteAc
 assert.match(auth,/cloudSync/,"cloud operations must be gated by cloudSync");
 assert.match(auth,/receiptUpload/,"receipt evidence upload must be gated by receiptUpload");
 assert.match(auth,/RELEASE_SCOPE_DISABLED/,"disabled remote data flows must fail closed with an explicit error");
+assert.ok(
+  auth.indexOf('if(!releaseEnabled("remoteAccount"))return false') < auth.indexOf('function loadSdk()'),
+  "remote account scope must fail closed before loading the Supabase SDK"
+);
+assert.ok(
+  auth.indexOf('if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED")') < auth.indexOf('client.storage.from(RECEIPT_BUCKET).upload'),
+  "receipt upload scope must fail closed before any storage upload"
+);
 
 assert.match(account,/TDReleaseScope/,"account UI must consult release scope");
 assert.match(account,/closed-beta-local-first|Закрытая бета/,"account UI must explain local-only beta scope");
