@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { discoverMagnitProductUrls, pageImage, pagePack, pagePriceTerms, pageUnitPrice, parseMagnitProductPage, rankMagnitProductUrls, verifyMagnitScopeConfig, withMagnitStore } from "../retailers/magnit-collector.mjs";
+import { buildOverlayFromSnapshot } from "../retailers/overlay-builder.mjs";
 
 const store_context = { shop_code: "770105", shop_type: "1", address: "г Москва, ул Чертановская, д 47 к 2" };
 const context = { store_context, expected_address_tokens: ["Чертановская", "47"] };
@@ -29,6 +30,14 @@ const produceHtml = `<html><head><title>Лук репчатый – купить
 const produce = parseMagnitProductPage(produceHtml, "https://magnit.ru/product/9072651204-luk_repchatyy", context);assert.equal(produce.price,41.99);assert.equal(produce.unit_price,59.99);assert.equal(produce.unit_price_unit,"kg");assert.deepEqual(produce.pack,{value:700,unit:"g",source:"characteristic_weight_kg"});assert.deepEqual(pagePack(produceHtml),{value:700,unit:"g",source:"characteristic_weight_kg"});assert.deepEqual(pageUnitPrice(produceHtml),{price:59.99,unit:"kg"});
 const bananaHtml = `<html><head><title>Бананы – купить | г Москва, ул Чертановская, д 47 к 2</title></head><body><h1>Бананы</h1><div>149.99 ₽</div><div>149.99 ₽/кг</div><section><div>Вес, кг</div><div>1</div></section><button>Добавить в корзину</button><div>Чертановская 47</div></body></html>`;
 const banana = parseMagnitProductPage(bananaHtml, "https://magnit.ru/product/9072651501-banany", context);assert.equal(banana.name,"Бананы");assert.equal(banana.unit_price,149.99);assert.equal(banana.unit_price_unit,"kg");assert.deepEqual(banana.pack,{value:1000,unit:"g",source:"characteristic_weight_kg"});assert.deepEqual(pageUnitPrice(bananaHtml),{price:149.99,unit:"kg"});
+const milkHtml = `<html><head><title>Молоко Калория питьевое ультрапастеризованное 2.5% 1л – купить | г Москва, ул Чертановская, д 47 к 2</title><script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"Молоко Калория питьевое ультрапастеризованное 2.5% 1л","offers":{"@type":"Offer","price":"109.99","priceCurrency":"RUB"}}</script></head><body><h1>Молоко Калория питьевое ультрапастеризованное 2.5% 1л</h1><div>Вес, кг 1.028</div><button>Добавить в корзину</button><div>Чертановская 47</div></body></html>`;
+const milk = parseMagnitProductPage(milkHtml,"https://magnit.ru/product/1000548435-kaloriya_moloko_pitevoe_ultrapast_2_5_1000ml",context);
+assert.deepEqual(milk.pack,{value:1000,unit:"ml",source:"1л"},"explicit sale volume must not be replaced by physical package weight");
+assert.deepEqual(milk.physical_pack,{value:1028,unit:"g",source:"characteristic_weight_kg"},"physical package weight must remain available as provenance");
+assert.equal(milk.availability,"В наличии");
+const milkOverlay=buildOverlayFromSnapshot({schema:"tamdeshevle.retailer-snapshot.v1",retailer:"magnit",city:"msk",store_id:"magnit",channel:"delivery_catalog",checked_at:"2026-09-14T18:20:35.236Z",source_url:"https://magnit.ru/",method:"public_store_scoped_catalog_collector",scope_verified:true,store_context,catalog_context:{type:"store_scoped_public_catalog",location_verified:true,shop_code:"770105",address:store_context.address},rows:[milk]});
+assert.equal(milkOverlay.prices.milk,109.99,"exact-store in-stock 1L milk should pass the existing strict matcher once sale-pack evidence is preserved");
+assert.deepEqual(milkOverlay.matched[0].source_pack,{value:1000,unit:"ml"});
 const gramHtml = `<div>Вес, г: 350</div>`;assert.deepEqual(pagePack(gramHtml),{value:350,unit:"g",source:"characteristic_weight_g"});
 assert.equal(pagePack(`<div>Цена за 1 кг 59.99</div>`),null,"unit-price copy alone must not fabricate package weight");
 const catalogHtml = `<a href="/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20">Яйца</a><a href="https://magnit.ru/product/1000166930-magnit_makarony_lapsha_450g_p_up_24?shopCode=999999">Макароны</a>`;
@@ -36,7 +45,7 @@ const urls=discoverMagnitProductUrls(catalogHtml,"https://magnit.ru/catalog/1",s
 const ranked=rankMagnitProductUrls(["https://magnit.ru/product/3-zhevatelnaya_rezinka?shopCode=770105","https://magnit.ru/product/2-moloko_2_5_900g?shopCode=770105","https://magnit.ru/product/1-yaytso_s1_10sht?shopCode=770105"],["yaytso","moloko"],["https://magnit.ru/product/1-yaytso_s1_10sht?shopCode=770105"]);assert.match(ranked[0],/yaytso/);assert.match(ranked[1],/moloko/);assert.match(ranked[2],/zhevatelnaya/);
 assert.match(withMagnitStore("https://magnit.ru/product/1-test?shopCode=123",store_context),/shopCode=770105/);assert.throws(()=>withMagnitStore("https://example.com/product/1",store_context),/Unsupported Magnit host/);assert.throws(()=>parseMagnitProductPage(productHtml.replace(/Чертановская/g,"Дубнинская"),row.url,context),/expected store address/);
 const fallbackHtml=`<html><head><title>Макароны Makfa Рожки гладкие 450г – купить | г Москва, ул Чертановская, д 47 к 2</title></head><body><h1>Макароны Makfa Рожки гладкие 450г</h1><div>74.99 ₽</div><div>В корзину</div><div>Чертановская 47</div></body></html>`;const fallback=parseMagnitProductPage(fallbackHtml,"https://magnit.ru/product/1234567890-makarony",context);assert.equal(fallback.price,74.99);assert.equal(fallback.name,"Макароны Makfa Рожки гладкие 450г");
-console.log("Magnit collector tests passed: store scoping, conditional-price semantics, product images, JSON-LD, explicit pack evidence, unit-price parsing and fallback parsing.");
+console.log("Magnit collector tests passed: store scoping, conditional-price semantics, product images, JSON-LD, sale-pack vs physical-pack provenance, unit-price parsing and fallback parsing.");
 const diversified = rankMagnitProductUrls([
   'https://magnit.ru/product/1-yaytso_a', 'https://magnit.ru/product/2-yaytso_b',
   'https://magnit.ru/product/3-yaytso_c', 'https://magnit.ru/product/4-moloko',

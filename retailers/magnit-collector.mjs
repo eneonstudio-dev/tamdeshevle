@@ -1,3 +1,5 @@
+import { parseMagnitPack } from "./magnit.mjs";
+
 const PRODUCT_LINK_RE = /href=["']([^"']*\/product\/[^"'#?]+(?:\?[^"'#]*)?)["']/gi;
 
 function decodeHtml(value) {
@@ -152,7 +154,7 @@ export function pagePack(html) {
 export function pageUnitPrice(html) {
   const text = stripTags(html);
   for (const pattern of [{ re: /(\d+(?:[.,]\d+)?)\s*₽?\s*\/\s*(?:1\s*)?(?:кг|kg)(?![a-zа-яё])/i, unit: "kg" }, { re: /(\d+(?:[.,]\d+)?)\s*₽?\s*\/\s*(?:1\s*)?(?:л|l)(?![a-zа-яё])/i, unit: "l" }]) {
-    const match = text.match(pattern.re); const value = match ? number(match[1]) : null; if (value != null) return { price: value, unit: pattern.unit };
+    const match = text.match(pattern.re); const value = match ? number(match[1]) : null; if (value != null) return { price: value, unit: pattern.unit }; 
   }
   return null;
 }
@@ -177,7 +179,10 @@ export function parseMagnitProductPage(html, url, context) {
   const name = (product && product.name ? stripTags(product.name) : null) || pageTitle(html);
   const price = (product ? offerPrice(product.offers) : null) ?? pagePrice(html);
   const unitPrice = pageUnitPrice(html);
-  const pack = pagePack(html);
+  const physicalPack = pagePack(html);
+  const titlePack = parseMagnitPack(name);
+  const dimensionConflict = Boolean(titlePack && physicalPack && titlePack.unit !== physicalPack.unit);
+  const pack = dimensionConflict ? titlePack : physicalPack;
   const priceTerms = pagePriceTerms(html);
   if (!name) throw new Error("Magnit product name not found");
   if (price == null) throw new Error(`Magnit price not found: ${name}`);
@@ -186,6 +191,7 @@ export function parseMagnitProductPage(html, url, context) {
     id: articleFromUrl(sourceUrl), name,
     brand: product && product.brand ? stripTags(typeof product.brand === "object" ? product.brand.name : product.brand) : null,
     pack,
+    ...(dimensionConflict ? { physical_pack: physicalPack } : {}),
     price, unit_price: unitPrice ? unitPrice.price : null, unit_price_unit: unitPrice ? unitPrice.unit : null,
     old_price: null, image_url: pageImage(html),
     promo: priceTerms.conditional,
