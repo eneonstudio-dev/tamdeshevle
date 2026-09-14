@@ -3,6 +3,8 @@
   if(window.__TDVotonobayRoxyPurchaseSkeletonV1)return;
   window.__TDVotonobayRoxyPurchaseSkeletonV1=true;
 
+  import("./votonobay-roxy-handoff-v1.js?v=20260914-v1").catch(error=>console.warn("[Votonobay Handoff] load failed",error));
+
   const STYLE_HREF="votonobay-roxy-purchase-skeleton-v1.css?v=20260914-v1";
   const APPROVED_CHECKING="assets/bai/bai-checking-approved-v1.webp";
   let queued=false;
