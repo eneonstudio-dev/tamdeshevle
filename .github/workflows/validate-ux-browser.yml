@@ -21,6 +21,7 @@ on:
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
+      - "scripts/test-gate-f-user-data-notice.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -44,6 +45,7 @@ on:
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
+      - "scripts/test-gate-f-user-data-notice.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -122,6 +124,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-purchase-proof.py
+      - name: Validate Gate F user-data participation UX
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-gate-f-user-data-notice.py
       - name: Validate Roxy catalog hint
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
