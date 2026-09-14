@@ -71,35 +71,39 @@ def main():
                   overflow:modal.querySelector('.td-retailer-card').scrollWidth-modal.querySelector('.td-retailer-card').clientWidth
                 };
                 retailerButton?.click();
-                retailer.dismissed=!modal.querySelector('.roxy-return-continuity');
-                retailer.focused=document.activeElement===link;
-                modal.remove();
-
-                const beforeHistory={draft:area.value,scroll:main.scrollTop,state:JSON.stringify(session),submitCount:window.__returnSubmitCount};
-                const firstPageshow=window.TDRoxyReturnContinuityV1.pageShow({persisted:false});
-                const normalPageshowNotice=Boolean(root.querySelector('.roxy-return-continuity'));
-                window.TDRoxyReturnContinuityV1.pageShow({persisted:true});
                 setTimeout(()=>{
-                  const bayNote=root.querySelector('.roxy-return-continuity[data-surface="bay"]');
-                  const bayButton=bayNote?.querySelector('button');
-                  const history={
-                    firstPageshow,
-                    normalPageshowNotice,
-                    text:bayNote?.innerText||'',
-                    buttonHeight:bayButton?.getBoundingClientRect().height||0,
-                    draft:area.value,
-                    scroll:main.scrollTop,
-                    state:JSON.stringify(session),
-                    submitCount:window.__returnSubmitCount,
-                    overflow:root.scrollWidth-root.clientWidth
-                  };
-                  bayButton?.click();
-                  history.dismissed=!root.querySelector('.roxy-return-continuity');
-                  history.focused=document.activeElement===area;
-                  root.setAttribute('data-roxy-network-restored','1');
+                  retailer.dismissed=!modal.querySelector('.roxy-return-continuity');
+                  retailer.focused=document.activeElement===link;
+                  modal.remove();
+
+                  const beforeHistory={draft:area.value,scroll:main.scrollTop,state:JSON.stringify(session),submitCount:window.__returnSubmitCount};
+                  const firstPageshow=window.TDRoxyReturnContinuityV1.pageShow({persisted:false});
+                  const normalPageshowNotice=Boolean(root.querySelector('.roxy-return-continuity'));
                   window.TDRoxyReturnContinuityV1.pageShow({persisted:true});
-                  setTimeout(()=>done({firstLoad,retailer,beforeHistory,history,networkCollision:Boolean(root.querySelector('.roxy-return-continuity'))}),120);
-                },160);
+                  setTimeout(()=>{
+                    const bayNote=root.querySelector('.roxy-return-continuity[data-surface="bay"]');
+                    const bayButton=bayNote?.querySelector('button');
+                    const history={
+                      firstPageshow,
+                      normalPageshowNotice,
+                      text:bayNote?.innerText||'',
+                      buttonHeight:bayButton?.getBoundingClientRect().height||0,
+                      draft:area.value,
+                      scroll:main.scrollTop,
+                      state:JSON.stringify(session),
+                      submitCount:window.__returnSubmitCount,
+                      overflow:root.scrollWidth-root.clientWidth
+                    };
+                    bayButton?.click();
+                    setTimeout(()=>{
+                      history.dismissed=!root.querySelector('.roxy-return-continuity');
+                      history.focused=document.activeElement===area;
+                      root.setAttribute('data-roxy-network-restored','1');
+                      window.TDRoxyReturnContinuityV1.pageShow({persisted:true});
+                      setTimeout(()=>done({firstLoad,retailer,beforeHistory,history,networkCollision:Boolean(root.querySelector('.roxy-return-continuity'))}),120);
+                    },60);
+                  },160);
+                },60);
               },180);
             """)
             if metrics['firstLoad']['notice']:
