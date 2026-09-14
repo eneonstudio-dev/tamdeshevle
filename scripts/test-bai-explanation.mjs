@@ -69,7 +69,7 @@ const unknown=advisor.evaluate({
 assert.equal(unknown.available,true);
 assert.equal(unknown.netSaving,null);
 const unknownText=advisor.explain(unknown);
-assert.match(unknownText,/время пока не (?:задано|настроено)/u,"unknown friction must be disclosed instead of inventing a net saving");
+assert.match(unknownText,/дополнительного времени пока не (?:задана|настроена)/u,"unknown friction must be disclosed instead of inventing a net saving");
 assert.match(unknownText,/ориентировочным данным/u,"estimated evidence must stay labeled as estimated");
 
 console.log("MVP-030 explanation regression passed: canonical why-follow-up routes to grounded decision facts and discloses uncertainty.");
