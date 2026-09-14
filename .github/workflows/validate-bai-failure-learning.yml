@@ -11,7 +11,10 @@ on:
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
       - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/data_factory_v22.py"
+      - "teacher-lab/training/data_factory_semantics.py"
       - "teacher-lab/training/data_factory_quality_smoke.py"
+      - "teacher-lab/training/data_factory_semantics_smoke.py"
       - "teacher-lab/training/prepare_iteration2_dataset.py"
       - "teacher-lab/training/iteration2_readiness.py"
       - "teacher-lab/training/iteration2_readiness_smoke.py"
@@ -30,7 +33,10 @@ on:
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
       - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/data_factory_v22.py"
+      - "teacher-lab/training/data_factory_semantics.py"
       - "teacher-lab/training/data_factory_quality_smoke.py"
+      - "teacher-lab/training/data_factory_semantics_smoke.py"
       - "teacher-lab/training/prepare_iteration2_dataset.py"
       - "teacher-lab/training/iteration2_readiness.py"
       - "teacher-lab/training/iteration2_readiness_smoke.py"
@@ -61,7 +67,10 @@ jobs:
           python -m py_compile teacher-lab/training/compare_candidate_runs.py
           python -m py_compile teacher-lab/training/candidate_comparison_smoke.py
           python -m py_compile teacher-lab/training/data_factory_v2.py
+          python -m py_compile teacher-lab/training/data_factory_v22.py
+          python -m py_compile teacher-lab/training/data_factory_semantics.py
           python -m py_compile teacher-lab/training/data_factory_quality_smoke.py
+          python -m py_compile teacher-lab/training/data_factory_semantics_smoke.py
           python -m py_compile teacher-lab/training/prepare_iteration2_dataset.py
           python -m py_compile teacher-lab/training/iteration2_readiness.py
           python -m py_compile teacher-lab/training/iteration2_readiness_smoke.py
@@ -76,9 +85,15 @@ jobs:
         run: python teacher-lab/training/iteration2_notebook_smoke.py
       - name: Validate multi-candidate comparison contract
         run: python teacher-lab/training/candidate_comparison_smoke.py
-      - name: Validate Data Factory v2.1 diversity and balanced pilot
+      - name: Validate Data Factory v2.1 diversity base
         run: |
-          python teacher-lab/training/data_factory_v2.py /tmp/bai-factory-v2.jsonl --pilot-out /tmp/bai-factory-v2-pilot.jsonl
-          test "$(wc -l < /tmp/bai-factory-v2.jsonl)" -eq 1448
-          test "$(wc -l < /tmp/bai-factory-v2-pilot.jsonl)" -eq 400
+          python teacher-lab/training/data_factory_v2.py /tmp/bai-factory-v21.jsonl --pilot-out /tmp/bai-factory-v21-pilot.jsonl
+          test "$(wc -l < /tmp/bai-factory-v21.jsonl)" -eq 1448
+          test "$(wc -l < /tmp/bai-factory-v21-pilot.jsonl)" -eq 400
           python teacher-lab/training/data_factory_quality_smoke.py
+      - name: Validate Data Factory v2.2 executable semantics
+        run: |
+          python teacher-lab/training/data_factory_v22.py /tmp/bai-factory-v22.jsonl --pilot-out /tmp/bai-factory-v22-pilot.jsonl
+          test "$(wc -l < /tmp/bai-factory-v22.jsonl)" -eq 1448
+          test "$(wc -l < /tmp/bai-factory-v22-pilot.jsonl)" -eq 400
+          python teacher-lab/training/data_factory_semantics_smoke.py
