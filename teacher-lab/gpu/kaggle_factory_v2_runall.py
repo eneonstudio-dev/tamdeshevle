@@ -12,11 +12,20 @@ def calibration_tasks(tasks,per_category=10):
     if len({x['id'] for x in out})!=len(out): raise ValueError('duplicate calibration task id')
     return out
 
-def gate(summary,expected,ratio=0.90,stage='CALIBRATION'):
+def gate(summary,expected,ratio=0.90,stage='CALIBRATION',max_contract_violation_ratio=None):
     if not 0.5<=ratio<=1: raise ValueError('gate ratio must be 0.5..1')
+    if max_contract_violation_ratio is not None and not 0<=max_contract_violation_ratio<=1:
+        raise ValueError('contract violation ratio must be 0..1')
     floor=math.ceil(expected*ratio)
     values={k:int(summary.get(k,0) or 0) for k in ('left_candidates','right_candidates','compared')}
     if min(values.values())<floor: raise RuntimeError(f'{stage} rejected: {values}, required >= {floor}')
+    if max_contract_violation_ratio is not None:
+        violations=int(summary.get('contract_violations',0) or 0)
+        max_violations=math.floor(expected*max_contract_violation_ratio)
+        if violations>max_violations:
+            raise RuntimeError(f'{stage} rejected: contract_violations={violations}, allowed <= {max_violations}/{expected}')
+        values['contract_violations']=violations
+        values['max_contract_violations']=max_violations
     return values
 
 def verify_gpu(torch_module):
