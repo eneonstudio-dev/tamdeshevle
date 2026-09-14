@@ -1,0 +1,14 @@
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-main{scroll-padding-bottom:18px}
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose{position:relative;z-index:6;box-shadow:0 -14px 34px rgba(0,0,0,.18)}
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose textarea{box-sizing:border-box;min-height:48px;max-height:104px;overflow-y:hidden;overscroll-behavior:contain}
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose textarea[data-roxy-textarea-scroll="1"]{overflow-y:auto}
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose button{min-height:44px;touch-action:manipulation}
+.td-ai[data-roxy-mobile-compose="1"] .td-ai-send{height:auto!important;min-height:44px}
+@media(max-width:820px){
+  .td-ai[data-roxy-mobile-compose="1"] .td-ai-compose{padding-top:9px;background:rgba(2,15,9,.97);backdrop-filter:blur(18px)}
+  .td-ai[data-roxy-mobile-compose="1"] .td-ai-compose textarea{font-size:16px;line-height:1.35;max-height:104px}
+  .td-ai[data-roxy-mobile-compose="1"][data-roxy-keyboard-open] .td-ai-compose{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .td-ai[data-roxy-mobile-compose="1"][data-roxy-keyboard-open] .td-ai-main{scroll-padding-bottom:10px}
+  .td-ai[data-roxy-mobile-compose="1"][data-roxy-compose-focus] .td-ai-compose{box-shadow:0 -14px 34px rgba(0,0,0,.28),0 -1px rgba(69,237,160,.14)}
+}
+@media(prefers-reduced-motion:reduce){.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose,.td-ai[data-roxy-mobile-compose="1"] .td-ai-compose *{scroll-behavior:auto!important;transition:none!important}}
