@@ -14,13 +14,8 @@ export function resolveMagnitPack(raw){
   // Count is the purchasable pack for count-based goods (eggs, tea bags). A physical
   // weight characteristic describes the same package but must not replace "10шт/100пак".
   if(titlePack&&titlePack.unit==="pcs")return titlePack;
-  // If the user-facing title and a rendered characteristic describe different physical
-  // dimensions (for example "1л" milk plus gross/net package mass 1028г), the explicit
-  // sale unit in the title is the only comparable pack evidence. Never reinterpret litres
-  // as grams just because the page also exposes package weight.
-  if(titlePack&&observedPack&&titlePack.unit!==observedPack.unit)return titlePack;
-  // Within the same dimension, retailer-rendered characteristics may be more precise than
-  // an abbreviated/ranged title. If they are absent, fall back to title pack.
+  // For weighted/volume goods, retailer-rendered characteristics are more precise than
+  // a potentially abbreviated/ranged title. If they are absent, fall back to title pack.
   return observedPack||titlePack||null;
 }
 export function normalizeMagnitAvailability(value){const text=String(value||"").trim().toLowerCase();if(!text)return"unknown";if(text.includes("нет в наличии")||text.includes("законч"))return"out_of_stock";if(text.includes("в корзину")||text.includes("в наличии"))return"in_stock";return"unknown";}
