@@ -27,7 +27,7 @@
 
   function buildTradeoff(main,hero){
     let section=main.querySelector(".roxy-purchase-tradeoff");
-    const verdict=hero.querySelector(".td-compare-verdict");
+    const verdict=hero.querySelector(".td-compare-verdict")||section?.querySelector(".td-compare-verdict");
     if(!verdict)return section;
     if(!section){
       section=document.createElement("section");
@@ -49,7 +49,7 @@
     const primary=actions.querySelector("[data-compare-apply]");
     if(primary){
       primary.dataset.tdPurchaseContinue="1";
-      primary.textContent="Выбрать и продолжить";
+      if(primary.textContent!=="Выбрать и продолжить")primary.textContent="Выбрать и продолжить";
     }
     return section;
   }
@@ -61,9 +61,16 @@
       const button=card.querySelector("[data-compare-apply]");
       if(button){
         button.dataset.tdPurchaseContinue="1";
-        button.textContent="Выбрать этот вариант";
+        if(button.textContent!=="Выбрать этот вариант")button.textContent="Выбрать этот вариант";
       }
     });
+  }
+
+  function arrange(main,nodes){
+    const sequence=nodes.filter(Boolean);
+    const relevant=[...main.children].filter(node=>sequence.includes(node));
+    if(sequence.length===relevant.length&&sequence.every((node,index)=>relevant[index]===node))return;
+    sequence.forEach(node=>main.appendChild(node));
   }
 
   function decorate(root){
@@ -75,16 +82,16 @@
 
     root.dataset.roxyPurchaseSkeleton="1";
     const heroEyebrow=hero.querySelector(":scope>small");
-    if(heroEyebrow)heroEyebrow.textContent="РЕКОМЕНДАЦИЯ БАЯ";
+    if(heroEyebrow&&heroEyebrow.textContent!=="РЕКОМЕНДАЦИЯ БАЯ")heroEyebrow.textContent="РЕКОМЕНДАЦИЯ БАЯ";
     const bay=hero.querySelector(".td-compare-bay img");
-    if(bay&& !bay.src.includes("bai-checking-approved-v1.webp"))bay.src=APPROVED_CHECKING;
+    if(bay&&!bay.src.includes("bai-checking-approved-v1.webp"))bay.src=APPROVED_CHECKING;
 
     const why=main.querySelector(".td-compare-why");
     if(why){
       const head=why.querySelector(".td-compare-section-head");
       const small=head?.querySelector("small"),heading=head?.querySelector("h3");
-      if(small)small.textContent="ПОЧЕМУ";
-      if(heading)heading.textContent="Почему я выбрал этот вариант";
+      if(small&&small.textContent!=="ПОЧЕМУ")small.textContent="ПОЧЕМУ";
+      if(heading&&heading.textContent!=="Почему я выбрал этот вариант")heading.textContent="Почему я выбрал этот вариант";
     }
 
     const tradeoff=buildTradeoff(main,hero);
@@ -96,12 +103,12 @@
     if(alternatives){
       const head=alternatives.querySelector(".td-compare-section-head");
       const small=head?.querySelector("small"),heading=head?.querySelector("h3");
-      if(small)small.textContent="ЕСЛИ ПРИОРИТЕТ ДРУГОЙ";
-      if(heading)heading.textContent="Другие варианты";
+      if(small&&small.textContent!=="ЕСЛИ ПРИОРИТЕТ ДРУГОЙ")small.textContent="ЕСЛИ ПРИОРИТЕТ ДРУГОЙ";
+      if(heading&&heading.textContent!=="Другие варианты")heading.textContent="Другие варианты";
     }
     fixAlternatives(root);
 
-    [hero,why,tradeoff,action,alternatives,trust,note].filter(Boolean).forEach(node=>main.appendChild(node));
+    arrange(main,[hero,why,tradeoff,action,alternatives,trust,note]);
     root.dataset.roxyPurchaseOrder="verdict-why-tradeoff-action-alternatives-details";
     return true;
   }
