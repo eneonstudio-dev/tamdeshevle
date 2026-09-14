@@ -35,6 +35,9 @@ export function matchRetailerProduct(product,options={}){if(!product||!product.n
 }const passed=[],rejected=[];for(const rule of SKU_RULES){const result=evaluateRule(product,rule);if(result.ok)passed.push({rule,result});else if(result.reason!=="name_mismatch")rejected.push({sku:rule.sku,reason:result.reason,detail:result.detail||null});}if(passed.length!==1)return{matched:false,reason:passed.length?"ambiguous":"no_rule_match",candidates:passed.map(item=>item.rule.sku),rejected};const{rule,result}=passed[0];return{matched:true,sku:rule.sku,confidence:.9,method:"conservative_rule",evidence:result.evidence};}
 function betterCandidate(next,current){if(!current)return true;if(next.confidence!==current.confidence)return next.confidence>current.confidence;if(next.price_rub!==current.price_rub)return next.price_rub<current.price_rub;return String(next.name).localeCompare(String(current.name),"ru")<0;}
 export function comparisonEligibility(product, result) {
+  if (product.promo === true && !(product.promo_eligibility_verified === true && product.promo_terms_verified === true)) {
+    return {eligible:false, reason:"promo_eligibility_unverified"};
+  }
   if (/\d+\s*[xх×*]\s*\d|(?:набор|упаковка)\s+(?:из\s+)?\d/i.test(product.name)) return {eligible:false, reason:"multipack_unconfirmed"};
   const rule = SKU_RULES.find(item => item.sku === result.sku);
   const expected = rule?.pack || {value:1000, unit:"g"};
@@ -64,7 +67,7 @@ export function buildPriceOverlay(products, options={}) {
       alternatives.push({sku:result.sku,name:product.name,retailer_product_id:product.retailer_product_id||null,source_url:product.source_url||null,price_rub:product.price_rub,...eligibility});
       continue;
     }
-    const candidate={sku:result.sku,name:product.name,retailer_product_id:product.retailer_product_id||null,price_rub:product.price_rub,old_price_rub:Number.isFinite(product.old_price_rub)?product.old_price_rub:null,promo:Boolean(product.promo),source_url:product.source_url||null,...(product.image_url?{image_url:product.image_url}:{}),confidence:result.confidence,method:result.method,comparison_eligible:true,source_pack:eligibility.source_pack,requested_pack:eligibility.requested_pack,availability:product.availability};
+    const candidate={sku:result.sku,name:product.name,retailer_product_id:product.retailer_product_id||null,price_rub:product.price_rub,old_price_rub:Number.isFinite(product.old_price_rub)?product.old_price_rub:null,promo:Boolean(product.promo),...(product.promo?{promo_eligibility_verified:product.promo_eligibility_verified===true,promo_terms_verified:product.promo_terms_verified===true}:{}),source_url:product.source_url||null,...(product.image_url?{image_url:product.image_url}:{}),confidence:result.confidence,method:result.method,comparison_eligible:true,source_pack:eligibility.source_pack,requested_pack:eligibility.requested_pack,availability:product.availability};
     if (product.comparison_price_basis) {
       candidate.comparison_price_basis=product.comparison_price_basis;
       candidate.source_package_price_rub=product.source_package_price_rub;
