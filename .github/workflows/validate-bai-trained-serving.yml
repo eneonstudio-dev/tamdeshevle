@@ -1,0 +1,53 @@
+name: Validate Bai trained serving
+
+on:
+  pull_request:
+    paths:
+      - "bai-brain-registry.js"
+      - "supabase-config.js"
+      - "supabase/functions/bai-trained-inference/**"
+      - "teacher-lab/serving/**"
+      - "teacher-lab/training/bind-brain-release.mjs"
+      - "teacher-lab/training/bind-brain-release-smoke.mjs"
+      - "scripts/test-bai-trained-serving.mjs"
+      - ".github/workflows/validate-bai-trained-serving.yml"
+  push:
+    branches: [main]
+    paths:
+      - "bai-brain-registry.js"
+      - "supabase-config.js"
+      - "supabase/functions/bai-trained-inference/**"
+      - "teacher-lab/serving/**"
+      - "teacher-lab/training/bind-brain-release.mjs"
+      - "teacher-lab/training/bind-brain-release-smoke.mjs"
+      - "scripts/test-bai-trained-serving.mjs"
+      - ".github/workflows/validate-bai-trained-serving.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Check syntax
+        run: |
+          node --check teacher-lab/training/bind-brain-release.mjs
+          node --check teacher-lab/training/bind-brain-release-smoke.mjs
+          node --check scripts/test-bai-trained-serving.mjs
+          node --check supabase-config.js
+          python -m py_compile teacher-lab/serving/bai_trained_adapter_server.py
+          python -m py_compile teacher-lab/serving/bai_trained_adapter_server_smoke.py
+      - name: Validate staged release binding
+        run: node teacher-lab/training/bind-brain-release-smoke.mjs
+      - name: Validate GPU adapter server contract
+        run: python teacher-lab/serving/bai_trained_adapter_server_smoke.py
+      - name: Validate browser to proxy serving contract
+        run: node scripts/test-bai-trained-serving.mjs
