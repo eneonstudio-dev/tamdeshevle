@@ -45,17 +45,24 @@ def main():
           ];
           const best={id:'multi-live',type:'multi',stores:['pyat','magnit'],products:live,goods:80,convenienceCost:120,total:200,quality:'LIVE'};
           const alt={id:'one-estimated',type:'one',stores:['perek'],products:estimated,goods:200,convenienceCost:0,total:200,quality:'ESTIMATED'};
-          TDShoppingState.commit('QA_MVP030',s=>{
-            s.products=live.map(x=>({...x}));
-            s.requiredProducts=['milk','bread'];
-            s.lastPlans=[best,alt];
-            s.currentTotal=200;
-          },'MVP-030 equal-cost evidence tie');
+          const qaState={
+            products:live.map(x=>({...x})),
+            requiredProducts:['milk','bread'],
+            onlyProducts:['milk','bread'],
+            selectionMode:'only',
+            mode:'multi',
+            stores:[],
+            lastPlans:[best,alt],
+            currentTotal:200
+          };
+          window.__qaMvp030State=qaState;
+          window.__qaMvp030OriginalGet=TDShoppingState.get;
+          TDShoppingState.get=()=>window.__qaMvp030State;
           TDComparisonResultV2.open();
         """)
         WebDriverWait(d,10).until(lambda x:x.execute_script("return !!document.querySelector('.td-compare-v2 .td-compare-verdict[data-mvp030-truth=\"1\"]')"))
         WebDriverWait(d,10).until(lambda x:x.execute_script("return !!document.querySelector('.td-compare-why .roxy-mvp030-facts[data-mvp030-truth=\"1\"]')"))
-        data=d.execute_script("""
+        data=d.execute_script(r"""
           const verdict=document.querySelector('.td-compare-verdict')?.textContent?.trim()||'';
           const why=document.querySelector('.td-compare-why')?.textContent?.replace(/\s+/g,' ').trim()||'';
           return {verdict,why};
