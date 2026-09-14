@@ -71,6 +71,7 @@ jobs:
           python -m py_compile teacher-lab/training/kaggle_train_pipeline.py
           python -m py_compile teacher-lab/training/kaggle_gpu_preflight.py
           python -m py_compile teacher-lab/training/kaggle_first_run_smoke.py
+          python -m py_compile teacher-lab/training/evaluate_prompt_contract_smoke.py
           python -m py_compile teacher-lab/training/automated-pipeline-smoke.py
           python -m json.tool teacher-lab/gpu/bai_teacher_kaggle_runall.ipynb >/dev/null
           python -m json.tool teacher-lab/training/bai_student_kaggle_train.ipynb >/dev/null
@@ -106,6 +107,8 @@ jobs:
         run: node teacher-lab/training/aggregate-gold-smoke.mjs
       - name: Validate deterministic bootstrap seed
         run: node teacher-lab/training/deterministic-seed-smoke.mjs
+      - name: Validate student evaluation prompt contract
+        run: python teacher-lab/training/evaluate_prompt_contract_smoke.py
       - name: Validate staged brain release manifest
         run: node teacher-lab/training/prepare-brain-release-smoke.mjs
       - name: Validate student training recipe
