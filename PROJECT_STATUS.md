@@ -22,7 +22,7 @@ Prove:
 | P1 | Post-PASS trained checkpoint serving path | Умняша/AI training | DONE: staged serving infrastructure + fail-closed proxy; no trained release activated |
 | P1 | UniversalBasket → StoreBasket contract/mapping | Vi | NEXT / VERIFY CURRENT MAIN FIRST |
 | P1 | Multi-Store PurchasePlan optimizer | Vi | NEXT AFTER/ALONGSIDE BASKET CONTRACT |
-| P1 | Small set of trustworthy real grocery sources | Price 2 | IN PROGRESS / VERIFY CURRENT MAIN FIRST |
+| P1 | Small set of trustworthy real grocery sources | Price 2 | IN PROGRESS: Magnit has conditional exact-store catalog evidence; Perekrestok and Proshoper regional catalogs remain non-rankable estimates; terms/commercial review remains pending where registry says `conditional` |
 | P1 | Real end-to-end shopping regression scenarios | Shared | NEXT |
 | P1 | Honest retailer handoff capability matrix | Product/Vi/Price | NEXT |
 | P0 | Security release gate | Reinhard | BEFORE PUBLIC RELEASE |
