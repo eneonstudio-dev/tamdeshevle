@@ -60,6 +60,7 @@ Add a case when Bay or the shopping system:
 | `REG-011` | P1 | Bay receives multiple explicit retailer choices in one shopping request | Preserve one canonical `store_ids` allow-list through mapping, execution, verification and optimization; never roll a valid multi-store request back as `EFFECT_NOT_VERIFIED` | state/action | GUARDED | `scripts/test-bai-multistore-scope.mjs` | PR #370 |
 | `REG-012` | P1 | User says `Не Магнит` | Exclude Magnit while preserving basket intent; retailer exclusion must not become retailer selection or `EXCLUDE_BRAND` | intent/state | GUARDED | `scripts/test-bai-multistore-scope.mjs` | PR #370 |
 | `REG-013` | P1 | User requests one retailer / `Только Магнит`, or asks for `Всё из одного магазина` | Force one-store mode and compare eligible single-store projections of the same basket; never pin the first/current retailer accidentally | intent/optimizer | GUARDED | `scripts/test-bai-multistore-scope.mjs` + `scripts/test-one-store-choice.mjs` | PR #370 |
+| `REG-014` | P1 | Post-purchase proof opens with Bay's planned total and user confirms without entering what was actually charged | Keep planned amount approximate/separate; require a positive explicit actual total before saving self-reported purchase evidence; receipt evidence remains pending until separately verified | truth/UX | GUARDED | `scripts/test-roxy-purchase-proof.py` | PR #378 |
 
 ## Lifecycle
 
