@@ -28,7 +28,7 @@ const stores = [
   assert.equal(result.bestOne.total, 260);
   assert.equal(result.bestTwo.total, 220);
   assert.equal(result.extraSaving, 40);
-  assert.equal(result.worthSplitting, true);
+  assert.equal(result.worthSplitting, false, 'walk split must fail closed when second-stop friction is unknown');
   assert.equal(result.travelKnown, false);
   assert.equal(result.netSaving, null, 'walk split cannot claim net saving without configured travel cost');
   assert.deepEqual(Array.from(result.bestTwo.usedStoreIds), ['a', 'b']);
@@ -39,8 +39,19 @@ const stores = [
   const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk', extraStopCost: 15 });
   assert.equal(result.netSaving, 25);
   assert.equal(result.travelKnown, true);
+  assert.equal(result.worthSplitting, true);
   const explicitZero = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk', extraStopCost: 0 });
   assert.equal(explicitZero.netSaving, 40, 'explicitly configured zero travel cost may count as known');
+  assert.equal(explicitZero.worthSplitting, true);
+}
+
+{
+  const products = [product('x', 100, 140), product('y', 200, 120)];
+  const result = context.window.TDBasketSplit.optimize({ stores, products, cart: { x: 1, y: 1 }, city: 'msk', mode: 'walk', extraStopCost: 50 });
+  assert.equal(result.extraSaving, 40, 'raw goods saving remains available for explanation');
+  assert.equal(result.travelKnown, true);
+  assert.equal(result.worthSplitting, false, 'known friction larger than raw saving must block split recommendation');
+  assert.equal(result.netSaving, null, 'non-beneficial split must not expose a positive net-saving claim');
 }
 
 {
@@ -113,6 +124,7 @@ const stores = [
   const result = context.window.TDBasketSplit.fromWindow();
   assert.equal(result.travelKnown, false, 'default zero settings must not masquerade as a known travel cost');
   assert.equal(result.netSaving, null);
+  assert.equal(result.worthSplitting, false, 'default UI state must not recommend a walk split before friction is configured');
 }
 
 console.log('basket split tests passed: verified prices, valid quantities, known delivery terms and explicit travel costs only.');
