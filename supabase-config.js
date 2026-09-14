@@ -29,6 +29,66 @@ try {
   window.TD_BAI_BRAIN_ALLOWED_ORIGINS = [...new Set([...existing, trainedOrigin])];
 } catch {}
 
+// Gate F participation boundary. The capture guards are registered synchronously before
+// auth/cloud handlers, while the small disclosure UI is loaded from same-origin code.
+window.TDUserDataParticipationReady = window.TDUserDataParticipationReady || import("./votonobay-user-data-participation-v1.js?v=20260914-v1")
+  .then(()=>window.TDUserDataParticipation||null)
+  .catch(error=>{console.warn("[Gate F] participation UI failed to load",error);return null;});
+
+(function installUserDataParticipationGuards(){
+  const approvedKey="tdParticipationApproved";
+  const pendingKey="tdParticipationPending";
+  async function ask(kind,opener){
+    const api=window.TDUserDataParticipation||await window.TDUserDataParticipationReady;
+    if(!api||typeof api.confirm!=="function")return false;
+    return api.confirm(kind,{opener});
+  }
+  document.addEventListener("submit",event=>{
+    const form=event.target;
+    if(!(form instanceof HTMLFormElement)||!form.matches(".td-auth-modal form"))return;
+    if(form.dataset[approvedKey]==="1"){
+      delete form.dataset[approvedKey];
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(form.dataset[pendingKey]==="1")return;
+    form.dataset[pendingKey]="1";
+    const submitter=event.submitter||form.querySelector('button[type="submit"]');
+    void ask("account",submitter).then(ok=>{
+      delete form.dataset[pendingKey];
+      if(!ok)return;
+      form.dataset[approvedKey]="1";
+      if(typeof form.requestSubmit==="function")form.requestSubmit(submitter||undefined);
+      else if(submitter&&typeof submitter.click==="function")submitter.click();
+    });
+  },true);
+  document.addEventListener("click",event=>{
+    const button=event.target&&event.target.closest?.("[data-cloud-save],[data-cloud-restore],.receipt-upload");
+    if(!button)return;
+    if(button.dataset[approvedKey]==="1"){
+      delete button.dataset[approvedKey];
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(button.disabled||button.dataset[pendingKey]==="1")return;
+    button.dataset[pendingKey]="1";
+    const kind=button.hasAttribute("data-cloud-save")?"cloud_save":button.hasAttribute("data-cloud-restore")?"cloud_restore":"receipt";
+    void ask(kind,button).then(ok=>{
+      delete button.dataset[pendingKey];
+      if(!ok)return;
+      button.dataset[approvedKey]="1";
+      button.click();
+    });
+  },true);
+  document.addEventListener("keydown",event=>{
+    if(!document.querySelector(".td-user-data-participation"))return;
+    const handled=window.TDUserDataParticipation?.handleKeydown?.(event);
+    if(handled)event.stopImmediatePropagation();
+  },true);
+})();
+
 import("./config/bai-brain-release-bound.js?v=20260914-serving-v1").catch(error=>console.warn("[Bai Brain Release] preload failed",error));
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
 import("./bai-session-owner-guard.js?v=20260913-owner-v1")
