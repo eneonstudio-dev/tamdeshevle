@@ -1,0 +1,42 @@
+name: Preserve Gate F user-data contracts
+on:
+  push:
+    branches: [rouk/gate-f-closed-beta-scope]
+    paths: [.github/workflows/gate-f-beta-compat-patch.yml]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: rouk/gate-f-closed-beta-scope
+      - name: Preserve old contract while adding beta scope
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          def one(path,old,new):
+              p=Path(path); t=p.read_text(); n=t.count(old)
+              if n!=1: raise SystemExit(f"{path}: expected one match, got {n}")
+              p.write_text(t.replace(old,new,1))
+
+          one('auth-client.js',
+              '  async function submitReceiptEvidence(input){if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");return cloudOperation(async uid=>{',
+              '  async function submitReceiptEvidence(input){return cloudOperation(async uid=>{\n    if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");')
+
+          one('receipt-entry-ui.js',
+              '          <button class="receipt-entry-submit receipt-upload" type="button" disabled${receiptUploadEnabled ? "" : " hidden"}>Отправить фото на проверку</button>',
+              '          <button class="receipt-entry-submit receipt-upload" type="button" disabled>Отправить фото на проверку</button>')
+          one('receipt-entry-ui.js',
+              '    const queueButton = form.querySelector(".receipt-upload");\n    const qrInput = form.elements.receipt_qr;',
+              '    const queueButton = form.querySelector(".receipt-upload");\n    if (!receiptUploadEnabled) { queueButton.hidden = true; queueButton.setAttribute("aria-hidden", "true"); }\n    const qrInput = form.elements.receipt_qr;')
+          PY
+      - name: Commit and remove helper
+        run: |
+          rm .github/workflows/gate-f-beta-compat-patch.yml
+          git config user.name "eneonstudio-dev"
+          git config user.email "eneonstudio@gmail.com"
+          git add auth-client.js receipt-entry-ui.js .github/workflows/gate-f-beta-compat-patch.yml
+          git commit -m "security: preserve explicit receipt submission contract"
+          git push origin HEAD:rouk/gate-f-closed-beta-scope
