@@ -27,6 +27,7 @@ jobs:
             "REGRESSION_BANK.md"
             "DECISIONS/README.md"
             "RELEASE_GATE.md"
+            "CLOSED_BETA_RELEASE_EVIDENCE.md"
             "RETAILER_CAPABILITIES.md"
             "MVP_SCENARIOS.md"
             "KNOWN_LIMITATIONS.md"
@@ -54,6 +55,9 @@ jobs:
           grep -Fq "MVP-001" MVP_SCENARIOS.md
           grep -Fq "Public launch" RELEASE_GATE.md
           grep -Fq "legacy `tamdeshevle`" KNOWN_LIMITATIONS.md
+
+      - name: Validate closed-beta A-F release contract
+        run: node scripts/test-closed-beta-release-gate.mjs
 
       - name: Validate project status freshness metadata
         shell: bash
@@ -87,4 +91,4 @@ jobs:
           fi
 
       - name: Governance summary
-        run: echo "Votonobay MASTER governance contract is present."
+        run: echo "Votonobay MASTER governance and closed-beta A-F release contracts are present."
