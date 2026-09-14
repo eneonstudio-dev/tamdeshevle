@@ -10,6 +10,10 @@
   let released=false;
   let fallbackTimer=0;
 
+  const style=document.createElement("style");
+  style.dataset.votonobayColdStartV1="1";
+  style.textContent=`html[data-votonobay-boot="pending"] #app{visibility:hidden!important;opacity:0!important}html[data-votonobay-boot="pending"],html[data-votonobay-boot="pending"] body{background:#050a07!important}`;
+  document.head.appendChild(style);
   root.dataset.votonobayBoot="pending";
 
   // A fresh top-level visit always starts from the Bay-first Home. Basket, city,
