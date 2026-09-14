@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,json,os,shutil,subprocess,sys
+import argparse,hashlib,json,os,shutil,subprocess,sys
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -32,6 +32,13 @@ def ids(rows,label):
     return set(out)
 
 
+def semantic_fingerprint(row):
+    request=' '.join(str(row.get('user_request') or '').split()).lower().replace('ё','е')
+    payload={'user_request':request,'session_context':row.get('session_context') or {}}
+    raw=json.dumps(payload,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+    return hashlib.sha256(raw.encode('utf-8')).hexdigest()
+
+
 def validate_eval(rows,min_eval):
     if len(rows)<min_eval: raise SystemExit(f'Need at least {min_eval} held-out eval examples, got {len(rows)}')
     for row in rows:
@@ -46,7 +53,9 @@ def validate_split(train_files,eval_file,min_eval=50):
     eval_rows=read_jsonl(eval_file); validate_eval(eval_rows,min_eval)
     train_ids=ids(train_rows,'train'); eval_ids=ids(eval_rows,'eval'); overlap=sorted(train_ids & eval_ids)
     if overlap: raise SystemExit(f'train/eval leakage: {len(overlap)} overlapping ids; first={overlap[:5]}')
-    return {'raw_train_rows':len(train_rows),'eval_rows':len(eval_rows),'overlap':0}
+    train_fp={semantic_fingerprint(x) for x in train_rows}; eval_fp={semantic_fingerprint(x) for x in eval_rows}; semantic=sorted(train_fp & eval_fp)
+    if semantic: raise SystemExit(f'train/eval semantic leakage: {len(semantic)} overlapping request/context fingerprints; first={semantic[:5]}')
+    return {'raw_train_rows':len(train_rows),'eval_rows':len(eval_rows),'overlap':0,'fingerprint_overlap':0}
 
 
 def main():
@@ -73,11 +82,6 @@ def main():
 
     train_cmd=[sys.executable,TRAIN,'--data',dataset/'sft.jsonl','--out',candidate,'--config',args.config]
     if args.resume: train_cmd.append('--resume')
-    # Kaggle exposes two T4s, but a single-process Transformers Trainer wraps
-    # the 4-bit QLoRA model in DataParallel. Replicating bitsandbytes modules
-    # across devices causes illegal CUDA memory access on the first forward.
-    # Keep the real run deterministic and supported by isolating all model
-    # train/eval subprocesses to one T4; preflight still records both GPUs.
     model_env={**os.environ,'CUDA_VISIBLE_DEVICES':'0'}
     call(train_cmd,env=model_env)
     state['status']='TRAINED_AWAITING_EVAL'; pipeline_manifest.write_text(json.dumps(state,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
