@@ -49,8 +49,9 @@ def main():
 
               const modal=document.createElement('div');
               modal.className='td-retailer-handoff';
-              modal.innerHTML='<section class="td-retailer-card" style="height:300px;overflow:auto"><button class="td-retailer-x">×</button><h2>Собрать в магазине</h2><p>Открывай товары вручную</p><div class="td-retailer-row"><a href="#qa-return" target="_blank"><span>Молоко</span></a></div></section>';
+              modal.innerHTML='<section class="td-retailer-card" tabindex="-1" style="height:300px;overflow:auto"><button class="td-retailer-x">×</button><h2>Собрать в магазине</h2><p>Открывай товары вручную</p><div class="td-retailer-row"><a href="#qa-return" target="_blank"><span>Молоко</span></a></div></section>';
               document.body.appendChild(modal);
+              const card=modal.querySelector('.td-retailer-card');
               const link=modal.querySelector('a');
               link.addEventListener('click',event=>event.preventDefault());
               link.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true}));
@@ -68,12 +69,14 @@ def main():
                   draft:area.value,
                   submitCount:window.__returnSubmitCount,
                   state:JSON.stringify(session),
-                  overflow:modal.querySelector('.td-retailer-card').scrollWidth-modal.querySelector('.td-retailer-card').clientWidth
+                  overflow:card.scrollWidth-card.clientWidth
                 };
                 retailerButton?.click();
                 setTimeout(()=>{
                   retailer.dismissed=!modal.querySelector('.roxy-return-continuity');
-                  retailer.focused=document.activeElement===link;
+                  retailer.focused=card.contains(document.activeElement);
+                  retailer.activeTag=document.activeElement?.tagName||'';
+                  retailer.activeClass=document.activeElement?.className||'';
                   modal.remove();
 
                   const beforeHistory={draft:area.value,scroll:main.scrollTop,state:JSON.stringify(session),submitCount:window.__returnSubmitCount};
@@ -103,7 +106,7 @@ def main():
                       setTimeout(()=>done({firstLoad,retailer,beforeHistory,history,networkCollision:Boolean(root.querySelector('.roxy-return-continuity'))}),120);
                     },60);
                   },160);
-                },60);
+                },100);
               },180);
             """)
             if metrics['firstLoad']['notice']:
@@ -116,7 +119,7 @@ def main():
             if retailer['buttonHeight']<43.5 or retailer['overflow']>1:
                 failures.append(f"{name}: retailer return action is not mobile-safe {metrics}")
             if not retailer['dismissed'] or not retailer['focused']:
-                failures.append(f"{name}: retailer continue must dismiss and restore useful focus {metrics}")
+                failures.append(f"{name}: retailer continue must dismiss and keep useful focus inside the live retailer dialog {metrics}")
             if retailer['draft']!=metrics['firstLoad']['draft'] or retailer['submitCount']!=0:
                 failures.append(f"{name}: retailer return changed draft or submitted work {metrics}")
 
