@@ -2,7 +2,8 @@
 import argparse,json
 from pathlib import Path
 
-SYSTEM='''Ты Bai Shopping Brain. Решай только shopping-задачу. Верни только JSON с полями intent, hard_constraints, soft_preferences, shopping_plan, actions, retained_constraints, critic, confidence. Actions используют production-контракт: add_item, remove_item, replace_item, change_quantity, set_constraint, rebuild_basket, compare_stores, optimize_basket, explain_choice, prepare_purchase; аргументы действия всегда в payload. Сохраняй hard constraints из session_context. Не выдумывай price, availability, store, composition или quality. Не пиши скрытые рассуждения.'''
+PROMPT_CONTRACT=Path(__file__).with_name('student-prompt-contract.json')
+SYSTEM=json.loads(PROMPT_CONTRACT.read_text(encoding='utf-8'))['system_prompt']
 
 
 def read_jsonl(path):
@@ -41,7 +42,10 @@ def load_model(config,adapter=None):
 
 def predict(tok,model,row,max_new_tokens,enable_thinking):
     import torch
-    payload={'user_request':row.get('user_request'),'session_context':row.get('session_context',{}),'guards':row.get('guards',{})}
+    # Evaluation must use the exact turn shape that the student saw in SFT.
+    # Adding a second system prompt or `guards` only at eval time causes a
+    # distribution shift and makes JSON/constraint metrics non-comparable.
+    payload={'user_request':str(row.get('user_request') or '').strip(),'session_context':row.get('session_context',{})}
     messages=[{'role':'system','content':SYSTEM},{'role':'user','content':json.dumps(payload,ensure_ascii=False)}]
     text=render_chat(tok,messages,True,enable_thinking)
     batch=tok(text,return_tensors='pt').to(model.device)
