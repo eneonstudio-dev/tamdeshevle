@@ -18,11 +18,12 @@ assert list(loaded)==['deepseek_r1_distill_qwen_7b','qwen3_8b']
 assert loaded['deepseek_r1_distill_qwen_7b'][1]=='model:deepseek_r1_distill_qwen_7b'
 notebook=Path(__file__).resolve().parents[1]/'training/bai_qwen_teacher_kaggle_pilot.ipynb'
 text=notebook.read_text(encoding='utf-8'); json.loads(text)
-assert 'data_factory_v2.py' in text and 'CALIBRATION PASS' in text
+assert 'data_factory_v2.py' in text and 'CALIBRATION PASS' in text and 'package_factory_artifact.py' in text
 subprocess.run([sys.executable,str(Path(__file__).with_name('kaggle_factory_v2_smoke.py'))],check=True)
 prepare=Path(__file__).with_name('prepare_factory_review.mjs')
 subprocess.run(['node','--check',str(prepare)],check=True)
 subprocess.run(['node',str(Path(__file__).with_name('prepare_factory_review_smoke.mjs'))],check=True)
-triage=Path(__file__).resolve().parents[1]/'training/summarize_factory_review_smoke.py'
-subprocess.run([sys.executable,str(triage)],check=True)
-print('Kaggle teacher load order, pinned revisions, Data Factory pilot, and review triage contracts passed.')
+training=Path(__file__).resolve().parents[1]/'training'
+subprocess.run([sys.executable,str(training/'summarize_factory_review_smoke.py')],check=True)
+subprocess.run([sys.executable,str(training/'factory_handoff_smoke.py')],check=True)
+print('Kaggle teacher load order, pinned revisions, Data Factory pilot, triage, and portable handoff contracts passed.')
