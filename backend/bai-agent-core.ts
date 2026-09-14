@@ -224,6 +224,8 @@ async function normalizeNode(state:typeof State.State){
   return {message:clean(state.message),history:safeHistory(state.history),basket:safeBasket(state.basket),catalog:safeCatalog(state.catalog),baseline:safeBaseline(state.baseline),trace:["normalize"]};
 }
 async function reasonNode(state:typeof State.State){
+  const paidEnabled=(Deno.env.get("BAI_LLM_PAID_ENABLED")||"").trim().toLowerCase()==="true";
+  if(!paidEnabled)return {error:"model_disabled_zero_budget",model:"disabled",trace:["reason"]};
   const base=(Deno.env.get("BAI_LLM_BASE_URL")||"").trim().replace(/\/$/,"");
   const key=(Deno.env.get("BAI_LLM_API_KEY")||"").trim();
   const model=(Deno.env.get("BAI_LLM_MODEL")||"").trim();
@@ -284,7 +286,7 @@ export default {fetch:withSupabase({auth:"none"},async(req,ctx)=>{
   const started=Date.now();
   const result=await graph.invoke({message,history:payload?.history||[],basket:payload?.basket||{},catalog:payload?.catalog||[],baseline:payload?.baseline||{},rawModel:"",reply:"",operations:[],suggestions:[],expectsAnswer:false,model:"",error:"",trace:[]});
   const latency=Math.min(120000,Math.max(0,Date.now()-started));
-  if(result.error==="model_not_configured"){
+  if(result.error==="model_not_configured"||result.error==="model_disabled_zero_budget"){
     await finishUsage(ctx,usageId,"fallback",result.model,latency);
     return json(req,{ok:false,error:"model_not_configured",fallback:"rules",version:"brain-2.0-agent-core-v1",promptVersion:BAI_SYSTEM_PROMPT_VERSION,trace:result.trace},503);
   }
