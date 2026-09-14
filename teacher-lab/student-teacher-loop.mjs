@@ -42,7 +42,9 @@ function scanForbiddenFacts(value,forbidden,path='$',hits=[]){
   if(!value||typeof value!=='object')return hits;
   for(const [key,item] of Object.entries(value)){
     const next=`${path}.${key}`;
-    if(forbidden.has(key.toLowerCase())&&item!==null&&item!==undefined&&item!=='')hits.push(next);
+    const name=key.toLowerCase();
+    const confidenceUnknown=path.endsWith('.confidence')&&['price','availability','quality'].includes(name)&&item==='unknown';
+    if(forbidden.has(name)&&item!==null&&item!==undefined&&item!==''&&!confidenceUnknown)hits.push(next);
     scanForbiddenFacts(item,forbidden,next,hits);
   }
   return hits;

@@ -32,6 +32,15 @@ let judged=deterministicJudge({task,teacherOutput:teacher,bayOutput:{...good,pri
 assert.equal(judged.pass,false,'model-owned price claims must fail the truth guard');
 assert.ok(judged.failures.includes('unverified_facts_present'));
 
+judged=deterministicJudge({task,teacherOutput:teacher,bayOutput:{...good,confidence:{price:'unknown',availability:'unknown',quality:'unknown'}}});
+assert.equal(judged.pass,true,'unknown confidence sentinels must not be treated as fabricated dynamic facts');
+assert.equal(judged.checks.truth_guard,true);
+assert.deepEqual(judged.forbidden_fact_paths,[]);
+
+judged=deterministicJudge({task,teacherOutput:teacher,bayOutput:{...good,price:'unknown'}});
+assert.equal(judged.pass,false,'unknown is only a safe sentinel inside the confidence contract, not a top-level price claim');
+assert.ok(judged.forbidden_fact_paths.includes('$.price'));
+
 const calls=[];
 const bayRunner=async input=>{
   calls.push(input);
@@ -82,4 +91,4 @@ assert.equal(batch.summary.errors,1);
 assert.equal(batch.errors[0].error,'teacher_target_missing');
 assert.equal(batch.review_candidates.length,1);
 
-console.log('Bai student/teacher loop passed: target isolation, deterministic truth checks, critic feedback, bounded repair and regression emission.');
+console.log('Bai student/teacher loop passed: target isolation, deterministic truth checks including unknown confidence sentinels, critic feedback, bounded repair and regression emission.');
