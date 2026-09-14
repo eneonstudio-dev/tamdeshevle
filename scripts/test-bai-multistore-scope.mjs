@@ -70,4 +70,16 @@ assert.deepEqual(new Set(context.TDShoppingState.get().stores),new Set(["pyat","
 assert.deepEqual(new Set(kernel.state.get().store_constraints.store_ids),new Set(["pyat","perek"]),"Bay session must mirror the retailer exclusion projection");
 assert.equal((context.TDShoppingState.get().lastPlans||[]).some(plan=>(plan.stores||[]).includes("magnit")),false,"optimizer must not use the excluded retailer");
 
-console.log("Bay retailer scope passed: multi-store selection and negative retailer constraints survive mapping, execution, verification and optimization.");
+assert.equal(kernel.domainGate("Только Магнит").code,"ALLOWED","single-retailer constraints must remain shopping commands");
+const onlyMagnitOps=context.TDShoppingConversation.parse("Только Магнит");
+assert.deepEqual(onlyMagnitOps.filter(op=>op.type==="CHANGE_STORE").map(op=>op.value),["magnit"]);
+assert.ok(onlyMagnitOps.some(op=>op.type==="SET_MODE"&&op.value==="one"),"single retailer request must force one-store mode");
+result=await kernel.run({text:"Только Магнит",operations:onlyMagnitOps});
+assert.equal(result.ok,true,JSON.stringify(result.error),"single-retailer constraint must execute after a multi-store/exclusion sequence");
+assert.deepEqual(context.TDShoppingState.get().stores,["magnit"]);
+assert.equal(context.TDShoppingState.get().mode,"one");
+assert.deepEqual(kernel.state.get().store_constraints.store_ids,["magnit"]);
+assert.equal(kernel.state.get().store_constraints.mode,"one");
+assert.ok((context.TDShoppingState.get().products||[]).every(line=>line.storeId==="magnit"),"one-store optimization must keep every selected item inside Magnit");
+
+console.log("Bay retailer scope passed: multi-store selection, negative retailer constraints and adjacent single-retailer constraints survive execution and verification.");
