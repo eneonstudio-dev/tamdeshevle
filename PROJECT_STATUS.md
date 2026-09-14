@@ -14,22 +14,38 @@ Prove:
 
 ## Current critical work
 
-| Priority | Work | Owner role | State |
-|---|---|---|---|
-| P0/P1 | First real trained Bay checkpoint + held-out eval + promotion proof | Умняша/AI training | DONE: candidate trained; historical gate verdict REJECTED |
-| P0/P1 | Re-evaluate first candidate under corrected SFT/eval prompt contract | Умняша/AI training | IN PROGRESS; must happen before spending another training run |
-| P0/P1 | Second Bay training iteration from real failure clusters + reviewed Gold | Умняша/AI training | NEXT only if corrected re-evaluation still rejects the existing candidate |
-| P1 | Post-PASS trained checkpoint serving path | Умняша/AI training | DONE: staged serving infrastructure + fail-closed proxy; no trained release activated |
-| P1 | UniversalBasket → StoreBasket contract/mapping | Vi | NEXT / VERIFY CURRENT MAIN FIRST |
-| P1 | Multi-Store PurchasePlan optimizer | Vi | NEXT AFTER/ALONGSIDE BASKET CONTRACT |
-| P1 | Small set of trustworthy real grocery sources | Price 2 | IN PROGRESS: Magnit has conditional exact-store catalog evidence; Perekrestok and Proshoper regional catalogs remain non-rankable estimates; terms/commercial review remains pending where registry says `conditional` |
-| P1 | Real end-to-end shopping regression scenarios | Shared | NEXT |
-| P1 | Honest retailer handoff capability matrix | Product/Vi/Price | NEXT |
-| P0 | Security release gate | Reinhard | BEFORE PUBLIC RELEASE |
+| Priority | Work | Owner role | State | Evidence / blocker |
+|---|---|---|---|---|
+| P1 | Golden shopping core: retailer scope + one/two-store decision correctness | Fixer / QA | IN PROGRESS | PR #370 is open. Its dedicated `Validate golden shopping core` workflow fails at `scripts/test-bai-multistore-scope.mjs`: a single-retailer request does not force one-store mode. Split optimizer, one-store choice, shopping-state consistency and unified-cart steps pass before that failure. Do not merge until the full gate is green. |
+| P0/P1 | First real trained Bay checkpoint + held-out eval + promotion proof | Умняша/AI training | DONE: candidate trained; historical gate verdict REJECTED | First real Kaggle run completed; historical evaluator contract was later found mismatched to SFT. |
+| P0/P1 | Re-evaluate first candidate under corrected SFT/eval prompt contract | Умняша/AI training | IN PROGRESS | PRs #359, #365 and #366 provide the corrected re-eval/comparison path. External GPU re-evaluation of the existing adapter is still required before another training run. |
+| P0/P1 | Second Bay training iteration from real failure clusters + reviewed Gold | Умняша/AI training | NEXT | Start only if corrected re-evaluation still rejects the existing candidate. |
+| P1 | Post-PASS trained checkpoint serving path | Умняша/AI training | DONE | PR #362 + ADR-007: staged serving infrastructure + fail-closed proxy; no trained release activated. |
+| P1 | UniversalBasket → StoreBasket contract/mapping | Vi | VERIFY AFTER #370 | Existing legacy shopping-state/projection code covers parts of the behavior, and PR #370 adds end-to-end mapping/scope regressions, but the contract is not release-proven in `main` while #370 is failing/open. Vi owns formal verification after the Fixer path merges. |
+| P1 | Multi-Store PurchasePlan optimizer | Vi + Fixer | IN PROGRESS / BLOCKED ON #370 | `REG-004` remains OPEN in `main`. PR #370 hardens fee/friction logic and one/two-store scope, but the golden core gate is not green yet. Avoid parallel rewrites of the same optimizer path. |
+| P1 | Small set of trustworthy real grocery sources | Tali / data-truth | IN PROGRESS | Magnit has conditional exact-store catalog evidence. Perekrestok and Proshoper regional catalogs remain non-rankable estimates. Terms/commercial review remains pending where the registry says `conditional`. PRs #372/#373 hardened missing/future/stale evidence. |
+| P1 | Real end-to-end shopping regression scenarios | Shared, coordinated by Rоук/Fixer | NEXT AFTER #370 | `MVP_SCENARIOS.md` is the acceptance set. PR #370 adds a golden shopping gate, but the campaign should start from the merged, green core rather than test a knowingly failing branch. |
+| P1 | Honest retailer handoff capability matrix | Product/Vi/Tali | PARTIALLY ESTABLISHED / VERIFY | `RETAILER_CAPABILITIES.md` declares safe capabilities and recent UX work keeps redirect handoff honest. Release evidence across the tested path still needs explicit Gate D verification. |
+| P0 | Security release gate | Reinhard | BEFORE CLOSED BETA/PUBLIC RELEASE | `RELEASE_GATE.md` Gate F remains unchecked; no release-ready claim until Reinhard has no unresolved P0 blocker. |
+
+## Swarm coordination now
+
+- **Fixer** owns PR #370 until the golden shopping core is fully green and merge-ready. Current concrete failure: single-retailer request must force one-store mode.
+- **Vi** should not independently rewrite the same retailer-scope/optimizer code while #370 is active. Immediately after #370 merges, verify first-class UniversalBasket → StoreBasket → PurchasePlan behavior against the canonical MVP scenarios and close remaining contract gaps only then.
+- **Умняша Бая** owns the corrected external GPU re-evaluation of the first trained candidate. Do not spend another training run before that verdict.
+- **Tali** owns source coverage/truth quality. Priority is useful rankable grocery evidence, not retailer-count expansion; regional estimates remain discovery/indicative only.
+- **Сара 2 / Roxy** has recently merged mobile/network/return continuity work (#371, #374, #375). Further cosmetic polish is below P0/P1 until the shopping core is green unless a UX defect blocks the golden loop.
+- **Reinhard** owns the security/release review once the release path is stable enough to audit; provider/legal truth questions may still block specific sources earlier.
 
 ## Current known repo snapshot
 
-At the time the MASTER system was introduced, fresh `main` was at commit `a2d85a57c1a01306f2e5973ac77d547cd313e01a` (merged PR #350, final Roxy motion polish). This SHA is a historical snapshot only; agents must fetch fresh `main` before work.
+Fresh `main` at this status sync: `8c4de55c5b1838aff6334a0c68ddfe4763a0139c` (merged PR #375, Bay return continuity).
+
+Important current facts:
+- PR #370 is the only current high-priority open product PR on the golden shopping path and is not DONE because its dedicated workflow fails.
+- PRs #372/#373 are merged truth hardening / handoff evidence.
+- PRs #374/#375 are merged reliability UX for reconnect and return continuity.
+- `REG-004` remains OPEN in `main` until the PurchasePlan/multi-store fix is merged and guarded.
 
 ## Bay training evidence
 
