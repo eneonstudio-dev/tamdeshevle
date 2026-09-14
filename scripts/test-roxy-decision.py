@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Browser contract for the Roxy conclusion-first Bay decision surface."""
+"""Browser contract for the Roxy conclusion-first Bay decision and purchase skeleton."""
 from __future__ import annotations
 
 import os
@@ -39,17 +39,93 @@ def visible(driver,selector):
 
 def seed_decision(driver):
     driver.execute_script("""
-      const line={id:'milk',sourceId:'milk',name:'Молоко 3,2%',pack:'1 л',emoji:'🥛',brand:'',quantity:1,storeId:'pyat',unitPrice:89,price:89,quality:'LIVE'};
-      const best={id:'qa-one',type:'one',stores:['pyat'],products:[line],goods:89,convenienceCost:0,total:89,quality:'VERIFIED'};
+      const bestLine={id:'milk',sourceId:'milk',name:'Молоко 3,2%',pack:'1 л',emoji:'🥛',brand:'',quantity:1,storeId:'pyat',unitPrice:89,price:89,quality:'LIVE'};
+      const altLine={...bestLine,storeId:'perek',unitPrice:84,price:84};
+      const best={id:'qa-one',type:'one',stores:['pyat'],products:[bestLine],goods:89,convenienceCost:0,total:89,quality:'VERIFIED'};
+      const alternative={id:'qa-cheaper',type:'one',stores:['perek'],products:[altLine],goods:84,convenienceCost:0,total:84,quality:'VERIFIED'};
       TDShoppingState.commit('QA_DECISION',s=>{
-        s.products=[line];
+        s.products=[bestLine];
         s.requiredProducts=['milk'];
         s.onlyProducts=['milk'];
         s.selectionMode='only';
-        s.lastPlans=[best];
+        s.lastPlans=[best,alternative];
         s.currentTotal=89;
       },'QA decision seed');
       TDShoppingAssistant.refresh();
+    """)
+
+
+def ensure_comparison_runtime(driver):
+    result=driver.execute_async_script("""
+      const done=arguments[arguments.length-1];
+      Promise.all([
+        window.TDComparisonResultV2?Promise.resolve():import('./comparison-result-v2.js?v=qa-roxy-skeleton'),
+        window.TDPurchaseExperienceV1?Promise.resolve():import('./purchase-experience-v1.js?v=qa-roxy-skeleton'),
+        window.TDRoxyPurchaseSkeletonV1?Promise.resolve():import('./votonobay-roxy-purchase-skeleton-v1.js?v=qa-roxy-skeleton')
+      ]).then(()=>done(true)).catch(error=>done(String(error)));
+    """)
+    if result is not True:
+        raise AssertionError(f"comparison runtime failed to load: {result}")
+
+
+def decision_metrics(driver):
+    return driver.execute_script("""
+      const root=document.querySelector('body>.td-ai');
+      const decision=root?.querySelector('.td-ai-decision-cta[data-roxy-decision="1"]');
+      const alt=root?.querySelector('.roxy-decision-alternatives');
+      const details=root?.querySelector('.roxy-decision-details');
+      const scroller=root?.querySelector('.td-ai-main');
+      const primary=decision?.querySelector('.td-ai-decision-primary');
+      const why=decision?.querySelector('.roxy-decision-why');
+      const tradeoff=decision?.querySelector('.roxy-decision-tradeoff');
+      const bay=decision?.querySelector('.roxy-decision-bay');
+      const title=decision?.querySelector('.roxy-decision-heading>b')?.textContent?.trim()||'';
+      const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
+      const dr=decision?.getBoundingClientRect(),pr=primary?.getBoundingClientRect(),sr=scroller?.getBoundingClientRect();
+      const visibleHeight=dr&&sr?Math.max(0,Math.min(dr.bottom,sr.bottom)-Math.max(dr.top,sr.top)):0;
+      return {
+        title,why:!!why,tradeoff:!!tradeoff,bay:!!bay,hasAlternatives:!!alt,
+        decisionBeforeAlternatives:order(decision,alt),decisionBeforeDetails:order(decision,details),
+        primary:pr?{w:pr.width,h:pr.height,text:primary.textContent.trim()}:null,
+        decision:dr?{left:dr.left,right:dr.right,top:dr.top,bottom:dr.bottom,width:dr.width,height:dr.height}:null,
+        scroller:sr?{top:sr.top,bottom:sr.bottom,height:sr.height,scrollTop:scroller.scrollTop}:null,
+        visibleHeight,
+        stylesheet:!!document.querySelector('link[data-roxy-decision-v1="1"]'),
+        docWidth:document.documentElement.scrollWidth,vw:innerWidth,vh:innerHeight
+      };
+    """)
+
+
+def purchase_metrics(driver):
+    return driver.execute_script("""
+      const root=document.querySelector('.td-compare-v2[data-roxy-purchase-skeleton="1"]');
+      const main=root?.querySelector('.td-compare-v2-shell>main');
+      const hero=main?.querySelector('.td-compare-hero:not(.td-compare-hero-empty)');
+      const why=main?.querySelector('.td-compare-why');
+      const tradeoff=main?.querySelector('.roxy-purchase-tradeoff');
+      const action=main?.querySelector('.roxy-purchase-action');
+      const alternatives=main?.querySelector('.td-compare-alternatives');
+      const trust=main?.querySelector('.td-trust');
+      const primary=action?.querySelector('[data-compare-apply]');
+      const bay=hero?.querySelector('.td-compare-bay img');
+      const altLabel=alternatives?.querySelector('.td-compare-plan small')?.textContent?.trim()||'';
+      const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
+      const pr=primary?.getBoundingClientRect(),rr=root?.getBoundingClientRect();
+      const visualNodes=[hero,why,tradeoff,action,alternatives,trust].filter(Boolean);
+      return {
+        present:!!root,
+        order:[order(hero,why),order(why,tradeoff),order(tradeoff,action),alternatives?order(action,alternatives):true,alternatives&&trust?order(alternatives,trust):true],
+        visualTops:visualNodes.map(node=>Math.round(node.getBoundingClientRect().top*10)/10),
+        whyTitle:why?.querySelector('h3')?.textContent?.trim()||'',
+        tradeoffTitle:tradeoff?.querySelector('h3')?.textContent?.trim()||'',
+        actionTitle:action?.querySelector('h3')?.textContent?.trim()||'',
+        primary:pr?{w:pr.width,h:pr.height,text:primary.textContent.trim(),continue:primary.dataset.tdPurchaseContinue||''}:null,
+        altLabel,
+        baySrc:bay?.getAttribute('src')||'',
+        skeletonOrder:root?.dataset.roxyPurchaseOrder||'',
+        root:rr?{left:rr.left,right:rr.right,width:rr.width}:null,
+        docWidth:document.documentElement.scrollWidth,vw:innerWidth
+      };
     """)
 
 
@@ -70,31 +146,7 @@ def main():
             WebDriverWait(driver,10).until(lambda d:visible(d,'.td-ai-decision-cta[data-roxy-decision="1"]'))
             driver.execute_script("return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
             time.sleep(.28)
-            metrics=driver.execute_script("""
-              const root=document.querySelector('body>.td-ai');
-              const decision=root?.querySelector('.td-ai-decision-cta[data-roxy-decision="1"]');
-              const alt=root?.querySelector('.roxy-decision-alternatives');
-              const details=root?.querySelector('.roxy-decision-details');
-              const scroller=root?.querySelector('.td-ai-main');
-              const primary=decision?.querySelector('.td-ai-decision-primary');
-              const why=decision?.querySelector('.roxy-decision-why');
-              const tradeoff=decision?.querySelector('.roxy-decision-tradeoff');
-              const bay=decision?.querySelector('.roxy-decision-bay');
-              const title=decision?.querySelector('.roxy-decision-heading>b')?.textContent?.trim()||'';
-              const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
-              const dr=decision?.getBoundingClientRect(),pr=primary?.getBoundingClientRect(),sr=scroller?.getBoundingClientRect();
-              const visibleHeight=dr&&sr?Math.max(0,Math.min(dr.bottom,sr.bottom)-Math.max(dr.top,sr.top)):0;
-              return {
-                title,why:!!why,tradeoff:!!tradeoff,bay:!!bay,hasAlternatives:!!alt,
-                decisionBeforeAlternatives:order(decision,alt),decisionBeforeDetails:order(decision,details),
-                primary:pr?{w:pr.width,h:pr.height,text:primary.textContent.trim()}:null,
-                decision:dr?{left:dr.left,right:dr.right,top:dr.top,bottom:dr.bottom,width:dr.width,height:dr.height}:null,
-                scroller:sr?{top:sr.top,bottom:sr.bottom,height:sr.height,scrollTop:scroller.scrollTop}:null,
-                visibleHeight,
-                stylesheet:!!document.querySelector('link[data-roxy-decision-v1="1"]'),
-                docWidth:document.documentElement.scrollWidth,vw:innerWidth,vh:innerHeight
-              };
-            """)
+            metrics=decision_metrics(driver)
             label=f"{name}/decision"
             if metrics.get("title")!="Я бы выбрал этот план.": failures.append(f"{label}: wrong verdict title {metrics}")
             if not metrics.get("why"): failures.append(f"{label}: WHY block missing")
@@ -112,6 +164,29 @@ def main():
                 required=min(140,decision.get("height",0)*.45)
                 if metrics.get("visibleHeight",0)<required: failures.append(f"{label}: verdict is not visibly revealed before basket details {metrics}")
             driver.save_screenshot(str(OUT/f"{name}-decision.png"))
+
+            ensure_comparison_runtime(driver)
+            driver.execute_script("TDComparisonResultV2.open()")
+            WebDriverWait(driver,10).until(lambda d:visible(d,'.td-compare-v2[data-roxy-purchase-skeleton="1"]'))
+            driver.execute_script("return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
+            time.sleep(.25)
+            purchase=purchase_metrics(driver)
+            label=f"{name}/purchase-skeleton"
+            if not purchase.get("present"): failures.append(f"{label}: skeleton missing {purchase}")
+            if not all(x is True for x in purchase.get("order",[])): failures.append(f"{label}: wrong DOM conclusion-first order {purchase}")
+            tops=purchase.get("visualTops",[])
+            if len(tops)>1 and any(second<=first for first,second in zip(tops,tops[1:])): failures.append(f"{label}: wrong visual conclusion-first order {purchase}")
+            if purchase.get("whyTitle")!="Почему я выбрал этот вариант": failures.append(f"{label}: WHY title missing {purchase}")
+            if purchase.get("tradeoffTitle")!="Что важно знать": failures.append(f"{label}: tradeoff title missing {purchase}")
+            if purchase.get("actionTitle")!="Выбрать план и перейти к покупке": failures.append(f"{label}: action title missing {purchase}")
+            purchase_primary=purchase.get("primary") or {}
+            if purchase_primary.get("text")!="Выбрать и продолжить" or purchase_primary.get("continue")!="1": failures.append(f"{label}: primary handoff is not wired {purchase_primary}")
+            if mobile and purchase_primary.get("h",0)<43.5: failures.append(f"{label}: purchase primary action too short {purchase_primary}")
+            if purchase.get("altLabel")=="Я бы выбрал": failures.append(f"{label}: alternative is mislabeled as Bay recommendation {purchase}")
+            if "bai-checking-approved-v1.webp" not in purchase.get("baySrc",""): failures.append(f"{label}: approved checking Bay is not used {purchase}")
+            if purchase.get("skeletonOrder")!="verdict-why-tradeoff-action-alternatives-details": failures.append(f"{label}: skeleton contract marker missing {purchase}")
+            if purchase.get("docWidth",0)>purchase.get("vw",0)+2: failures.append(f"{label}: horizontal overflow {purchase}")
+            driver.save_screenshot(str(OUT/f"{name}-purchase-skeleton.png"))
         except Exception as exc:
             failures.append(f"{name}/decision: {exc}")
             try: driver.save_screenshot(str(OUT/f"{name}-decision-failure.png"))
@@ -122,7 +197,7 @@ def main():
         print("Roxy decision QA failed:")
         for failure in failures: print("-",failure)
         return 1
-    print("Roxy decision QA passed on desktop and Android-sized viewports.")
+    print("Roxy decision and purchase skeleton QA passed on desktop and Android-sized viewports.")
     return 0
 
 
