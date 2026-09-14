@@ -11,6 +11,8 @@ on:
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
       - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/iteration2_readiness.py"
+      - "teacher-lab/training/iteration2_readiness_smoke.py"
       - ".github/workflows/validate-bai-failure-learning.yml"
   push:
     branches:
@@ -24,6 +26,8 @@ on:
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
       - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/iteration2_readiness.py"
+      - "teacher-lab/training/iteration2_readiness_smoke.py"
       - ".github/workflows/validate-bai-failure-learning.yml"
 
 permissions:
@@ -49,9 +53,13 @@ jobs:
           python -m py_compile teacher-lab/training/compare_candidate_runs.py
           python -m py_compile teacher-lab/training/candidate_comparison_smoke.py
           python -m py_compile teacher-lab/training/data_factory_v2.py
+          python -m py_compile teacher-lab/training/iteration2_readiness.py
+          python -m py_compile teacher-lab/training/iteration2_readiness_smoke.py
           node --check teacher-lab/training/export_failure_remediation.mjs
       - name: Validate failure to reviewed Gold and regression gate
         run: python teacher-lab/training/failure_learning_smoke.py
+      - name: Validate iteration 2 readiness gate
+        run: python teacher-lab/training/iteration2_readiness_smoke.py
       - name: Validate multi-candidate comparison contract
         run: python teacher-lab/training/candidate_comparison_smoke.py
       - name: Validate Data Factory v2 dedupe and balanced pilot
