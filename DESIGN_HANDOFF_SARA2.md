@@ -1,8 +1,8 @@
 # Sara 2 — design handoff
 
-Fresh-read baseline for the current pass: `main` at `d1ea3bce47a3a5090288dfb4c9ae8f6145b314b0` on 2026-09-14.
+Fresh-read baseline for the current pass: `main` at `b8f90f5068a42b66fbf5306a82a5441a644ace76` on 2026-09-14.
 
-Current design direction remains Bay-first and conclusion-first. The Roxy/Sara design series is established: Home, conversation panel, approved Bay visual/states, recommendation hierarchy, catalog hints, runtime states, motion polish, cold-start guard, verdict-to-purchase skeleton, truthful retailer handoff, verdict confidence, progressive long-basket disclosure, mobile composer hardening, network recovery, return continuity after retailer/browser navigation, and post-purchase truth hardening.
+Current design direction remains Bay-first and conclusion-first. The Roxy/Sara design series is established: Home, conversation panel, approved Bay visual/states, recommendation hierarchy, catalog hints, runtime states, motion polish, cold-start guard, verdict-to-purchase skeleton, truthful retailer handoff, verdict confidence, progressive long-basket disclosure, mobile composer hardening, network recovery, return continuity after retailer/browser navigation, post-purchase truth hardening, and long product-name resilience on narrow screens.
 
 Purchase truth remains strict: Votonobay redirects rather than claiming automatic retailer-cart transfer, the retailer remains the authority for final price/availability, and user-marked completion is not proof of payment, order creation or delivery.
 
@@ -15,6 +15,8 @@ Return continuity handles a different lifecycle boundary: leaving Votonobay for 
 The post-purchase truth pass closes a P1 evidence-UX hole in `purchase-proof.js`: the old dialog prefilled the planned basket total into “Фактически заплатил”, so a user could press confirm without actually reporting the charged amount and accidentally turn Bay's plan estimate into a self-reported purchase fact. The dialog now keeps the planned amount visibly approximate and separate, leaves the actual-total field empty, and the underlying save path fails closed unless a positive explicit actual total is provided. Self-reported totals stay labelled as user confirmation, receipt uploads remain pending rather than auto-verified, and the dialog now has modal semantics, focus trapping/restoration, Escape handling and mobile-safe controls. Dedicated desktop + Android browser QA guards this boundary.
 
 The split-decision pass follows the hardened REG-004 optimizer semantics merged in PR #370. When two stores look cheaper on item prices but real extra-stop friction is unknown, the comparison screen no longer goes silent: Bay explicitly says it will not call the nominal difference a real saving. When known second-stop cost consumes the item-price difference, Bay explicitly says one store wins overall. This layer only reads `TDBasketSplit` output; it does not alter ranking, arithmetic, basket state, retailer scope or truth semantics. The existing positive split recommendation and truthful two-store handoff stay untouched.
+
+The long-product-name pass is merged in PR #400 and guarded as REG-022. Decision-critical names stay complete in Bay basket rows, comparison WHY/trust rows and retailer handoff rows. The layout permits safe wrapping even for a long uninterrupted brand/retailer-like token, reserves price/action space, and never solves overflow by ellipsis or truncation. Dedicated browser QA covers 320×760, Android-sized 412×915 and desktop. The first merged-state run hit the pre-existing return-continuity desktop focus flake; rerunning the same browser job passed every step, including long names and return continuity.
 
 The golden shopping core fix from PR #370 is merged. Further design work should still prefer truth/reliability defects that can materially mislead or block the current loop over cosmetic polish, and should not reopen shopping-kernel semantics already owned by Vi.
 
