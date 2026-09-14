@@ -27,13 +27,16 @@ def main():
               import('./votonobay-roxy-long-basket-v1.js?v=qa').then(()=>done(true)).catch(e=>done(String(e)));
             """)
             if result is not True: raise AssertionError(result)
-            metrics=driver.execute_script("""
+            driver.execute_script("""
               const host=document.createElement('section');
               host.className='td-ai-summary';
               host.innerHTML='<div class="td-ai-summary-head"><b>Корзина · 10</b></div>'+Array.from({length:10},(_,i)=>`<div class="td-ai-line"><span>Товар ${i+1}</span><b>${i+1} ₽</b></div>`).join('')+'<div class="td-ai-total"><span>Итого</span><strong>55 ₽</strong></div>';
               document.body.appendChild(host);
               TDRoxyLongBasketV1.decorate(host);
-              const button=host.querySelector('.roxy-long-basket-toggle');
+            """)
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return (document.querySelector('.roxy-long-basket-toggle')?.getBoundingClientRect().height||0)>=43.5"))
+            metrics=driver.execute_script("""
+              const host=document.querySelector('.td-ai-summary'),button=host.querySelector('.roxy-long-basket-toggle');
               return {visible:[...host.querySelectorAll(':scope > .td-ai-line')].filter(x=>!x.hidden).length,text:button?.textContent||'',expanded:button?.getAttribute('aria-expanded')||'',height:button?.getBoundingClientRect().height||0};
             """)
             if metrics['visible']!=expected: failures.append(f"{name}: expected {expected} visible, got {metrics}")
