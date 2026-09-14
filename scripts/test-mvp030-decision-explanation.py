@@ -25,7 +25,7 @@ def main():
     try:
         d.get(BASE_URL)
         WebDriverWait(d,20).until(lambda x:x.execute_script("return document.readyState")=='complete')
-        WebDriverWait(d,20).until(lambda x:x.execute_script("return !!window.TDShoppingState"))
+        WebDriverWait(d,20).until(lambda x:x.execute_script("return !!window.TDShoppingState && !!window.TDRoxyPurchaseSkeletonV1"))
         result=d.execute_async_script("""
           const done=arguments[arguments.length-1];
           (window.TDComparisonResultV2?Promise.resolve():import('./comparison-result-v2.js?v=qa-mvp030'))
@@ -53,7 +53,8 @@ def main():
           },'MVP-030 equal-cost evidence tie');
           TDComparisonResultV2.open();
         """)
-        WebDriverWait(d,10).until(lambda x:x.execute_script("return !!document.querySelector('.td-compare-v2 .td-compare-verdict')"))
+        WebDriverWait(d,10).until(lambda x:x.execute_script("return !!document.querySelector('.td-compare-v2 .td-compare-verdict[data-mvp030-truth=\"1\"]')"))
+        WebDriverWait(d,10).until(lambda x:x.execute_script("return !!document.querySelector('.td-compare-why .roxy-mvp030-facts[data-mvp030-truth=\"1\"]')"))
         data=d.execute_script("""
           const verdict=document.querySelector('.td-compare-verdict')?.textContent?.trim()||'';
           const why=document.querySelector('.td-compare-why')?.textContent?.replace(/\s+/g,' ').trim()||'';
