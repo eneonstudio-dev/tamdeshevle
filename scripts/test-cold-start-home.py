@@ -224,7 +224,7 @@ def static_contract(failures: list[str]) -> None:
     roxy = (ROOT / "votonobay-roxy-home-v1.js").read_text(encoding="utf-8")
     if "setTimeout(release,1800)" in source:
         failures.append("source: legacy 1.8s fail-open still exposes intermediate UI")
-    for token in ("td:roxy-home-ready", "canonicalHomeReady", "data-roxy-home-preload", "Votonobay\\A Бай готовит главную"):
+    for token in ("td:roxy-home-ready", "canonicalHomeReady", "data-roxy-home-preload", "Votonobay · Бай готовит главную"):
         if token not in source:
             failures.append(f"source: cold-start canonical barrier token missing: {token}")
     for token in ("__TDRoxyHomeV1", "td:roxy-home-ready", "roxyHomeReady"):
