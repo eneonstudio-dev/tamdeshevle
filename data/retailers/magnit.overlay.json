@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-14T12:36:29.647Z",
+  "checked_at": "2026-09-14T12:47:00.713Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
@@ -175,8 +175,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000109163",
+      "name": "Чай черный Greenfield Blueberry Nights 25пак",
+      "retailer_product_id": "1000098747",
       "reason": "no_rule_match"
     },
     {
@@ -195,13 +195,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Blueberry Nights 25пак",
-      "retailer_product_id": "1000098747",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Агрокомплекс пастеризованное 3.2% 900мл",
-      "retailer_product_id": "1000117012",
+      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000109163",
       "reason": "no_rule_match"
     },
     {
@@ -215,8 +210,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
-      "retailer_product_id": "1000143304",
+      "name": "Молоко Агрокомплекс пастеризованное 3.2% 900мл",
+      "retailer_product_id": "1000117012",
       "reason": "no_rule_match"
     },
     {
@@ -225,8 +220,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
-      "retailer_product_id": "1000143306",
+      "name": "Чай черный Ahmad Tea клубника-сливки 25пак 37.5г",
+      "retailer_product_id": "1000388022",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
+      "retailer_product_id": "1000143304",
       "reason": "no_rule_match"
     },
     {
@@ -235,8 +235,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
-      "retailer_product_id": "1000244512",
+      "name": "Чай черный Ahmad Tea Малиновое лакомство 25пак",
+      "retailer_product_id": "1000389629",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
+      "retailer_product_id": "1000143306",
       "reason": "no_rule_match"
     },
     {
@@ -250,33 +255,18 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Ahmad Tea клубника-сливки 25пак 37.5г",
-      "retailer_product_id": "1000388022",
+      "name": "Чай черный Ahmad Tea Blackcurrant Burst смородина 25пак",
+      "retailer_product_id": "1000451703",
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 3.4-6% 900мл",
-      "retailer_product_id": "1000253310",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
+      "retailer_product_id": "1000172831",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "retailer_product_id": "1000294726",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Ahmad Tea Малиновое лакомство 25пак",
-      "retailer_product_id": "1000389629",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
-      "retailer_product_id": "1000304495",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "retailer_product_id": "1000295084",
+      "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
+      "retailer_product_id": "1000226315",
       "reason": "no_rule_match"
     },
     {
@@ -285,13 +275,28 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000304501",
+      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
+      "retailer_product_id": "1000244512",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310437",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "retailer_product_id": "1000294726",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Краснодарский Гост Ручной сбор Чабрец 25пак",
+      "retailer_product_id": "1000551003",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Агрокомплекс пастеризованное 3.4-6% 900мл",
+      "retailer_product_id": "1000253310",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "retailer_product_id": "1000295084",
       "reason": "no_rule_match"
     },
     {
@@ -300,13 +305,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
-      "retailer_product_id": "1000427388",
+      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "retailer_product_id": "1000304495",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310438",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310437",
       "reason": "no_rule_match"
     },
     {
@@ -315,8 +320,23 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
-      "retailer_product_id": "1000450019",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310438",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
+      "retailer_product_id": "1039990273",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
+      "retailer_product_id": "1000427388",
       "reason": "no_rule_match"
     },
     {
@@ -325,8 +345,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Golden Ceylon 100г",
-      "retailer_product_id": "1032420005",
+      "name": "Чай черный Greenfield Golden Ceylon 25пак",
+      "retailer_product_id": "1524200012",
       "reason": "no_rule_match"
     },
     {
@@ -340,8 +360,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
-      "retailer_product_id": "1039990273",
+      "name": "Чай черный Greenfield Earl Grey Fantasy 25пак",
+      "retailer_product_id": "1524200028",
       "reason": "no_rule_match"
     },
     {
@@ -355,8 +375,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Golden Ceylon 25пак",
-      "retailer_product_id": "1524200012",
+      "name": "Чай черный Greenfield Spring Melody 25пак",
+      "retailer_product_id": "1524200089",
       "reason": "no_rule_match"
     },
     {
@@ -370,8 +390,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Earl Grey Fantasy 25пак",
-      "retailer_product_id": "1524200028",
+      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
+      "retailer_product_id": "1524200094",
       "reason": "no_rule_match"
     },
     {
@@ -382,16 +402,6 @@
     {
       "name": "Хлеб Кукурузный с сыром 400г",
       "retailer_product_id": "1119990141",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Greenfield Spring Melody 25пак",
-      "retailer_product_id": "1524200089",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Коровка из Кореновки пастеризованное 2.7% 900г",
-      "retailer_product_id": "1829990260",
       "reason": "no_rule_match"
     }
   ],
@@ -432,14 +442,14 @@
     },
     {
       "sku": "carrot",
-      "name": "Хлеб Злаковый с морковью ржано-пшеничный Краснодарский хлебозавод №6 250г",
-      "retailer_product_id": "1000207769",
-      "source_url": "https://magnit.ru/product/1000207769-khleb_zlakovyy_s_morkovyu_rzhan_pshen_250g_p_up_krasnodarkhz_6?shopCode=770105&shopType=1",
-      "price_rub": 81.99,
+      "name": "Морковь",
+      "retailer_product_id": "9072651201",
+      "source_url": "https://magnit.ru/product/9072651201-morkov?shopCode=770105&shopType=1",
+      "price_rub": 25.05,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 250,
+        "value": 700,
         "unit": "g"
       },
       "requested_pack": {
@@ -482,20 +492,20 @@
       }
     },
     {
-      "sku": "carrot",
-      "name": "Морковь",
-      "retailer_product_id": "9072651201",
-      "source_url": "https://magnit.ru/product/9072651201-morkov?shopCode=770105&shopType=1",
-      "price_rub": 25.05,
+      "sku": "milk",
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 930мл",
+      "retailer_product_id": "1000035016",
+      "source_url": "https://magnit.ru/product/1000035016-moloko_domik_v_derevne_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1",
+      "price_rub": 84.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 700,
-        "unit": "g"
+        "value": 930,
+        "unit": "ml"
       },
       "requested_pack": {
         "value": 1000,
-        "unit": "g"
+        "unit": "ml"
       }
     },
     {
