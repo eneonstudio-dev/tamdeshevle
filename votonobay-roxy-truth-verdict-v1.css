@@ -1,0 +1,12 @@
+html body .td-compare-v2 .roxy-truth-verdict{display:flex;align-items:flex-start;gap:9px;width:max-content;max-width:min(390px,100%);margin:10px 0 2px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:13px;background:rgba(255,255,255,.028);color:#d9e8df;font-size:11px;line-height:1.35}
+html body .td-compare-v2 .roxy-truth-verdict>i{flex:0 0 auto;width:8px;height:8px;margin-top:4px;border-radius:50%;background:#8c9a92;box-shadow:0 0 0 4px rgba(140,154,146,.08)}
+html body .td-compare-v2 .roxy-truth-verdict>span{display:grid;gap:2px;min-width:0}
+html body .td-compare-v2 .roxy-truth-verdict b{font-size:11px;color:#eafff3}
+html body .td-compare-v2 .roxy-truth-verdict small{font-size:10px;color:#8fa397;line-height:1.4}
+html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="verified"]{border-color:rgba(43,228,135,.15);background:rgba(43,228,135,.055)}
+html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="verified"]>i{background:#2be487;box-shadow:0 0 0 4px rgba(43,228,135,.08)}
+html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="mixed"],html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="uncertain"],html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="unknown"]{border-color:rgba(255,217,134,.16);background:rgba(255,217,134,.045)}
+html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="mixed"]>i,html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="uncertain"]>i,html body .td-compare-v2 .roxy-truth-verdict[data-truth-state="unknown"]>i{background:#ffd986;box-shadow:0 0 0 4px rgba(255,217,134,.08)}
+html body .td-compare-v2 .td-compare-hero[data-roxy-truth-state]:not([data-roxy-truth-state="verified"]) .td-compare-summary>strong{font-variant-numeric:tabular-nums}
+@media(max-width:700px){html body .td-compare-v2 .roxy-truth-verdict{width:100%;max-width:100%;padding:8px 9px;margin-top:9px}}
+@media(prefers-reduced-motion:reduce){html body .td-compare-v2 .roxy-truth-verdict,html body .td-compare-v2 .roxy-truth-verdict *{transition:none!important;animation:none!important}}
