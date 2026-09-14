@@ -36,5 +36,7 @@ jobs:
         run: node scripts/test-bai-shopping-journey.mjs
       - name: Bay handoff end to end
         run: node scripts/test-bai-handoff-e2e.mjs
+      - name: Sara 2 release UX acceptance
+        run: node scripts/test-sara2-release-acceptance.mjs
       - name: Mobile Bay-first end to end
         run: node scripts/test-mobile-bay-first-e2e.mjs
