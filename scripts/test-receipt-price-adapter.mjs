@@ -8,7 +8,7 @@ vm.runInContext(fs.readFileSync(new URL("../comparison-engine.js", import.meta.u
 vm.runInContext(fs.readFileSync(new URL("../receipt-price-adapter.js", import.meta.url), "utf8"), context);
 
 const products = [{ id: "milk", prices: {}, priceMeta: {} }];
-const verified = {
+const receiptOnly = {
   product_id: "milk",
   store_id: "pyat",
   price: 79,
@@ -22,10 +22,22 @@ const verified = {
   proof_ref: "receipt-1"
 };
 
-let result = context.window.TDReceiptPriceAdapter.applyCandidate(products, verified);
+let result = context.window.TDReceiptPriceAdapter.applyCandidate(products, receiptOnly);
+assert.equal(result.applied, false, "receipt price alone must not enter live store pricing");
+assert.equal(result.reason, "current_availability_not_verified");
+assert.equal(products[0].prices.pyat, undefined);
+
+const verified = {
+  ...receiptOnly,
+  availability: "in_stock",
+  availability_verified: true
+};
+result = context.window.TDReceiptPriceAdapter.applyCandidate(products, verified);
 assert.equal(result.applied, true);
 assert.equal(products[0].prices.pyat, 79);
 assert.equal(products[0].priceMeta.pyat.shelf.kind, "receipt");
+assert.equal(products[0].priceMeta.pyat.shelf.availability, "in_stock");
+assert.equal(products[0].priceMeta.pyat.shelf.availability_verified, true);
 assert.equal(context.window.TDCompare.isVerifiedPrice(products[0], "pyat", "shelf"), true);
 
 const weak = structuredClone(verified);
@@ -47,11 +59,18 @@ assert.equal(result.applied, false);
 assert.equal(result.reason, "fresh_retailer_price_has_priority");
 assert.equal(retailerProduct[0].prices.pyat, 55);
 
-const forgedMeta = {
+const forgedMetaWithoutAvailability = {
   id: "fake",
   prices: { pyat: 10 },
-  priceMeta: { pyat: { shelf: { kind: "receipt", trust: "verified_receipt", freshness: "fresh", scope_verified: true, proof_verified: false, identity_verified: true } } }
+  priceMeta: { pyat: { shelf: { kind: "receipt", trust: "verified_receipt", freshness: "fresh", scope_verified: true, proof_verified: true, identity_verified: true } } }
 };
-assert.equal(context.window.TDCompare.isVerifiedPrice(forgedMeta, "pyat", "shelf"), false);
+assert.equal(context.window.TDCompare.isVerifiedPrice(forgedMetaWithoutAvailability, "pyat", "shelf"), false, "forged receipt meta cannot bypass current availability proof");
 
-console.log("receipt price adapter tests passed");
+const forgedMetaWithoutProof = {
+  id: "fake2",
+  prices: { pyat: 10 },
+  priceMeta: { pyat: { shelf: { kind: "receipt", trust: "verified_receipt", freshness: "fresh", scope_verified: true, proof_verified: false, identity_verified: true, availability: "in_stock", availability_verified: true } } }
+};
+assert.equal(context.window.TDCompare.isVerifiedPrice(forgedMetaWithoutProof, "pyat", "shelf"), false);
+
+console.log("receipt price adapter tests passed: live ranking requires scope, proof, identity and independently verified current availability");
