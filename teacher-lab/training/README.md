@@ -33,5 +33,22 @@ If a candidate was trained successfully but the evaluation harness itself later 
 
 If re-evaluation still fails, run `analyze_candidate_failures.py` over the held-out Gold and candidate predictions. It emits failure clusters plus a pending human-review queue. Those rows always have `training_allowed: false`; failure analysis never auto-promotes model outputs into Gold.
 
+## Compare candidates on one frozen holdout
+
+`compare_candidate_runs.py` compares baseline and any number of later candidate runs without changing the promotion gate. Every run must contain exactly the same held-out IDs and its benchmark metrics must cover the full holdout; missing or extra prediction IDs fail closed.
+
+Example:
+
+```bash
+python teacher-lab/training/compare_candidate_runs.py \
+  --eval-gold /path/eval-gold.jsonl \
+  --run baseline /path/baseline-predictions.jsonl /path/baseline-metrics.json \
+  --run candidate-v1 /path/candidate-v1-predictions.jsonl /path/candidate-v1-metrics.json \
+  --run candidate-v2 /path/candidate-v2-predictions.jsonl /path/candidate-v2-metrics.json \
+  --out-dir /path/comparison
+```
+
+The report includes parse coverage, benchmark metrics, direction-normalized improvements versus the first run, failure labels, and per-category pass rates. It writes both machine-readable `candidate-comparison.json` and a compact `candidate-comparison.md`. The comparison is diagnostic only: promotion still requires the existing promotion gate.
+
 Long-term independence:
 Gold Dataset ownership and Votonobay-specific training should grow over time. A later phase may train new weights from scratch once the dataset and compute budget justify it.
