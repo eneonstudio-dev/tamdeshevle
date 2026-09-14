@@ -22,6 +22,8 @@ jobs:
         run: node scripts/test-mvp002-remove-dairy.mjs
       - name: Canonical product replacement
         run: node scripts/test-mvp003-replace-turkey.mjs
+      - name: Healthy no-sugar constraint
+        run: node scripts/test-mvp011-healthy-no-sugar.mjs
       - name: Canonical convenience priority
         run: node scripts/test-mvp012-convenience-priority.mjs
       - name: Same-basket retailer reprojection
