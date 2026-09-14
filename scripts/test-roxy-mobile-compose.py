@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 import os
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
@@ -38,7 +37,7 @@ def main():
               document.body.appendChild(root);
               TDRoxyMobileComposeV1.decorate(root);
               const area=root.querySelector('textarea'),main=root.querySelector('.td-ai-main');
-              area.value=Array.from({length:18},(_,i)=>`длинная строка ${i+1}`).join('\n');
+              area.value=Array.from({length:18},(_,i)=>`длинная строка ${i+1}`).join('\\n');
               area.dispatchEvent(new Event('input',{bubbles:true}));
               main.scrollTop=200;
               const state=TDRoxyMobileComposeV1.snapshot(main);
