@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import importlib.util
+import importlib.util,json
 from pathlib import Path
 
 MODULE=Path(__file__).with_name('kaggle_t4x2_teachers.py')
@@ -16,4 +16,7 @@ loaded=mod.load_teachers(fake_loader)
 assert seen==[('deepseek_r1_distill_qwen_7b',0),('qwen3_8b',1)],seen
 assert list(loaded)==['deepseek_r1_distill_qwen_7b','qwen3_8b']
 assert loaded['deepseek_r1_distill_qwen_7b'][1]=='model:deepseek_r1_distill_qwen_7b'
-print('Kaggle teacher load order and pinned revisions passed.')
+notebook=Path(__file__).resolve().parents[1]/'training/bai_qwen_teacher_kaggle_pilot.ipynb'
+text=notebook.read_text(encoding='utf-8'); json.loads(text)
+assert 'data_factory_v2.py' in text and 'CALIBRATION PASS' in text
+print('Kaggle teacher load order, pinned revisions, and pilot notebook contract passed.')
