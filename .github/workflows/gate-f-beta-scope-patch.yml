@@ -19,8 +19,9 @@ jobs:
 
           def replace_once(path, old, new):
               p=Path(path); text=p.read_text()
-              if text.count(old)!=1:
-                  raise SystemExit(f"{path}: expected one match, got {text.count(old)}")
+              count=text.count(old)
+              if count!=1:
+                  raise SystemExit(f"{path}: expected one match for {old[:48]!r}, got {count}")
               p.write_text(text.replace(old,new,1))
 
           replace_once('index.html',
@@ -31,8 +32,8 @@ jobs:
             '  const config=()=>window.TD_SUPABASE||null;\n  const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));',
             '  const config=()=>window.TD_SUPABASE||null;\n  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));\n  const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));')
           replace_once('auth-client.js',
-            '  function configured(){const c=config();return !!(c&&/^https:\\\/\\\\/.+\\\\.supabase\\\\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}',
-            '  function configured(){if(!releaseEnabled("remoteAccount"))return false;const c=config();return !!(c&&/^https:\\\/\\\\/.+\\\\.supabase\\\\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}')
+            '  function configured(){const c=config();return !!(',
+            '  function configured(){if(!releaseEnabled("remoteAccount"))return false;const c=config();return !!(')
           replace_once('auth-client.js',
             '  async function cloudOperation(action){\n    await init();if(!user())throw new Error("SIGN_IN_REQUIRED");',
             '  async function cloudOperation(action){\n    if(!releaseEnabled("cloudSync"))throw new Error("RELEASE_SCOPE_DISABLED");\n    await init();if(!user())throw new Error("SIGN_IN_REQUIRED");')
@@ -41,8 +42,8 @@ jobs:
             '  async function submitReceiptEvidence(input){if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");return cloudOperation(async uid=>{')
 
           replace_once('account-hub.js',
-            '  const esc=v=>String(v==null?"":v).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\\"":"&quot;","\'":"&#39;"}[c]));',
-            '  const esc=v=>String(v==null?"":v).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\\"":"&quot;","\'":"&#39;"}[c]));\n  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));')
+            '  const money=v=>Math.round(Number(v)||0).toLocaleString("ru-RU")+" ₽";',
+            '  const money=v=>Math.round(Number(v)||0).toLocaleString("ru-RU")+" ₽";\n  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));')
           marker='  let previousBodyOverflow="";'
           guard='''  function applyReleaseScope(root){\n    if(!root)return;\n    if(!releaseEnabled("remoteAccount")){\n      const auth=root.querySelector("[data-auth]");\n      if(auth){auth.removeAttribute("data-auth");auth.disabled=true;auth.textContent="Аккаунт отключён в закрытой бете";}\n    }\n    if(!releaseEnabled("cloudSync")){\n      const actions=root.querySelector(".td-cloud-actions");\n      const card=actions&&actions.closest(".td-account-card");\n      if(actions)actions.remove();\n      const status=card&&card.querySelector(".td-cloud-status");\n      if(status)status.textContent="Закрытая бета: облачная синхронизация отключена. Данные остаются только на этом устройстве.";\n    }\n  }\n'''
           replace_once('account-hub.js', marker, guard+marker)
