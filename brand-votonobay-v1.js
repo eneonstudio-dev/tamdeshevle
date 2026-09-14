@@ -59,11 +59,29 @@
     });
   }
 
+  function tuneAccountBrand(){
+    document.querySelectorAll(".td-account-card h3").forEach(title=>{
+      if(/^Там дешевле сэкономил$/i.test(title.textContent.trim()))title.textContent="Сэкономлено с Votonobay";
+    });
+    document.querySelectorAll(".td-account-row span").forEach(label=>{
+      if(/^Подписка Там Дешевле Plus$/i.test(label.textContent.trim()))label.textContent="Подписка Votonobay Plus";
+    });
+  }
+
+  function tuneLegacyCopy(){
+    document.querySelectorAll(".sale-title").forEach(node=>{
+      if(/Там Дешевле/i.test(node.textContent))node.textContent="Votonobay продаётся";
+    });
+    document.querySelectorAll(".hint").forEach(node=>{
+      if(/Тамдешевле сам ничего не везёт/i.test(node.textContent))node.textContent=node.textContent.replace(/Тамдешевле/gi,"Votonobay");
+    });
+  }
+
   function decorate(){
     if(typeof document==="undefined")return false;
     ensureCss();removeLegacyBrand();tuneMetadata();
     document.body?.classList.add("td-votonobay");
-    tuneV2Brand();tuneInnerBrand();
+    tuneV2Brand();tuneInnerBrand();tuneAccountBrand();tuneLegacyCopy();
     try{localStorage.setItem("td:brand","votonobay");}catch{}
     return true;
   }
