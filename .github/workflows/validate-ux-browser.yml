@@ -11,6 +11,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
+      - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - ".github/workflows/validate-ux-browser.yml"
@@ -26,6 +27,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
+      - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - ".github/workflows/validate-ux-browser.yml"
@@ -74,6 +76,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-handoff.py
+      - name: Validate Roxy long basket
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-long-basket.py
       - name: Validate Roxy catalog hint
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
