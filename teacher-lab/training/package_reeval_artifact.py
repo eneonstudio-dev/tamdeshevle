@@ -15,10 +15,10 @@ REJECTED_REQUIRED=(
     'failure-analysis/review-candidates.jsonl'
 )
 
-def file_inventory(root):
-    root=Path(root)
+def file_inventory(root,exclude=()):
+    root=Path(root); excluded=set(exclude)
     return [{'path':p.relative_to(root).as_posix(),'sha256':sha256_file(p),'bytes':p.stat().st_size}
-            for p in sorted(root.rglob('*')) if p.is_file()]
+            for p in sorted(root.rglob('*')) if p.is_file() and p.relative_to(root).as_posix() not in excluded]
 
 def validate(reeval_dir,eval_gold,adapter):
     reeval_dir=Path(reeval_dir).resolve(); eval_gold=Path(eval_gold).resolve(); adapter=Path(adapter).resolve()
@@ -55,8 +55,7 @@ def package(reeval_dir,eval_gold,adapter,out_prefix,source_ref=''):
         'promotion_pass':bool((manifest.get('promotion') or {}).get('pass')),
         'release_created':False,'next_step':'staged_release_review' if manifest['status']=='REEVAL_PASS' else 'failure_review_then_iteration_2',
     }
-    (work/'evidence-manifest.json').write_text(json.dumps(evidence_manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    evidence_manifest['files']=file_inventory(work)
+    evidence_manifest['files']=file_inventory(work,exclude={'evidence-manifest.json'})
     (work/'evidence-manifest.json').write_text(json.dumps(evidence_manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     evidence_zip=Path(shutil.make_archive(str(prefix)+'-evidence','zip',root_dir=work))
     adapter_zip=Path(shutil.make_archive(str(prefix)+'-adapter','zip',root_dir=adapter.parent,base_dir=adapter.name))
