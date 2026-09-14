@@ -1,9 +1,116 @@
-// Public Supabase browser configuration.
-// Publishable browser keys are safe for client use; never expose service_role here.
-window.TD_SUPABASE = window.TD_SUPABASE || {
-  url: "https://pdsxeddldrmehdqaaksl.supabase.co",
-  anonKey: "sb_publishable_PDQ3o1sAFvGFw2MelUNw0g_Vr2Vd7vw"
-};
+// Gate F closed-beta release scope: personal account/cloud/receipt-photo data stays on-device
+// until a separate privacy/legal review approves re-enabling those optional flows.
+window.TD_RELEASE_SCOPE = Object.freeze({
+  channel: "closed-beta",
+  personalDataMode: "local-only",
+  accountCloudEnabled: false,
+  receiptProofUploadEnabled: false,
+  reason: "privacy-legal-review-pending"
+});
+
+// Fail closed: do not initialize the personal-data Supabase browser client in closed beta.
+// The backend/auth implementation remains in the repository and under regression coverage for future review.
+window.TD_SUPABASE = null;
+
+(function enforceClosedBetaLocalOnly(scope) {
+  "use strict";
+  if (!scope || scope.personalDataMode !== "local-only") return;
+
+  const disabledAsync = async () => { throw new Error("CLOSED_BETA_LOCAL_ONLY"); };
+  let authValue = window.TDAuth || null;
+
+  function lockAuth(value) {
+    if (!value || typeof value !== "object") return value;
+    value.configured = () => false;
+    value.user = () => null;
+    value.signInWithEmail = disabledAsync;
+    value.signOut = async () => {};
+    value.syncLocalToCloud = disabledAsync;
+    value.hydrateLocalFromCloud = disabledAsync;
+    value.cloudSummary = async () => null;
+    value.submitReceiptEvidence = null;
+    value.receiptQueue = null;
+    value.receiptPriceHistory = null;
+    value.isReceiptReviewer = null;
+    value.receiptReviewQueue = null;
+    value.receiptProofUrl = null;
+    value.reviewReceipt = null;
+    value.cloudStatus = () => ({
+      status: "local-only",
+      message: "Закрытая бета: данные остаются только на этом устройстве."
+    });
+    return value;
+  }
+
+  try {
+    Object.defineProperty(window, "TDAuth", {
+      configurable: true,
+      enumerable: true,
+      get() { return authValue; },
+      set(value) { authValue = lockAuth(value); }
+    });
+    if (authValue) authValue = lockAuth(authValue);
+  } catch (error) {
+    console.warn("[Gate F] closed-beta auth lock failed closed", error);
+    window.TD_SUPABASE = null;
+  }
+
+  const ACCOUNT_STATUS = "Закрытая бета · данные хранятся только на этом устройстве";
+  const CLOUD_STATUS = "Облачная синхронизация отключена в закрытой бете до завершения privacy/legal review.";
+  const RECEIPT_STATUS = "Черновик сохранён на устройстве. Отправка фото чека в облако отключена в закрытой бете.";
+
+  function setText(node, text) {
+    if (node && node.textContent !== text) node.textContent = text;
+  }
+
+  function disable(button, label) {
+    if (!button) return;
+    if (!button.disabled) button.disabled = true;
+    if (button.getAttribute?.("aria-disabled") !== "true") button.setAttribute?.("aria-disabled", "true");
+    if (label) setText(button, label);
+  }
+
+  function applyLocalOnlyUi() {
+    if (typeof document === "undefined") return;
+    for (const root of document.querySelectorAll?.(".td-account") || []) {
+      setText(root.querySelector?.(".td-account-status"), ACCOUNT_STATUS);
+      setText(root.querySelector?.(".td-cloud-status"), CLOUD_STATUS);
+      disable(root.querySelector?.("[data-auth]"), "Локальный режим");
+      disable(root.querySelector?.("[data-cloud-save]"));
+      disable(root.querySelector?.("[data-cloud-restore]"));
+    }
+    for (const button of document.querySelectorAll?.(".receipt-upload") || []) {
+      disable(button, "Отправка фото отключена в закрытой бете");
+    }
+  }
+
+  window.addEventListener?.("td:auth-requested", event => {
+    event.stopImmediatePropagation?.();
+    applyLocalOnlyUi();
+  });
+  window.addEventListener?.("td:account-opened", () => Promise.resolve().then(applyLocalOnlyUi));
+  window.addEventListener?.("td:receipt-draft-saved", () => Promise.resolve().then(() => {
+    applyLocalOnlyUi();
+    const status = document.querySelector?.(".receipt-entry-status");
+    if (status) {
+      status.hidden = false;
+      status.className = "receipt-entry-status ok";
+      setText(status, RECEIPT_STATUS);
+    }
+  }));
+
+  function startUiLock() {
+    applyLocalOnlyUi();
+    if (typeof MutationObserver !== "function" || !document?.documentElement) return;
+    const observer = new MutationObserver(() => applyLocalOnlyUi());
+    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["disabled"] });
+  }
+
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startUiLock, { once: true });
+    else startUiLock();
+  }
+})(window.TD_RELEASE_SCOPE);
 
 // Bai learning data is isolated in a separate Supabase project.
 // These Edge Functions verify the existing TD auth session server-side; no learning-project key is exposed here.
@@ -29,8 +136,8 @@ try {
   window.TD_BAI_BRAIN_ALLOWED_ORIGINS = [...new Set([...existing, trainedOrigin])];
 } catch {}
 
-// Gate F participation boundary. The capture guards are registered synchronously before
-// auth/cloud handlers, while the small disclosure UI is loaded from same-origin code.
+// Future re-enable path: per-action participation disclosure remains implemented, but the
+// closed-beta local-only scope above prevents these personal-data actions from being enabled.
 window.TDUserDataParticipationReady = window.TDUserDataParticipationReady || import("./votonobay-user-data-participation-v1.js?v=20260914-v1")
   .then(()=>window.TDUserDataParticipation||null)
   .catch(error=>{console.warn("[Gate F] participation UI failed to load",error);return null;});
