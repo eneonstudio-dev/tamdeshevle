@@ -3,33 +3,9 @@
   "retailer": "pyat",
   "store_id": "pyat_msk_catalog",
   "city": "msk",
-  "checked_at": "2026-09-14T10:32:53.072Z",
-  "prices": {
-    "eggs_c1": 96.99
-  },
-  "matched": [
-    {
-      "sku": "eggs_c1",
-      "name": "Яйцо куриное Село Зеленое Деревенское С1 10шт.",
-      "retailer_product_id": "proshoper-яи-цо-куриное-село-зеленое-деревенское-с1-10шт-30",
-      "price_rub": 96.99,
-      "old_price_rub": 109.99,
-      "promo": true,
-      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
-      "confidence": 0.9,
-      "method": "conservative_rule",
-      "comparison_eligible": true,
-      "source_pack": {
-        "value": 10,
-        "unit": "pcs"
-      },
-      "requested_pack": {
-        "value": 10,
-        "unit": "pcs"
-      },
-      "availability": "in_stock"
-    }
-  ],
+  "checked_at": "2026-09-14T10:50:31.623Z",
+  "prices": {},
+  "matched": [],
   "unmatched": [
     {
       "name": "Арбуз отечественный",
@@ -2085,7 +2061,7 @@
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "price_rub": 49.99,
       "eligible": false,
-      "reason": "multipack_unconfirmed"
+      "reason": "promo_eligibility_unverified"
     },
     {
       "sku": "potato",
@@ -2094,7 +2070,16 @@
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "price_rub": 79.99,
       "eligible": false,
-      "reason": "pack_missing"
+      "reason": "promo_eligibility_unverified"
+    },
+    {
+      "sku": "eggs_c1",
+      "name": "Яйцо куриное Село Зеленое Деревенское С1 10шт.",
+      "retailer_product_id": "proshoper-яи-цо-куриное-село-зеленое-деревенское-с1-10шт-30",
+      "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
+      "price_rub": 96.99,
+      "eligible": false,
+      "reason": "promo_eligibility_unverified"
     },
     {
       "sku": "buckwheat",
@@ -2103,15 +2088,7 @@
       "source_url": "https://mos.proshoper.ru/actions/pyaterochka/",
       "price_rub": 94.99,
       "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 900,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 800,
-        "unit": "g"
-      }
+      "reason": "promo_eligibility_unverified"
     }
   ],
   "channel": "regional_catalog",
