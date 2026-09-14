@@ -1,0 +1,106 @@
+/* Roxy purchase skeleton: verdict -> why -> trade-off -> action -> alternatives -> details. */
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-v2-shell>main{
+  display:flex!important;
+  flex-direction:column!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-hero{
+  min-height:218px!important;
+  padding-bottom:24px!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-bay img{
+  object-fit:cover!important;
+  object-position:50% 47%!important;
+  border-radius:32px!important;
+  -webkit-mask-image:radial-gradient(ellipse 68% 68% at 50% 49%,#000 52%,transparent 90%)!important;
+  mask-image:radial-gradient(ellipse 68% 68% at 50% 49%,#000 52%,transparent 90%)!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-why{
+  order:2!important;
+  margin-top:14px!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff,
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action{
+  margin-top:12px!important;
+  padding:16px 17px!important;
+  border:1px solid rgba(226,255,237,.06)!important;
+  border-radius:20px!important;
+  background:rgba(255,255,255,.018)!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff{
+  border-color:rgba(255,208,112,.105)!important;
+  background:linear-gradient(145deg,rgba(255,208,112,.04),rgba(255,255,255,.014))!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff .td-compare-section-head small{
+  color:#b99a5e!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff .td-compare-verdict{
+  max-width:none!important;
+  margin:0!important;
+  color:#b7ad91!important;
+  font-size:11px!important;
+  line-height:1.55!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action{
+  border-color:rgba(79,245,154,.14)!important;
+  background:linear-gradient(145deg,rgba(79,245,154,.065),rgba(255,255,255,.018))!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action .td-compare-hero-actions{
+  display:grid!important;
+  grid-template-columns:minmax(220px,1fr) auto!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin:0!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action .td-compare-hero-actions button{
+  width:100%!important;
+  min-height:48px!important;
+  font-size:12px!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-alternatives{
+  order:5!important;
+  margin-top:18px!important;
+  padding-top:2px!important;
+  opacity:.92!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-plan{
+  background:rgba(255,255,255,.018)!important;
+  border-color:rgba(226,255,237,.052)!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-trust{
+  order:6!important;
+  margin-top:12px!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-note{
+  order:7!important;
+}
+html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-section-head{
+  margin-bottom:9px!important;
+}
+
+@media(max-width:700px){
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-hero{
+    min-height:230px!important;
+    padding:21px 100px 20px 18px!important;
+  }
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-bay{
+    right:1px!important;
+    bottom:-12px!important;
+  }
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff,
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action{
+    padding:14px!important;
+    border-radius:18px!important;
+  }
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action .td-compare-hero-actions{
+    grid-template-columns:1fr!important;
+  }
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action .td-compare-hero-actions span{
+    justify-self:start!important;
+  }
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action .td-compare-hero-actions button{
+    min-height:48px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  html body .td-compare-v2[data-roxy-purchase-skeleton="1"] *{transition:none!important;animation:none!important}
+}
