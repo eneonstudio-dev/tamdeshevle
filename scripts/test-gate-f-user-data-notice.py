@@ -16,6 +16,16 @@ def driver_for(width,height):
     for arg in ("--headless=new","--no-sandbox","--disable-dev-shm-usage","--disable-gpu",f"--window-size={width},{height}"):
         options.add_argument(arg)
     driver=webdriver.Chrome(options=options)
+    # Test-only pre-document override. Production release-scope.js remains local-first;
+    # this isolated browser validates the disclosure layer that protects remote mode
+    # when those flows are explicitly enabled in a future reviewed release.
+    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """
+      Object.defineProperty(window,'TDReleaseScope',{
+        configurable:true,
+        get(){return {mode:'qa-remote-enabled',flags:{closedBeta:false,remoteAccount:true,cloudSync:true,receiptUpload:true},enabled:()=>true};},
+        set(_){}
+      });
+    """})
     driver.set_window_size(width,height)
     return driver
 
