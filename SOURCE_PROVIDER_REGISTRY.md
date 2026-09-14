@@ -13,6 +13,7 @@ A source is not trusted merely because it is reachable. Every source/provider mu
 | `allowed_use` | What Votonobay is allowed to use it for |
 | `proves` | What facts this source can actually establish |
 | `does_not_prove` | Explicit negative boundary |
+| `truth_authority` | The highest truth layer this source is allowed to establish |
 | `rankable` | Whether evidence from this source may directly affect ranked price/store results |
 | `commercial_status` | `approved`, `conditional`, `blocked`, `unknown` |
 | `auth_mode` | public / user-consent / API key / partner / none |
@@ -20,6 +21,7 @@ A source is not trusted merely because it is reachable. Every source/provider mu
 | `retention` | Data-retention/reuse constraints or `unknown` |
 | `attribution` | Required attribution or `none/unknown` |
 | `freshness` | Expected freshness / TTL policy |
+| `zero_budget` | Whether the current path can operate without paid usage; it must never auto-upgrade to paid |
 | `fallback` | What happens when source is unavailable |
 | `last_terms_review` | YYYY-MM-DD or `pending` |
 | `owner` | Responsible workstream |
@@ -27,17 +29,22 @@ A source is not trusted merely because it is reachable. Every source/provider mu
 
 ## Registry
 
-| id | category | allowed_use | proves | does_not_prove | rankable | commercial_status | auth_mode | rate_policy | retention | attribution | freshness | fallback | last_terms_review | owner | enabled |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `open_food_facts` | identity | barcode/product identity + nutrition enrichment | identity/nutrition fields present in OFF with source uncertainty | current price, stock, exact store | no | conditional | public | unknown | review license before broader reuse | license-dependent | enrichment cache allowed only per approved policy | identity cascade fallback | pending | Price 2 | yes |
-| `user_receipt` | receipt | user-provided receipt/QR/photo ingestion | only evidence actually parsed and validated from user-provided artifact | facts absent from artifact; QR alone does not prove line items | conditional | approved-by-user-flow | user-consent | n/a | minimize + product privacy rules | none | observation timestamp bound | keep non-rankable when incomplete | pending | Price 2 / Vi | yes |
-| `retailer_public_catalog` | retailer | candidate product/price discovery where lawful | only fields directly observed with retailer/store/channel scope and timestamp | arbitrary exact-store stock if not scoped; future price | conditional | unknown-per-retailer | public | retailer-specific | retailer-specific | retailer-specific | short TTL | degrade to unverified candidate | pending | Price 2 | conditional |
-| `search_engine_or_ai_scout` | search/llm | discovery, candidate URLs/products, independent cross-check | discovery lead only | verified price, exact stock, exact store, product equivalence | no | provider-specific | provider-specific | provider-specific | provider-specific | provider-specific | short cache | disable/fallback to other scouts | pending | Provider Router | conditional |
-| `trained_bay_brain` | llm | intent/planning/repair/explanation inside bounded shopping actions | model proposal only | price truth, arithmetic truth, authorization, rankability | no | internal | guarded runtime | local/runtime policy | no raw secret leakage | none | release-pinned | safe deterministic baseline | pending | Умняша / Vi | conditional |
+| id | category | allowed_use | proves | does_not_prove | truth_authority | rankable | commercial_status | auth_mode | rate_policy | retention | attribution | freshness | zero_budget | fallback | last_terms_review | owner | enabled |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `open_food_facts` | identity | barcode/product identity + nutrition enrichment | identity/nutrition fields present in OFF with source uncertainty | current price, stock, exact store | identity-only | no | conditional | public | unknown | review ODbL obligations before broader reuse | ODbL/provenance required | enrichment cache allowed only per approved policy | yes for public/offline approved path | identity cascade fallback | pending | Price 2 | yes |
+| `ru_barcode` | identity | none in production until license is confirmed | if later licensed, candidate barcode/name mappings from the upstream dataset | current identity freshness, price, stock, exact store, usage rights | blocked identity candidate only | no | blocked | public repository | n/a while blocked | production ingest/redistribution blocked pending license review | unknown pending license | known market period 2021–2022; stale for current truth | technically zero-cost but blocked | Open Food Facts / receipt / retailer identity evidence | pending | Price 2 / Reinhard | no |
+| `user_receipt` | receipt | user-provided receipt/QR/photo ingestion | only evidence actually parsed and validated from the user-provided artifact | facts absent from artifact; QR alone does not prove line items; another branch of the chain | exact-store observation only after scope + proof verification | conditional | approved | user-consent | n/a | minimize + product privacy rules | none | observation timestamp bound; current verifier max age applies | yes | keep non-rankable when incomplete | pending | Price 2 / Vi | yes |
+| `retailer_public_catalog` | retailer | abstract contract template for lawful public retailer observations | only fields directly observed with explicit retailer/store/channel scope and timestamp | arbitrary exact-store stock if not scoped; future price | template only; concrete source entry required | conditional | unknown | public | retailer-specific | retailer-specific | retailer-specific | short TTL | conditional | degrade to unverified candidate | pending | Price 2 | no |
+| `magnit_store_catalog` | retailer | low-frequency public catalog observation for the configured Magnit `shop_code`/address | rendered product price plus rendered availability signal for that configured catalog context at `checked_at`, after address-scope verification and matcher eligibility | checkout/final charged price, loyalty eligibility, future price, another Magnit branch, shelf stock beyond the rendered catalog signal | conditional exact-store catalog observation | conditional | conditional | public | once-daily workflow; bounded product count + delay; stop/fail on HTTP error | repository snapshot + provenance only; no credentials | source URL retained in observation | fresh ≤36h; stale ≤72h; expired afterwards under `TDDataQuality` | yes for current public collector; no paid fallback | keep previous snapshot only until normal TTL expires, then unverified/non-rankable | pending | Price 2 / Reinhard | yes |
+| `proshoper_pyat_regional` | retailer | discovery/indicative regional Пятёрочка promotional catalog | product/price text and catalog validity period observed on the regional aggregator page | exact Пятёрочка branch, exact-store price, stock, retailer-authoritative live availability | regional discovery/estimate only | no | conditional | public | once-daily workflow; one regional page; stop/fail on HTTP or parser/date validation error | repository snapshot + provenance only | `proshoper.ru` + source URL retained | bounded by parsed catalog period + `checked_at`; never exact-store truth | yes for current public collector; no paid fallback | keep/downgrade previous regional snapshot as non-rankable estimate; disable when unusable | pending | Price 2 / Reinhard | yes |
+| `search_engine_or_ai_scout` | search/llm | discovery, candidate URLs/products, independent cross-check | discovery lead only | verified price, exact stock, exact store, product equivalence | discovery-only | no | conditional | provider-specific | provider-specific | provider-specific | provider-specific | short cache | conditional; paid usage must stay disabled in zero-budget mode | disable/fallback to other scouts | pending | Provider Router | yes |
+| `trained_bay_brain` | llm | intent/planning/repair/explanation inside bounded shopping actions | model proposal only | price truth, arithmetic truth, authorization, rankability | no external truth authority | no | approved | guarded runtime | local/runtime policy | no raw secret leakage | none | release-pinned | conditional on approved zero-cost runtime; never auto-spend | safe deterministic baseline | pending | Умняша / Vi | yes |
 
 ## Ranking rule
 
 A source may influence a ranked purchase recommendation only if the downstream observation satisfies the current truth contract. Discovery-only sources must never be silently upgraded into price/store truth.
+
+An abstract source class such as `retailer_public_catalog` is not sufficient by itself. Every concrete production source must have its own registry row, explicit scope semantics, truth authority, zero-budget behavior, and fallback.
 
 ## Provider Guard rules
 
@@ -50,4 +57,4 @@ A source may influence a ranked purchase recommendation only if the downstream o
 
 ## Change protocol
 
-When adding a source/provider, update this registry in the same PR whenever possible. A new provider without an explicit `allowed_use`, `proves`, `does_not_prove`, `rankable`, and fallback policy is not production-ready.
+When adding a source/provider, update this registry in the same PR whenever possible. A new provider without an explicit `allowed_use`, `proves`, `does_not_prove`, `truth_authority`, `rankable`, zero-budget policy, and fallback policy is not production-ready.
