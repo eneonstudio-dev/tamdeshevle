@@ -52,4 +52,20 @@ assert.equal(
 );
 assert.equal(plans[0].quality,"LIVE");
 
-console.log("MVP-029 plan tie-break regression passed: equal charged totals use deterministic evidence-aware ranking.");
+const compare=context.TDShoppingOptimizer.comparePlans;
+assert.equal(typeof compare,"function");
+const wanted=["milk","bread"];
+const base={total:100,convenienceCost:0,stores:["pyat"],products:[{id:"milk",quality:"LIVE"}]};
+const fullCoverage={...base,id:"full",stores:["magnit","perek"],convenienceCost:120,products:[{id:"milk",quality:"UNKNOWN"},{id:"bread",quality:"UNKNOWN"}]};
+assert.ok(compare(fullCoverage,{...base,id:"partial"},wanted)<0,"coverage must outrank weaker convenience/evidence when charged cost is equal");
+
+const live={...base,id:"live",products:[{id:"milk",quality:"LIVE"},{id:"bread",quality:"LIVE"}]};
+const estimated={...base,id:"estimated",products:[{id:"milk",quality:"ESTIMATED"},{id:"bread",quality:"ESTIMATED"}]};
+assert.ok(compare(live,estimated,wanted)<0,"stronger evidence must win after equal cost and coverage");
+
+const convenient={...live,id:"convenient",convenienceCost:0,stores:["pyat"]};
+const inconvenient={...live,id:"inconvenient",convenienceCost:120,stores:["magnit","perek"]};
+assert.ok(compare(convenient,inconvenient,wanted)<0,"lower convenience cost/fewer stores must win after equal cost, coverage and evidence");
+assert.ok(compare({...convenient,id:"a"},{...convenient,id:"b"},wanted)<0,"final tie-break must be stable by plan id");
+
+console.log("MVP-029 plan tie-break regression passed: equal charged totals rank by coverage, evidence, convenience and stable id.");
