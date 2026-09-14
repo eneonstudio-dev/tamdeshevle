@@ -9,6 +9,8 @@ ROOT=Path(__file__).resolve().parents[2]
 CONFIG=ROOT/'teacher-lab/training/student-v0.1.json'
 PROMPT=ROOT/'teacher-lab/training/student-prompt-contract.json'
 MAX_BODY=128*1024
+BRAIN=None
+TOKEN=''
 
 
 def load_json(path):
@@ -69,11 +71,13 @@ class Brain:
         return extract_object(generated)
 
 
-BUNDLE=os.getenv('BAI_BUNDLE_DIR','').strip()
-TOKEN=os.getenv('BAI_BACKEND_TOKEN','').strip()
-if not BUNDLE: raise RuntimeError('BAI_BUNDLE_DIR required')
-if len(TOKEN)<24: raise RuntimeError('BAI_BACKEND_TOKEN required')
-BRAIN=Brain(BUNDLE)
+def configure():
+    global BRAIN,TOKEN
+    bundle=os.getenv('BAI_BUNDLE_DIR','').strip(); token=os.getenv('BAI_BACKEND_TOKEN','').strip()
+    if not bundle: raise RuntimeError('BAI_BUNDLE_DIR required')
+    if len(token)<24: raise RuntimeError('BAI_BACKEND_TOKEN required')
+    BRAIN=Brain(bundle);TOKEN=token
+    return BRAIN
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -82,14 +86,14 @@ class Handler(BaseHTTPRequestHandler):
         raw=json.dumps(body,ensure_ascii=False,separators=(',',':')).encode('utf-8')
         self.send_response(status); self.send_header('Content-Type','application/json; charset=utf-8'); self.send_header('Content-Length',str(len(raw))); self.end_headers(); self.wfile.write(raw)
     def authorized(self):
-        header=self.headers.get('Authorization','')
-        expected=f'Bearer {TOKEN}'
-        return hmac.compare_digest(header,expected)
+        return bool(TOKEN) and hmac.compare_digest(self.headers.get('Authorization',''),f'Bearer {TOKEN}')
     def do_GET(self):
         if self.path!='/health': return self.send_json(404,{'ok':False,'error':'not_found'})
+        if BRAIN is None:return self.send_json(503,{'ok':False,'error':'not_ready'})
         return self.send_json(200,{'ok':True,'release':BRAIN.pin(),'model':BRAIN.release.get('model'),'ready':True})
     def do_POST(self):
         if self.path not in ('/','/infer'): return self.send_json(404,{'ok':False,'error':'not_found'})
+        if BRAIN is None:return self.send_json(503,{'ok':False,'error':'not_ready'})
         if not self.authorized(): return self.send_json(401,{'ok':False,'error':'unauthorized'})
         try:length=int(self.headers.get('Content-Length','0'))
         except:length=0
@@ -106,8 +110,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main():
-    host=os.getenv('BAI_HOST','0.0.0.0'); port=int(os.getenv('PORT','8080'))
-    print(json.dumps({'status':'ready','host':host,'port':port,'release':BRAIN.pin()},ensure_ascii=False),flush=True)
+    brain=configure();host=os.getenv('BAI_HOST','0.0.0.0');port=int(os.getenv('PORT','8080'))
+    print(json.dumps({'status':'ready','host':host,'port':port,'release':brain.pin()},ensure_ascii=False),flush=True)
     ThreadingHTTPServer((host,port),Handler).serve_forever()
 
 
