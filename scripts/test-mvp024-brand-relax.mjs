@@ -19,7 +19,7 @@ vm.runInContext(`const STORES=${JSON.stringify([
   {id:"pasta",name:"Макароны",pack:"450 г",emoji:"🍝",brand:"goodbrand",prices:{pyat:75,perek:80}},
   {id:"bread",name:"Хлеб",pack:"1 шт",emoji:"🍞",brand:"goodbrand",prices:{pyat:70,perek:65}}
 ])};`,context);
-for(const file of ["store-adapters.js","shopping-state.js","shopping-optimizer.js","shopping-conversation.js","bai-shopping-agent-kernel.js"]){
+for(const file of ["store-adapters.js","shopping-state.js","shopping-optimizer.js","shopping-conversation.js","bai-shopping-agent-kernel.js","bai-brand-relax-bridge.js"]){
   vm.runInContext(fs.readFileSync(new URL(`../${file}`,import.meta.url),"utf8"),context,{filename:file});
 }
 
