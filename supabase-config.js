@@ -18,6 +18,17 @@ window.TD_BAI_AGENT = window.TD_BAI_AGENT || {
   endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-agent-core"
 };
 
+// Promoted self-hosted Bai checkpoints are reached only through this authenticated proxy.
+// The runtime registry still requires a promoted, pinned and explicitly enabled release descriptor.
+window.TD_BAI_TRAINED = window.TD_BAI_TRAINED || {
+  endpoint: "https://cxpneczhczashanbetgj.supabase.co/functions/v1/bai-trained-inference"
+};
+try {
+  const trainedOrigin = new URL(window.TD_BAI_TRAINED.endpoint).origin;
+  const existing = Array.isArray(window.TD_BAI_BRAIN_ALLOWED_ORIGINS) ? window.TD_BAI_BRAIN_ALLOWED_ORIGINS : [];
+  window.TD_BAI_BRAIN_ALLOWED_ORIGINS = [...new Set([...existing, trainedOrigin])];
+} catch {}
+
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
 import("./bai-session-owner-guard.js?v=20260913-owner-v1")
   .then(()=>import("./bai-shopping-agent-kernel.js?v=20260913-verification-trace-v1"))
