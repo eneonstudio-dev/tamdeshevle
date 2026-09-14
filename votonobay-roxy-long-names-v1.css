@@ -1,0 +1,28 @@
+/* REG-022 / Sara 2: keep decision-critical grocery names fully readable on narrow screens; never solve overflow by truncating the product identity. */
+.td-ai-summary .td-ai-line{min-width:0}
+.td-ai-summary .td-ai-line>span:not(.td-ai-v3-photo){min-width:0;overflow-wrap:anywhere;word-break:normal;white-space:normal}
+.td-ai-summary .td-ai-line>b,.td-ai-summary .td-ai-line-side{flex:0 0 auto;min-width:max-content}
+
+html body .td-compare-v2 .td-compare-why>div:not(.td-compare-section-head),
+html body .td-compare-v2 .td-trust-row{min-width:0}
+html body .td-compare-v2 .td-compare-why>div:not(.td-compare-section-head)>span,
+html body .td-compare-v2 .td-trust-row>span{min-width:0;overflow-wrap:anywhere;word-break:normal;white-space:normal}
+html body .td-compare-v2 .td-compare-why>div:not(.td-compare-section-head)>b,
+html body .td-compare-v2 .td-trust-row>div{flex:0 0 auto}
+html body .td-compare-v2 .td-compare-plan,
+html body .td-compare-v2 .td-compare-plan>div,
+html body .td-compare-v2 .td-compare-plan b,
+html body .td-compare-v2 .td-compare-plan span,
+html body .td-compare-v2 .td-compare-plan p{min-width:0;overflow-wrap:anywhere;word-break:normal}
+
+.td-retailer-card,.td-retailer-items,.td-retailer-row{min-width:0}
+.td-retailer-row{grid-template-columns:38px minmax(0,1fr)!important}
+.td-retailer-items .td-retailer-row>a{min-width:0}
+.td-retailer-items .td-retailer-row>a>span{min-width:0;overflow-wrap:anywhere;word-break:normal;white-space:normal}
+.td-retailer-items .td-retailer-row>a>em{flex:0 0 auto}
+.td-retailer-card p,.td-retailer-probe span,.td-retailer-store-context span,.td-retailer-session span{overflow-wrap:anywhere;word-break:normal}
+
+@media(max-width:520px){
+  .td-retailer-items .td-retailer-row>a{gap:8px;padding:12px 10px}
+  .td-retailer-items .td-retailer-row>a>em{font-size:11px}
+}
