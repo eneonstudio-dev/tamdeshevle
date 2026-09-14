@@ -40,12 +40,12 @@
     area.dataset.roxyTextareaScroll=(area.scrollHeight||0)>max+1?"1":"0";
   }
 
-  function settleScroll(main,state,keyboard){
+  function settleScroll(main,state){
     if(!main||!state)return;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       if(!document.contains(main))return;
       if(state.nearBottom){
-        if(keyboard)main.scrollTop=main.scrollHeight;
+        main.scrollTop=main.scrollHeight;
         return;
       }
       const max=Math.max(0,main.scrollHeight-main.clientHeight);
@@ -65,7 +65,7 @@
     root.toggleAttribute("data-keyboard-open",keyboard);
     root.toggleAttribute("data-roxy-keyboard-open",keyboard);
     root.dataset.roxyViewportCovered=String(covered);
-    settleScroll(root.querySelector(".td-ai-main"),state,keyboard);
+    settleScroll(root.querySelector(".td-ai-main"),state);
     return {keyboard,height:h,top,covered};
   }
 
