@@ -72,13 +72,17 @@ assert.equal((context.TDShoppingState.get().lastPlans||[]).some(plan=>(plan.stor
 
 assert.equal(kernel.domainGate("Только Магнит").code,"ALLOWED","single-retailer constraints must remain shopping commands");
 const onlyMagnitOps=context.TDShoppingConversation.parse("Только Магнит");
-assert.deepEqual(onlyMagnitOps.filter(op=>op.type==="CHANGE_STORE").map(op=>op.value),["magnit"]);
+const onlyMagnitStores=Array.from(onlyMagnitOps.filter(op=>op.type==="CHANGE_STORE"),op=>String(op.value));
+assert.equal(onlyMagnitStores.length,1);
+assert.equal(onlyMagnitStores[0],"magnit");
 assert.ok(onlyMagnitOps.some(op=>op.type==="SET_MODE"&&op.value==="one"),"single retailer request must force one-store mode");
 result=await kernel.run({text:"Только Магнит",operations:onlyMagnitOps});
 assert.equal(result.ok,true,JSON.stringify(result.error),"single-retailer constraint must execute after a multi-store/exclusion sequence");
-assert.deepEqual(context.TDShoppingState.get().stores,["magnit"]);
+assert.equal(context.TDShoppingState.get().stores.length,1);
+assert.equal(context.TDShoppingState.get().stores[0],"magnit");
 assert.equal(context.TDShoppingState.get().mode,"one");
-assert.deepEqual(kernel.state.get().store_constraints.store_ids,["magnit"]);
+assert.equal(kernel.state.get().store_constraints.store_ids.length,1);
+assert.equal(kernel.state.get().store_constraints.store_ids[0],"magnit");
 assert.equal(kernel.state.get().store_constraints.mode,"one");
 assert.ok((context.TDShoppingState.get().products||[]).every(line=>line.storeId==="magnit"),"one-store optimization must keep every selected item inside Magnit");
 
