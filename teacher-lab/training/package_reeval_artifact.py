@@ -36,6 +36,8 @@ def validate(reeval_dir,eval_gold,adapter):
     required=list(REQUIRED)+(list(REJECTED_REQUIRED) if status=='REEVAL_REJECTED' else [])
     missing=[x for x in required if not (reeval_dir/x).is_file()]
     if missing: raise SystemExit(f're-eval evidence missing: {missing}')
+    promotion_file=json.loads((reeval_dir/'metrics/promotion.json').read_text(encoding='utf-8'))
+    if promotion_file!=promotion: raise SystemExit('promotion file does not match re-eval manifest')
     config=Path(str(manifest.get('config') or '')).resolve()
     if not config.is_file() or sha256_file(config)!=manifest.get('config_sha256'): raise SystemExit('config hash mismatch')
     return manifest,config
