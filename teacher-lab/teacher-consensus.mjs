@@ -1,5 +1,14 @@
-const stable=v=>JSON.stringify(v??null,Object.keys(v&&typeof v==='object'&&!Array.isArray(v)?v:{}).sort());
-const actionKeys=row=>(row?.target?.actions||[]).map(a=>`${a?.type||''}:${JSON.stringify(a?.value??null)}`).sort();
+const canonical=value=>{
+  if(Array.isArray(value))return `[${value.map(canonical).join(',')}]`;
+  if(value&&typeof value==='object')return `{${Object.keys(value).sort().map(k=>`${JSON.stringify(k)}:${canonical(value[k])}`).join(',')}}`;
+  return JSON.stringify(value??null);
+};
+const hasOwn=(obj,key)=>Boolean(obj&&Object.prototype.hasOwnProperty.call(obj,key));
+const actionKeys=row=>(row?.target?.actions||[]).map(a=>{
+  const type=String(a?.type||'');
+  if(hasOwn(a,'payload'))return `${type}:payload:${canonical(a.payload)}`;
+  return `${type}:missing_payload:${canonical(a?.value??null)}`;
+}).sort();
 const taskId=row=>row?.provenance?.sources?.[0]?.corpus_task_id||null;
 
 export function comparePair(a,b){
@@ -7,8 +16,8 @@ export function comparePair(a,b){
   if(taskId(a)!==taskId(b))throw Error('task mismatch');
   const checks={
     intent:String(a.target?.intent||'')===String(b.target?.intent||''),
-    hard_constraints:stable(a.target?.hard_constraints||{})===stable(b.target?.hard_constraints||{}),
-    soft_preferences:stable(a.target?.soft_preferences||{})===stable(b.target?.soft_preferences||{}),
+    hard_constraints:canonical(a.target?.hard_constraints||{})===canonical(b.target?.hard_constraints||{}),
+    soft_preferences:canonical(a.target?.soft_preferences||{})===canonical(b.target?.soft_preferences||{}),
     actions:JSON.stringify(actionKeys(a))===JSON.stringify(actionKeys(b))
   };
   const conflicts=Object.entries(checks).filter(([,ok])=>!ok).map(([key])=>key);
