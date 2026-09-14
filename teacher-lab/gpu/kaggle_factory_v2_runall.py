@@ -39,5 +39,12 @@ def gate(summary,expected,ratio,stage):
     print(stage,values,'floor',floor,flush=True)
     if min(values.values())<floor: raise SystemExit(f'{stage} rejected: {values}, required >= {floor}')
 
+def verify_gpu():
+    import torch
+    if torch.cuda.device_count()<2: raise SystemExit(f'Need Kaggle T4x2: got {torch.cuda.device_count()} GPU(s)')
+    names=[torch.cuda.get_device_name(i) for i in range(2)]
+    if not all('T4' in x.upper() for x in names): raise SystemExit(f'Expected T4x2, got {names}')
+    return names
+
 if __name__=='__main__':
     print('Bai Data Factory v2 Kaggle orchestration ready for GPU stages')
