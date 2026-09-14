@@ -69,7 +69,6 @@ export function rankMagnitProductUrls(urls, keywords = [], pinned = []) {
     const needle = normalizedKeyword(keyword);
     return needle ? [...remaining].filter(url => normalizedKeyword(url).includes(needle)).sort() : [];
   });
-  // Round-robin keeps a small request budget spread across basket categories.
   while (groups.some(group => group.length)) {
     for (const group of groups) {
       while (group.length && !remaining.has(group[0])) group.shift();
@@ -93,6 +92,31 @@ function pagePrice(html) {
     const match = String(html || "").match(re); const value = match ? number(match[1]) : null; if (value != null) return value;
   }
   return null;
+}
+
+function productPriceContext(html) {
+  const source = String(html || "");
+  const h1 = /<h1[^>]*>[\s\S]*?<\/h1>/i.exec(source);
+  if (!h1) return "";
+  const start = Math.max(0, h1.index - 3000);
+  const end = Math.min(source.length, h1.index + h1[0].length + 1400);
+  return stripTags(source.slice(start, end));
+}
+
+export function pagePriceTerms(html) {
+  const text = productPriceContext(html);
+  const markers = [];
+  if (/финальная\s+цена/i.test(text)) markers.push("final_price");
+  if (/\+\s*\d+(?:[.,]\d+)?\s*%\s*с\s+(?:магнит\s+)?премиум/i.test(text)) markers.push("premium_extra_benefit");
+  if (/цена\s+по\s+карте/i.test(text)) markers.push("card_price");
+  if (/(?:цена|стоимость)\s+(?:с|для)\s+(?:магнит\s+)?премиум/i.test(text)) markers.push("premium_price");
+  const conditional = markers.includes("card_price") || markers.includes("premium_price");
+  return {
+    status: conditional ? "terms_unverified" : markers.length ? "promotion_context" : "unmarked",
+    conditional,
+    markers,
+    evidence_scope: "product_price_context"
+  };
 }
 
 function normalizeImageUrl(value) {
@@ -154,6 +178,7 @@ export function parseMagnitProductPage(html, url, context) {
   const price = (product ? offerPrice(product.offers) : null) ?? pagePrice(html);
   const unitPrice = pageUnitPrice(html);
   const pack = pagePack(html);
+  const priceTerms = pagePriceTerms(html);
   if (!name) throw new Error("Magnit product name not found");
   if (price == null) throw new Error(`Magnit price not found: ${name}`);
   const sourceUrl = withMagnitStore(url, context.store_context);
@@ -163,6 +188,10 @@ export function parseMagnitProductPage(html, url, context) {
     pack,
     price, unit_price: unitPrice ? unitPrice.price : null, unit_price_unit: unitPrice ? unitPrice.unit : null,
     old_price: null, image_url: pageImage(html),
+    promo: priceTerms.conditional,
+    promo_eligibility_verified: false,
+    promo_terms_verified: false,
+    price_terms: priceTerms,
     availability: /(?:В корзину|Добавить в корзину)/i.test(stripTags(html)) ? "В наличии" : "unknown",
     shop_code: String(context.store_context.shop_code), url: sourceUrl
   };
