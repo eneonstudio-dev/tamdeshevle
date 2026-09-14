@@ -11,6 +11,9 @@
     if (!candidate || candidate.eligible_for_ranking !== true || candidate.scope_verified !== true) {
       return { applied: false, reason: "candidate_not_verified" };
     }
+    if (candidate.availability_verified !== true || candidate.availability !== "in_stock") {
+      return { applied: false, reason: "current_availability_not_verified" };
+    }
     if (!candidate.product_id || !candidate.store_id || !Number.isFinite(Number(candidate.price))) {
       return { applied: false, reason: "candidate_incomplete" };
     }
@@ -44,6 +47,8 @@
       scope_verified: true,
       proof_verified: candidate.proof_verified === true,
       identity_verified: candidate.identity_verified === true,
+      availability: candidate.availability,
+      availability_verified: candidate.availability_verified === true,
       verification_kind: candidate.verification_kind || "receipt"
     };
 
