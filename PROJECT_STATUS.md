@@ -2,13 +2,13 @@
 
 **Updated:** 2026-09-14  
 **Master:** `VOTONOBAI_MASTER_ROADMAP.md`  
-**Phase:** Grocery/FMCG MVP — prove real end-to-end shopping loop
+**Phase:** Grocery/FMCG MVP — release-gate proof after canonical acceptance convergence
 
-This file is intentionally short. Fresh-read `main` before trusting commit/PR status because the repository moves quickly.
+Fresh-read `main` before trusting commit/PR status because the repository moves quickly.
 
 ## Mission now
 
-Prove:
+Prove repeatedly:
 
 `natural shopping request → correct intent/constraints → UniversalBasket → real products/prices → StoreBasket(s) → PurchasePlan → Bay verdict → honest purchase handoff`
 
@@ -16,67 +16,75 @@ Prove:
 
 | Priority | Work | Owner role | State | Evidence / blocker |
 |---|---|---|---|---|
-| P1 | Golden shopping core: retailer scope + one/two-store decision correctness | Fixer / QA | DONE / GUARDED | PR #370 is merged. Latest PR-head runs passed `Validate golden shopping core`, Bai assistant, app runtime resilience, data/scripts, governance and real-browser UX. `REG-004`, `REG-011`, `REG-012` and `REG-013` are GUARDED. |
-| P0/P1 | First real trained Bay checkpoint + held-out eval + promotion proof | Умняша/AI training | DONE: candidate trained; historical gate verdict REJECTED | First real Kaggle run completed; historical evaluator contract was later found mismatched to SFT. |
-| P0/P1 | Re-evaluate first candidate under corrected SFT/eval prompt contract | Умняша/AI training | IN PROGRESS | PRs #359, #365 and #366 provide the corrected re-eval/comparison path. External GPU re-evaluation of the existing adapter is still required before another training run. |
-| P0/P1 | Second Bay training iteration from real failure clusters + reviewed Gold | Умняша/AI training | NEXT | Start only if corrected re-evaluation still rejects the existing candidate. |
-| P1 | Post-PASS trained checkpoint serving path | Умняша/AI training | DONE | PR #362 + ADR-007: staged serving infrastructure + fail-closed proxy; no trained release activated. |
-| P1 | UniversalBasket → StoreBasket → PurchasePlan contract verification | Роук/Fixer temporarily; Vi when available | VERIFY NOW | PR #370 proves the critical retailer-scope and one/two-store behaviors, but release proof still needs an explicit canonical-scenario pass over the first-class basket/projection/purchase-plan contract. Do not reopen already-guarded optimizer bugs unless a scenario reproduces one. |
-| P1 | Multi-Store PurchasePlan economics and retailer scope | Fixer / QA | GUARDED, RELEASE VERIFY PENDING | `REG-004` plus one-store/multi-store scope regressions are GUARDED by PR #370. Remaining work is acceptance-level proof across canonical scenarios, not another parallel optimizer rewrite. |
-| P1 | Small set of trustworthy real grocery sources | Tali / data-truth | IN PROGRESS | Magnit has conditional exact-store catalog evidence. Perekrestok and Proshoper regional catalogs remain non-rankable estimates. PR #384 now preserves scope-verified exact-store `out_of_stock` evidence fail-closed instead of leaving an older baseline price visible. Terms/commercial review remains pending where the registry says `conditional`. |
-| P1 | Real end-to-end shopping regression scenarios | Shared, coordinated by Роук/Fixer | IN PROGRESS | `MVP_SCENARIOS.md` is the active acceptance campaign. MVP-028 exact-store unavailability is now guarded by PR #384 / `REG-015`; continue replaying remaining scenarios from fresh green `main`, promoting every reproduced failure into the regression bank. |
-| P1 | Honest retailer handoff capability matrix | Product/Роук/Tali | PARTIALLY ESTABLISHED / VERIFY | `RETAILER_CAPABILITIES.md` declares safe capabilities and recent UX work keeps redirect handoff honest. Release evidence across the tested path still needs explicit Gate D verification. |
-| P1 | Post-purchase proof truth boundary | Sara 2 / Tali / QA | DONE / GUARDED | PR #378 is merged and `REG-014` is GUARDED via PR #380: planned totals stay separate from explicit actual-paid evidence; receipt proof remains pending until separately verified. |
-| P0 | Security release gate | Reinhard | BEFORE CLOSED BETA/PUBLIC RELEASE | `RELEASE_GATE.md` Gate F remains unchecked; no release-ready claim until Reinhard has no unresolved P0 blocker. |
+| P1 | Canonical ShoppingIntent / basket action correctness | Роук + Fixer | DONE / GUARDED FOR DISCOVERED P1s | The acceptance push guards retailer scope/one-store/multi-store (#370), MVP-002 (#417), MVP-003 (#409), MVP-004 (#423), MVP-011 (#421), MVP-012 (#416), MVP-015 (#419), MVP-021 (#393), MVP-022 (#397), MVP-023 (#399), MVP-024 (#406), MVP-029 (#388) and MVP-030 (#390). MVP-001 now has direct real-brain/optimizer acceptance in #424. New failures must be reproduced before new code work. |
+| P1 | UniversalBasket → StoreBasket → PurchasePlan acceptance proof | Роук/Fixer temporarily; Vi when available | 30/30 MATRIX GUARDED / FINAL REPLAY EVIDENCE CONSOLIDATED | `MVP_ACCEPTANCE_MATRIX.md` maps every canonical scenario to executable evidence. MVP-015 proves same-basket retailer reprojection including exact quantity preservation. Fresh-main #424 push checks are green; the latest behavior-changing #423 also passed full real-browser validation. |
+| P1 | Multi-Store PurchasePlan economics | Fixer / QA | GUARDED | `REG-004`, `REG-011`, `REG-013`, tie-break `REG-017` and decision explanation `REG-018` are guarded. Default remains max 2 stores. |
+| P1 | Product/data truth for tested path | Tali / data-truth | GUARDED CORE / SOURCE COVERAGE IN PROGRESS | Missing/stale/future evidence fails closed (#372); promo eligibility (#386), exact-store out-of-stock (#384), Magnit loyalty/base-price (#404), pack identity (#398), regional estimate non-rankability and freshness contracts are executable. Magnit remains conditional exact-store evidence; Perekrestok/Proshoper regional catalogs remain non-rankable estimates. |
+| P1 | Honest retailer handoff | Роук / Sara 2 / Tali | VERIFIED FOR TESTED PATH | `RETAILER_CAPABILITIES.md` remains authoritative; repeated real-browser runs including #419/#423 passed explicit Gate D. REDIRECT retailers are not represented as API_CART/API_ORDER. |
+| P1 | Reliability / mobile / return / post-purchase proof | Fixer / Sara 2 / Tali | GUARDED FOR TESTED PATH | Network recovery #374, return continuity #375, post-purchase truth #378/#380, mobile composer #371 and long product names #400 pass repeated real-browser validation. |
+| P0 | Security release gate (Gate F) | Reinhard | REQUIRED BEFORE CLOSED BETA | **Primary remaining closed-beta blocker.** `RELEASE_GATE.md` Gate F requires security P0 clear, dependency/secret/auth/runtime review, provider/source legal review and zero-budget cost verification. Existing security tests are evidence, not a substitute for the explicit Gate F decision. |
+| P0/P1 | Corrected re-evaluation of first trained Bay candidate | Умняша Бая | IN PROGRESS / EXTERNAL GPU DEPENDENCY | PRs #359/#365/#366 provide the corrected SFT/eval comparison path. Re-evaluate the existing adapter before any second training run. This remains parallel to deterministic MVP release safety; no trained release is active. |
+| P1 | Post-PASS trained checkpoint serving path | Умняша Бая | DONE / DISABLED BY DEFAULT | PR #362 + ADR-007 provide staged fail-closed serving. No checkpoint is promoted/bound until corrected promotion proof passes. |
+
+## Acceptance campaign status
+
+The canonical 001–030 campaign has converged to executable evidence. `MVP_ACCEPTANCE_MATRIX.md` is the release index; the matrix includes direct evidence for intent/state, truth/matching, optimizer economics, persistence/recovery, vertical/domain boundaries, retailer handoff and explanation.
+
+Recently added guarded regressions:
+
+- `REG-027` — MVP-003 chicken → turkey replacement, PR #409.
+- `REG-028` — MVP-002 dairy category removal, PR #417.
+- `REG-029` — MVP-012 convenience-over-minor-savings intent, PR #416.
+- `REG-030` — MVP-015 same UniversalBasket retailer reprojection with exact quantities, PR #419.
+- `REG-031` — MVP-011 PP + no-sugar dietary intent, PR #421.
+- `REG-032` — MVP-004 qualitative savings stays soft; meat quality remains a competing preference; explicit relative savings remain relative, PR #423.
+- `REG-026` / MVP-024 brand relaxation is GUARDED by merged PR #406 and repeated golden-core passes.
+- MVP-001 did not require a behavioral fix: PR #424 added direct real-brain/real-optimizer acceptance for `Собери продукты на неделю до 5000 ₽` and merged green.
+
+No current matrix gap justifies an architecture rewrite. A future beta failure still follows reproduce → regression → root-cause fix → CI → merged-state guard.
 
 ## Swarm coordination now
 
-- **Fixer** finished the #370 P1 blocker and the MVP-028 truth failure is now guarded in #384. Continue acceptance-level replay of the canonical MVP scenarios from fresh green `main`, not another rewrite of already-guarded optimizer/truth paths.
-- **Vi** is temporarily unavailable. Роук/Fixer hold the contract-verification path so delivery does not wait; Vi can resume architecture ownership later without blocking current acceptance work.
-- **Умняша Бая** owns the corrected external GPU re-evaluation of the first trained candidate. Do not spend another training run before that verdict.
-- **Tali** owns source coverage/truth quality. Priority is useful rankable grocery evidence, not retailer-count expansion; regional estimates remain discovery/indicative only.
-- **Сара 2 / Roxy** has merged the non-blocking rejected-split explanation in PR #381; it reads existing optimizer output only and must not become a new arithmetic/truth implementation path.
-- **Reinhard** owns the security/release review once the acceptance path is stable enough to audit; provider/legal truth questions may still block specific sources earlier.
+- **Роук/Fixer:** acceptance moves to maintenance/watch mode; do not manufacture more parser fixes without a reproduced P0/P1. Support Gate F and final closed-beta decision evidence.
+- **Vi:** may resume architecture ownership when available, but no current acceptance blocker should wait for Vi.
+- **Тали:** continue useful rankable source/truth coverage and exact-store evidence quality; do not inflate retailer count with non-rankable discovery sources.
+- **Сара 2:** critical mobile/handoff UX is guarded; no redesign unless beta/release evidence finds a blocker.
+- **Рейнхард:** Gate F is now the primary closed-beta critical path.
+- **Умняша Бая:** corrected external-GPU re-evaluation only; no second training run before that verdict.
+- **Карина/Ghost:** prepare beta/outreach around capabilities that actually exist; do not imply retailer partnerships or cart APIs that are not present.
 
 ## Current known repo snapshot
 
-Fresh `main` at this status sync: `54f75c594f9ab823a9eb239d52b636862e7924f5` (merged PR #384).
+Fresh `main` at this status sync: `9465350ef3d546ffcd7fa934b964fc99f81b963c` (merged PR #424).
 
 Important current facts:
-- PR #370 is merged; its latest full shopping-core workflow passed.
-- `REG-004`, `REG-011`, `REG-012` and `REG-013` are GUARDED by PR #370.
-- PR #378 is merged and hardens post-purchase actual-paid truth; PR #380 records `REG-014` as GUARDED.
-- PR #381 is merged and explains rejected two-store splits without changing optimizer arithmetic or truth semantics.
-- PR #384 is merged with green data/scripts, runtime, shopping-core, governance and real-browser checks; scope-verified exact-store unavailability is now fail-closed and recorded as `REG-015`.
-- PRs #372/#373 remain the merged truth hardening / handoff evidence base.
-- PRs #374/#375 remain merged reliability UX for reconnect and return continuity.
-- The main delivery bottleneck is now acceptance proof across the remaining canonical MVP scenarios plus handoff/security release gates, while trained-Bay corrected re-evaluation remains an external GPU dependency.
+- PR #424 adds direct MVP-001 acceptance and fresh-main golden/runtime/data/governance push checks are green.
+- PR #423 is the latest behavior-changing canonical fix and passed golden shopping core, Bai assistant, runtime, data/scripts, governance and full real-browser validation before merge.
+- PR #419 same-basket reprojection and PR #421 PP/no-sugar are merged and guarded.
+- `REG-001`…`REG-032` contain no known OPEN P0/P1 entry at this sync.
+- `MVP_ACCEPTANCE_MATRIX.md` maps all 30 canonical scenarios to executable merged evidence.
+- The delivery bottleneck is now **Gate F security/legal/cost review → closed-beta decision**, not more canonical shopping implementation.
+- Corrected trained-Bay re-evaluation remains a separate external-GPU dependency; deterministic runtime remains the release-safe fallback.
 
 ## Bay training evidence
 
 - First real Kaggle T4 run completed on 2026-09-13 from repository commit `865def7a98aa6b645b1950cfcd4ec9ffc37320ca`, pinned Qwen3 revision `70d244cc86ccca08cf5af4e1e306ecf908b1ad5e`, deterministic bootstrap 500 train / 60 disjoint holdout, seed 42, thinking disabled.
-- Training completed 3 epochs / 48 steps in 747.6 seconds; final reported train loss was `0.2296814`. The candidate experiment ZIP and pipeline/metric/promotion JSON artifacts are saved in Kaggle notebook `eneonstii/notebook07f42bd563`, Version 1 (`First real GPU run - promotion rejected`).
-- Historical promotion gate verdict: **REJECTED**. Candidate metrics were intent `0.4833`, constraints `0.5`, actions `0.1`, context retention `0.28`; only 36/60 candidate responses parsed. Reasons: `context_retention_rate_regressed`, `constraint_floor_not_met`, `intent_floor_not_met`.
-- No promotable checkpoint or active trained release exists. The historical rejection therefore remains non-production evidence only.
-- Runtime fixes discovered by the run are merged in PR #353 (single-T4 model subprocesses) and PR #354 (malformed output is scored as failure instead of crashing benchmark), both with green CI.
-- PR #356 later identified a material evaluation defect: SFT and evaluation used different system/input prompt contracts. Train/eval now share one versioned prompt contract. Therefore the historical rejection remains valid evidence for the old harness, but it is not sufficient justification to retrain before the same adapter is re-evaluated under the corrected contract.
-- PR #359 added corrected-contract re-evaluation of the existing adapter plus failure clustering. Re-evaluation remains the current required external GPU step.
-- PR #360 added leak-safe failure learning: held-out failures become evaluation regressions/focus signals, remediation uses train-side sibling examples, human review is mandatory, and held-out examples cannot leak into training Gold.
-- PR #365 / commit `260b626202e512c65e988b6a75228a13416407e5` added fail-closed frozen-holdout candidate comparison reports for baseline and later checkpoints. Every compared run must cover the exact same eval IDs; reports expose parse coverage, benchmark deltas, failure labels and per-category pass rates without replacing the promotion gate.
-- PR #366 / commit `88f20e472166c81963fdc0f3d2d4a16273925e4e` wired that comparison into the one-click Kaggle corrected re-evaluation notebook. The notebook automatically compares corrected baseline/candidate and also historical Version 1 runs when complete historical prediction/metric artifacts are present.
-- PR #362 / commit `4a00f58dc147cc9c597a1c05248d36a34537cf6e` added the post-PASS serving path: pinned GPU adapter server, authenticated Supabase proxy, disabled-by-default release binder and runtime origin allowlist. All seven PR checks passed, including real-browser UX.
-- Supabase Edge Function `bai-trained-inference` v1 is deployed and ACTIVE in the Bai Learning Backend project, but intentionally fail-closed: no promoted release pin or private GPU backend is bound, so this is serving infrastructure, not a deployed trained brain.
-- Re-evaluation must remain fail-closed: unchanged benchmark and promotion gate, no automatic release. If the existing candidate still fails, cluster the corrected-run failures, review train-side remediation siblings, and only approved Gold may feed iteration 2.
+- Training completed 3 epochs / 48 steps in 747.6 seconds; final reported train loss was `0.2296814`. The experiment ZIP and promotion artifacts are saved in Kaggle notebook `eneonstii/notebook07f42bd563`, Version 1.
+- Historical promotion gate verdict: **REJECTED**. Candidate metrics were intent `0.4833`, constraints `0.5`, actions `0.1`, context retention `0.28`; only 36/60 candidate responses parsed.
+- PR #356 later identified a material evaluation defect: SFT and evaluation used different system/input prompt contracts. Therefore the historical rejection is evidence for the old harness, but not sufficient justification to retrain before corrected re-evaluation of the same adapter.
+- PR #359 added corrected-contract re-evaluation and failure clustering. PR #360 added leak-safe failure learning. PR #365 added fail-closed frozen-holdout comparisons. PR #366 wired comparison into the corrected Kaggle re-evaluation path.
+- PR #362 / ADR-007 added the post-PASS serving path. Supabase `bai-trained-inference` infrastructure is deployed but intentionally fail-closed; there is no promoted release pin or bound private GPU backend.
+- If corrected re-evaluation still fails, cluster failures, review train-side remediation siblings, and only approved Gold may feed iteration 2.
 
 ## Rules for agents
 
-- Read `VOTONOBAI_MASTER_ROADMAP.md` first.
+- Read `VOTONOBAI_MASTER_ROADMAP.md` and fresh `main` before work.
 - Never work blind from chat memory.
 - Do not silently change strategy/scope.
-- P0/P1 bugs discovered in the active workstream should be reproduced, fixed and tested, not only reported.
-- Mark something DONE only under the MASTER Definition of Done.
-- Update this status when a material blocker/state changes.
+- P0/P1 bugs in the active path are reproduced, fixed and tested, not merely reported.
+- Mark DONE only under the MASTER Definition of Done.
+- Update this status only when a material blocker/state changes.
 
 ## Immediate definition of success
 
-The MVP is not proven by UI polish or number of providers. It is proven when ordinary users can repeatedly complete the golden shopping loop with honest data and correct basket decisions.
+The MVP is ready for closed-beta consideration when ordinary users can repeatedly complete the golden shopping loop with honest data and correct basket decisions, canonical acceptance evidence remains green, and Gates A–F have evidence with no unresolved P0/P1 release blocker. Canonical acceptance is now converged; Gate F is the primary remaining release decision.
