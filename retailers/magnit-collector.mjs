@@ -95,6 +95,32 @@ function pagePrice(html) {
   return null;
 }
 
+function productPriceContext(html) {
+  const source = String(html || "");
+  const h1 = /<h1[^>]*>[\s\S]*?<\/h1>/i.exec(source);
+  if (!h1) return "";
+  // Price badges are rendered adjacent to the product heading. Restrict evidence to
+  // this local region so footer-wide delivery promos do not mark every product conditional.
+  const start = Math.max(0, h1.index - 3000);
+  const end = Math.min(source.length, h1.index + h1[0].length + 1400);
+  return stripTags(source.slice(start, end));
+}
+
+export function pagePriceTerms(html) {
+  const text = productPriceContext(html);
+  const markers = [];
+  if (/\bфинальная\s+цена\b/i.test(text)) markers.push("final_price");
+  if (/\+\s*\d+(?:[.,]\d+)?\s*%\s*с\s+премиум\b/i.test(text)) markers.push("premium_extra_discount");
+  if (/\bцена\s+по\s+карте\b/i.test(text)) markers.push("card_price");
+  const conditional = markers.length > 0;
+  return {
+    status: conditional ? "terms_unverified" : "unmarked",
+    conditional,
+    markers,
+    evidence_scope: "product_price_context"
+  };
+}
+
 function normalizeImageUrl(value) {
   const raw = Array.isArray(value) ? value[0] : value && typeof value === "object" ? (value.url || value.contentUrl) : value;
   if (!raw) return null;
@@ -154,6 +180,7 @@ export function parseMagnitProductPage(html, url, context) {
   const price = (product ? offerPrice(product.offers) : null) ?? pagePrice(html);
   const unitPrice = pageUnitPrice(html);
   const pack = pagePack(html);
+  const priceTerms = pagePriceTerms(html);
   if (!name) throw new Error("Magnit product name not found");
   if (price == null) throw new Error(`Magnit price not found: ${name}`);
   const sourceUrl = withMagnitStore(url, context.store_context);
@@ -163,6 +190,10 @@ export function parseMagnitProductPage(html, url, context) {
     pack,
     price, unit_price: unitPrice ? unitPrice.price : null, unit_price_unit: unitPrice ? unitPrice.unit : null,
     old_price: null, image_url: pageImage(html),
+    promo: priceTerms.conditional,
+    promo_eligibility_verified: false,
+    promo_terms_verified: false,
+    price_terms: priceTerms,
     availability: /(?:В корзину|Добавить в корзину)/i.test(stripTags(html)) ? "В наличии" : "unknown",
     shop_code: String(context.store_context.shop_code), url: sourceUrl
   };
