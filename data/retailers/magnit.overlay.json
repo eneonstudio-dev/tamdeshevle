@@ -3,12 +3,15 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-14T13:55:44.409Z",
+  "checked_at": "2026-09-14T16:27:26.634Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
     "eggs_c1": 79.99,
+    "oil_sunflower": 169.99,
     "pasta": 59,
+    "smetana": 99.99,
+    "sugar": 89.99,
     "tea_black": 234.99
   },
   "matched": [
@@ -79,6 +82,28 @@
       "availability": "in_stock"
     },
     {
+      "sku": "oil_sunflower",
+      "name": "Масло подсолнечное Mr. Ricco 1л",
+      "retailer_product_id": "1000191320",
+      "price_rub": 169.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000191320-maslo_podsolnechnoe_mr_ricco_rafinirovannoe_dezodorirovannoe_1l?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/aWDHnpsC1qOQ3aoFO_uzlQrR0nBAVTTp95dwmY2GFhM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/28c/28cc6cce3dab5c3a602b73c776edd214/e799f00ff774d446831d478b5be4cade.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "availability": "in_stock"
+    },
+    {
       "sku": "pasta",
       "name": "Макароны Makfa Спагетти №16 Группа А 450г",
       "retailer_product_id": "1000425470",
@@ -96,6 +121,50 @@
       },
       "requested_pack": {
         "value": 450,
+        "unit": "g"
+      },
+      "availability": "in_stock"
+    },
+    {
+      "sku": "smetana",
+      "name": "Сметана Простоквашино 20% 300г",
+      "retailer_product_id": "1000372780",
+      "price_rub": 99.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000372780-prostokvashino_smetana_20_300g_plastikovyy_stakan_ao_danon_rossiya_12?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/-7LpgaSXL4wAc1zVEuw8WiSyAW_gIDmLiHytjLmEY6M/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000372780/image/36f4796b40721c04b7d5f8f7277f856f.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 300,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 300,
+        "unit": "g"
+      },
+      "availability": "in_stock"
+    },
+    {
+      "sku": "sugar",
+      "name": "Сахар-песок белый кристаллический 1кг",
+      "retailer_product_id": "3133780401",
+      "price_rub": 89.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/3133780401-sakhar_belyy_kristallicheskiy_fas_1kg?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/jFWrmEZtck6GKeaFbggmCOfQir3Rq8F_uhNsj8gNDdw/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/01e/01e4687986136db699e0900a5e32faae/9a83d1d96dca6f591f90ff02e7641ad1.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
         "unit": "g"
       },
       "availability": "in_stock"
@@ -190,8 +259,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000109163",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
+      "retailer_product_id": "1000132964",
       "reason": "no_rule_match"
     },
     {
@@ -205,8 +274,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
-      "retailer_product_id": "1000132964",
+      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
+      "retailer_product_id": "1000143304",
       "reason": "no_rule_match"
     },
     {
@@ -220,8 +289,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
-      "retailer_product_id": "1000143304",
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
+      "retailer_product_id": "1000143306",
       "reason": "no_rule_match"
     },
     {
@@ -235,8 +304,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
-      "retailer_product_id": "1000143306",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
+      "retailer_product_id": "1000172831",
       "reason": "no_rule_match"
     },
     {
@@ -255,8 +324,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
-      "retailer_product_id": "1000172831",
+      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
+      "retailer_product_id": "1000244512",
       "reason": "no_rule_match"
     },
     {
@@ -270,8 +339,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
-      "retailer_product_id": "1000244512",
+      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "retailer_product_id": "1000304495",
       "reason": "no_rule_match"
     },
     {
@@ -285,13 +354,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
-      "retailer_product_id": "1000304495",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "retailer_product_id": "1000294726",
+      "name": "Хлеб Чиабатта зерновая 300г",
+      "retailer_product_id": "1000253543",
       "reason": "no_rule_match"
     },
     {
@@ -300,13 +369,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000304501",
+      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
+      "retailer_product_id": "1000427388",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "retailer_product_id": "1000295084",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "retailer_product_id": "1000294726",
       "reason": "no_rule_match"
     },
     {
@@ -315,13 +384,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
-      "retailer_product_id": "1000427388",
+      "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
+      "retailer_product_id": "1000450019",
       "reason": "no_rule_match"
     },
     {
-      "name": "Чиабатта Краснодарский хлебозавод №6 250г",
-      "retailer_product_id": "1000307540",
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "retailer_product_id": "1000295084",
       "reason": "no_rule_match"
     },
     {
@@ -330,13 +399,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
-      "retailer_product_id": "1000450019",
+      "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
+      "retailer_product_id": "1000456509",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310437",
+      "name": "Чиабатта Краснодарский хлебозавод №6 250г",
+      "retailer_product_id": "1000307540",
       "reason": "no_rule_match"
     },
     {
@@ -345,13 +414,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
-      "retailer_product_id": "1000456509",
+      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
+      "retailer_product_id": "1000456510",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310438",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310437",
       "reason": "no_rule_match"
     },
     {
@@ -360,13 +429,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
-      "retailer_product_id": "1000456510",
+      "name": "Молоко Павловское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000495985",
       "reason": "no_rule_match"
     },
     {
-      "name": "Лаваш тонкий Хлеб Продукт 320г",
-      "retailer_product_id": "1000317473",
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310438",
       "reason": "no_rule_match"
     },
     {
@@ -375,42 +444,35 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Павловское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000495985",
+      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000516518",
       "reason": "no_rule_match"
     },
     {
       "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
       "retailer_product_id": "1000335181",
       "reason": "no_rule_match"
-    },
-    {
-      "name": "Чёрный чай ароматизированный Greenfield Сherry Amour 20 пирамидок",
-      "retailer_product_id": "8000052451",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000516518",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
-      "retailer_product_id": "1000452288",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чёрный чай ароматизированный Greenfield Raspberry Romance 20 пирамидок",
-      "retailer_product_id": "8000052452",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
-      "retailer_product_id": "1000568396",
-      "reason": "no_rule_match"
     }
   ],
   "alternatives": [
+    {
+      "sku": "milk",
+      "name": "Молоко пастеризованное Джубгский Фермер 2.5% 1л",
+      "retailer_product_id": "1000427394",
+      "source_url": "https://magnit.ru/product/1000427394-dzhubgskiy_fermer_moloko_paster_2_5_1l?shopCode=770105&shopType=1",
+      "price_rub": 129.99,
+      "eligible": false,
+      "reason": "availability_unconfirmed"
+    },
+    {
+      "sku": "chicken_fil",
+      "name": "Филе цыпленка-бройлера",
+      "retailer_product_id": "1000233462",
+      "source_url": "https://magnit.ru/product/1000233462-file_tsb_okhl_lotok_1_kg_v_lotok_ooo_soyuzptitseprom_5?shopCode=770105&shopType=1",
+      "price_rub": 449.99,
+      "eligible": false,
+      "reason": "availability_unconfirmed"
+    },
     {
       "sku": "pasta",
       "name": "Макароны Спагетти Магнит 500г в ассортименте",

@@ -4,7 +4,7 @@
   "city": "msk",
   "store_id": "magnit",
   "channel": "delivery_catalog",
-  "checked_at": "2026-09-14T13:55:44.409Z",
+  "checked_at": "2026-09-14T16:27:26.634Z",
   "source_url": "https://magnit.ru/",
   "method": "public_store_scoped_catalog_collector",
   "scope_verified": true,
@@ -20,7 +20,7 @@
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
   "collector": {
-    "discovered": 215,
+    "discovered": 219,
     "attempted": 80,
     "accepted": 80,
     "errors": []
@@ -52,6 +52,141 @@
       "availability": "В наличии",
       "shop_code": "770105",
       "url": "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1000427394",
+      "name": "Молоко пастеризованное Джубгский Фермер 2.5% 1л",
+      "brand": "Джубгский Фермер",
+      "pack": null,
+      "price": 129.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/uzeF2h8mTapi3eQPXY6I9XqfKOlnLqhc7OvHmfKnUOE/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/fe5/fe55af0e75ffd83b8217f4df0ded7a49/f4b1833f28ecd3f99e8e748e0b552f19.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "unmarked",
+        "conditional": false,
+        "markers": [],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "unknown",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1000427394-dzhubgskiy_fermer_moloko_paster_2_5_1l?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "3133780401",
+      "name": "Сахар-песок белый кристаллический 1кг",
+      "brand": null,
+      "pack": {
+        "value": 1000,
+        "unit": "g",
+        "source": "characteristic_weight_kg"
+      },
+      "price": 89.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/jFWrmEZtck6GKeaFbggmCOfQir3Rq8F_uhNsj8gNDdw/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/01e/01e4687986136db699e0900a5e32faae/9a83d1d96dca6f591f90ff02e7641ad1.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "promotion_context",
+        "conditional": false,
+        "markers": [
+          "final_price",
+          "premium_extra_benefit"
+        ],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/3133780401-sakhar_belyy_kristallicheskiy_fas_1kg?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1000191320",
+      "name": "Масло подсолнечное Mr. Ricco 1л",
+      "brand": "Mr. Ricco",
+      "pack": null,
+      "price": 169.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/aWDHnpsC1qOQ3aoFO_uzlQrR0nBAVTTp95dwmY2GFhM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/28c/28cc6cce3dab5c3a602b73c776edd214/e799f00ff774d446831d478b5be4cade.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "promotion_context",
+        "conditional": false,
+        "markers": [
+          "final_price",
+          "premium_extra_benefit"
+        ],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1000191320-maslo_podsolnechnoe_mr_ricco_rafinirovannoe_dezodorirovannoe_1l?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1000372780",
+      "name": "Сметана Простоквашино 20% 300г",
+      "brand": "Простоквашино",
+      "pack": {
+        "value": 300,
+        "unit": "g",
+        "source": "characteristic_weight_kg"
+      },
+      "price": 99.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/-7LpgaSXL4wAc1zVEuw8WiSyAW_gIDmLiHytjLmEY6M/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000372780/image/36f4796b40721c04b7d5f8f7277f856f.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "promotion_context",
+        "conditional": false,
+        "markers": [
+          "premium_extra_benefit"
+        ],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1000372780-prostokvashino_smetana_20_300g_plastikovyy_stakan_ao_danon_rossiya_12?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1000233462",
+      "name": "Филе цыпленка-бройлера",
+      "brand": null,
+      "pack": {
+        "value": 1000,
+        "unit": "g",
+        "source": "characteristic_weight_kg"
+      },
+      "price": 449.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/hcMbuquOc1KjdpGbWbZFrmaw4mGrKKuw2ohAyBrOugM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/dc3/dc361508e958b6f515a8ca157b55e952/0b88766490418bec52083b1b9ae3418e.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "unmarked",
+        "conditional": false,
+        "markers": [],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "unknown",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1000233462-file_tsb_okhl_lotok_1_kg_v_lotok_ooo_soyuzptitseprom_5?shopCode=770105&shopType=1"
     },
     {
       "id": "2047000014",
@@ -534,7 +669,7 @@
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 89.99,
+      "price": 97.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
@@ -742,31 +877,33 @@
       "url": "https://magnit.ru/product/1000199546-ahmad_tea_chay_chernyy_klassicheskiy_100pak_200g_akhmad_ti_8?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000109163",
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
-      "brand": "Агрокомплекс",
+      "id": "1000132964",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
+      "brand": "Кубанский Молочник",
       "pack": {
-        "value": 925,
+        "value": 1400,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 73.99,
+      "price": 149.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/N-yOSOq1hoZ-6nvv8ZDPyxRRuuu4W349wSv0N1eJ9eE/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/5a3/5a3285945d2d9b32e65b6d9db68e73b8/799008ffdfb9e954e9f9a3bb94fc365f.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/PHISkCWz-9lWy_vFTcu53hMXUL7rcY_6P-KdcHIAxG0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/add/addab117a113d48a25da8080f81293b8/fbcb0c70284d833727103fbfe2450a9e.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "unmarked",
+        "status": "promotion_context",
         "conditional": false,
-        "markers": [],
+        "markers": [
+          "premium_extra_benefit"
+        ],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000109163-moloko_past_2_5_0_9l_f_p_agrokompleks_10?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000132964-moloko_kubanskiy_molochnik_2_5_1_4l?shopCode=770105&shopType=1"
     },
     {
       "id": "1000544222",
@@ -908,11 +1045,11 @@
       "url": "https://magnit.ru/product/1000281642-tess_chay_chernyy_thyme_hhyme_100pak_150g_k_up_orimi_9?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000132964",
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
-      "brand": "Кубанский Молочник",
+      "id": "1000143304",
+      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
+      "brand": "Кубанская Буренка",
       "pack": {
-        "value": 1400,
+        "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
@@ -920,7 +1057,7 @@
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/PHISkCWz-9lWy_vFTcu53hMXUL7rcY_6P-KdcHIAxG0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/add/addab117a113d48a25da8080f81293b8/fbcb0c70284d833727103fbfe2450a9e.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/VUT1kYGOXJ1DGUmz8UnL64WeZ-3Eq292Nmv1VAe58iw/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/48d/48dcd7cfbd8b891457beedf9b9e6245e/ba137575e723c372c0586031455370e0.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -934,7 +1071,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000132964-moloko_kubanskiy_molochnik_2_5_1_4l?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000143304-kubanskaya_burenka_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
     },
     {
       "id": "1000373535",
@@ -1049,19 +1186,19 @@
       "url": "https://magnit.ru/product/1000389628-ahmad_tea_chay_chernyy_persik_marakuyya_25pak_37_5g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000143304",
-      "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
-      "brand": "Кубанская Буренка",
+      "id": "1000143306",
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
+      "brand": "Домик в Деревне",
       "pack": {
         "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 149.99,
+      "price": 134.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/VUT1kYGOXJ1DGUmz8UnL64WeZ-3Eq292Nmv1VAe58iw/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/48d/48dcd7cfbd8b891457beedf9b9e6245e/ba137575e723c372c0586031455370e0.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/nurbxKXmPdUIomoW4dYyjhgUzlYduwjrHjvVq6MlutA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000143306/image/531e667df78dbd29dcee9bf53410ba5f.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1075,7 +1212,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000143304-kubanskaya_burenka_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000143306-domik_v_derevne_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
     },
     {
       "id": "1000376105",
@@ -1190,19 +1327,19 @@
       "url": "https://magnit.ru/product/1000389629-ahmad_tea_chay_chernyy_malinovoe_lakomstvo_25pak_37_5g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000143306",
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
-      "brand": "Домик в Деревне",
+      "id": "1000172831",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
+      "brand": "Кубанский Молочник",
       "pack": {
-        "value": 1442,
+        "value": 720,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 134.99,
+      "price": 79.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/nurbxKXmPdUIomoW4dYyjhgUzlYduwjrHjvVq6MlutA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000143306/image/531e667df78dbd29dcee9bf53410ba5f.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/Mdv6yhgg12BGsm0Viz2Q7_21KAUuAeBRjM_R727k2x8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d1f/d1f9eef3132ec8e4bd892f34599f8767/f8cf5a37de0eeaef8b70c6db20b94eaf.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1216,7 +1353,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000143306-domik_v_derevne_moloko_past_2_5_1_4l_pl_but_vbd_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000172831-kubanskiy_molochnik_moloko_2_5_720g_pl_kan_leningradskiy_6?shopCode=770105&shopType=1"
     },
     {
       "id": "1000425470",
@@ -1329,33 +1466,31 @@
       "url": "https://magnit.ru/product/1000451703-ahmad_tea_blackcurrant_burst_chay_chernyy_smorodina_25_pak?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000172831",
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
-      "brand": "Кубанский Молочник",
+      "id": "1000244512",
+      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
+      "brand": "Рогачевъ",
       "pack": {
-        "value": 720,
+        "value": 360,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 79.99,
+      "price": 159.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/Mdv6yhgg12BGsm0Viz2Q7_21KAUuAeBRjM_R727k2x8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d1f/d1f9eef3132ec8e4bd892f34599f8767/f8cf5a37de0eeaef8b70c6db20b94eaf.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/8qZVygpstJYU6guUGssX2gkN9BnewbGqVxPDREI9dLg/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/5c7/5c7ff2026ed7bebf2b5f0717a5ff11cb/157b5d24dce7d7dd58eb250476ef5f0d.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "promotion_context",
+        "status": "unmarked",
         "conditional": false,
-        "markers": [
-          "premium_extra_benefit"
-        ],
+        "markers": [],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000172831-kubanskiy_molochnik_moloko_2_5_720g_pl_kan_leningradskiy_6?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000244512-moloko_sgushchennoe_rogachev_varenoe_tselnoe_360g?shopCode=770105&shopType=1"
     },
     {
       "id": "1000443805",
@@ -1439,31 +1574,33 @@
       "url": "https://magnit.ru/product/1000475806-akbar_limited_edition_chay_chernyy_krupnolistovoy_200g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000244512",
-      "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
-      "brand": "Рогачевъ",
+      "id": "1000304495",
+      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "brand": "Платье в Горошек",
       "pack": {
-        "value": 360,
+        "value": 924,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 159.99,
+      "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/8qZVygpstJYU6guUGssX2gkN9BnewbGqVxPDREI9dLg/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/5c7/5c7ff2026ed7bebf2b5f0717a5ff11cb/157b5d24dce7d7dd58eb250476ef5f0d.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/c5_ervlq-Cfkp6LYvmw4PAAxTpvdkNwhV-tk6zdRXcQ/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/0a4/0a4d99ec17ef1e7459d81777c0d50d42/f8c5e593c6d8ccf698901f858e63b0ed.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "unmarked",
+        "status": "promotion_context",
         "conditional": false,
-        "markers": [],
+        "markers": [
+          "premium_extra_benefit"
+        ],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000244512-moloko_sgushchennoe_rogachev_varenoe_tselnoe_360g?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000304495-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_3_5_5_4_31450_2013_900g_plastikovaya_butylka_o?shopCode=770105&shopType=1"
     },
     {
       "id": "3174070006",
@@ -1549,19 +1686,19 @@
       "url": "https://magnit.ru/product/1000551003-krasnodarskiy_gost_chay_chern_ruchnoy_sbor_chabrets_50g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000304495",
-      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "id": "1000304501",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
       "brand": "Платье в Горошек",
       "pack": {
-        "value": 924,
+        "value": 925,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 89.99,
+      "price": 79.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/c5_ervlq-Cfkp6LYvmw4PAAxTpvdkNwhV-tk6zdRXcQ/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/0a4/0a4d99ec17ef1e7459d81777c0d50d42/f8c5e593c6d8ccf698901f858e63b0ed.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/sgFQ6DotZQkm-O3C35VFPMmCS1Q9qvm6FLfF5Y-zrzk/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/1a6/1a652f6f52c944993cc68fb332248fdd/504e94c4b6701c188cfa6cee87e69231.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1575,36 +1712,34 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000304495-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_3_5_5_4_31450_2013_900g_plastikovaya_butylka_o?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000294726",
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "brand": "Аютинский Хлеб",
+      "id": "1000253543",
+      "name": "Хлеб Чиабатта зерновая 300г",
+      "brand": "Магнит",
       "pack": {
-        "value": 280,
+        "value": 300,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 46.99,
+      "price": 69.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/QeakEixgrpuAsLbqusR6YvhsToVqoExldOsxEycfM-8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/146/146d7be3b349f1db1d206509bb89bacc/32eb4078241e4219a50e9cdf68b2feeb.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/twwoix3-oBrRfvI0PsM8vkzCmVb3OqOWVEWnd4Kjqp0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000253543/image/cdb93edfe6d449603dc58bb53618b8e6.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "promotion_context",
+        "status": "unmarked",
         "conditional": false,
-        "markers": [
-          "premium_extra_benefit"
-        ],
+        "markers": [],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000294726-ayutinskiy_khleb_khleb_tostovyy_narez_psh_0_28kg_p_up_15?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000253543-khleb_chiabatta_zernovaya_0_3_kg_polietilenovyy_paket_sp_gm?shopCode=770105&shopType=1"
     },
     {
       "id": "1032420004",
@@ -1636,48 +1771,42 @@
       "url": "https://magnit.ru/product/1032420004-chay_chernyy_greenfield_earl_grey_fantasy_100g?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000304501",
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "brand": "Платье в Горошек",
-      "pack": {
-        "value": 925,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 79.99,
+      "id": "1000427388",
+      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
+      "brand": "Джубгский Фермер",
+      "pack": null,
+      "price": 139.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/sgFQ6DotZQkm-O3C35VFPMmCS1Q9qvm6FLfF5Y-zrzk/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/1a6/1a652f6f52c944993cc68fb332248fdd/504e94c4b6701c188cfa6cee87e69231.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/5ZaUVkWI4C3V7qC1MCkoOu3u6Fhdtghcn-KB84HFpFU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f84/f84a1cc3228723f51be84f8856c3979d/a1ce64cf693b2197eace74c1b1731ab4.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "promotion_context",
+        "status": "unmarked",
         "conditional": false,
-        "markers": [
-          "premium_extra_benefit"
-        ],
+        "markers": [],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000427388-dzhubgskiy_fermer_moloko_paster_3_2_1l?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000295084",
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "brand": "ХК Лавина",
+      "id": "1000294726",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "brand": "Аютинский Хлеб",
       "pack": {
-        "value": 400,
+        "value": 280,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 76.99,
+      "price": 46.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/tWHqYpbIG1qon_ooGetTW5ZYxUcquFpg4cyeUcvOyqM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/6fa/6fa8c15a6039fe3d192c96cdcdd6b3c0/2667dca5599c2e8d48c6803087f85115.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/QeakEixgrpuAsLbqusR6YvhsToVqoExldOsxEycfM-8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/146/146d7be3b349f1db1d206509bb89bacc/32eb4078241e4219a50e9cdf68b2feeb.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1691,7 +1820,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000295084-lavina_khleb_tostovyy_pshenichnyy_v_narezke_0_4_kg_polietilenovaya_upakovka_ooo_khlebokombinat_lavin?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000294726-ayutinskiy_khleb_khleb_tostovyy_narez_psh_0_28kg_p_up_15?shopCode=770105&shopType=1"
     },
     {
       "id": "1039990273",
@@ -1723,83 +1852,6 @@
       "url": "https://magnit.ru/product/1039990273-chay_chernyy_tess_pleasure_s_shipovnikom_i_yablokom_25pak?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000427388",
-      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
-      "brand": "Джубгский Фермер",
-      "pack": null,
-      "price": 139.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/5ZaUVkWI4C3V7qC1MCkoOu3u6Fhdtghcn-KB84HFpFU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f84/f84a1cc3228723f51be84f8856c3979d/a1ce64cf693b2197eace74c1b1731ab4.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "unmarked",
-        "conditional": false,
-        "markers": [],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000427388-dzhubgskiy_fermer_moloko_paster_3_2_1l?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "1000307540",
-      "name": "Чиабатта Краснодарский хлебозавод №6 250г",
-      "brand": "Краснодарский",
-      "pack": {
-        "value": 250,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 99.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/SgsY-8qxosVu17XMKg4_gIStWQemyED6Endgbs6E2os/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/027/027f36ae02a6a90399b9403b0b9e77c3/3428546d627656f45105e16fba23ef62.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "unmarked",
-        "conditional": false,
-        "markers": [],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000307540-khlebobulochnoe_izdelie_chiabatta_pshenichnaya_v_s_250g_ne_upakovan_ao_krasnodarskiy_khlebozavod_6_?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "1524200012",
-      "name": "Чай черный Greenfield Golden Ceylon 25пак",
-      "brand": "Greenfield",
-      "pack": {
-        "value": 50,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 89.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/o4L9KKdsmsH03b4MN0F1YH0uq5tPBezmM2j7mfhpTh4/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/ccf/ccf219b6116369f1593b37a13f02d850/2d06995e779d221a45a8c6c720ba9c55.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "unmarked",
-        "conditional": false,
-        "markers": [],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1524200012-chay_chernyy_greenfield_golden_ceylon_25pak?shopCode=770105&shopType=1"
-    },
-    {
       "id": "1000450019",
       "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
       "brand": "Агрокомплекс",
@@ -1827,19 +1879,19 @@
       "url": "https://magnit.ru/product/1000450019-agrokompleks_moloko_otbor_past_2_5_1_4l?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000310437",
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "brand": "Аютинский Хлеб",
+      "id": "1000295084",
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "brand": "ХК Лавина",
       "pack": {
-        "value": 550,
+        "value": 400,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 89.99,
+      "price": 76.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/_TWPGaW8tH2Vnk9RfDx-AhaBu8ywL1W4GQW9Yi5QXqc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/40a/40a2d3f76fb3074562138d4cf56c1bd7/8594892999e36d620242757e94bf0346.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/tWHqYpbIG1qon_ooGetTW5ZYxUcquFpg4cyeUcvOyqM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/6fa/6fa8c15a6039fe3d192c96cdcdd6b3c0/2667dca5599c2e8d48c6803087f85115.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1853,14 +1905,14 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000310437-ayutinskiy_khleb_khdeb_remeslennyy_na_zakvaske_v_s_pshenichnyy_v_narezke_0_55kg_polietilenovaya_upak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000295084-lavina_khleb_tostovyy_pshenichnyy_v_narezke_0_4_kg_polietilenovaya_upakovka_ooo_khlebokombinat_lavin?shopCode=770105&shopType=1"
     },
     {
-      "id": "1524200089",
-      "name": "Чай черный Greenfield Spring Melody 25пак",
+      "id": "1524200012",
+      "name": "Чай черный Greenfield Golden Ceylon 25пак",
       "brand": "Greenfield",
       "pack": {
-        "value": 37,
+        "value": 50,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
@@ -1868,7 +1920,7 @@
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/RpFO_ybcN-ofiriFxBCqM5VX0apy7GQw0NgX0ZXnZjA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f10/f107dc6ab15e78d192f4f10715f63e28/e2af3524c038b34a893692af0b6f3c10.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/o4L9KKdsmsH03b4MN0F1YH0uq5tPBezmM2j7mfhpTh4/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/ccf/ccf219b6116369f1593b37a13f02d850/2d06995e779d221a45a8c6c720ba9c55.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1880,7 +1932,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1524200089-chay_chernyy_greenfield_spring_melody_25pak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1524200012-chay_chernyy_greenfield_golden_ceylon_25pak?shopCode=770105&shopType=1"
     },
     {
       "id": "1000456509",
@@ -1913,48 +1965,19 @@
       "url": "https://magnit.ru/product/1000456509-korovka_iz_korenovki_moloko_otbor_past_3_4_6_0_1_4l_pl_b?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000310438",
-      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
-      "brand": "Аютинский Хлеб",
+      "id": "1000307540",
+      "name": "Чиабатта Краснодарский хлебозавод №6 250г",
+      "brand": "Краснодарский",
       "pack": {
-        "value": 550,
+        "value": 250,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 89.99,
+      "price": 99.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/OyfT56IPOf9gKuZdObnhTJp2aA7HGuiHqX4kUvhDQ6s/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/898/8984e6d5870ce57303ae14271b384e8b/67eb8c1e35cf7655b38717f5b217ca5d.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "promotion_context",
-        "conditional": false,
-        "markers": [
-          "premium_extra_benefit"
-        ],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000310438-ayutinskiy_khleb_khdeb_remeslennyy_iz_tselnozernovoy_muki_tselnozernovoy_pshenichnyy_v_narezke_0_55k?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "1524200094",
-      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
-      "brand": "Принцесса Нури",
-      "pack": {
-        "value": 37,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 69.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/DvtYCwhDLBte0lF3sun_Yq7OggmlUUa1Y-7WX7ICwRU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f16/f16acee2d63fd2fe45f1bdc1659e3833/26660d881c395bda556668db26d2cd12.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/SgsY-8qxosVu17XMKg4_gIStWQemyED6Endgbs6E2os/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/027/027f36ae02a6a90399b9403b0b9e77c3/3428546d627656f45105e16fba23ef62.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -1966,7 +1989,34 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1524200094-chay_chernyy_printsessa_nuri_s_chernoy_smorodinoy_25pak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000307540-khlebobulochnoe_izdelie_chiabatta_pshenichnaya_v_s_250g_ne_upakovan_ao_krasnodarskiy_khlebozavod_6_?shopCode=770105&shopType=1"
+    },
+    {
+      "id": "1524200089",
+      "name": "Чай черный Greenfield Spring Melody 25пак",
+      "brand": "Greenfield",
+      "pack": {
+        "value": 37,
+        "unit": "g",
+        "source": "characteristic_weight_kg"
+      },
+      "price": 97.99,
+      "unit_price": null,
+      "unit_price_unit": null,
+      "old_price": null,
+      "image_url": "https://images-foodtech.magnit.ru/RpFO_ybcN-ofiriFxBCqM5VX0apy7GQw0NgX0ZXnZjA/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f10/f107dc6ab15e78d192f4f10715f63e28/e2af3524c038b34a893692af0b6f3c10.jpeg@webp",
+      "promo": false,
+      "promo_eligibility_verified": false,
+      "promo_terms_verified": false,
+      "price_terms": {
+        "status": "unmarked",
+        "conditional": false,
+        "markers": [],
+        "evidence_scope": "product_price_context"
+      },
+      "availability": "В наличии",
+      "shop_code": "770105",
+      "url": "https://magnit.ru/product/1524200089-chay_chernyy_greenfield_spring_melody_25pak?shopCode=770105&shopType=1"
     },
     {
       "id": "1000456510",
@@ -1999,46 +2049,48 @@
       "url": "https://magnit.ru/product/1000456510-korovka_iz_korenovki_moloko_pasterizovan_2_5_1_4l_pl_but?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000317473",
-      "name": "Лаваш тонкий Хлеб Продукт 320г",
-      "brand": "Хлебпродукт",
+      "id": "1000310437",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "brand": "Аютинский Хлеб",
       "pack": {
-        "value": 320,
+        "value": 550,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 72.99,
+      "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/4JThb8WcE-kD-qRcAMj4VI26n9zBWt93eUtW7C1JR2g/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/6da/6da365fb49790bf843ec1a1f0535f67d/8bfc850a12e19eaff473f449151cd172.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/_TWPGaW8tH2Vnk9RfDx-AhaBu8ywL1W4GQW9Yi5QXqc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/40a/40a2d3f76fb3074562138d4cf56c1bd7/8594892999e36d620242757e94bf0346.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "unmarked",
+        "status": "promotion_context",
         "conditional": false,
-        "markers": [],
+        "markers": [
+          "premium_extra_benefit"
+        ],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000317473-lavash_tonkiy_0_32kg_polietilenovaya_upakovka_khlebprodukt_ooo?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000310437-ayutinskiy_khleb_khdeb_remeslennyy_na_zakvaske_v_s_pshenichnyy_v_narezke_0_55kg_polietilenovaya_upak?shopCode=770105&shopType=1"
     },
     {
-      "id": "3091160104",
-      "name": "Чай черный Принцесса Нури Высокогорный 25пак",
+      "id": "1524200094",
+      "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
       "brand": "Принцесса Нури",
       "pack": {
-        "value": 50,
+        "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 54.99,
+      "price": 69.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/KmcD8o2FBvkjW_hc2x5Y0Wwwwg07IpE-HkcINYPX_YU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d43/d43b5d040a7eec6f7b5e280e9713d234/1d48432ab8f180c78095eea8d75a5e25.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/DvtYCwhDLBte0lF3sun_Yq7OggmlUUa1Y-7WX7ICwRU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/f16/f16acee2d63fd2fe45f1bdc1659e3833/26660d881c395bda556668db26d2cd12.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -2050,7 +2102,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/3091160104-chay_chernyy_printsessa_nuri_vysokogornyy_25pak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1524200094-chay_chernyy_printsessa_nuri_s_chernoy_smorodinoy_25pak?shopCode=770105&shopType=1"
     },
     {
       "id": "1000495985",
@@ -2080,46 +2132,48 @@
       "url": "https://magnit.ru/product/1000495985-pavlovskoe_moloko_past_2_5_900g_pl_but?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000335181",
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
-      "brand": "Краснодарский",
+      "id": "1000310438",
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
+      "brand": "Аютинский Хлеб",
       "pack": {
-        "value": 170,
+        "value": 550,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 44.59,
+      "price": 89.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/3ojio_DsXBVpRXEY2BqTfJPJGFfqMp57o0IfcGl4wUc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d14/d1452091c20b2a1acc941b478109a72b/ba408db04fca2c6430c98a0a8e3e0900.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/OyfT56IPOf9gKuZdObnhTJp2aA7HGuiHqX4kUvhDQ6s/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/898/8984e6d5870ce57303ae14271b384e8b/67eb8c1e35cf7655b38717f5b217ca5d.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
       "price_terms": {
-        "status": "unmarked",
+        "status": "promotion_context",
         "conditional": false,
-        "markers": [],
+        "markers": [
+          "premium_extra_benefit"
+        ],
         "evidence_scope": "product_price_context"
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000335181-baton_letniy_v_narezke_polovinka_v_s_170g_pishchevaya_plenka_ao_krasnodarskiy_khlebozavod_6_?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000310438-ayutinskiy_khleb_khdeb_remeslennyy_iz_tselnozernovoy_muki_tselnozernovoy_pshenichnyy_v_narezke_0_55k?shopCode=770105&shopType=1"
     },
     {
-      "id": "8000052451",
-      "name": "Чёрный чай ароматизированный Greenfield Сherry Amour 20 пирамидок",
-      "brand": "Greenfield",
+      "id": "3091160104",
+      "name": "Чай черный Принцесса Нури Высокогорный 25пак",
+      "brand": "Принцесса Нури",
       "pack": {
-        "value": 36,
+        "value": 50,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 129.99,
+      "price": 54.99,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/vrcD6fzejxMo4-3eREE3SK_vglXR-38m7PvpA9eRRV0/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/a3d/a3d8461e4ea5bac0a484d449ba12687f/05d9b4fc6c0c1d2d8169e87676e99ac1.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/KmcD8o2FBvkjW_hc2x5Y0Wwwwg07IpE-HkcINYPX_YU/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d43/d43b5d040a7eec6f7b5e280e9713d234/1d48432ab8f180c78095eea8d75a5e25.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -2131,7 +2185,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/8000052451-greenfield_sherry_amour_chay_chernyy_arom_20pir_k_up?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/3091160104-chay_chernyy_printsessa_nuri_vysokogornyy_25pak?shopCode=770105&shopType=1"
     },
     {
       "id": "1000516518",
@@ -2161,19 +2215,19 @@
       "url": "https://magnit.ru/product/1000516518-klyuchevskoe_moloko_past_2_5_900g_pyur_p?shopCode=770105&shopType=1"
     },
     {
-      "id": "1000452288",
-      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
-      "brand": "ХК Лавина",
+      "id": "1000335181",
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
+      "brand": "Краснодарский",
       "pack": {
-        "value": 300,
+        "value": 170,
         "unit": "g",
         "source": "characteristic_weight_kg"
       },
-      "price": 56.99,
+      "price": 44.59,
       "unit_price": null,
       "unit_price_unit": null,
       "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/JNzxBrDjOt1JLSRYpkXs_Gl9ZOGJUfXZ22t7lPqduJM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/b9c/b9c0e8a5429c1b587e89271d1c744a68/091d7fcf691627334a44184c7a237a11.jpeg@webp",
+      "image_url": "https://images-foodtech.magnit.ru/3ojio_DsXBVpRXEY2BqTfJPJGFfqMp57o0IfcGl4wUc/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/d14/d1452091c20b2a1acc941b478109a72b/ba408db04fca2c6430c98a0a8e3e0900.jpeg@webp",
       "promo": false,
       "promo_eligibility_verified": false,
       "promo_terms_verified": false,
@@ -2185,63 +2239,7 @@
       },
       "availability": "В наличии",
       "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000452288-khleb_artizian_v_narezke_300g_p_up_lavina?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "8000052452",
-      "name": "Чёрный чай ароматизированный Greenfield Raspberry Romance 20 пирамидок",
-      "brand": "Greenfield",
-      "pack": {
-        "value": 36,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 129.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/u5IP4dhgL_3lmDCr06Jc0e2eVDDte8At07FL989NLfM/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/9ab/9ab76e84de068db82f049ef0a149e81c/ac4fc11499641af5272e84f3fe87de1a.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "unmarked",
-        "conditional": false,
-        "markers": [],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/8000052452-greenfield_ruspberry_romance_chay_chernyy_arom_20pir_k_up?shopCode=770105&shopType=1"
-    },
-    {
-      "id": "1000568396",
-      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
-      "brand": "Домик в Деревне",
-      "pack": {
-        "value": 950,
-        "unit": "g",
-        "source": "characteristic_weight_kg"
-      },
-      "price": 139.99,
-      "unit_price": null,
-      "unit_price_unit": null,
-      "old_price": null,
-      "image_url": "https://images-foodtech.magnit.ru/nsoqjYqR-xMwSajmksVp2spl1bgXZAAP6AyGsQhXoyg/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/e7b/e7b49bcb494ba0467f9beecab38d66a3/d9b0765b1c352402caed23d9eaa80db7.jpeg@webp",
-      "promo": false,
-      "promo_eligibility_verified": false,
-      "promo_terms_verified": false,
-      "price_terms": {
-        "status": "promotion_context",
-        "conditional": false,
-        "markers": [
-          "premium_extra_benefit"
-        ],
-        "evidence_scope": "product_price_context"
-      },
-      "availability": "В наличии",
-      "shop_code": "770105",
-      "url": "https://magnit.ru/product/1000568396-domik_v_derevne_moloko_bezlakt_ultrapast_1_8_950g_t_pak?shopCode=770105&shopType=1"
+      "url": "https://magnit.ru/product/1000335181-baton_letniy_v_narezke_polovinka_v_s_170g_pishchevaya_plenka_ao_krasnodarskiy_khlebozavod_6_?shopCode=770105&shopType=1"
     }
   ]
 }
