@@ -23,4 +23,6 @@ subprocess.run([sys.executable,str(Path(__file__).with_name('kaggle_factory_v2_s
 prepare=Path(__file__).with_name('prepare_factory_review.mjs')
 subprocess.run(['node','--check',str(prepare)],check=True)
 subprocess.run(['node',str(Path(__file__).with_name('prepare_factory_review_smoke.mjs'))],check=True)
-print('Kaggle teacher load order, pinned revisions, and Data Factory pilot contract passed.')
+triage=Path(__file__).resolve().parents[1]/'training/summarize_factory_review_smoke.py'
+subprocess.run([sys.executable,str(triage)],check=True)
+print('Kaggle teacher load order, pinned revisions, Data Factory pilot, and review triage contracts passed.')
