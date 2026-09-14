@@ -28,6 +28,8 @@ jobs:
         run: node scripts/test-promo-eligibility.mjs
       - name: Equal-cost plan tie-break
         run: node scripts/test-plan-tie-break.mjs
+      - name: Grounded decision explanation
+        run: node scripts/test-bai-explanation.mjs
       - name: Shopping state consistency
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state
