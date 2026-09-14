@@ -1,1 +1,0 @@
-Design-only continuation of the Roxy purchase journey. Adds truthful redirect/store handoff UX, Bay success state based only on user-marked progress, desktop + Android browser QA, and a durable Sara 2 handoff note. No retailer capability, ranking, price truth, basket semantics, or backend behavior changes.
