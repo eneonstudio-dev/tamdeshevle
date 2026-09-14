@@ -42,7 +42,7 @@ assert.equal(storeConstraints.length,1,"multiple CHANGE_STORE ops must become on
 assert.deepEqual(new Set(storeConstraints[0].payload.value),new Set(["pyat","magnit"]),"canonical store_ids must preserve every explicitly selected retailer");
 
 const result=await kernel.run({
-  text:"Сравни Пятёрочку и Магнит, где дешевле",
+  text:"Сравни магазины Пятёрочка и Магнит, где дешевле",
   operations:[
     {type:"CHANGE_STORE",value:"pyat"},
     {type:"CHANGE_STORE",value:"magnit"},
