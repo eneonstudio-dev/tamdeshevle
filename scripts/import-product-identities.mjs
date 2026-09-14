@@ -16,6 +16,21 @@ const source = args.source || 'open_food_facts';
 const format = args.format || (String(input || '').endsWith('.jsonl') ? 'jsonl' : 'csv');
 const delimiter = args.delimiter === 'tab' ? '\t' : (args.delimiter || ',');
 
+// Keep executable import policy aligned with SOURCE_PROVIDER_REGISTRY.md.
+// A technically reachable dataset is not an approved production identity source.
+const IMPORT_SOURCE_POLICY = Object.freeze({
+  open_food_facts: { enabled: true, identity_only: true },
+  canonical: { enabled: true, identity_only: true },
+  ru_barcode: { enabled: false, reason: 'blocked_pending_license_review' }
+});
+
+const sourcePolicy = IMPORT_SOURCE_POLICY[source];
+if (!sourcePolicy || sourcePolicy.enabled !== true) {
+  const reason = sourcePolicy?.reason || 'source_not_approved_for_import';
+  console.error(`Identity import blocked for source "${source}": ${reason}. Check SOURCE_PROVIDER_REGISTRY.md.`);
+  process.exit(3);
+}
+
 if (!input) {
   console.error('Usage: node scripts/import-product-identities.mjs --input FILE --source open_food_facts [--output DIR] [--format csv|jsonl]');
   process.exit(2);
