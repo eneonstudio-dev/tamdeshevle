@@ -162,8 +162,9 @@ def main() -> int:
             row_ids = {item.get("id") for item in data.get("rows", [])}
             if row_ids != expected_ids:
                 failures.append(f"{viewport}: handoff rows must contain exactly declared redirect retailers {data.get('rows')}")
-            if "samokat" not in data.get("warning", "").lower() or "не подтверждённого handoff" not in data.get("warning", ""):
-                failures.append(f"{viewport}: unsupported retailer must fail closed with explicit warning {data.get('warning')}")
+            warning = data.get("warning", "")
+            if "samokat" not in warning.lower() or "подтверждённого handoff" not in warning or "не считаем перенесёнными" not in warning:
+                failures.append(f"{viewport}: unsupported retailer must fail closed with explicit warning {warning}")
             truth = data.get("truth", "")
             if "Без автопереноса корзины" not in truth or "подтверждаются" not in truth:
                 failures.append(f"{viewport}: global redirect truth boundary missing {truth}")
