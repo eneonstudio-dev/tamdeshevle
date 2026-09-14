@@ -2,7 +2,9 @@
   "use strict";
   if(window.__TDRoxySplitDecisionV1)return;
   window.__TDRoxySplitDecisionV1=true;
+  const STYLE="votonobay-roxy-split-decision-v1.css?v=20260914-v1";
   const money=v=>`${Math.round(Number(v)||0).toLocaleString("ru-RU")} ₽`;
+  function ensureStyle(){if(document.querySelector('link[data-roxy-split-decision]'))return;const link=document.createElement("link");link.rel="stylesheet";link.href=STYLE;link.dataset.roxySplitDecision="1";document.head.appendChild(link)}
   function decision(result){
     const one=result?.bestOne,two=result?.bestTwo;
     if(!one||!two||result.worthSplitting||!(result.extraSaving>0))return null;
@@ -16,6 +18,7 @@
     const wrap=document.querySelector("#app .wrap"),toggle=wrap?.querySelector(".toggle");
     if(!wrap||!toggle||wrap.querySelector("[data-split-basket],.roxy-split-decision"))return false;
     const result=window.TDBasketSplit.fromWindow?.(),copy=decision(result);if(!copy)return false;
+    ensureStyle();
     const card=document.createElement("section");card.className="roxy-split-decision";card.dataset.splitDecision=copy.kind;
     const small=document.createElement("small");small.textContent="РЕШЕНИЕ БАЯ · ОДИН ИЛИ ДВА МАГАЗИНА";
     const title=document.createElement("h3");title.textContent=copy.title;
