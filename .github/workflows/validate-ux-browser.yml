@@ -11,6 +11,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
+      - "scripts/test-retailer-handoff-gate.py"
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
@@ -33,6 +34,7 @@ on:
       - "scripts/test-compare-theme.py"
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
+      - "scripts/test-retailer-handoff-gate.py"
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
@@ -92,6 +94,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-handoff.py
+      - name: Validate retailer handoff Gate D
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-retailer-handoff-gate.py
       - name: Validate Roxy long basket
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
