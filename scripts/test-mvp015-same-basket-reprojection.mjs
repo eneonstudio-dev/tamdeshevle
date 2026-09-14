@@ -48,8 +48,8 @@ const seeded=context.TDShoppingConversation.apply("seed",[
   {type:"SET_PRODUCT_AMOUNT",value:{id:"milk",amount:2,unit:"pack"}},
   {type:"SET_PRODUCT_AMOUNT",value:{id:"chicken",amount:2,unit:"pack"}}
 ]);
-const beforeIds=seeded.state.products.map(x=>x.id).sort();
-const beforeQty=Object.fromEntries(seeded.state.products.map(x=>[x.id,x.quantity]));
+const beforeIds=Array.from(seeded.state.products,x=>x.id).sort();
+const beforeQty=Object.fromEntries(Array.from(seeded.state.products,x=>[x.id,x.quantity]));
 assert.deepEqual(beforeIds,["bread","chicken","milk"]);
 assert.equal(beforeQty.milk,2);
 assert.equal(beforeQty.chicken,2);
@@ -59,8 +59,8 @@ assert.equal(parsed.some(op=>op.type==="CHANGE_STORE"&&op.value==="perek"),true,
 assert.equal(parsed.some(op=>op.type==="RESET_BASKET"||op.type==="CLEAR_ONLY"||op.type==="SET_ONLY_PRODUCTS"),false,"same-basket reprojection must not rebuild product intent");
 
 const result=context.TDShoppingConversation.apply("Собери то же самое в Перекрёстке",parsed);
-const afterIds=result.state.products.map(x=>x.id).sort();
-const afterQty=Object.fromEntries(result.state.products.map(x=>[x.id,x.quantity]));
+const afterIds=Array.from(result.state.products,x=>x.id).sort();
+const afterQty=Object.fromEntries(Array.from(result.state.products,x=>[x.id,x.quantity]));
 assert.deepEqual(afterIds,beforeIds,"MVP-015 must re-project the exact UniversalBasket instead of adding default products");
 assert.deepEqual(afterQty,beforeQty,"MVP-015 must preserve quantities while changing retailer projection");
 assert.deepEqual(Array.from(result.state.stores),["perek"],"MVP-015 must project into the requested retailer");
