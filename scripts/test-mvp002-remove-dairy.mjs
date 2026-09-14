@@ -2,6 +2,20 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 
+const normalizer=fs.readFileSync(new URL("../bai-category-intents.js",import.meta.url),"utf8");
+const config=fs.readFileSync(new URL("../supabase-config.js",import.meta.url),"utf8");
+assert.ok(config.indexOf("bai-category-intents.js")>config.indexOf("bai-mvp-vertical-gate.js"),"category normalizer must be part of the bounded Bai client chain");
+
+// Core Bai path must preserve the same explicit category operation.
+const brainContext={console,JSON,Math,Number,String,Object,Array,Set};
+brainContext.window=brainContext;
+brainContext.TDShoppingState={get:()=>({products:[],budget:5000})};
+vm.createContext(brainContext);
+vm.runInContext(fs.readFileSync(new URL("../bai-brain.js",import.meta.url),"utf8"),brainContext,{filename:"bai-brain.js"});
+vm.runInContext(normalizer,brainContext,{filename:"bai-category-intents.js"});
+const brainResult=await brainContext.TDBaiBrain.route("Убери молочку");
+assert.equal(brainResult.operations.some(op=>op.type==="EXCLUDE_TAG"&&op.value==="молочка"),true,"core Bai path must emit the deterministic dairy exclusion");
+
 const storage=new Map();
 const context={console,JSON,Math,Number,String,Object,Array,Set,Map,Date};
 context.window=context;
@@ -35,6 +49,7 @@ vm.createContext(context);
 for(const file of ["shopping-state.js","shopping-optimizer.js","shopping-conversation.js"]){
   vm.runInContext(fs.readFileSync(new URL(`../${file}`,import.meta.url),"utf8"),context,{filename:file});
 }
+vm.runInContext(normalizer,context,{filename:"bai-category-intents.js"});
 
 // Seed the canonical previous-turn state without testing MVP-001 again.
 let seeded=context.TDShoppingConversation.apply("seed",[
