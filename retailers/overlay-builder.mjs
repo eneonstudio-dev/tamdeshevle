@@ -63,7 +63,7 @@ export function buildOverlayFromSnapshot(snapshot) {
 
   return {
     ...overlay,
-    unavailable,
+    ...(unavailable.length ? { unavailable } : {}),
     channel: snapshot.channel || normalized[0]?.channel || "delivery_catalog",
     source_url: snapshot.source_url || null,
     source_schema: snapshot.schema || null,
