@@ -48,4 +48,5 @@ assert "'CUDA_VISIBLE_DEVICES': '0'" in source
 assert "PROMOTE" in source and "check=False" in source
 assert "release_created': False" in source
 assert 'train_student.py' not in source
-print('Existing Bai candidate re-evaluation contract passed: no retraining, pinned evidence hashes, unchanged promotion gate, no release creation.')
+subprocess.run([sys.executable,str(ROOT/'teacher-lab/training/package_reeval_artifact_smoke.py')],cwd=ROOT,check=True)
+print('Existing Bai candidate re-evaluation contract passed: no retraining, pinned evidence hashes, unchanged promotion gate, no release creation, portable handoff guarded.')
