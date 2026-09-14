@@ -1,0 +1,21 @@
+/* Roxy handoff layer: truthful redirect → store → user-confirmed progress. */
+.td-continue-stores[data-roxy-handoff="1"] .td-continue-stores-card{display:block!important}
+.roxy-handoff-truth{display:grid;gap:6px;margin:12px 0 14px;padding:13px 14px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.03)}
+.roxy-handoff-truth>span{width:max-content;max-width:100%;padding:5px 8px;border-radius:999px;background:rgba(255,217,134,.1);border:1px solid rgba(255,217,134,.17);color:#ffe19a;font-size:10px;font-weight:850;letter-spacing:.05em;text-transform:uppercase}
+.roxy-handoff-truth p{margin:0!important;color:#91a79a!important;font-size:12px!important;line-height:1.5!important}
+.roxy-handoff-store-meta{display:grid;gap:3px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.015)}
+.roxy-handoff-store-meta b{color:#caffdf;font-size:11px;letter-spacing:.02em}
+.roxy-handoff-store-meta span{color:#748b7d;font-size:10px;line-height:1.45}
+.roxy-handoff-success{display:grid;grid-template-columns:60px minmax(0,1fr);gap:12px;align-items:center;margin:12px 0 14px;padding:12px 14px;border:1px solid rgba(43,228,135,.24);border-radius:18px;background:linear-gradient(140deg,rgba(43,228,135,.11),rgba(43,228,135,.035))}
+.roxy-handoff-success img{width:60px;height:60px;object-fit:cover;object-position:center;border-radius:16px;background:rgba(255,255,255,.025)}
+.roxy-handoff-success>div{display:grid;gap:3px;min-width:0}
+.roxy-handoff-success small{color:#72e8a8;font-size:9px;font-weight:900;letter-spacing:.09em}
+.roxy-handoff-success b{color:#f2fff8;font-size:15px;line-height:1.2}
+.roxy-handoff-success span{color:#8da395;font-size:11px;line-height:1.4}
+@media(max-width:700px){
+  .roxy-handoff-truth{margin:10px 0 12px;padding:12px}
+  .roxy-handoff-store-meta{padding:10px 12px}
+  .roxy-handoff-success{grid-template-columns:52px minmax(0,1fr);padding:11px 12px;margin:10px 0 12px}
+  .roxy-handoff-success img{width:52px;height:52px;border-radius:14px}
+}
+@media(prefers-reduced-motion:reduce){.roxy-handoff-success,.roxy-handoff-truth{scroll-behavior:auto}}
