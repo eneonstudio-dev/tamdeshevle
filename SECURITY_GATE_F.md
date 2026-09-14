@@ -1,10 +1,24 @@
 # Votonobay — Security Gate F Evidence
 
-**State:** TECHNICAL EVIDENCE READY / LEGAL SIGNOFF PENDING  
-**Date:** 2026-09-14  
+**State:** CLOSED-BETA LOCAL-ONLY REMEDIATION IN REVIEW  
+**Date:** 2026-09-15  
 **Release scope:** closed-beta grocery/FMCG path
 
-This file records evidence for `RELEASE_GATE.md` Gate F. It is fail-closed: Gate F is **not PASS** until the release-head checks are green and the remaining user-data/legal participation item is explicitly resolved for the closed-beta scope.
+This file records evidence for `RELEASE_GATE.md` Gate F. It is fail-closed: Gate F is **not PASS** until the local-only release-scope change is merged and the actual release-head checks are green.
+
+## Closed-beta privacy/legal scope decision
+
+For closed beta, Votonobay chooses the conservative release-safe path from issue #448: **personal account/cloud/receipt-photo flows are out of release scope until a reviewed privacy/legal basis and user-facing notice exist**.
+
+The browser release is therefore fail-closed to local-only personal data:
+- `TD_RELEASE_SCOPE.personalDataMode` is `local-only`;
+- `TD_SUPABASE` is `null`, so the personal-data Supabase auth/cloud client cannot initialize in the closed-beta browser runtime;
+- exported auth/cloud methods are locked after `TDAuth` is created;
+- account login, cloud save/restore and receipt-photo upload controls are disabled and explain that closed beta keeps data on the device;
+- local basket/profile/history and local receipt drafts remain available;
+- this does **not** claim that a consent checkbox alone would satisfy legal requirements. Re-enabling personal-data cloud flows requires a separate privacy/legal review and release decision.
+
+Executable evidence: `scripts/test-closed-beta-local-only.mjs`, run by `.github/workflows/security-monitor.yml`.
 
 ## Findings and remediations
 
@@ -14,7 +28,7 @@ Finding: the previous `yandex-metrika.js` loaded Yandex Metrika immediately and 
 
 Remediation in merged PR #426:
 - analytics is disabled by default;
-- third-party analytics script is not loaded unless `td:analytics-consent` is explicitly `granted`;
+- third-party analytics script is not loaded unless the persisted Votonobay analytics consent is explicitly granted;
 - an explicit browser API exists for grant/revoke;
 - closed beta can operate with analytics completely off.
 
@@ -39,47 +53,37 @@ Evidence: `scripts/test-security-hardening.mjs` requires the paid-provider flag 
 
 ### Account/cloud data participation
 
-Current closed-beta account/cloud behavior is user initiated and authenticated:
-- cloud operations fail closed with `SIGN_IN_REQUIRED` when no authenticated user exists;
-- save/restore are explicit account UI actions;
-- cloud restore asks for confirmation before replacing local basket/profile/address/history data;
-- an undo copy is written before local replacement;
-- account tables use own-row RLS policies bound to `auth.uid()`.
+The backend wiring remains covered by regression tests for future use, but account/cloud participation is **disabled in the closed-beta browser release**. The release does not initialize the personal-data Supabase client and does not expose an enabled login/save/restore path.
 
-Evidence: `auth-client.js`, `account-auth-ui.js`, `supabase/migrations/20260910_optimize_auth_rls_policies.sql`, guarded by `scripts/test-gate-f-user-data.mjs`.
+When this optional capability is revisited, the existing backend guards still require authentication, own-row RLS, explicit save/restore actions, destructive-restore confirmation and an undo copy. Those controls do not replace the future privacy/legal review.
 
 ### Receipt evidence participation and privacy
 
-Receipt evidence is not silently uploaded:
-- receipt entry first saves a local draft;
-- photo submission is a separate explicit `Отправить фото на проверку` action;
-- submission is routed through authenticated `cloudOperation` and the proof path is scoped under the authenticated user id;
-- the `receipt-proofs` bucket is private with MIME/size limits;
-- receipt submissions have RLS and own-user insert/read/delete policies;
-- pending receipt evidence does not become rankable price truth before review.
+Local receipt drafts remain enabled because they stay on the device and do not become rankable price truth merely by being drafted.
 
-Evidence: `receipt-entry-ui.js`, `auth-client.js`, `supabase/migrations/20260910_receipt_submissions.sql`, guarded by `scripts/test-gate-f-user-data.mjs`.
+Receipt-photo cloud submission is **disabled for closed beta**. The private bucket, authenticated submission path, RLS and review pipeline remain implemented and regression-tested for future re-enablement, but they are not part of the closed-beta release scope until the privacy/legal review is complete.
 
 ## Repository / deployment evidence
 
-- PR #426 is merged at `2e68e958fd1b82a3ec69460b1c00ce966256bbc6`.
-- Post-merge GitHub Actions security monitor run `34879270356` completed successfully; runtime, data/scripts, governance and browser checks on the same merge commit also completed successfully.
+- PR #426 is merged at `2e68e958fd1b82a3ec69460b1c00ce966256bbc6` and established the zero-budget/analytics fail-closed controls.
+- PR #447 is merged at `42596d028cd10600f47e17b703cbbe155cedd0c0` and added executable Gate F user-data evidence plus expanded security-monitor coverage.
+- Post-#447 security/runtime/data/governance/golden checks passed on the merged head.
 - Deployed Supabase `bai-agent-core` was manually inspected on 2026-09-14 and contains the same zero-budget fail-closed paid-provider decision as the merged source.
 - Active tested-path provider review found no required auth/CAPTCHA/anti-bot/ban bypass. Magnit collection uses public retailer pages and remains bounded by `SOURCE_PROVIDER_REGISTRY.md`; generic AI/search scouts stay discovery-only and cannot become price/store truth.
 - Repository security checks cover CSP/SRI, DOM escaping, safe retailer URLs, atomic server-side rate limiting, secret-like value scanning and pinned GitHub Actions.
 
-## Security-monitor coverage hardening
+## Security-monitor coverage
 
-The security monitor previously ran on schedule and when its own test/workflow files changed, but security-sensitive product files could change without triggering the workflow immediately.
-
-This evidence change closes that CI gap:
-- the monitor now triggers on auth, analytics, receipt, Agent Core, trained inference, relevant migrations/provider registry and the source files already read by the hardening test;
-- it runs `scripts/test-gate-f-user-data.mjs` in addition to the existing hardening and production probes.
+The security monitor now runs on the security-sensitive account/auth/receipt/config/provider paths and executes:
+- `scripts/test-security-hardening.mjs`;
+- `scripts/test-gate-f-user-data.mjs`;
+- `scripts/test-closed-beta-local-only.mjs`;
+- `scripts/test-production-security.mjs`.
 
 ## Remaining before PASS
 
-- [ ] The Gate-F evidence PR containing `test-gate-f-user-data.mjs` and expanded security-monitor paths is green and merged; verify the post-merge release-head security run.
-- [ ] Resolve the legal participation/privacy-notice question for enabled closed-beta user-data flows. Repository audit found technical opt-in/user-initiation and access controls, but did not find a user-facing privacy notice covering account/cloud/receipt processing. Either provide an appropriate reviewed notice/legal basis for the enabled scope or explicitly disable those optional user-data flows from closed beta until that review is complete.
-- [ ] Final release owner records the Gate F decision against the actual closed-beta release head with no unresolved P0 security blocker.
+- [ ] Merge the closed-beta local-only personal-data policy after PR CI is green.
+- [ ] Verify the post-merge security/runtime/data/governance/golden checks on the actual merged head.
+- [ ] Record Gate F PASS for the closed-beta **local-only** scope and resolve issue #448 as completed by scope reduction, not by claiming a legal review occurred.
 
-Until those items are resolved, Gate F remains **OPEN**. Technical controls are evidenced; this file does not provide legal advice or approve release by itself.
+Public release or any re-enablement of account/cloud/receipt-photo processing remains separately blocked on privacy/legal review. This file is release evidence, not legal advice.
