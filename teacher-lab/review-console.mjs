@@ -16,6 +16,18 @@ function scrub(value){
 
 const safeJson=value=>JSON.stringify(scrub(value)).replace(/<\//g,'<\\/');
 
+export function orderReviewPacket(packet,priorityRows){
+  const items=Array.isArray(packet)?packet:[], priorities=Array.isArray(priorityRows)?priorityRows:[];
+  if(!priorities.length)return items;
+  const orderIds=priorities.map(x=>String(x?.task_id||'')),packetIds=items.map(x=>String(x?.task_id||''));
+  if(orderIds.some(x=>!x)||new Set(orderIds).size!==orderIds.length)throw Error('priority review order has missing/duplicate task ids');
+  if(packetIds.some(x=>!x)||new Set(packetIds).size!==packetIds.length)throw Error('review packet has missing/duplicate task ids');
+  const expected=new Set(packetIds);
+  if(orderIds.length!==packetIds.length||orderIds.some(x=>!expected.has(x)))throw Error('priority review order coverage mismatch');
+  const rank=new Map(orderIds.map((id,i)=>[id,i]));
+  return [...items].sort((a,b)=>rank.get(String(a.task_id))-rank.get(String(b.task_id)));
+}
+
 export function renderReviewConsole(packet){
   const data=safeJson(Array.isArray(packet)?packet:[]);
   return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bai Teacher Review</title><style>
@@ -46,16 +58,18 @@ render();
 </script></body></html>`;
 }
 
-export function buildConsoleFromDir(reviewDir){
+export function buildConsoleFromDir(reviewDir,priorityFile=null){
   const left=readJsonl(path.join(reviewDir,'left-candidates.jsonl'));
   const right=readJsonl(path.join(reviewDir,'right-candidates.jsonl'));
   const queue=readJson(path.join(reviewDir,'review-queue.json'));
-  return renderReviewConsole(buildReviewPacket({left,right,queue}));
+  const packet=buildReviewPacket({left,right,queue});
+  const ordered=priorityFile?orderReviewPacket(packet,readJsonl(priorityFile)):packet;
+  return renderReviewConsole(ordered);
 }
 
 if(import.meta.url===`file://${process.argv[1]}`){
-  const [reviewDir,outFile]=process.argv.slice(2);
-  if(!reviewDir||!outFile)throw Error('usage: node teacher-lab/review-console.mjs REVIEW_DIR OUTPUT_HTML');
-  fs.writeFileSync(outFile,buildConsoleFromDir(reviewDir));
+  const [reviewDir,outFile,priorityFile]=process.argv.slice(2);
+  if(!reviewDir||!outFile)throw Error('usage: node teacher-lab/review-console.mjs REVIEW_DIR OUTPUT_HTML [PRIORITY_JSONL]');
+  fs.writeFileSync(outFile,buildConsoleFromDir(reviewDir,priorityFile||null));
   console.log(outFile);
 }
