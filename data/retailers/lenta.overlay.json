@@ -4,56 +4,29 @@
   "store_id": "lenta_msk_catalog",
   "city": "msk",
   "checked_at": "2026-09-10T10:05:00+03:00",
-  "prices": {
-    "milk": 99.99,
-    "pasta": 89.99
-  },
-  "matched": [
+  "prices": {},
+  "matched": [],
+  "unmatched": [],
+  "alternatives": [
     {
       "sku": "milk",
       "name": "Молоко пастеризованное ЭКОНИВА 2,5%, без змж 1000мл",
       "retailer_product_id": "lenta-ekoniva-milk-25-1000",
-      "price_rub": 99.99,
-      "old_price_rub": 115.79,
-      "promo": true,
       "source_url": "https://lenta.com/catalog/moloko-pasterizovannoe-25733/?filter.zhirnost-66=-6846549",
-      "confidence": 0.9,
-      "method": "conservative_rule",
-      "comparison_eligible": true,
-      "source_pack": {
-        "value": 1000,
-        "unit": "ml"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "ml"
-      },
-      "availability": "in_stock"
+      "price_rub": 99.99,
+      "eligible": false,
+      "reason": "promo_eligibility_unverified"
     },
     {
       "sku": "pasta",
       "name": "Макароны BARILLA Spaghettoni №7, 450г",
       "retailer_product_id": "543168",
-      "price_rub": 89.99,
-      "old_price_rub": 115.79,
-      "promo": true,
       "source_url": "https://lenta.com/product/makarony-spaghettoni-n7-rossiya-450g-543168/",
-      "confidence": 0.9,
-      "method": "conservative_rule",
-      "comparison_eligible": true,
-      "source_pack": {
-        "value": 450,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 450,
-        "unit": "g"
-      },
-      "availability": "in_stock"
+      "price_rub": 89.99,
+      "eligible": false,
+      "reason": "promo_eligibility_unverified"
     }
   ],
-  "unmatched": [],
-  "alternatives": [],
   "channel": "regional_catalog",
   "source_url": "https://mos.proshoper.ru/actions/lenta/",
   "source_schema": "tamdeshevle.retailer-snapshot.v1",
