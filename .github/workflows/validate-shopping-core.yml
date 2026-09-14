@@ -28,6 +28,8 @@ jobs:
         run: node scripts/test-promo-eligibility.mjs
       - name: Equal-cost plan tie-break
         run: node scripts/test-plan-tie-break.mjs
+      - name: Explicit word quantity
+        run: node scripts/test-mvp021-word-quantity.mjs
       - name: Shopping state consistency
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state
