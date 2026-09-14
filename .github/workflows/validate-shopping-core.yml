@@ -24,6 +24,8 @@ jobs:
         run: node scripts/test-basket-split-ui.mjs
       - name: One-store optimizer choice
         run: node scripts/test-one-store-choice.mjs
+      - name: Promo eligibility truth guard
+        run: node scripts/test-promo-eligibility.mjs
       - name: Shopping state consistency
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state
