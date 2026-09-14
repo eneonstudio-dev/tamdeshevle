@@ -44,6 +44,8 @@ jobs:
           grep -q "notebook07f42bd563/versions/1" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "reevaluate_candidate.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "analyze_candidate_failures.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "compare_candidate_runs.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "corrected-candidate" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
       - name: Validate existing candidate re-evaluation contract
         run: python teacher-lab/training/reevaluate_candidate_smoke.py
       - name: Validate candidate failure clustering contract
