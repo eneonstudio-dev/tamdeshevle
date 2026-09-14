@@ -89,7 +89,8 @@
   });}
   const RECEIPT_BUCKET="receipt-proofs", RECEIPT_TYPES=new Set(["image/jpeg","image/png","image/webp","image/heic"]), RECEIPT_MAX_BYTES=10*1024*1024;
   function receiptFileName(file){const type=String(file&&file.type||"").toLowerCase();const ext=type==="image/png"?"png":type==="image/webp"?"webp":type==="image/heic"?"heic":"jpg";const id=window.crypto&&typeof window.crypto.randomUUID==="function"?window.crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;return `${id}.${ext}`;}
-  async function submitReceiptEvidence(input){if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");return cloudOperation(async uid=>{
+  async function submitReceiptEvidence(input){return cloudOperation(async uid=>{
+    if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");
     const file=input&&input.file, observation=input&&input.observation;
     if(!file||!RECEIPT_TYPES.has(String(file.type||"").toLowerCase())||file.size<1||file.size>RECEIPT_MAX_BYTES)throw new Error("RECEIPT_FILE_INVALID");
     const check=window.TDReceiptObservations&&window.TDReceiptObservations.validate(observation);

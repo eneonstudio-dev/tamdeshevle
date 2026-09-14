@@ -184,7 +184,7 @@
             <div class="receipt-entry-field"><label>Фото чека</label><div class="receipt-entry-file"><input name="photo" type="file" accept="image/*" capture="environment"></div></div>
           </div>
           <button class="receipt-entry-save" type="submit">Сохранить черновик</button>
-          <button class="receipt-entry-submit receipt-upload" type="button" disabled${receiptUploadEnabled ? "" : " hidden"}>Отправить фото на проверку</button>
+          <button class="receipt-entry-submit receipt-upload" type="button" disabled>Отправить фото на проверку</button>
           ${receiptUploadEnabled ? "" : '<div class="receipt-entry-note">Закрытая бета: фото никуда не отправляется. Черновик сохраняется только локально на этом устройстве.</div>'}
           <div class="receipt-entry-status" role="status" aria-live="polite" hidden></div>
         </form>
@@ -240,6 +240,7 @@
 
     const form = overlay.querySelector(".receipt-entry-form");
     const queueButton = form.querySelector(".receipt-upload");
+    if (!receiptUploadEnabled) { queueButton.hidden = true; queueButton.setAttribute("aria-hidden", "true"); }
     const qrInput = form.elements.receipt_qr;
     const qrImage = form.elements.receipt_qr_image;
     const qrScanButton = form.querySelector(".receipt-qr-scan");
