@@ -34,6 +34,8 @@ jobs:
         run: node scripts/test-mvp022-decrement-pack.mjs
       - name: Canonical budget update
         run: node scripts/test-mvp023-budget-only.mjs
+      - name: Brand preference relaxation
+        run: node scripts/test-mvp024-brand-relax.mjs
       - name: Shopping state consistency
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state

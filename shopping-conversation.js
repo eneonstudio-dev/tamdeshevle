@@ -64,6 +64,7 @@
     else if(/собери|подбери|корзин/.test(low))ops.push({type:"CLEAR_ONLY"},{type:"SET_INTENT",value:"build"});
     parsedAmounts.forEach(x=>{if(remove)return;if(!mentioned.includes(x.id))return;if(!ops.some(o=>(o.type==="REQUIRE"||o.type==="ADD_PRODUCT")&&o.value===x.id))ops.push({type:"REQUIRE",value:x.id});ops.push({type:"SET_PRODUCT_AMOUNT",value:x})});
     if(/подешевле|дешевле|пересобери|пересчитай|побольше|поменьше/.test(low)&&ops.length)ops.push({type:"REOPTIMIZE"});
+    if(/бренд(?:ы)?\s+не\s+важн|бренд\s+не\s+важен|любой\s+бренд/.test(low))ops.push({type:"CLEAR_BRAND_PREFERENCES"});
     const brand=low.match(/(?:бренд\s+)?([а-яёa-z0-9-]+)\s+(?:не хочу|не добавляй)/i),withoutBrand=low.match(/(?:^|[\s,;])без\s+([а-яёa-z0-9-]+)/i),brandValue=brand?.[1]||withoutBrand?.[1],storeLike=brandValue&&Object.keys(storeWords).some(word=>brandValue.includes(word)||word.includes(brandValue));if(brandValue&&!storeLike&&!productAt(brandValue).length&&!/^(?:молоч|глютен|лактоз|сахар|мяс|рыб|орех)/.test(brandValue))ops.push({type:"EXCLUDE_BRAND",value:brandValue});const existing=low.match(/дома (?:есть|уже есть)\s+(.+?)(?:\.|,?\s+(?:нужн|хочу|и хотелось)|$)/);if(existing)existing[1].split(/,| и /).map(x=>x.trim()).filter(Boolean).forEach(x=>ops.push({type:"HAS_AT_HOME",value:x}));if(!ops.length)ops.push({type:"NOTE",value:text});return ops;
   }
   function resetBasketState(s){s.products=[];s.requiredProducts=[];s.preferredProducts=[];s.excludedProducts=[];s.excludedBrands=[];s.onlyProducts=[];s.quantityTargets={};s.selectionMode="auto";s.preferences=[];s.userNotes=[];}
@@ -100,6 +101,7 @@
         if(op.type==="REPLACE_PRODUCT"&&op.value){const from=op.value.from,to=op.value.to,target=s.quantityTargets[from];if(from&&!s.excludedProducts.includes(from))s.excludedProducts.push(from);s.requiredProducts=s.requiredProducts.filter(x=>x!==from);s.onlyProducts=s.onlyProducts.filter(x=>x!==from);delete s.quantityTargets[from];if(to&&!s.requiredProducts.includes(to))s.requiredProducts.push(to);if(s.selectionMode==="only"&&to&&!s.onlyProducts.includes(to))s.onlyProducts.push(to);s.excludedProducts=s.excludedProducts.filter(x=>x!==to);if(target&&!s.quantityTargets[to])s.quantityTargets[to]=target;}
         if(op.type==="REQUIRE"&&!s.requiredProducts.includes(op.value)){s.requiredProducts.push(op.value);s.excludedProducts=s.excludedProducts.filter(x=>x!==op.value);}
         if(op.type==="PREFER"&&!s.preferredProducts.includes(op.value))s.preferredProducts.push(op.value);
+        if(op.type==="CLEAR_BRAND_PREFERENCES")s.excludedBrands=[];
         if(op.type==="EXCLUDE_BRAND"&&!s.excludedBrands.includes(op.value))s.excludedBrands.push(op.value);
         if(op.type==="HAS_AT_HOME"&&!s.existingProducts.includes(op.value))s.existingProducts.push(op.value);
         if(op.type==="EXCLUDE_TAG")s.excludedProducts=uniq([...s.excludedProducts,...TDStoreAdapters.catalog().filter(p=>(p.tags||[]).includes(op.value)).map(p=>p.id)]);
