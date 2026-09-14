@@ -10,6 +10,9 @@ on:
       - "teacher-lab/training/failure_learning_smoke.py"
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
+      - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/data_factory_v2_smoke.py"
+      - "teacher-lab/training/data_factory_import.mjs"
       - ".github/workflows/validate-bai-failure-learning.yml"
   push:
     branches:
@@ -22,6 +25,9 @@ on:
       - "teacher-lab/training/failure_learning_smoke.py"
       - "teacher-lab/training/compare_candidate_runs.py"
       - "teacher-lab/training/candidate_comparison_smoke.py"
+      - "teacher-lab/training/data_factory_v2.py"
+      - "teacher-lab/training/data_factory_v2_smoke.py"
+      - "teacher-lab/training/data_factory_import.mjs"
       - ".github/workflows/validate-bai-failure-learning.yml"
 
 permissions:
@@ -46,8 +52,13 @@ jobs:
           python -m py_compile teacher-lab/training/failure_learning_smoke.py
           python -m py_compile teacher-lab/training/compare_candidate_runs.py
           python -m py_compile teacher-lab/training/candidate_comparison_smoke.py
+          python -m py_compile teacher-lab/training/data_factory_v2.py
+          python -m py_compile teacher-lab/training/data_factory_v2_smoke.py
           node --check teacher-lab/training/export_failure_remediation.mjs
+          node --check teacher-lab/training/data_factory_import.mjs
       - name: Validate failure to reviewed Gold and regression gate
         run: python teacher-lab/training/failure_learning_smoke.py
       - name: Validate multi-candidate comparison contract
         run: python teacher-lab/training/candidate_comparison_smoke.py
+      - name: Validate Data Factory v2 corpus and balanced pilot
+        run: python teacher-lab/training/data_factory_v2_smoke.py
