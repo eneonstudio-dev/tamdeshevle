@@ -1,5 +1,6 @@
 import("./votonobay-roxy-bay-panel-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Bay Panel] load failed",error));
 import("./votonobay-roxy-runtime-states-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Runtime States] load failed",error));
+import("./votonobay-roxy-network-recovery-v1.js?v=20260914-v1").catch(error=>console.warn("[Votonobay Network Recovery] load failed",error));
 import("./votonobay-roxy-decision-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Decision] load failed",error));
 import("./votonobay-roxy-catalog-hints-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Catalog Hints] load failed",error));
 import("./votonobay-roxy-purchase-skeleton-v1.js?v=20260914-v1").catch(error=>console.warn("[Votonobay Purchase Skeleton] load failed",error));
