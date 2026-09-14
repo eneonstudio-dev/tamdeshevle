@@ -1,5 +1,0 @@
-.roxy-mvp030-facts{display:grid;gap:6px;margin:12px 0 14px;padding:12px 14px;border:1px solid rgba(121,255,181,.16);border-radius:14px;background:rgba(121,255,181,.055)}
-.roxy-mvp030-facts>small{font-size:10px;line-height:1.2;letter-spacing:.1em;font-weight:900;color:#86d9aa}
-.roxy-mvp030-facts>p{margin:0!important;font-size:12px;line-height:1.42;color:#d8e9df}
-@media(max-width:520px){.roxy-mvp030-facts{padding:11px 12px;margin:10px 0 12px}.roxy-mvp030-facts>p{font-size:12px}}
-@media(prefers-reduced-motion:reduce){.roxy-mvp030-facts{scroll-behavior:auto}}
