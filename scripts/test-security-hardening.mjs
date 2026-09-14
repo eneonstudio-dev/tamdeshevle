@@ -21,6 +21,7 @@ assert.match(index,/object-src 'none'/,"CSP must block plugin/object content");
 assert.match(index,/base-uri 'self'/,"CSP must prevent base-tag injection");
 assert.match(index,/gsap@3\.12\.7[^>]+integrity="sha384-/,"GSAP must be pinned with SRI");
 assert.ok(index.includes('src="yandex-metrika.js"'),"analytics bootstrap must be a local CSP-governed script");
+assert.doesNotMatch(index,/mc\.yandex\.ru\/watch\//i,"no-consent noscript analytics beacon must not bypass the persisted consent gate");
 assert.doesNotMatch(index,/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/i,"main page must not contain inline script blocks");
 
 assert.match(admin,/Content-Security-Policy/i,"admin page must define a CSP");
@@ -60,4 +61,4 @@ for(const file of files.filter(file=>/\.ya?ml$/i.test(file)&&file.includes(`${pa
   assert.doesNotMatch(source,/\buses:\s*[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+@v\d+\b/,`GitHub Action must be pinned to a commit SHA in ${path.relative(root,file)}`);
 }
 
-console.log("Security hardening checks passed: CSP/SRI, DOM escaping, URL filtering, consent-gated analytics, zero-budget AI fail-closed, atomic rate limiting, trained release binding, secret scan, and pinned Actions.");
+console.log("Security hardening checks passed: CSP/SRI, DOM escaping, URL filtering, consent-gated analytics without noscript bypass, zero-budget AI fail-closed, atomic rate limiting, trained release binding, secret scan, and pinned Actions.");
