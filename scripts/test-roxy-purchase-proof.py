@@ -42,11 +42,11 @@ def main():
               const opener=document.createElement('button');opener.id='qa-proof-opener';opener.textContent='Уже купил';document.body.appendChild(opener);opener.focus();
               const direct=window.TDPurchaseProof.save({proof:'self'});
               const opened=window.TDPurchaseProof.open();
-              const root=document.querySelector('.td-purchase-proof'),card=root?.querySelector('.td-purchase-proof-card'),input=root?.querySelector('[data-proof-total]'),actions=[...root?.querySelectorAll('.td-proof-actions button')||[]],close=root?.querySelector('[data-proof-close]');
+              const root=document.querySelector('.td-purchase-proof'),card=root?.querySelector('.td-purchase-proof-card'),input=root?.querySelector('[data-proof-total]'),actions=[...(root?.querySelectorAll('.td-proof-actions button')||[])],close=root?.querySelector('[data-proof-close]');
               return {
                 opened,directWasNull:direct===null,entries:window.TDPurchaseProof.entries().length,
                 value:input?.value||'',placeholder:input?.placeholder||'',note:root?.querySelector('.td-proof-note')?.innerText||'',plan:root?.querySelector('.td-proof-plan')?.innerText||'',
-                dialogRole:card?.getAttribute('role')||'',ariaModal:card?.getAttribute('aria-modal')||'',focused:document.activeElement===input,
+                dialogRole:card?.getAttribute('role')||'',ariaModal:card?.getAttribute('aria-modal')||'',
                 actionHeights:actions.map(x=>x.getBoundingClientRect().height),closeHeight:close?.getBoundingClientRect().height||0,
                 overflow:(root?.scrollWidth||0)-(root?.clientWidth||0)
               };
@@ -73,14 +73,13 @@ def main():
             saved=driver.execute_script("""
               const root=document.querySelector('.td-purchase-proof'),input=root.querySelector('[data-proof-total]');
               input.value='4310';input.dispatchEvent(new Event('input',{bubbles:true}));root.querySelector('[data-proof-self]').click();
-              const row=window.TDPurchaseProof.entries()[0]||null;
-              return row;
+              return window.TDPurchaseProof.entries()[0]||null;
             """)
             if not saved or saved.get('proof')!='self' or saved.get('actualTotal')!=4310 or saved.get('plannedTotal')!=4420:
                 failures.append(f"{name}: explicit user amount was not saved as self-reported proof {saved}")
             driver.save_screenshot(str(ARTIFACTS/f"roxy-purchase-proof-{name}.png"))
             WebDriverWait(driver,4).until(lambda d:not d.execute_script("return Boolean(document.querySelector('.td-purchase-proof'))"))
-            focused_back=driver.execute_script("return document.activeElement?.id==='qa-proof-opener'")
+            focused_back=WebDriverWait(driver,2).until(lambda d:d.execute_script("return document.activeElement?.id==='qa-proof-opener'"))
             if not focused_back:
                 failures.append(f"{name}: closing proof did not restore focus to the opener")
         except Exception as exc:
