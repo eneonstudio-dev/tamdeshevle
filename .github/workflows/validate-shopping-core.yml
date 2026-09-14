@@ -20,6 +20,8 @@ jobs:
           node-version: 22
       - name: Canonical product replacement
         run: node scripts/test-mvp003-replace-turkey.mjs
+      - name: Canonical convenience priority
+        run: node scripts/test-mvp012-convenience-priority.mjs
       - name: Split optimizer regression
         run: node scripts/test-basket-split.mjs
       - name: Split UI and handoff contract
