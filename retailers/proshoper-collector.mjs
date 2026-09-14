@@ -59,6 +59,31 @@ function parsePeriod(html) {
   return { valid_from: iso(fromYear, startMonth, Number(fromDay)), valid_to: iso(year, endMonth, Number(toDay)) };
 }
 
+function calendarDateInZone(value, timeZone = "Europe/Moscow") {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    }).formatToParts(date);
+    const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+    if (!values.year || !values.month || !values.day) return null;
+    return `${values.year}-${values.month}-${values.day}`;
+  } catch {
+    return null;
+  }
+}
+
+export function isCatalogPeriodCurrent(period, value = new Date(), timeZone = "Europe/Moscow") {
+  if (!period || !period.valid_from || !period.valid_to) return false;
+  const currentDate = calendarDateInZone(value, timeZone);
+  if (!currentDate) return false;
+  return currentDate >= period.valid_from && currentDate <= period.valid_to;
+}
+
 function extractAlt(tag) {
   const match = String(tag).match(/\balt\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
   return decodeHtml(match ? (match[1] ?? match[2] ?? "") : "").replace(/\s+/g, " ").trim();
@@ -123,6 +148,13 @@ export async function collectProshoperRegionalSnapshot(config = {}) {
   const period = parsePeriod(html);
   if (!period.valid_from || !period.valid_to) throw new Error("Could not verify current Proshoper catalog period");
 
+  const checkedAt = new Date();
+  const timeZone = config.time_zone || "Europe/Moscow";
+  const checkedDate = calendarDateInZone(checkedAt, timeZone);
+  if (!isCatalogPeriodCurrent(period, checkedAt, timeZone)) {
+    throw new Error(`Proshoper catalog period ${period.valid_from}..${period.valid_to} does not include collection date ${checkedDate || "unknown"}`);
+  }
+
   return {
     schema: "tamdeshevle.retailer-snapshot.v1",
     retailer: config.retailer || "pyat",
@@ -132,7 +164,7 @@ export async function collectProshoperRegionalSnapshot(config = {}) {
     source_url: sourceUrl,
     source_name: "proshoper.ru",
     source_kind: "aggregator_catalog",
-    checked_at: new Date().toISOString(),
+    checked_at: checkedAt.toISOString(),
     method: "public_regional_catalog_collector",
     scope_verified: false,
     catalog_context: {
@@ -140,6 +172,7 @@ export async function collectProshoperRegionalSnapshot(config = {}) {
       region: config.region || "Москва",
       valid_from: period.valid_from,
       valid_to: period.valid_to,
+      time_zone: timeZone,
       location_verified: true,
       store_verified: false,
       price_scope: "regional_catalog",
