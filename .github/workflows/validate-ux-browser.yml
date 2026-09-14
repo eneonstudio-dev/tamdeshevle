@@ -18,6 +18,7 @@ on:
       - "scripts/test-roxy-purchase-proof.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
+      - "scripts/test-mvp030-decision-explanation.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -38,6 +39,7 @@ on:
       - "scripts/test-roxy-purchase-proof.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
+      - "scripts/test-mvp030-decision-explanation.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -80,6 +82,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-decision.py
+      - name: Validate MVP-030 decision explanation
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-mvp030-decision-explanation.py
       - name: Validate Roxy purchase handoff
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
