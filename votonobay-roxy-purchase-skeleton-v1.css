@@ -4,6 +4,7 @@ html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-v2-shell>m
   flex-direction:column!important;
 }
 html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .td-compare-hero{
+  order:1!important;
   min-height:218px!important;
   padding-bottom:24px!important;
 }
@@ -27,6 +28,7 @@ html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action{
   background:rgba(255,255,255,.018)!important;
 }
 html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeoff{
+  order:3!important;
   border-color:rgba(255,208,112,.105)!important;
   background:linear-gradient(145deg,rgba(255,208,112,.04),rgba(255,255,255,.014))!important;
 }
@@ -41,6 +43,7 @@ html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-tradeof
   line-height:1.55!important;
 }
 html body .td-compare-v2[data-roxy-purchase-skeleton="1"] .roxy-purchase-action{
+  order:4!important;
   border-color:rgba(79,245,154,.14)!important;
   background:linear-gradient(145deg,rgba(79,245,154,.065),rgba(255,255,255,.018))!important;
 }
