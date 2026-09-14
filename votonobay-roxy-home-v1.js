@@ -1,5 +1,7 @@
 (()=>{
   "use strict";
+  if(window.__TDRoxyHomeV1)return;
+  window.__TDRoxyHomeV1=true;
 
   let raf=0;
   let observer=null;
@@ -8,7 +10,7 @@
     if(document.querySelector('link[data-roxy-home-tune]'))return;
     const link=document.createElement("link");
     link.rel="stylesheet";
-    link.href="votonobay-roxy-home-tune-v1.css?v=20260913-v1";
+    link.href="votonobay-roxy-home-tune-v1.css?v=20260914-opening-v1";
     link.dataset.roxyHomeTune="1";
     document.head.appendChild(link);
   }
@@ -40,6 +42,12 @@
     hero.appendChild(panel);
   }
 
+  function signalReady(hero){
+    if(!hero||hero.dataset.roxyHomeReady==="1")return;
+    hero.dataset.roxyHomeReady="1";
+    window.dispatchEvent(new CustomEvent("td:roxy-home-ready",{detail:{approved:true}}));
+  }
+
   function decorate(){
     ensureCss();
     const hero=document.querySelector(".v2-hero.v2-bay-first");
@@ -66,6 +74,7 @@
     if(proof&&proof.innerHTML!==proofHtml)proof.innerHTML=proofHtml;
 
     makePreview(hero);
+    signalReady(hero);
     return true;
   }
 
@@ -81,12 +90,15 @@
       observer=new MutationObserver(queue);
       observer.observe(document.body,{childList:true,subtree:true});
     }
-    window.addEventListener?.("td:v2-rendered",queue);
-    window.addEventListener?.("pageshow",queue);
   }
+
+  // Register lifecycle listeners as soon as this preload evaluates. The V2 shell
+  // can render before DOMContentLoaded on mobile; waiting until boot() used to
+  // miss that event and expose its older intermediate Home before Roxy caught up.
+  window.addEventListener?.("td:v2-rendered",queue);
+  window.addEventListener?.("pageshow",queue);
+  window.TDRoxyHome={decorate,queue};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
   else boot();
-
-  window.TDRoxyHome={decorate};
 })();

@@ -14,6 +14,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 BASE_URL = os.environ.get("TD_UX_BASE_URL", "http://127.0.0.1:4173/")
 OUT = pathlib.Path(os.environ.get("TD_UX_OUT_DIR", "artifacts/ux-browser"))
 OUT.mkdir(parents=True, exist_ok=True)
+ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 
 @dataclass(frozen=True)
@@ -53,41 +54,74 @@ def driver_for(viewport: Viewport) -> webdriver.Chrome:
 
 
 def install_early_frame_probe(driver: webdriver.Chrome) -> None:
+    # This runs before page scripts. The old regression only started sampling at
+    # DOMContentLoaded and therefore missed the exact owner-reported flash: the
+    # cold-start barrier had already exposed legacy/V2 intermediate markup.
     driver.execute_cdp_cmd(
         "Page.addScriptToEvaluateOnNewDocument",
         {
             "source": r"""
 (() => {
   window.__votonobayEarlyFrames = [];
+  let lastSignature = '';
+  const started = performance.now();
   const sample = () => {
+    const html = document.documentElement;
     const app = document.getElementById('app');
     const style = app ? getComputedStyle(app) : null;
     const rect = app?.getBoundingClientRect();
-    window.__votonobayEarlyFrames.push({
+    const hero = app?.querySelector('.v2-hero.v2-bay-first');
+    const title = hero?.querySelector('.v2-hero-copy h1')?.innerText || '';
+    const visible = !!app && !!rect && rect.width > 0 && rect.height > 0 && style?.display !== 'none' && style?.visibility !== 'hidden' && Number(style?.opacity || 1) > 0;
+    const frame = {
       t: performance.now(),
-      text: (app?.innerText || '').replace(/\s+/g,' ').slice(0,600),
-      visible: !!app && !!rect && rect.width > 0 && rect.height > 0 && style?.display !== 'none' && style?.visibility !== 'hidden' && Number(style?.opacity || 1) > 0,
-      boot: document.documentElement.dataset.votonobayBoot || '',
-      screen: app?.dataset.screen || ''
-    });
-    if (performance.now() < 2200) requestAnimationFrame(sample);
+      text: (app?.innerText || '').replace(/\s+/g,' ').slice(0,900),
+      visible,
+      boot: html?.dataset?.votonobayBoot || '',
+      screen: app?.dataset?.screen || window.state?.screen || '',
+      canonical: !!hero && hero.dataset.roxyApproved === '1' && title.includes('Спросить Бая'),
+      title: title.replace(/\s+/g,' ').slice(0,180),
+      bootCopy: html ? getComputedStyle(html,'::after').content : ''
+    };
+    const signature = JSON.stringify([frame.visible,frame.boot,frame.screen,frame.canonical,frame.title,frame.text.slice(0,180),frame.bootCopy]);
+    if (signature !== lastSignature || performance.now() - started < 350) {
+      window.__votonobayEarlyFrames.push(frame);
+      lastSignature = signature;
+    }
+    if (performance.now() - started < 9000) requestAnimationFrame(sample);
   };
-  addEventListener('DOMContentLoaded', () => requestAnimationFrame(sample), {once:true});
+  requestAnimationFrame(sample);
 })();
 """
         },
     )
 
 
+def set_slow_mobile_start(driver: webdriver.Chrome, enabled: bool) -> None:
+    driver.execute_cdp_cmd("Network.enable", {})
+    driver.execute_cdp_cmd("Network.setCacheDisabled", {"cacheDisabled": enabled})
+    driver.execute_cdp_cmd(
+        "Network.emulateNetworkConditions",
+        {
+            "offline": False,
+            "latency": 90 if enabled else 0,
+            "downloadThroughput": 4 * 1024 * 1024 if enabled else -1,
+            "uploadThroughput": 1024 * 1024 if enabled else -1,
+            "connectionType": "cellular4g" if enabled else "wifi",
+        },
+    )
+
+
 def wait_home(driver: webdriver.Chrome) -> None:
-    WebDriverWait(driver, 20).until(
+    WebDriverWait(driver, 25).until(
         lambda d: d.execute_script("return document.readyState") == "complete"
     )
-    WebDriverWait(driver, 20).until(
+    WebDriverWait(driver, 25).until(
         lambda d: d.execute_script(
             "return window.state?.screen==='home' && "
             "document.documentElement.dataset.votonobayBoot==='ready' && "
-            "!!document.querySelector('.v2-bay-first')"
+            "!!document.querySelector('.v2-bay-first[data-roxy-approved=\"1\"]') && "
+            "document.querySelector('.v2-bay-first .v2-hero-copy h1')?.innerText.includes('Спросить Бая')"
         )
     )
     driver.execute_script(
@@ -111,46 +145,56 @@ def run_viewport(viewport: Viewport, failures: list[str]) -> None:
             """
         )
 
-        # Reproduce the user report: a hard site opening with a previously saved
-        # catalog route must not paint that catalog before Bay-first Home appears.
+        # Reproduce the owner report under a deliberately slower Android-like
+        # startup. Disable HTTP cache so a previous warm navigation cannot hide
+        # a parser/module ordering race.
+        if viewport.mobile:
+            set_slow_mobile_start(driver, True)
         driver.get(BASE_URL + "?cold-start-regression=1")
         wait_home(driver)
+        if viewport.mobile:
+            set_slow_mobile_start(driver, False)
         time.sleep(0.12)
 
         snapshot = driver.execute_script(
             """
             const saved=JSON.parse(localStorage.getItem('td')||'{}');
+            const hero=document.querySelector('.v2-bay-first');
             return {
               screen:window.state?.screen,
               boot:document.documentElement.dataset.votonobayBoot||'',
-              homeVisible:!!document.querySelector('.v2-bay-first'),
+              homeVisible:!!hero,
+              roxyApproved:hero?.dataset.roxyApproved||'',
+              title:hero?.querySelector('.v2-hero-copy h1')?.innerText||'',
               saved,
               text:(document.getElementById('app')?.innerText||'').replace(/\s+/g,' ').slice(0,900),
               frames:window.__votonobayEarlyFrames||[]
             };
             """
         )
-        if snapshot["screen"] != "home" or snapshot["boot"] != "ready" or not snapshot["homeVisible"]:
-            failures.append(f"{label}: cold start did not settle on Home {snapshot}")
+        if snapshot["screen"] != "home" or snapshot["boot"] != "ready" or not snapshot["homeVisible"] or snapshot["roxyApproved"] != "1" or "Спросить Бая" not in snapshot["title"]:
+            failures.append(f"{label}: cold start did not settle on approved Roxy Home {snapshot}")
         saved = snapshot["saved"]
         if saved.get("city") != "spb" or saved.get("storeId") != "magnit" or saved.get("cart") != {"milk": 2, "banana": 1} or saved.get("address") != "Тестовый адрес":
             failures.append(f"{label}: cold-start guard damaged persisted shopping state {saved}")
         if saved.get("screen") != "home":
             failures.append(f"{label}: persisted route was not normalized to Home {saved}")
 
-        wrong_visible = [
-            frame for frame in snapshot["frames"]
-            if frame.get("visible") and (
-                "Добавь товары в корзину" in frame.get("text", "")
-                or "Выбери, где обычно покупаешь" in frame.get("text", "")
-                or ("Магнит" in frame.get("text", "") and "Спросить Бая" not in frame.get("text", ""))
-            )
-        ]
-        if wrong_visible:
-            failures.append(f"{label}: legacy catalog/store frame became visible during cold start {wrong_visible[:4]}")
         visible_frames = [frame for frame in snapshot["frames"] if frame.get("visible")]
-        if visible_frames and "Спросить Бая" not in visible_frames[0].get("text", ""):
-            failures.append(f"{label}: first visible app frame was not Bay-first Home {visible_frames[0]}")
+        premature = [frame for frame in visible_frames if not frame.get("canonical")]
+        if premature:
+            failures.append(f"{label}: app became visible before approved Roxy Home {premature[:4]}")
+        legacy_words = ("Тамдешевле", "Там дешевле", "Где дешевле ваша корзина", "Покупки. Как лучше.", "Добавь товары в корзину", "Выбери, где обычно покупаешь")
+        legacy_visible = [frame for frame in visible_frames if any(word in frame.get("text", "") for word in legacy_words)]
+        if legacy_visible:
+            failures.append(f"{label}: retired/intermediate UI became visible during cold start {legacy_visible[:4]}")
+        if visible_frames and (not visible_frames[0].get("canonical") or "Спросить Бая" not in visible_frames[0].get("title", "")):
+            failures.append(f"{label}: first visible app frame was not approved Roxy Home {visible_frames[0]}")
+
+        pending_frames = [frame for frame in snapshot["frames"] if frame.get("boot") == "pending" and not frame.get("visible")]
+        unbranded_pending = [frame for frame in pending_frames if "Votonobay" not in frame.get("bootCopy", "")]
+        if pending_frames and unbranded_pending:
+            failures.append(f"{label}: hidden startup showed an unbranded/blank boot surface {unbranded_pending[:4]}")
 
         driver.save_screenshot(str(OUT / f"{label}-cold-start-home.png"))
 
@@ -175,8 +219,22 @@ def run_viewport(viewport: Viewport, failures: list[str]) -> None:
         driver.quit()
 
 
+def static_contract(failures: list[str]) -> None:
+    source = (ROOT / "votonobay-cold-start-v1.js").read_text(encoding="utf-8")
+    roxy = (ROOT / "votonobay-roxy-home-v1.js").read_text(encoding="utf-8")
+    if "setTimeout(release,1800)" in source:
+        failures.append("source: legacy 1.8s fail-open still exposes intermediate UI")
+    for token in ("td:roxy-home-ready", "canonicalHomeReady", "data-roxy-home-preload", "Votonobay · Бай готовит главную"):
+        if token not in source:
+            failures.append(f"source: cold-start canonical barrier token missing: {token}")
+    for token in ("__TDRoxyHomeV1", "td:roxy-home-ready", "roxyHomeReady"):
+        if token not in roxy:
+            failures.append(f"source: Roxy Home readiness token missing: {token}")
+
+
 def main() -> int:
     failures: list[str] = []
+    static_contract(failures)
     for viewport in VIEWPORTS:
         run_viewport(viewport, failures)
     if failures:
@@ -184,7 +242,7 @@ def main() -> int:
         for failure in failures:
             print("-", failure)
         return 1
-    print("Cold-start Home QA passed on desktop and Android: no saved catalog flash, shopping state preserved, account brand current.")
+    print("Cold-start Home QA passed on desktop and throttled Android: branded boot only until approved Roxy Home, no legacy/intermediate flash, shopping state preserved, account brand current.")
     return 0
 
 

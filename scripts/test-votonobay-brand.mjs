@@ -5,6 +5,7 @@ const shell = fs.readFileSync("v2-shell.js", "utf8");
 const brand = fs.readFileSync("brand-votonobay-v1.js", "utf8");
 const legacy = fs.readFileSync("brand-prosche-v1.js", "utf8");
 const coldStart = fs.readFileSync("votonobay-cold-start-v1.js", "utf8");
+const roxyHome = fs.readFileSync("votonobay-roxy-home-v1.js", "utf8");
 const account = fs.readFileSync("account-hub.js", "utf8");
 const css = fs.readFileSync("votonobay-brand-v1.css", "utf8");
 const bayCss = fs.readFileSync("votonobay-bay-first.css", "utf8");
@@ -20,6 +21,7 @@ new Function(shell);
 new Function(brand);
 new Function(legacy);
 new Function(coldStart);
+new Function(roxyHome);
 new Function(account);
 
 assert(/<title>Votonobay — как лучше собрать корзину<\/title>/.test(html), "HTML title must expose Votonobay before JavaScript runs");
@@ -62,13 +64,17 @@ assert(!/content:\s*["']V["']/.test(css), "brand CSS must not invent an unapprov
 const coldStartTag = 'votonobay-cold-start-v1.js?v=20260914-v1';
 assert(html.includes(coldStartTag), "cold-start guard must ship in the document head");
 assert(html.indexOf(coldStartTag) < html.indexOf('app.js?v='), "cold-start guard must execute before legacy app rendering");
-assert(/dataset\.votonobayBoot="pending"/.test(coldStart), "cold-start guard must hide the legacy shell before V2 Home is ready");
+assert(/dataset\.votonobayBoot="pending"/.test(coldStart), "cold-start guard must hide the legacy shell before approved Roxy Home is ready");
 assert(/saved\.screen="home"/.test(coldStart), "fresh top-level visits must normalize persisted legacy routes to Home");
 assert(/navigationType!=="back_forward"/.test(coldStart), "browser Back/Forward restores must keep their in-app destination");
 assert(/#app\{visibility:hidden!important;opacity:0!important\}/.test(coldStart), "legacy app content must not be paintable during cold start");
-assert(/setTimeout\(release,1800\)/.test(coldStart), "cold-start guard must fail open if the V2 decorator does not arrive");
+assert(!/setTimeout\(release,1800\)/.test(coldStart), "cold-start guard must never fail open into an intermediate/legacy screen on a timer");
+assert(/td:roxy-home-ready/.test(coldStart) && /canonicalHomeReady/.test(coldStart), "cold-start release must wait for explicit approved Roxy Home readiness");
+assert(/votonobay-roxy-home-v1\.js/.test(coldStart) && /votonobay-roxy-home-tune-v1\.css/.test(coldStart), "cold-start guard must preload the canonical Home decorator and tune CSS");
+assert(/Votonobay · Бай готовит главную/.test(coldStart), "slow startup must show a branded Votonobay boot surface instead of retired UI");
+assert(/__TDRoxyHomeV1/.test(roxyHome) && /td:roxy-home-ready/.test(roxyHome), "Roxy Home must be idempotent and signal canonical readiness");
 assert(!/Там дешевле сэкономил|Подписка Там Дешевле Plus/.test(account), "account hub must not expose the retired Там Дешевле brand");
 assert(/Сэкономлено с Votonobay/.test(account) && /Подписка Votonobay Plus/.test(account), "account hub must use current Votonobay copy");
 assert(/tuneAccountBrand/.test(brand), "runtime brand layer must protect late account surfaces too");
 
-console.log("Votonobay brand tests passed: native Bay-first entry, guarded cold start, self-service fallback, dark first paint, peeking Bay PWA identity and one master brand are protected.");
+console.log("Votonobay brand tests passed: native Bay-first entry, canonical Roxy startup barrier, self-service fallback, dark first paint, peeking Bay PWA identity and one master brand are protected.");
