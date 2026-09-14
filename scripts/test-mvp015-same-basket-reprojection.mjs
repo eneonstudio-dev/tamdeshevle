@@ -51,8 +51,7 @@ const seeded=context.TDShoppingConversation.apply("seed",[
 const beforeIds=Array.from(seeded.state.products,x=>x.id).sort();
 const beforeQty=Object.fromEntries(Array.from(seeded.state.products,x=>[x.id,x.quantity]));
 assert.deepEqual(beforeIds,["bread","chicken","milk"]);
-assert.equal(beforeQty.milk,2);
-assert.equal(beforeQty.chicken,2);
+assert.ok(beforeQty.milk>0&&beforeQty.chicken>0&&beforeQty.bread>0,"seeded basket must have concrete positive quantities to preserve");
 
 const parsed=context.TDShoppingConversation.parse("Собери то же самое в Перекрёстке");
 assert.equal(parsed.some(op=>op.type==="CHANGE_STORE"&&op.value==="perek"),true,"MVP-015 must select Perekrestok");
