@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-14T12:47:00.713Z",
+  "checked_at": "2026-09-14T13:55:44.409Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
@@ -125,8 +125,8 @@
   ],
   "unmatched": [
     {
-      "name": "Куриное яйцо С2 10шт в ассортименте",
-      "retailer_product_id": "2047000007",
+      "name": "Куриное яйцо СО 10шт в ассортименте",
+      "retailer_product_id": "2047000014",
       "reason": "no_rule_match"
     },
     {
@@ -152,11 +152,6 @@
     {
       "name": "Чай черный Tess Forest Dream 20пир",
       "retailer_product_id": "1000000187",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Куриное яйцо СО 10шт в ассортименте",
-      "retailer_product_id": "2047000014",
       "reason": "no_rule_match"
     },
     {
@@ -210,8 +205,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 3.2% 900мл",
-      "retailer_product_id": "1000117012",
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
+      "retailer_product_id": "1000132964",
       "reason": "no_rule_match"
     },
     {
@@ -220,8 +215,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Ahmad Tea клубника-сливки 25пак 37.5г",
-      "retailer_product_id": "1000388022",
+      "name": "Чай черный Ahmad Tea Персик-Маракуйя 25пак",
+      "retailer_product_id": "1000389628",
       "reason": "no_rule_match"
     },
     {
@@ -265,8 +260,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
-      "retailer_product_id": "1000226315",
+      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
+      "retailer_product_id": "1000210710",
       "reason": "no_rule_match"
     },
     {
@@ -280,8 +275,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
-      "retailer_product_id": "1000294726",
+      "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
+      "retailer_product_id": "1000226315",
       "reason": "no_rule_match"
     },
     {
@@ -290,28 +285,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Агрокомплекс пастеризованное 3.4-6% 900мл",
-      "retailer_product_id": "1000253310",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
-      "retailer_product_id": "1000295084",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черны Краснодарский Гост Ручной сбор Чабрец 100г",
-      "retailer_product_id": "1000551012",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
       "retailer_product_id": "1000304495",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310437",
+      "name": "Хлеб Тостовый пшеничный нарезанный Аютинский хлеб 280г",
+      "retailer_product_id": "1000294726",
       "reason": "no_rule_match"
     },
     {
@@ -325,8 +305,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310438",
+      "name": "Хлеб Тостовый нарезанный пшеничный ХК Лавина 400г",
+      "retailer_product_id": "1000295084",
       "reason": "no_rule_match"
     },
     {
@@ -340,8 +320,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Лаваш тонкий Хлеб Продукт 320г",
-      "retailer_product_id": "1000317473",
+      "name": "Чиабатта Краснодарский хлебозавод №6 250г",
+      "retailer_product_id": "1000307540",
       "reason": "no_rule_match"
     },
     {
@@ -350,28 +330,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
-      "retailer_product_id": "1000456510",
+      "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
+      "retailer_product_id": "1000450019",
       "reason": "no_rule_match"
     },
     {
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
-      "retailer_product_id": "1000335181",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Greenfield Earl Grey Fantasy 25пак",
-      "retailer_product_id": "1524200028",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Павловское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000495985",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
-      "retailer_product_id": "1000452288",
+      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310437",
       "reason": "no_rule_match"
     },
     {
@@ -380,13 +345,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000516518",
+      "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
+      "retailer_product_id": "1000456509",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Альпийский пшенично-ржаной нарезанный Каравай Кубани 200г",
-      "retailer_product_id": "1000482300",
+      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
+      "retailer_product_id": "1000310438",
       "reason": "no_rule_match"
     },
     {
@@ -395,17 +360,74 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
-      "retailer_product_id": "1000568396",
+      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
+      "retailer_product_id": "1000456510",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Кукурузный с сыром 400г",
-      "retailer_product_id": "1119990141",
+      "name": "Лаваш тонкий Хлеб Продукт 320г",
+      "retailer_product_id": "1000317473",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Принцесса Нури Высокогорный 25пак",
+      "retailer_product_id": "3091160104",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Павловское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000495985",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
+      "retailer_product_id": "1000335181",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чёрный чай ароматизированный Greenfield Сherry Amour 20 пирамидок",
+      "retailer_product_id": "8000052451",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000516518",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Артизиан нарезанный Лавина хлебокомбинат 300г",
+      "retailer_product_id": "1000452288",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чёрный чай ароматизированный Greenfield Raspberry Romance 20 пирамидок",
+      "retailer_product_id": "8000052452",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
+      "retailer_product_id": "1000568396",
       "reason": "no_rule_match"
     }
   ],
   "alternatives": [
+    {
+      "sku": "pasta",
+      "name": "Макароны Спагетти Магнит 500г в ассортименте",
+      "retailer_product_id": "1000166929",
+      "source_url": "https://magnit.ru/product/1000166929-makarony_magnit_spagetti_500g?shopCode=770105&shopType=1",
+      "price_rub": 36.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
     {
       "sku": "potato",
       "name": "Пирожок жареный с картофельной начинкой 100г",
@@ -459,10 +481,10 @@
     },
     {
       "sku": "pasta",
-      "name": "Макароны Спагетти Магнит 500г в ассортименте",
-      "retailer_product_id": "1000166929",
-      "source_url": "https://magnit.ru/product/1000166929-makarony_magnit_spagetti_500g?shopCode=770105&shopType=1",
-      "price_rub": 36.99,
+      "name": "Макароны Makfa Длинные 500г",
+      "retailer_product_id": "1000167334",
+      "source_url": "https://magnit.ru/product/1000167334-makarony_makfa_dlinnye_500g?shopCode=770105&shopType=1",
+      "price_rub": 64.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
@@ -509,23 +531,6 @@
       }
     },
     {
-      "sku": "pasta",
-      "name": "Макароны Makfa Длинные 500г",
-      "retailer_product_id": "1000167334",
-      "source_url": "https://magnit.ru/product/1000167334-makarony_makfa_dlinnye_500g?shopCode=770105&shopType=1",
-      "price_rub": 64.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 500,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 450,
-        "unit": "g"
-      }
-    },
-    {
       "sku": "potato",
       "name": "Картофель",
       "retailer_product_id": "9072651210",
@@ -560,23 +565,6 @@
       }
     },
     {
-      "sku": "buckwheat",
-      "name": "Гречневая крупа Агро-альянс Экстра 900г",
-      "retailer_product_id": "2400008418",
-      "source_url": "https://magnit.ru/product/2400008418-grechnevaya_krupa_agro_alyans_elitnaya_900g?shopCode=770105&shopType=1",
-      "price_rub": 79.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 900,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 800,
-        "unit": "g"
-      }
-    },
-    {
       "sku": "pasta",
       "name": "Спагетти Makfa томатные 500г",
       "retailer_product_id": "1000373535",
@@ -590,6 +578,23 @@
       },
       "requested_pack": {
         "value": 450,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "buckwheat",
+      "name": "Гречневая крупа Агро-альянс Экстра 900г",
+      "retailer_product_id": "2400008418",
+      "source_url": "https://magnit.ru/product/2400008418-grechnevaya_krupa_agro_alyans_elitnaya_900g?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 800,
         "unit": "g"
       }
     },
