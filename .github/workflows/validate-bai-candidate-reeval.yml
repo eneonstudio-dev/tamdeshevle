@@ -7,6 +7,7 @@ on:
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
+      - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
       - ".github/workflows/validate-bai-candidate-reeval.yml"
   push:
     branches:
@@ -16,6 +17,7 @@ on:
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
+      - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
       - ".github/workflows/validate-bai-candidate-reeval.yml"
 
 permissions:
@@ -32,12 +34,16 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-      - name: Check syntax
+      - name: Check syntax and notebook contract
         run: |
           python -m py_compile teacher-lab/training/reevaluate_candidate.py
           python -m py_compile teacher-lab/training/reevaluate_candidate_smoke.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures_smoke.py
+          python -m json.tool teacher-lab/training/bai_candidate_kaggle_reeval.ipynb >/dev/null
+          grep -q "notebook07f42bd563/versions/1" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "reevaluate_candidate.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "analyze_candidate_failures.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
       - name: Validate existing candidate re-evaluation contract
         run: python teacher-lab/training/reevaluate_candidate_smoke.py
       - name: Validate candidate failure clustering contract
