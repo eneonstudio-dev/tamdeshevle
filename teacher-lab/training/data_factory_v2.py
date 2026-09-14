@@ -52,22 +52,36 @@ def build_tasks():
     if len(ids)!=len(set(ids)): raise RuntimeError('duplicate task ids')
     return out
 
+def semantic_key(item):
+    expected=dict(item.get('expected') or {})
+    expected.pop('scenario_id',None); expected.pop('turn',None)
+    payload={'category':item.get('category'),'user_request':item.get('user_request'),'session_context':item.get('session_context') or {},'guards':item.get('guards') or {},'expected':expected}
+    return json.dumps(payload,ensure_ascii=False,sort_keys=True,separators=(',',':'))
+
+def dedupe_tasks(rows):
+    seen=set(); unique=[]
+    for item in rows:
+        key=semantic_key(item)
+        if key in seen: continue
+        seen.add(key); unique.append(item)
+    return unique
+
 def stats(rows):
     return {'schema_version':'2.0','total':len(rows),'by_category':dict(Counter(x['category'] for x in rows)),'by_difficulty':dict(Counter(x['difficulty'] for x in rows)),'training_allowed':False,'requires_human_review':True}
 
 def balanced_pilot(rows,per_category=100):
     categories=['build_fuzzy','edit_fuzzy','constraint_conflict','multi_turn']
-    selected=[]
+    selected=[]; unique=dedupe_tasks(rows)
     for category in categories:
-        pool=[x for x in rows if x['category']==category]
+        pool=[x for x in unique if x['category']==category]
         pool.sort(key=lambda x:(0 if x['difficulty']=='hard' else 1,x['id']))
         if len(pool)<per_category: raise RuntimeError(f'not enough {category} rows')
         selected.extend(pool[:per_category])
     return selected
 
 def main():
-    ap=argparse.ArgumentParser(); ap.add_argument('out'); ap.add_argument('--pilot-out'); ap.add_argument('--pilot-per-category',type=int,default=100); args=ap.parse_args(); rows=build_tasks(); Path(args.out).write_text(''.join(json.dumps(x,ensure_ascii=False)+'\n' for x in rows),encoding='utf-8')
-    result=stats(rows)
+    ap=argparse.ArgumentParser(); ap.add_argument('out'); ap.add_argument('--pilot-out'); ap.add_argument('--pilot-per-category',type=int,default=100); args=ap.parse_args(); raw=build_tasks(); rows=dedupe_tasks(raw); Path(args.out).write_text(''.join(json.dumps(x,ensure_ascii=False)+'\n' for x in rows),encoding='utf-8')
+    result=stats(rows); result['raw_total']=len(raw); result['deduped_total']=len(rows)
     if args.pilot_out:
         pilot=balanced_pilot(rows,args.pilot_per_category); Path(args.pilot_out).write_text(''.join(json.dumps(x,ensure_ascii=False)+'\n' for x in pilot),encoding='utf-8'); result['pilot_total']=len(pilot); result['pilot_by_category']=dict(Counter(x['category'] for x in pilot))
     print(json.dumps(result,ensure_ascii=False,indent=2))
