@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
-import json,subprocess,sys,tempfile,zipfile
+import importlib.util,json,subprocess,sys,tempfile,zipfile
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 SCRIPT=ROOT/'teacher-lab/review-artifact.py'
+FACTORY_SCRIPT=ROOT/'teacher-lab/gpu/kaggle_factory_v2_runall.py'
 FP='a'*64
 PROMPT='b'*64
 OUTPUT='c'*64
+
+spec=importlib.util.spec_from_file_location('factory_manifest',FACTORY_SCRIPT)
+factory=importlib.util.module_from_spec(spec); spec.loader.exec_module(factory)
 
 
 def profile(name): return json.loads((ROOT/'teacher-lab/profiles'/name).read_text(encoding='utf-8'))
@@ -34,10 +38,13 @@ def main():
         (src/'review-queue.json').write_text(json.dumps([{'task_id':'task.1','status':'agree','conflicts':[],'flags':[]}]),encoding='utf-8')
         (src/'summary.json').write_text(json.dumps({'compared':1,'agreements':1,'auto_approved':0}),encoding='utf-8')
         (src/'run-manifest.jsonl').write_text(json.dumps({'runtime_fingerprint':FP,'schema_version':'1.0'})+'\n',encoding='utf-8')
-        (src/'corpus-manifest.json').write_text(json.dumps({'teachers':[{'id':leftp['id'],'model':leftp['model'],'revision':leftp['revision']},{'id':rightp['id'],'model':rightp['model'],'revision':rightp['revision']}]}),encoding='utf-8')
+        corpus_manifest=factory.review_manifest([{'id':'task.1','category':'build_fuzzy'}],[leftp,rightp])
+        (src/'corpus-manifest.json').write_text(json.dumps(corpus_manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
         archive=base/'batch.zip'; make_archive(src,archive)
         work=base/'work'; run('prepare','--artifact',archive,'--work',work)
         assert (work/'review.html').is_file() and (work/'manifest.json').is_file()
+        prepared=json.loads((work/'manifest.json').read_text(encoding='utf-8'))
+        assert prepared['teacher_profiles']==2 and prepared['queue']==1
         decisions=base/'decisions.json'; decisions.write_text(json.dumps([{'task_id':'task.1','decision':'approve_left','reviewer':'human'}]),encoding='utf-8')
         out=base/'out'; run('finalize','--review-dir',work/'artifact','--decisions',decisions,'--out',out)
         assert len((out/'gold.jsonl').read_text(encoding='utf-8').splitlines())==1
@@ -51,6 +58,6 @@ def main():
         with zipfile.ZipFile(bad,'w') as z: z.writestr('../escape.txt','nope')
         failed=run('prepare','--artifact',bad,'--work',base/'badwork',check=False)
         assert failed.returncode!=0 and not (base/'escape.txt').exists()
-    print('Review artifact workflow passed.')
+    print('Review artifact workflow passed with Data Factory manifest.')
 
 if __name__=='__main__': main()
