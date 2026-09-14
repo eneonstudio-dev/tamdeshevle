@@ -26,9 +26,13 @@ const exact = Receipt.create({
 const promoted = Verify.promote(exact, { now });
 assert.equal(promoted.gate.ok, true);
 assert.equal(promoted.gate.eligible_for_history, true);
+assert.equal(promoted.gate.eligible_for_ranking, false, 'receipt gate must not imply current stock');
 assert.equal(promoted.candidates.length, 2);
-assert.equal(promoted.candidates[0].eligible_for_ranking, true);
+assert.equal(promoted.candidates[0].eligible_for_ranking, false, 'strong identity receipt still lacks current availability');
+assert.equal(promoted.candidates[0].eligible_for_history, true);
+assert.equal(promoted.candidates[0].availability_verified, false);
 assert.equal(promoted.candidates[0].rankable, false);
+assert.match(promoted.candidates[0].promotion_reason, /not current availability|не|availability/i);
 assert.equal(promoted.candidates[1].eligible_for_ranking, false);
 
 const stale = Receipt.create({
@@ -64,7 +68,8 @@ const toleratedClockSkew = Receipt.create({
   image_ref: 'receipt://r5',
   items: [{ product_id: 'milk', match_method: 'barcode', price: 91, receipt_name: 'Молоко' }]
 });
-assert.equal(Verify.promote(toleratedClockSkew, { now }).gate.ok, true, 'small clock skew should stay usable');
+assert.equal(Verify.promote(toleratedClockSkew, { now }).gate.ok, true, 'small clock skew should stay usable for history evidence');
+assert.equal(Verify.promote(toleratedClockSkew, { now }).candidates[0].eligible_for_ranking, false, 'clock freshness cannot manufacture current availability');
 
 const future = Receipt.create({
   receipt_id: 'r6',
@@ -78,4 +83,4 @@ assert.equal(futurePromotion.gate.ok, false, 'future evidence must not be promot
 assert.equal(futurePromotion.candidates.length, 0);
 assert.equal(futurePromotion.gate.reasons.includes('receipt timestamp is in the future'), true);
 
-console.log('receipt verification tests passed');
+console.log('receipt verification tests passed: receipts can prove purchase-time price/history, never current availability by themselves');
