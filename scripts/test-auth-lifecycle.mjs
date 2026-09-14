@@ -18,7 +18,7 @@ async function setup({sdkFailure=false,rows={profiles:{display_name:'Облач�
       return Promise.resolve({data:row?[row]:structuredClone(rows[table]),error:null}).then(resolve,reject);
     };return q;
   }};
-  const window={TD_SUPABASE:{url:'https://test.supabase.co',anonKey:'public-test-key-long-enough'},addEventListener(){},dispatchEvent:e=>events.push(e),render:()=>rendered++};
+  const window={TDReleaseScope:{enabled:()=>true},TD_SUPABASE:{url:'https://test.supabase.co',anonKey:'public-test-key-long-enough'},addEventListener(){},dispatchEvent:e=>events.push(e),render:()=>rendered++};
   const document={getElementById:()=>true,createElement:()=>({}),head:{appendChild:s=>{attempts++;queueMicrotask(()=>{if(sdkFailure&&attempts===1)s.onerror();else{window.supabase={createClient:()=>{created++;return client;}};s.onload();}});}}};
   vm.runInNewContext(source,{window,document,localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},console:{warn(){}},location:{origin:'https://example.org',pathname:'/app/'}});
   await new Promise(resolve=>setImmediate(resolve));
