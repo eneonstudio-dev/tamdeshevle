@@ -5,6 +5,8 @@ on:
     paths:
       - "teacher-lab/training/reevaluate_candidate.py"
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
+      - "teacher-lab/training/package_reeval_artifact.py"
+      - "teacher-lab/training/package_reeval_artifact_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
       - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
@@ -15,6 +17,8 @@ on:
     paths:
       - "teacher-lab/training/reevaluate_candidate.py"
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
+      - "teacher-lab/training/package_reeval_artifact.py"
+      - "teacher-lab/training/package_reeval_artifact_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
       - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
@@ -38,6 +42,8 @@ jobs:
         run: |
           python -m py_compile teacher-lab/training/reevaluate_candidate.py
           python -m py_compile teacher-lab/training/reevaluate_candidate_smoke.py
+          python -m py_compile teacher-lab/training/package_reeval_artifact.py
+          python -m py_compile teacher-lab/training/package_reeval_artifact_smoke.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures_smoke.py
           python -m json.tool teacher-lab/training/bai_candidate_kaggle_reeval.ipynb >/dev/null
@@ -46,6 +52,7 @@ jobs:
           grep -q "analyze_candidate_failures.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "compare_candidate_runs.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "corrected-candidate" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "package_reeval_artifact.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
       - name: Validate existing candidate re-evaluation contract
         run: python teacher-lab/training/reevaluate_candidate_smoke.py
       - name: Validate candidate failure clustering contract
