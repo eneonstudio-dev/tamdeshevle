@@ -24,6 +24,8 @@ jobs:
         run: node scripts/test-mvp003-replace-turkey.mjs
       - name: Canonical convenience priority
         run: node scripts/test-mvp012-convenience-priority.mjs
+      - name: Same-basket retailer reprojection
+        run: node scripts/test-mvp015-same-basket-reprojection.mjs
       - name: Split optimizer regression
         run: node scripts/test-basket-split.mjs
       - name: Split UI and handoff contract

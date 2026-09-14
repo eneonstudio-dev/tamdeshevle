@@ -1,0 +1,95 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import vm from "node:vm";
+
+const normalizer=fs.readFileSync(new URL("../bai-same-basket-reprojection.js",import.meta.url),"utf8");
+const config=fs.readFileSync(new URL("../supabase-config.js",import.meta.url),"utf8");
+assert.ok(config.indexOf("bai-same-basket-reprojection.js")>config.indexOf("bai-category-intents.js"),"same-basket normalizer must load after deterministic intent normalizers");
+assert.ok(config.indexOf("bai-same-basket-reprojection.js")<config.indexOf("bai-decision-quality.js"),"same-basket intent must be stable before decision-quality/journey layers");
+
+const storage=new Map();
+const context={console,JSON,Math,Number,String,Object,Array,Set,Map,Date};
+context.window=context;
+context.localStorage={getItem:key=>storage.get(key)??null,setItem:(key,value)=>storage.set(key,String(value))};
+context.CustomEvent=class CustomEvent{constructor(type,init={}){this.type=type;this.detail=init.detail}};
+context.dispatchEvent=()=>{};
+context.render=()=>{};
+context.state={city:"msk",storeId:"pyat",cart:{},cartTouched:false};
+context.STORES=[
+  {id:"pyat",kind:"shop",city:["msk"]},
+  {id:"perek",kind:"shop",city:["msk"]}
+];
+context.PRODUCTS=[
+  {id:"milk",name:"Молоко",pack:"1 л"},
+  {id:"bread",name:"Хлеб",pack:"650 г"},
+  {id:"chicken",name:"Курица",pack:"1 кг"},
+  {id:"eggs",name:"Яйца",pack:"10 шт"},
+  {id:"water",name:"Вода",pack:"5 л"}
+];
+const catalog=context.PRODUCTS.map(product=>({...product,tags:product.id==="chicken"?["мясо","курица"]:[],brand:""}));
+const prices={
+  pyat:{milk:100,bread:60,chicken:350,eggs:120,water:110},
+  perek:{milk:105,bread:65,chicken:365,eggs:125,water:115}
+};
+context.TDStoreAdapters={
+  catalog:()=>catalog,
+  adapter:storeId=>({
+    getProduct:id=>catalog.find(p=>p.id===id)||null,
+    getPrice:id=>({value:prices[storeId]?.[id]??null,quality:"LIVE"})
+  })
+};
+vm.createContext(context);
+for(const file of ["shopping-state.js","shopping-optimizer.js","shopping-conversation.js"]){
+  vm.runInContext(fs.readFileSync(new URL(`../${file}`,import.meta.url),"utf8"),context,{filename:file});
+}
+vm.runInContext(normalizer,context,{filename:"bai-same-basket-reprojection.js"});
+
+const seeded=context.TDShoppingConversation.apply("seed",[
+  {type:"CHANGE_BUDGET",value:4000},
+  {type:"SET_DURATION",value:7},
+  {type:"SET_MODE",value:"one"},
+  {type:"CHANGE_STORE",value:"pyat"},
+  {type:"ADD_PREFERENCE",value:"healthy"},
+  {type:"SET_ONLY_PRODUCTS",value:["milk","bread","chicken"]},
+  {type:"SET_PRODUCT_AMOUNT",value:{id:"milk",amount:2,unit:"pack"}},
+  {type:"SET_PRODUCT_AMOUNT",value:{id:"chicken",amount:2,unit:"pack"}}
+]);
+const beforeIds=Array.from(seeded.state.products,x=>x.id).sort();
+const beforeQty=Object.fromEntries(Array.from(seeded.state.products,x=>[x.id,x.quantity]));
+assert.deepEqual(beforeIds,["bread","chicken","milk"]);
+assert.ok(beforeQty.milk>0&&beforeQty.chicken>0&&beforeQty.bread>0,"seeded basket must have concrete positive quantities to preserve");
+
+const parsed=context.TDShoppingConversation.parse("Собери то же самое в Перекрёстке");
+assert.equal(parsed.some(op=>op.type==="CHANGE_STORE"&&op.value==="perek"),true,"MVP-015 must select Perekrestok");
+assert.equal(parsed.some(op=>op.type==="RESET_BASKET"||op.type==="CLEAR_ONLY"||op.type==="SET_ONLY_PRODUCTS"),false,"same-basket reprojection must not rebuild product intent");
+assert.equal(parsed.some(op=>op.type==="SET_INTENT"&&["build","only"].includes(String(op.value))),false,"same-basket reprojection must not overwrite the existing basket intent");
+assert.equal(parsed.some(op=>op.type==="REOPTIMIZE"),true,"retailer reprojection must recalculate PurchasePlan");
+
+const result=context.TDShoppingConversation.apply("Собери то же самое в Перекрёстке",parsed);
+const afterIds=Array.from(result.state.products,x=>x.id).sort();
+const afterQty=Object.fromEntries(Array.from(result.state.products,x=>[x.id,x.quantity]));
+assert.deepEqual(afterIds,beforeIds,"MVP-015 must re-project the exact UniversalBasket instead of adding default products");
+assert.deepEqual(afterQty,beforeQty,"MVP-015 must preserve quantities while changing retailer projection");
+assert.deepEqual(Array.from(result.state.stores),["perek"],"MVP-015 must project into the requested retailer");
+assert.equal(result.state.selectionMode,"only","same-basket projection must preserve exact-item selection mode");
+assert.equal(result.state.budget,4000);
+assert.equal(result.state.duration,7);
+assert.equal(result.state.preferences.includes("healthy"),true);
+assert.equal(result.state.lastPlans[0]?.stores?.includes("perek"),true,"PurchasePlan must be recalculated against Perekrestok");
+
+const fresh=context.TDShoppingConversation.parse("Собери корзину заново");
+assert.equal(fresh.some(op=>op.type==="CLEAR_ONLY"),true,"ordinary fresh-build requests must keep their existing rebuild semantics");
+assert.equal(fresh.some(op=>op.type==="RESET_BASKET"),true,"explicit `заново` must still reset the basket");
+
+const brainContext={console,JSON,Math,Number,String,Object,Array,Set};
+brainContext.window=brainContext;
+brainContext.TDShoppingState={get:()=>({products:[{id:"milk"}],budget:4000})};
+vm.createContext(brainContext);
+vm.runInContext(fs.readFileSync(new URL("../bai-brain.js",import.meta.url),"utf8"),brainContext,{filename:"bai-brain.js"});
+vm.runInContext(normalizer,brainContext,{filename:"bai-same-basket-reprojection.js"});
+const brainResult=await brainContext.TDBaiBrain.route("Собери то же самое в Перекрёстке");
+assert.equal(brainResult.operations.some(op=>op.type==="CHANGE_STORE"&&op.value==="perek"),true,"core Bai must retain the requested retailer");
+assert.equal(brainResult.operations.some(op=>op.type==="CLEAR_ONLY"||op.type==="RESET_BASKET"||op.type==="SET_ONLY_PRODUCTS"),false,"core Bai must not rebuild the basket during same-basket reprojection");
+assert.equal(brainResult.operations.some(op=>op.type==="REOPTIMIZE"),true,"core Bai must request PurchasePlan re-evaluation");
+
+console.log("MVP-015 passed: the same UniversalBasket and quantities are re-projected to Perekrestok without rebuilding user intent.");
