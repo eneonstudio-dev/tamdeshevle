@@ -27,9 +27,9 @@
     html[data-votonobay-boot="pending"]::before,
     html[data-votonobay-boot="stalled"]::before{content:"";position:fixed;inset:0;z-index:2147483000;background:radial-gradient(circle at 50% 36%,rgba(38,112,73,.22),transparent 34%),linear-gradient(180deg,#08110c 0%,#050a07 100%);pointer-events:none}
     html[data-votonobay-boot="pending"]::after,
-    html[data-votonobay-boot="stalled"]::after{content:"Votonobay\A Бай готовит главную…";white-space:pre;position:fixed;z-index:2147483001;left:50%;top:50%;transform:translate(-50%,-50%);width:min(82vw,360px);text-align:center;color:#f3f8f5;font:800 22px/1.45 Manrope,system-ui,-apple-system,sans-serif;letter-spacing:-.035em;pointer-events:none}
+    html[data-votonobay-boot="stalled"]::after{content:"Votonobay · Бай готовит главную…";position:fixed;z-index:2147483001;left:50%;top:50%;transform:translate(-50%,-50%);width:min(82vw,360px);text-align:center;color:#f3f8f5;font:800 22px/1.45 Manrope,system-ui,-apple-system,sans-serif;letter-spacing:-.035em;pointer-events:none}
     html[data-votonobay-boot="pending"]::after{animation:votonobayBootPulse 1.5s ease-in-out infinite alternate}
-    html[data-votonobay-boot="stalled"]::after{content:"Votonobay\A Главная не загрузилась. Обнови страницу.";font-size:18px;line-height:1.5}
+    html[data-votonobay-boot="stalled"]::after{content:"Votonobay · Главная не загрузилась. Обнови страницу.";font-size:18px;line-height:1.5}
     @keyframes votonobayBootPulse{from{opacity:.66}to{opacity:1}}
     @media(prefers-reduced-motion:reduce){html[data-votonobay-boot="pending"]::after{animation:none}}
   `;
