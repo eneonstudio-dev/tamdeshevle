@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { parseProshoperCatalog } from "../retailers/proshoper-collector.mjs";
+import { isCatalogPeriodCurrent, parseProshoperCatalog } from "../retailers/proshoper-collector.mjs";
 
 const html = `
 <html><body>
@@ -17,4 +17,23 @@ assert.equal(rows[1].price, 79.99);
 assert.equal(rows[1].old_price, 94.99);
 assert.ok(rows.every(row => row.availability === "каталог"));
 assert.ok(rows.every(row => row.url === "https://example.test/catalog"));
-console.log("Proshoper collector parser contract passed.");
+
+const period = { valid_from: "2026-09-08", valid_to: "2026-09-14" };
+assert.equal(
+  isCatalogPeriodCurrent(period, "2026-09-14T20:59:00Z", "Europe/Moscow"),
+  true,
+  "catalog must remain current through the end date in the source market timezone"
+);
+assert.equal(
+  isCatalogPeriodCurrent(period, "2026-09-14T21:01:00Z", "Europe/Moscow"),
+  false,
+  "catalog must expire once the source market local date moves past valid_to"
+);
+assert.equal(
+  isCatalogPeriodCurrent(period, "2026-09-07T20:59:00Z", "Europe/Moscow"),
+  false,
+  "catalog must not be accepted before valid_from"
+);
+assert.equal(isCatalogPeriodCurrent({ valid_from: null, valid_to: null }, "2026-09-10T00:00:00Z"), false);
+
+console.log("Proshoper collector parser and catalog-period contracts passed.");

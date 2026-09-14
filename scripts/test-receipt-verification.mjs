@@ -57,4 +57,25 @@ const noProof = Receipt.create({
 });
 assert.equal(Verify.promote(noProof, { now }).gate.ok, false);
 
+const toleratedClockSkew = Receipt.create({
+  receipt_id: 'r5',
+  observed_at: '2026-09-10T09:10:00.000Z',
+  store: scopedStore(),
+  image_ref: 'receipt://r5',
+  items: [{ product_id: 'milk', match_method: 'barcode', price: 91, receipt_name: 'Молоко' }]
+});
+assert.equal(Verify.promote(toleratedClockSkew, { now }).gate.ok, true, 'small clock skew should stay usable');
+
+const future = Receipt.create({
+  receipt_id: 'r6',
+  observed_at: '2026-09-10T09:30:00.000Z',
+  store: scopedStore(),
+  image_ref: 'receipt://r6',
+  items: [{ product_id: 'milk', match_method: 'barcode', price: 92, receipt_name: 'Молоко' }]
+});
+const futurePromotion = Verify.promote(future, { now });
+assert.equal(futurePromotion.gate.ok, false, 'future evidence must not be promoted as fresh');
+assert.equal(futurePromotion.candidates.length, 0);
+assert.equal(futurePromotion.gate.reasons.includes('receipt timestamp is in the future'), true);
+
 console.log('receipt verification tests passed');

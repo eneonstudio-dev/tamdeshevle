@@ -2,6 +2,7 @@
   "use strict";
 
   const DEFAULT_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+  const DEFAULT_FUTURE_TOLERANCE_MS = 15 * 60 * 1000;
   const STRONG_MATCH = new Set(["barcode", "sku"]);
 
   function ageMs(observedAt, now) {
@@ -14,6 +15,9 @@
   function verifyObservation(observation, options) {
     const opts = options || {};
     const maxAgeMs = Number.isFinite(opts.maxAgeMs) ? opts.maxAgeMs : DEFAULT_MAX_AGE_MS;
+    const futureToleranceMs = Number.isFinite(opts.futureToleranceMs)
+      ? Math.max(0, opts.futureToleranceMs)
+      : DEFAULT_FUTURE_TOLERANCE_MS;
     const now = opts.now;
     const contract = window.TDReceiptObservations;
     const validation = contract && typeof contract.validate === "function"
@@ -27,7 +31,18 @@
     }
     const proof = observation && observation.proof || {};
     if (!(proof.image_ref || proof.fiscal_sign || proof.raw_text_ref)) reasons.push("receipt proof required");
-    if (observation && ageMs(observation.observed_at, now) > maxAgeMs) reasons.push("receipt is stale");
+
+    if (observation) {
+      const observedMs = new Date(observation.observed_at).getTime();
+      const currentMs = now == null ? Date.now() : new Date(now).getTime();
+      if (!Number.isFinite(observedMs) || !Number.isFinite(currentMs)) {
+        reasons.push("invalid receipt timestamp");
+      } else if (observedMs - currentMs > futureToleranceMs) {
+        reasons.push("receipt timestamp is in the future");
+      } else if (currentMs - observedMs > maxAgeMs) {
+        reasons.push("receipt is stale");
+      }
+    }
 
     return {
       ok: reasons.length === 0,
@@ -74,6 +89,7 @@
 
   window.TDReceiptVerification = {
     DEFAULT_MAX_AGE_MS,
+    DEFAULT_FUTURE_TOLERANCE_MS,
     ageMs,
     verifyObservation,
     promote

@@ -12,6 +12,9 @@ on:
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
       - "scripts/test-roxy-long-basket.py"
+      - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-roxy-network-recovery.py"
+      - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - ".github/workflows/validate-ux-browser.yml"
@@ -28,6 +31,9 @@ on:
       - "scripts/test-roxy-decision.py"
       - "scripts/test-roxy-handoff.py"
       - "scripts/test-roxy-long-basket.py"
+      - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-roxy-network-recovery.py"
+      - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - ".github/workflows/validate-ux-browser.yml"
@@ -80,6 +86,18 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-long-basket.py
+      - name: Validate Roxy mobile composer
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-mobile-compose.py
+      - name: Validate Roxy network recovery
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-network-recovery.py
+      - name: Validate Roxy return continuity
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-return-continuity.py
       - name: Validate Roxy catalog hint
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/

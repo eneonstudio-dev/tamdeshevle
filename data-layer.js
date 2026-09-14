@@ -25,16 +25,21 @@
     if (!product) return null;
     const source = channel === "bring" ? product.bring : product.prices;
     const value = source && source[storeId];
-    return Number.isFinite(value) ? value : null;
+    return Number.isFinite(value) && value > 0 ? value : null;
   }
 
   function cartTotal(cart, storeId, channel) {
     if (!cart || typeof cart !== "object") return 0;
-    return Object.entries(cart).reduce((sum, [productId, qty]) => {
+    let total = 0;
+    for (const [productId, qty] of Object.entries(cart)) {
+      const count = Number(qty);
+      if (!Number.isFinite(count) || count < 0) return null;
+      if (count === 0) continue;
       const unit = price(productId, storeId, channel);
-      const count = Number(qty) || 0;
-      return sum + (unit == null ? 0 : unit * count);
-    }, 0);
+      if (unit == null) return null;
+      total += unit * count;
+    }
+    return total;
   }
 
   function validate() {
