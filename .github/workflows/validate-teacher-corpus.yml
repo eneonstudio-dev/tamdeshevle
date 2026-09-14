@@ -36,6 +36,7 @@ jobs:
           node --check teacher-lab/candidate-smoke.mjs
           node --check teacher-lab/run-local-batch.mjs
           node --check teacher-lab/teacher-consensus.mjs
+          node --check teacher-lab/teacher-consensus-smoke.mjs
           node --check teacher-lab/teacher-run-smoke.mjs
           node --check teacher-lab/review-teacher-pair.mjs
           node --check teacher-lab/review-pair-smoke.mjs
@@ -87,6 +88,8 @@ jobs:
         run: node teacher-lab/batch-smoke.mjs
       - name: Validate candidate import gates
         run: node teacher-lab/candidate-smoke.mjs
+      - name: Validate teacher action payload consensus
+        run: node teacher-lab/teacher-consensus-smoke.mjs
       - name: Validate local teacher runner and consensus
         run: node teacher-lab/teacher-run-smoke.mjs
       - name: Validate teacher pair review queue
