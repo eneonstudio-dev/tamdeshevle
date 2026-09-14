@@ -110,7 +110,7 @@
   function explain(decision){return decision?.available?`${decision.summary} ${decision.why} ${decision.tradeoff}`.replace(/\s+/g," ").trim():""}
   function compact(decision){return decision?.available?`${decision.summary} ${decision.tradeoff}`.replace(/\s+/g," ").trim():""}
   function suggestions(decision){if(!decision?.available)return[];const list=[];if(decision.choice==="one")list.push("Собрать в одном магазине","Разнести покупки");else list.push("Разнести покупки","Собрать в одном магазине");if(!decision.assembly?.configured&&decision.mode!=="delivery")list.push("Учесть моё время");return unique(list).slice(0,3)}
-  function isTradeoffPrompt(text){return/(что\s+лучше|что\s+выбрат|сравн|один\s+магазин|в\s+одном\s+магазин|два\s+магазин|двух\s+магазин|разнес|удоб|быстр|дешевле|эконом)/i.test(String(text||""))}
+  function isTradeoffPrompt(text){return/(почему\s+(?:именно\s+)?(?:этот\s+)?(?:вариант|выбор|решени)|объясни\s+(?:этот\s+)?(?:вариант|выбор|решени)|что\s+лучше|что\s+выбрат|сравн|один\s+магазин|в\s+одном\s+магазин|два\s+магазин|двух\s+магазин|разнес|удоб|быстр|дешевле|эконом)/i.test(String(text||""))}
   function explicitChoice(text){
     const t=String(text||"").toLowerCase().replace(/ё/g,"е").trim().replace(/[.!?]+$/g,"").replace(/\s+/g," ");
     if(t==="собрать в одном магазине"||t==="все равно в одном"||t==="в одном магазине")return"one";
