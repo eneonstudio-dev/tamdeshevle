@@ -7,6 +7,8 @@ on:
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
       - "teacher-lab/training/package_reeval_artifact.py"
       - "teacher-lab/training/package_reeval_artifact_smoke.py"
+      - "teacher-lab/training/intake_reeval_handoff.py"
+      - "teacher-lab/training/intake_reeval_handoff_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
       - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
@@ -19,6 +21,8 @@ on:
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
       - "teacher-lab/training/package_reeval_artifact.py"
       - "teacher-lab/training/package_reeval_artifact_smoke.py"
+      - "teacher-lab/training/intake_reeval_handoff.py"
+      - "teacher-lab/training/intake_reeval_handoff_smoke.py"
       - "teacher-lab/training/analyze_candidate_failures.py"
       - "teacher-lab/training/analyze_candidate_failures_smoke.py"
       - "teacher-lab/training/bai_candidate_kaggle_reeval.ipynb"
@@ -44,6 +48,8 @@ jobs:
           python -m py_compile teacher-lab/training/reevaluate_candidate_smoke.py
           python -m py_compile teacher-lab/training/package_reeval_artifact.py
           python -m py_compile teacher-lab/training/package_reeval_artifact_smoke.py
+          python -m py_compile teacher-lab/training/intake_reeval_handoff.py
+          python -m py_compile teacher-lab/training/intake_reeval_handoff_smoke.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures.py
           python -m py_compile teacher-lab/training/analyze_candidate_failures_smoke.py
           python -m json.tool teacher-lab/training/bai_candidate_kaggle_reeval.ipynb >/dev/null
@@ -55,5 +61,7 @@ jobs:
           grep -q "package_reeval_artifact.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
       - name: Validate existing candidate re-evaluation contract
         run: python teacher-lab/training/reevaluate_candidate_smoke.py
+      - name: Validate portable re-eval handoff intake
+        run: python teacher-lab/training/intake_reeval_handoff_smoke.py
       - name: Validate candidate failure clustering contract
         run: python teacher-lab/training/analyze_candidate_failures_smoke.py
