@@ -111,9 +111,11 @@ def purchase_metrics(driver):
       const altLabel=alternatives?.querySelector('.td-compare-plan small')?.textContent?.trim()||'';
       const order=(a,b)=>a&&b?Boolean(a.compareDocumentPosition(b)&Node.DOCUMENT_POSITION_FOLLOWING):null;
       const pr=primary?.getBoundingClientRect(),rr=root?.getBoundingClientRect();
+      const visualNodes=[hero,why,tradeoff,action,alternatives,trust].filter(Boolean);
       return {
         present:!!root,
         order:[order(hero,why),order(why,tradeoff),order(tradeoff,action),alternatives?order(action,alternatives):true,alternatives&&trust?order(alternatives,trust):true],
+        visualTops:visualNodes.map(node=>Math.round(node.getBoundingClientRect().top*10)/10),
         whyTitle:why?.querySelector('h3')?.textContent?.trim()||'',
         tradeoffTitle:tradeoff?.querySelector('h3')?.textContent?.trim()||'',
         actionTitle:action?.querySelector('h3')?.textContent?.trim()||'',
@@ -171,7 +173,9 @@ def main():
             purchase=purchase_metrics(driver)
             label=f"{name}/purchase-skeleton"
             if not purchase.get("present"): failures.append(f"{label}: skeleton missing {purchase}")
-            if not all(x is True for x in purchase.get("order",[])): failures.append(f"{label}: wrong conclusion-first order {purchase}")
+            if not all(x is True for x in purchase.get("order",[])): failures.append(f"{label}: wrong DOM conclusion-first order {purchase}")
+            tops=purchase.get("visualTops",[])
+            if len(tops)>1 and any(second<=first for first,second in zip(tops,tops[1:])): failures.append(f"{label}: wrong visual conclusion-first order {purchase}")
             if purchase.get("whyTitle")!="Почему я выбрал этот вариант": failures.append(f"{label}: WHY title missing {purchase}")
             if purchase.get("tradeoffTitle")!="Что важно знать": failures.append(f"{label}: tradeoff title missing {purchase}")
             if purchase.get("actionTitle")!="Выбрать план и перейти к покупке": failures.append(f"{label}: action title missing {purchase}")
