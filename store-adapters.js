@@ -1,5 +1,8 @@
 (function(){
   "use strict";
+  const TURKEY={id:"turkey",name:"Филе индейки",pack:"1 кг",emoji:"🦃",prices:{pyat:499,magnit:469,perek:519,lenta:489,dixy:495,lavka:569,vprok:509},bring:{pyat:539,magnit:509,perek:559,lenta:529,dixy:535,lavka:569,vprok:509}};
+  if(typeof PRODUCTS!=="undefined"&&Array.isArray(PRODUCTS)&&!PRODUCTS.some(product=>product?.id===TURKEY.id))PRODUCTS.push({...TURKEY});
+  if(typeof PRODUCT_IDS!=="undefined"&&PRODUCT_IDS&&typeof PRODUCT_IDS.add==="function")PRODUCT_IDS.add(TURKEY.id);
   const EXTRA=[
     {id:"water",name:"Вода негазированная",pack:"5 л",emoji:"💧",base:119,tags:["вода","напитки"]},
     {id:"apple",name:"Яблоки",pack:"1 кг",emoji:"🍎",base:149,tags:["фрукты","яблоки"]},
@@ -10,7 +13,7 @@
     {id:"cottage",name:"Творог 5%",pack:"200 г",emoji:"🥣",base:149,tags:["молочка","белок","творог"]}
   ];
   const MULT={pyat:1,magnit:.92,perek:1.07,lenta:.95,dixy:.97,lavka:1.24,vprok:1.08};
-  const tagMap={milk:["молочка","молоко","быстро"],bread:["хлеб","быстро"],chicken:["мясо","курица","готовить"],banana:["фрукты","бананы"],oil:["масло","готовить"],eggs:["яйца","белок","быстро"],buck:["гречка","крупа","готовить"],sour:["молочка","сметана"],sugar:["сахар"],pasta:["макароны","готовить"]};
+  const tagMap={milk:["молочка","молоко","быстро"],bread:["хлеб","быстро"],chicken:["мясо","курица","готовить"],turkey:["мясо","индейка","готовить"],banana:["фрукты","бананы"],oil:["масло","готовить"],eggs:["яйца","белок","быстро"],buck:["гречка","крупа","готовить"],sour:["молочка","сметана"],sugar:["сахар"],pasta:["макароны","готовить"]};
   const catalog=()=>[...(typeof PRODUCTS!=="undefined"?PRODUCTS:[]).map(p=>({...p,base:Math.min(...Object.values(p.prices||{}).filter(Number.isFinite)),tags:tagMap[p.id]||[]})),...EXTRA];
   function quality(productId,storeId,channel="shelf"){
     const meta=window.TDPriceMeta?.get?.(productId,storeId,channel);
