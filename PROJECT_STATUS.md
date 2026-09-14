@@ -16,36 +16,40 @@ Prove:
 
 | Priority | Work | Owner role | State | Evidence / blocker |
 |---|---|---|---|---|
-| P1 | Golden shopping core: retailer scope + one/two-store decision correctness | Fixer / QA | IN PROGRESS | PR #370 is open. Its dedicated `Validate golden shopping core` workflow fails at `scripts/test-bai-multistore-scope.mjs`: a single-retailer request does not force one-store mode. Split optimizer, one-store choice, shopping-state consistency and unified-cart steps pass before that failure. Do not merge until the full gate is green. |
+| P1 | Golden shopping core: retailer scope + one/two-store decision correctness | Fixer / QA | DONE / GUARDED | PR #370 is merged. Latest PR-head runs passed `Validate golden shopping core`, Bai assistant, app runtime resilience, data/scripts, governance and real-browser UX. `REG-004`, `REG-011`, `REG-012` and `REG-013` are GUARDED. |
 | P0/P1 | First real trained Bay checkpoint + held-out eval + promotion proof | Умняша/AI training | DONE: candidate trained; historical gate verdict REJECTED | First real Kaggle run completed; historical evaluator contract was later found mismatched to SFT. |
 | P0/P1 | Re-evaluate first candidate under corrected SFT/eval prompt contract | Умняша/AI training | IN PROGRESS | PRs #359, #365 and #366 provide the corrected re-eval/comparison path. External GPU re-evaluation of the existing adapter is still required before another training run. |
 | P0/P1 | Second Bay training iteration from real failure clusters + reviewed Gold | Умняша/AI training | NEXT | Start only if corrected re-evaluation still rejects the existing candidate. |
 | P1 | Post-PASS trained checkpoint serving path | Умняша/AI training | DONE | PR #362 + ADR-007: staged serving infrastructure + fail-closed proxy; no trained release activated. |
-| P1 | UniversalBasket → StoreBasket contract/mapping | Vi | VERIFY AFTER #370 | Existing legacy shopping-state/projection code covers parts of the behavior, and PR #370 adds end-to-end mapping/scope regressions, but the contract is not release-proven in `main` while #370 is failing/open. Vi owns formal verification after the Fixer path merges. |
-| P1 | Multi-Store PurchasePlan optimizer | Vi + Fixer | IN PROGRESS / BLOCKED ON #370 | `REG-004` remains OPEN in `main`. PR #370 hardens fee/friction logic and one/two-store scope, but the golden core gate is not green yet. Avoid parallel rewrites of the same optimizer path. |
+| P1 | UniversalBasket → StoreBasket → PurchasePlan contract verification | Rоук/Fixer temporarily; Vi when available | VERIFY NOW | PR #370 proves the critical retailer-scope and one/two-store behaviors, but release proof still needs an explicit canonical-scenario pass over the first-class basket/projection/purchase-plan contract. Do not reopen already-guarded optimizer bugs unless a scenario reproduces one. |
+| P1 | Multi-Store PurchasePlan economics and retailer scope | Fixer / QA | GUARDED, RELEASE VERIFY PENDING | `REG-004` plus one-store/multi-store scope regressions are GUARDED by PR #370. Remaining work is acceptance-level proof across canonical scenarios, not another parallel optimizer rewrite. |
 | P1 | Small set of trustworthy real grocery sources | Tali / data-truth | IN PROGRESS | Magnit has conditional exact-store catalog evidence. Perekrestok and Proshoper regional catalogs remain non-rankable estimates. Terms/commercial review remains pending where the registry says `conditional`. PRs #372/#373 hardened missing/future/stale evidence. |
-| P1 | Real end-to-end shopping regression scenarios | Shared, coordinated by Rоук/Fixer | NEXT AFTER #370 | `MVP_SCENARIOS.md` is the acceptance set. PR #370 adds a golden shopping gate, but the campaign should start from the merged, green core rather than test a knowingly failing branch. |
-| P1 | Honest retailer handoff capability matrix | Product/Vi/Tali | PARTIALLY ESTABLISHED / VERIFY | `RETAILER_CAPABILITIES.md` declares safe capabilities and recent UX work keeps redirect handoff honest. Release evidence across the tested path still needs explicit Gate D verification. |
+| P1 | Real end-to-end shopping regression scenarios | Shared, coordinated by Rоук/Fixer | IN PROGRESS | `MVP_SCENARIOS.md` is now the main acceptance campaign after #370. Run the canonical scenarios from fresh green `main`; every failure becomes a regression case before release. |
+| P1 | Honest retailer handoff capability matrix | Product/Rоук/Tali | PARTIALLY ESTABLISHED / VERIFY | `RETAILER_CAPABILITIES.md` declares safe capabilities and recent UX work keeps redirect handoff honest. Release evidence across the tested path still needs explicit Gate D verification. |
+| P1 | Post-purchase proof truth boundary | Sara 2 / Tali / QA | DONE / GUARDED | PR #378 is merged and `REG-014` is GUARDED via PR #380: planned totals stay separate from explicit actual-paid evidence; receipt proof remains pending until separately verified. |
 | P0 | Security release gate | Reinhard | BEFORE CLOSED BETA/PUBLIC RELEASE | `RELEASE_GATE.md` Gate F remains unchecked; no release-ready claim until Reinhard has no unresolved P0 blocker. |
 
 ## Swarm coordination now
 
-- **Fixer** owns PR #370 until the golden shopping core is fully green and merge-ready. Current concrete failure: single-retailer request must force one-store mode.
-- **Vi** should not independently rewrite the same retailer-scope/optimizer code while #370 is active. Immediately after #370 merges, verify first-class UniversalBasket → StoreBasket → PurchasePlan behavior against the canonical MVP scenarios and close remaining contract gaps only then.
+- **Fixer** finished the #370 P1 blocker. Next job is acceptance-level replay of the canonical MVP scenarios from fresh green `main`, not another rewrite of the same optimizer path.
+- **Vi** is temporarily unavailable. Rоук/Fixer hold the contract-verification path so delivery does not wait; Vi can resume architecture ownership later without blocking current acceptance work.
 - **Умняша Бая** owns the corrected external GPU re-evaluation of the first trained candidate. Do not spend another training run before that verdict.
 - **Tali** owns source coverage/truth quality. Priority is useful rankable grocery evidence, not retailer-count expansion; regional estimates remain discovery/indicative only.
-- **Сара 2 / Roxy** has recently merged mobile/network/return continuity work (#371, #374, #375). Further cosmetic polish is below P0/P1 until the shopping core is green unless a UX defect blocks the golden loop.
-- **Reinhard** owns the security/release review once the release path is stable enough to audit; provider/legal truth questions may still block specific sources earlier.
+- **Сара 2 / Roxy** may continue non-blocking UX work now that the golden core is green. PR #381 is a design-only explanation of rejected two-store splits and must not change optimizer arithmetic or truth semantics.
+- **Reinhard** owns the security/release review once the acceptance path is stable enough to audit; provider/legal truth questions may still block specific sources earlier.
 
 ## Current known repo snapshot
 
-Fresh `main` at this status sync: `8c4de55c5b1838aff6334a0c68ddfe4763a0139c` (merged PR #375, Bay return continuity).
+Fresh `main` at this status sync: `1c868fd3ce16e4b4b262afa8e181b61733cd34ac`.
 
 Important current facts:
-- PR #370 is the only current high-priority open product PR on the golden shopping path and is not DONE because its dedicated workflow fails.
-- PRs #372/#373 are merged truth hardening / handoff evidence.
-- PRs #374/#375 are merged reliability UX for reconnect and return continuity.
-- `REG-004` remains OPEN in `main` until the PurchasePlan/multi-store fix is merged and guarded.
+- PR #370 is merged; its latest full shopping-core workflow passed.
+- `REG-004`, `REG-011`, `REG-012` and `REG-013` are GUARDED by PR #370.
+- PR #378 is merged and hardens post-purchase actual-paid truth; PR #380 records `REG-014` as GUARDED.
+- PRs #372/#373 remain the merged truth hardening / handoff evidence base.
+- PRs #374/#375 remain merged reliability UX for reconnect and return continuity.
+- Open PR #381 is non-blocking design follow-up, not the current release bottleneck.
+- The main delivery bottleneck is now acceptance proof across the canonical MVP scenarios plus remaining truth/handoff/security release gates, while trained-Bay corrected re-evaluation remains an external GPU dependency.
 
 ## Bay training evidence
 
