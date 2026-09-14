@@ -4,7 +4,7 @@
   "city": "msk",
   "store_id": "magnit",
   "channel": "delivery_catalog",
-  "checked_at": "2026-09-14T18:20:35.236Z",
+  "checked_at": "2026-09-14T18:29:48.590Z",
   "source_url": "https://magnit.ru/",
   "method": "public_store_scoped_catalog_collector",
   "scope_verified": true,
@@ -36,6 +36,11 @@
       "name": "Куриное яйцо C1 10шт в ассортименте",
       "brand": null,
       "pack": {
+        "value": 10,
+        "unit": "pcs",
+        "source": "10шт"
+      },
+      "physical_pack": {
         "value": 600,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -112,6 +117,11 @@
       "name": "Молоко Калория питьевое ультрапастеризованное 2.5% 1л",
       "brand": "Калория",
       "pack": {
+        "value": 1000,
+        "unit": "ml",
+        "source": "1л"
+      },
+      "physical_pack": {
         "value": 1028,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -141,6 +151,11 @@
       "name": "Молоко Рогачёв питьевое стерилизованное 2.5% 1л",
       "brand": "Рогачевъ",
       "pack": {
+        "value": 1000,
+        "unit": "ml",
+        "source": "1л"
+      },
+      "physical_pack": {
         "value": 1000,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -312,6 +327,11 @@
       "name": "Куриное яйцо СО 10шт в ассортименте",
       "brand": null,
       "pack": {
+        "value": 10,
+        "unit": "pcs",
+        "source": "10шт"
+      },
+      "physical_pack": {
         "value": 700,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -619,6 +639,11 @@
       "name": "Молоко Коровка из Кореновки отборное пастеризованное 3.4-6% 900мл",
       "brand": "Коровка из Кореновки",
       "pack": {
+        "value": 900,
+        "unit": "ml",
+        "source": "900мл"
+      },
+      "physical_pack": {
         "value": 927,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -784,6 +809,11 @@
       "name": "Чай черный Greenfield Blueberry Nights 25пак",
       "brand": "Greenfield",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -946,6 +976,11 @@
       "name": "Чай черный Ahmad Tea Classic Black Tea 100пак",
       "brand": "Ahmad Tea",
       "pack": {
+        "value": 100,
+        "unit": "pcs",
+        "source": "100пак"
+      },
+      "physical_pack": {
         "value": 200,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1114,6 +1149,11 @@
       "name": "Чай черный Tess Thyme Hhyme 100пак 150г",
       "brand": "Tess",
       "pack": {
+        "value": 100,
+        "unit": "pcs",
+        "source": "100пак"
+      },
+      "physical_pack": {
         "value": 150,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1141,6 +1181,11 @@
       "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
       "brand": "Кубанская Буренка",
       "pack": {
+        "value": 1400,
+        "unit": "ml",
+        "source": "1.4л"
+      },
+      "physical_pack": {
         "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1255,6 +1300,11 @@
       "name": "Чай черный Ahmad Tea Персик-Маракуйя 25пак",
       "brand": "Ahmad Tea",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37.5,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1282,6 +1332,11 @@
       "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
       "brand": "Домик в Деревне",
       "pack": {
+        "value": 1400,
+        "unit": "ml",
+        "source": "1.4л"
+      },
+      "physical_pack": {
         "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1396,6 +1451,11 @@
       "name": "Чай черный Ahmad Tea Малиновое лакомство 25пак",
       "brand": "Ahmad Tea",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37.5,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1537,6 +1597,11 @@
       "name": "Чай черный Ahmad Tea Blackcurrant Burst смородина 25пак",
       "brand": "Ahmad Tea",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1672,6 +1737,11 @@
       "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
       "brand": "Платье в Горошек",
       "pack": {
+        "value": 900,
+        "unit": "ml",
+        "source": "900мл"
+      },
+      "physical_pack": {
         "value": 924,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1757,6 +1827,11 @@
       "name": "Чай черный Краснодарский Гост Ручной сбор Чабрец 25пак",
       "brand": "Краснодарский",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 50,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1784,6 +1859,11 @@
       "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
       "brand": "Платье в Горошек",
       "pack": {
+        "value": 900,
+        "unit": "ml",
+        "source": "900мл"
+      },
+      "physical_pack": {
         "value": 925,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1921,6 +2001,11 @@
       "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
       "brand": "Tess",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -1950,6 +2035,11 @@
       "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
       "brand": "Агрокомплекс",
       "pack": {
+        "value": 1400,
+        "unit": "ml",
+        "source": "1.4л"
+      },
+      "physical_pack": {
         "value": 1439,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -2006,6 +2096,11 @@
       "name": "Чай черный Greenfield Golden Ceylon 25пак",
       "brand": "Greenfield",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 50,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -2033,6 +2128,11 @@
       "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
       "brand": "Коровка из Кореновки",
       "pack": {
+        "value": 1400,
+        "unit": "ml",
+        "source": "1.4л"
+      },
+      "physical_pack": {
         "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -2090,6 +2190,11 @@
       "name": "Чай черный Greenfield Spring Melody 25пак",
       "brand": "Greenfield",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -2117,6 +2222,11 @@
       "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
       "brand": "Коровка из Кореновки",
       "pack": {
+        "value": 1400,
+        "unit": "ml",
+        "source": "1.4л"
+      },
+      "physical_pack": {
         "value": 1442,
         "unit": "g",
         "source": "characteristic_weight_kg"
@@ -2176,6 +2286,11 @@
       "name": "Чай черный Принцесса Нури с черной смородиной 25пак",
       "brand": "Принцесса Нури",
       "pack": {
+        "value": 25,
+        "unit": "pcs",
+        "source": "25пак"
+      },
+      "physical_pack": {
         "value": 37,
         "unit": "g",
         "source": "characteristic_weight_kg"

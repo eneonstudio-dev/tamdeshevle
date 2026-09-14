@@ -3,11 +3,12 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-14T18:20:35.236Z",
+  "checked_at": "2026-09-14T18:29:48.590Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
     "eggs_c1": 79.99,
+    "milk": 109.99,
     "oil_sunflower": 169.99,
     "pasta": 59,
     "smetana": 99.99,
@@ -78,6 +79,28 @@
       "requested_pack": {
         "value": 10,
         "unit": "pcs"
+      },
+      "availability": "in_stock"
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Калория питьевое ультрапастеризованное 2.5% 1л",
+      "retailer_product_id": "1000548435",
+      "price_rub": 109.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000548435-kaloriya_moloko_pitevoe_ultrapast_2_5_1000ml?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/cIWS026GE-_k1SQmC7IqH49H9Nppbn1JrPeZ-5alA8U/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1000548435/image/4bf9f176abc7ed627d06847ff0a1cc00.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
       },
       "availability": "in_stock"
     },
@@ -193,16 +216,6 @@
     }
   ],
   "unmatched": [
-    {
-      "name": "Молоко Калория питьевое ультрапастеризованное 2.5% 1л",
-      "retailer_product_id": "1000548435",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Рогачёв питьевое стерилизованное 2.5% 1л",
-      "retailer_product_id": "1000304484",
-      "reason": "no_rule_match"
-    },
     {
       "name": "Куриное яйцо СО 10шт в ассортименте",
       "retailer_product_id": "2047000014",
@@ -364,11 +377,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000304501",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
       "retailer_product_id": "1000226315",
       "reason": "no_rule_match"
@@ -460,6 +468,15 @@
       "retailer_product_id": "8000051466",
       "source_url": "https://magnit.ru/product/8000051466-molochnyy_den_moloko_ultrapast_2_5_1l_t_pak?shopCode=770105&shopType=1",
       "price_rub": 79.99,
+      "eligible": false,
+      "reason": "availability_unconfirmed"
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Рогачёв питьевое стерилизованное 2.5% 1л",
+      "retailer_product_id": "1000304484",
+      "source_url": "https://magnit.ru/product/1000304484-rogachyev_moloko_pit_ster_2_5_1l_tba?shopCode=770105&shopType=1",
+      "price_rub": 104.99,
       "eligible": false,
       "reason": "availability_unconfirmed"
     },
@@ -666,6 +683,23 @@
       "requested_pack": {
         "value": 450,
         "unit": "g"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
+      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
       }
     }
   ],
