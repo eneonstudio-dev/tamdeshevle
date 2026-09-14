@@ -7,7 +7,9 @@
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
-    "pasta": 59
+    "eggs_c1": 79.99,
+    "pasta": 59,
+    "tea_black": 234.99
   },
   "matched": [
     {
@@ -55,6 +57,28 @@
       "availability": "in_stock"
     },
     {
+      "sku": "eggs_c1",
+      "name": "Куриное яйцо C1 10шт в ассортименте",
+      "retailer_product_id": "3454700001",
+      "price_rub": 79.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/3454700001-yaytso_stolovoe_s1_10sht_boks_20?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/36yPg9_8zNzV0hEKQS-oIVci-rZKpLYuPYR9J3D0fHE/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/3454700001/image/1b60422a778ebb953412c9ebe3fd513b.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 10,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
+    },
+    {
       "sku": "pasta",
       "name": "Макароны Makfa Спагетти №16 Группа А 450г",
       "retailer_product_id": "1000425470",
@@ -75,14 +99,31 @@
         "unit": "g"
       },
       "availability": "in_stock"
+    },
+    {
+      "sku": "tea_black",
+      "name": "Чай черный Tess Thyme Hhyme 100пак 150г",
+      "retailer_product_id": "1000281642",
+      "price_rub": 234.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1000281642-tess_chay_chernyy_thyme_hhyme_100pak_150g_k_up_orimi_9?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/6yCt2pAmi8BXhl_icrLioYk-N0JKR5LP7dJ9lD_FEg8/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/uf/19b/19be98f9cce5bfce3e5e76f40edd2f8e/64f3d69fd8f161d5e541d5b3e5796fe2.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 100,
+        "unit": "pcs"
+      },
+      "requested_pack": {
+        "value": 100,
+        "unit": "pcs"
+      },
+      "availability": "in_stock"
     }
   ],
   "unmatched": [
-    {
-      "name": "Куриное яйцо C1 10шт в ассортименте",
-      "retailer_product_id": "3454700001",
-      "reason": "no_rule_match"
-    },
     {
       "name": "Куриное яйцо С2 10шт в ассортименте",
       "retailer_product_id": "2047000007",
@@ -134,11 +175,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Earl Grey Fantasy 100пак",
-      "retailer_product_id": "1000096309",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко Агрокомплекс пастеризованное 2.5% 900мл",
       "retailer_product_id": "1000109163",
       "reason": "no_rule_match"
@@ -179,11 +215,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Tess Sunrise 100пак 180г",
-      "retailer_product_id": "1000177162",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко пастеризованное Кубанская Буренка 2.5% 1.4л",
       "retailer_product_id": "1000143304",
       "reason": "no_rule_match"
@@ -194,11 +225,6 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Richard Royal Earl Grey цейлон с ароматом бергамота 100пак",
-      "retailer_product_id": "1000203957",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко пастеризованное Домик в деревне 2.5% 1.4л",
       "retailer_product_id": "1000143306",
       "reason": "no_rule_match"
@@ -206,11 +232,6 @@
     {
       "name": "Хлеб Бородинский ржаной нарезанный 680г",
       "retailer_product_id": "1000161751",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Tess Thyme Hhyme 100пак 150г",
-      "retailer_product_id": "1000281642",
       "reason": "no_rule_match"
     },
     {
