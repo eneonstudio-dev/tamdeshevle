@@ -4,15 +4,17 @@
   const CDN_INTEGRITY="sha384-JBR+x8blGwjDRO63aHCGiZMD4VNiTR4ZUGA+N6ZKLf3zNt1fK8IBpcgPaMrxqWBp";
   let client=null, session=null, initPromise=null, busy=false, cloudState={status:"idle",message:"Облачная копия ещё не проверена"};
   const config=()=>window.TD_SUPABASE||null;
+  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));
   const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));
   const read=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v==null?f:v}catch{return f}};
   const write=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}};
 
-  function configured(){const c=config();return !!(c&&/^https:\/\/.+\.supabase\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}
+  function configured(){if(!releaseEnabled("remoteAccount"))return false;const c=config();return !!(c&&/^https:\/\/.+\.supabase\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}
   function loadSdk(){return new Promise((resolve,reject)=>{if(window.supabase&&window.supabase.createClient)return resolve();const s=document.createElement("script");s.src=CDN;s.integrity=CDN_INTEGRITY;s.crossOrigin="anonymous";s.async=true;s.onload=resolve;s.onerror=()=>reject(new Error("Supabase SDK failed to load"));document.head.appendChild(s);});}
   function setCloudState(status,message){cloudState={status,message};emit("td:cloud-state",cloudState);}
   function assertUser(uid){if(user()?.id!==uid)throw new Error("ACCOUNT_CHANGED");}
   async function cloudOperation(action){
+    if(!releaseEnabled("cloudSync"))throw new Error("RELEASE_SCOPE_DISABLED");
     await init();if(!user())throw new Error("SIGN_IN_REQUIRED");
     if(busy)throw new Error("SYNC_BUSY");
     const uid=user().id;busy=true;setCloudState("busy","Работаем с облачной копией…");
@@ -88,6 +90,7 @@
   const RECEIPT_BUCKET="receipt-proofs", RECEIPT_TYPES=new Set(["image/jpeg","image/png","image/webp","image/heic"]), RECEIPT_MAX_BYTES=10*1024*1024;
   function receiptFileName(file){const type=String(file&&file.type||"").toLowerCase();const ext=type==="image/png"?"png":type==="image/webp"?"webp":type==="image/heic"?"heic":"jpg";const id=window.crypto&&typeof window.crypto.randomUUID==="function"?window.crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;return `${id}.${ext}`;}
   async function submitReceiptEvidence(input){return cloudOperation(async uid=>{
+    if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");
     const file=input&&input.file, observation=input&&input.observation;
     if(!file||!RECEIPT_TYPES.has(String(file.type||"").toLowerCase())||file.size<1||file.size>RECEIPT_MAX_BYTES)throw new Error("RECEIPT_FILE_INVALID");
     const check=window.TDReceiptObservations&&window.TDReceiptObservations.validate(observation);

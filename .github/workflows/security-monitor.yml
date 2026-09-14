@@ -8,11 +8,14 @@ on:
       - "scripts/test-production-security.mjs"
       - "scripts/test-security-hardening.mjs"
       - "scripts/test-gate-f-user-data.mjs"
+      - "scripts/test-gate-f-closed-beta-scope.mjs"
+      - "release-scope.js"
       - "index.html"
       - "bai-learning-admin.html"
       - "app.js"
       - "auth-client.js"
       - "account-auth-ui.js"
+      - "account-hub.js"
       - "receipt-entry-ui.js"
       - "geo-store-map.js"
       - "store-covers.js"
@@ -32,11 +35,14 @@ on:
       - "scripts/test-production-security.mjs"
       - "scripts/test-security-hardening.mjs"
       - "scripts/test-gate-f-user-data.mjs"
+      - "scripts/test-gate-f-closed-beta-scope.mjs"
+      - "release-scope.js"
       - "index.html"
       - "bai-learning-admin.html"
       - "app.js"
       - "auth-client.js"
       - "account-auth-ui.js"
+      - "account-hub.js"
       - "receipt-entry-ui.js"
       - "geo-store-map.js"
       - "store-covers.js"
@@ -69,5 +75,7 @@ jobs:
         run: node scripts/test-security-hardening.mjs
       - name: Verify Gate F user-data controls
         run: node scripts/test-gate-f-user-data.mjs
+      - name: Verify closed-beta release scope
+        run: node scripts/test-gate-f-closed-beta-scope.mjs
       - name: Probe production security boundaries
         run: node scripts/test-production-security.mjs

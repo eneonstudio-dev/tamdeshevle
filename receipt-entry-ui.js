@@ -3,6 +3,7 @@
 
   const STORAGE_KEY = "td:receipt-drafts:v1";
   const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  const releaseEnabled = name => Boolean(window.TDReleaseScope && window.TDReleaseScope.enabled && window.TDReleaseScope.enabled(name));
 
   function esc(value) {
     return String(value == null ? "" : value).replace(/[&<>\"']/g, ch => ({
@@ -152,6 +153,7 @@
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
     const opener = document.activeElement;
     const previousOverflow = document.body && document.body.style ? document.body.style.overflow : "";
+    const receiptUploadEnabled = releaseEnabled("receiptUpload");
 
     const overlay = document.createElement("div");
     overlay.className = "receipt-entry-backdrop";
@@ -183,6 +185,7 @@
           </div>
           <button class="receipt-entry-save" type="submit">Сохранить черновик</button>
           <button class="receipt-entry-submit receipt-upload" type="button" disabled>Отправить фото на проверку</button>
+          ${receiptUploadEnabled ? "" : '<div class="receipt-entry-note">Закрытая бета: фото никуда не отправляется. Черновик сохраняется только локально на этом устройстве.</div>'}
           <div class="receipt-entry-status" role="status" aria-live="polite" hidden></div>
         </form>
       </section>`;
@@ -237,6 +240,7 @@
 
     const form = overlay.querySelector(".receipt-entry-form");
     const queueButton = form.querySelector(".receipt-upload");
+    if (!receiptUploadEnabled) { queueButton.hidden = true; queueButton.setAttribute("aria-hidden", "true"); }
     const qrInput = form.elements.receipt_qr;
     const qrImage = form.elements.receipt_qr_image;
     const qrScanButton = form.querySelector(".receipt-qr-scan");
@@ -383,6 +387,11 @@
 
     queueButton.addEventListener("click", async () => {
       const status = form.querySelector(".receipt-entry-status");
+      if (!releaseEnabled("receiptUpload")) {
+        queueButton.disabled = true;
+        setStatus(status, "warn", "Закрытая бета: отправка чеков отключена, черновик остаётся локально.");
+        return;
+      }
       if (!form._receiptObservation || !form._receiptPhoto) {
         setStatus(status, "warn", "Сначала сохрани черновик с фото чека.");
         return;
