@@ -7,6 +7,23 @@ on:
       - ".github/workflows/security-monitor.yml"
       - "scripts/test-production-security.mjs"
       - "scripts/test-security-hardening.mjs"
+      - "scripts/test-gate-f-user-data.mjs"
+      - "index.html"
+      - "bai-learning-admin.html"
+      - "app.js"
+      - "auth-client.js"
+      - "account-auth-ui.js"
+      - "receipt-entry-ui.js"
+      - "geo-store-map.js"
+      - "store-covers.js"
+      - "price-provenance-ui.js"
+      - "yandex-metrika.js"
+      - "backend/bai-agent-core.ts"
+      - "backend/bai-agent-core-schema.sql"
+      - "supabase/functions/bai-trained-inference/index.ts"
+      - "supabase/migrations/**"
+      - "SOURCE_PROVIDER_REGISTRY.md"
+      - "retailers/magnit-collector.mjs"
   push:
     branches: [main]
     paths:
@@ -14,6 +31,23 @@ on:
       - ".github/workflows/security-monitor.yml"
       - "scripts/test-production-security.mjs"
       - "scripts/test-security-hardening.mjs"
+      - "scripts/test-gate-f-user-data.mjs"
+      - "index.html"
+      - "bai-learning-admin.html"
+      - "app.js"
+      - "auth-client.js"
+      - "account-auth-ui.js"
+      - "receipt-entry-ui.js"
+      - "geo-store-map.js"
+      - "store-covers.js"
+      - "price-provenance-ui.js"
+      - "yandex-metrika.js"
+      - "backend/bai-agent-core.ts"
+      - "backend/bai-agent-core-schema.sql"
+      - "supabase/functions/bai-trained-inference/index.ts"
+      - "supabase/migrations/**"
+      - "SOURCE_PROVIDER_REGISTRY.md"
+      - "retailers/magnit-collector.mjs"
   schedule:
     - cron: "23 4 * * *"
   workflow_dispatch:
@@ -33,6 +67,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Verify repository security invariants
         run: node scripts/test-security-hardening.mjs
+      - name: Verify Gate F user-data controls
+        run: node scripts/test-gate-f-user-data.mjs
       - name: Probe production security boundaries
         run: node scripts/test-production-security.mjs
-
