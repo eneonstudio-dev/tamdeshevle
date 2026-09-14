@@ -1,12 +1,17 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
-import {buildCorpus} from './corpus-builder.mjs';
 import {structuredHash} from './candidate-import.mjs';
 import {buildTeacherReview} from './review-teacher-pair.mjs';
 
 const here=new URL('./',import.meta.url),read=name=>JSON.parse(fs.readFileSync(new URL(name,here),'utf8'));
 const registry=read('sources.json'),leftProfile=read('profiles/deepseek-r1-distill-qwen-7b.json'),rightProfile=read('profiles/qwen3-8b.json');
-const tasks=buildCorpus().slice(0,3);
+const neutralTask=i=>({
+  id:`neutral_pair_${i}`,
+  user_request:`Собери базовую корзину ${i}`,
+  session_context:{},guards:{},
+  expected:{intent_family:'build_basket',must_retain:[],must_drop:[],new_hard:[],required_effects:[]}
+});
+const tasks=[neutralTask(1),neutralTask(2),neutralTask(3)];
 const output=(budget=2500)=>({intent:'build_basket',hard_constraints:{budget_max:budget},soft_preferences:{price:'balanced'},shopping_plan:{categories:['protein','base','fruit']},actions:[{type:'set_constraint',payload:{key:'budget',value:budget}}],critic:{pass:true,issues:[]},confidence:{overall:'high'}});
 const rawOutput=(task,profile,o)=>({task_id:task.id,profile_id:profile.id,model:profile.model,revision:profile.revision,prompt_version:'test-v2',prompt_sha256:'a'.repeat(64),output_sha256:structuredHash(o),runtime_fingerprint:'b'.repeat(64),generation:{temperature:0.2,max_tokens:100},output:o});
 const raw=(task,profile,budget=2500)=>rawOutput(task,profile,output(budget));
