@@ -1,5 +1,6 @@
 (()=>{
   "use strict";
+  import("./bai-brand-relax-bridge.js?v=20260914-mvp024-v1").catch(e=>console.warn("[Bai Brand Relax Bridge] load failed",e));
   import("./brand-prosche-v1.js?v=20260911-prosche-tone-v1").catch(e=>console.warn("[Brand Prosche] load failed",e));
   import("./bai-fallback-bridge.js?v=20260913-natural-constraints-v1").catch(e=>console.warn("[Bai Fallback Bridge] load failed",e));
   import("./price-freshness-ui-v2.js?v=20260911-price-freshness-v2").catch(e=>console.warn("[Price Freshness v2] load failed",e));
