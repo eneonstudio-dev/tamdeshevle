@@ -3,7 +3,7 @@
   "retailer": "magnit",
   "store_id": "magnit",
   "city": "msk",
-  "checked_at": "2026-09-14T16:27:26.634Z",
+  "checked_at": "2026-09-14T18:20:35.236Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
@@ -194,6 +194,16 @@
   ],
   "unmatched": [
     {
+      "name": "Молоко Калория питьевое ультрапастеризованное 2.5% 1л",
+      "retailer_product_id": "1000548435",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Рогачёв питьевое стерилизованное 2.5% 1л",
+      "retailer_product_id": "1000304484",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Куриное яйцо СО 10шт в ассортименте",
       "retailer_product_id": "2047000014",
       "reason": "no_rule_match"
@@ -294,8 +304,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Бородинский ржаной нарезанный 680г",
-      "retailer_product_id": "1000161751",
+      "name": "Хлеб Бородинский нарезанный ржано-пшеничный Краснодарский хлебозавод №6 450г",
+      "retailer_product_id": "1000134831",
       "reason": "no_rule_match"
     },
     {
@@ -314,8 +324,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Городской формовой Краснодарский хлебозавод №6 500г",
-      "retailer_product_id": "1000178961",
+      "name": "Хлеб Бородинский ржаной нарезанный 680г",
+      "retailer_product_id": "1000161751",
       "reason": "no_rule_match"
     },
     {
@@ -329,8 +339,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
-      "retailer_product_id": "1000210710",
+      "name": "Хлеб Городской формовой Краснодарский хлебозавод №6 500г",
+      "retailer_product_id": "1000178961",
       "reason": "no_rule_match"
     },
     {
@@ -344,8 +354,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
-      "retailer_product_id": "1000226315",
+      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
+      "retailer_product_id": "1000210710",
       "reason": "no_rule_match"
     },
     {
@@ -359,8 +369,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Чиабатта зерновая 300г",
-      "retailer_product_id": "1000253543",
+      "name": "Хлеб из пророщенной ржи бездрожжевой Тонус 500г",
+      "retailer_product_id": "1000226315",
       "reason": "no_rule_match"
     },
     {
@@ -432,26 +442,6 @@
       "name": "Молоко Павловское пастеризованное 2.5% 900г",
       "retailer_product_id": "1000495985",
       "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб ремесленный цельнозерновой нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310438",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Принцесса Нури Высокогорный 25пак",
-      "retailer_product_id": "3091160104",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
-      "retailer_product_id": "1000516518",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
-      "retailer_product_id": "1000335181",
-      "reason": "no_rule_match"
     }
   ],
   "alternatives": [
@@ -465,11 +455,29 @@
       "reason": "availability_unconfirmed"
     },
     {
+      "sku": "milk",
+      "name": "Молоко ультрапастеризованное Молочный день 2.5% 1л",
+      "retailer_product_id": "8000051466",
+      "source_url": "https://magnit.ru/product/8000051466-molochnyy_den_moloko_ultrapast_2_5_1l_t_pak?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
+      "eligible": false,
+      "reason": "availability_unconfirmed"
+    },
+    {
       "sku": "chicken_fil",
       "name": "Филе цыпленка-бройлера",
       "retailer_product_id": "1000233462",
       "source_url": "https://magnit.ru/product/1000233462-file_tsb_okhl_lotok_1_kg_v_lotok_ooo_soyuzptitseprom_5?shopCode=770105&shopType=1",
       "price_rub": 449.99,
+      "eligible": false,
+      "reason": "availability_unconfirmed"
+    },
+    {
+      "sku": "carrot",
+      "name": "Морковь мытая 1кг",
+      "retailer_product_id": "1445100176",
+      "source_url": "https://magnit.ru/product/1445100176-morkov_mytaya_fasovannaya_1upak?shopCode=770105&shopType=1",
+      "price_rub": 69.99,
       "eligible": false,
       "reason": "availability_unconfirmed"
     },
@@ -492,14 +500,14 @@
     },
     {
       "sku": "potato",
-      "name": "Пирожок жареный с картофельной начинкой 100г",
-      "retailer_product_id": "1000142375",
-      "source_url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1",
-      "price_rub": 49.99,
+      "name": "Картофель фасованный",
+      "retailer_product_id": "1445100062",
+      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
+      "price_rub": 198.37,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 100,
+        "value": 2480,
         "unit": "g"
       },
       "requested_pack": {
@@ -560,14 +568,14 @@
     },
     {
       "sku": "potato",
-      "name": "Картофель фасованный",
-      "retailer_product_id": "1445100062",
-      "source_url": "https://magnit.ru/product/1445100062-kartofel_fasovannyy?shopCode=770105&shopType=1",
-      "price_rub": 198.37,
+      "name": "Картофель",
+      "retailer_product_id": "9072651210",
+      "source_url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1",
+      "price_rub": 87.98,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 2480,
+        "value": 2000,
         "unit": "g"
       },
       "requested_pack": {
@@ -590,23 +598,6 @@
       "requested_pack": {
         "value": 1000,
         "unit": "ml"
-      }
-    },
-    {
-      "sku": "potato",
-      "name": "Картофель",
-      "retailer_product_id": "9072651210",
-      "source_url": "https://magnit.ru/product/9072651210-kartofel_1kg?shopCode=770105&shopType=1",
-      "price_rub": 87.98,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 2000,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
       }
     },
     {
@@ -693,5 +684,5 @@
     "address": "г Москва, ул Чертановская, д 47 к 2"
   },
   "scope_verified": true,
-  "normalized_count": 80
+  "normalized_count": 79
 }
