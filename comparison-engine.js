@@ -23,7 +23,9 @@
       meta.trust === "verified_receipt" &&
       meta.scope_verified === true &&
       meta.proof_verified === true &&
-      meta.identity_verified === true
+      meta.identity_verified === true &&
+      meta.availability_verified === true &&
+      meta.availability === "in_stock"
     );
   }
 
