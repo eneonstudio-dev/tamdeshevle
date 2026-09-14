@@ -21,7 +21,7 @@ on:
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
-      - "scripts/test-gate-f-user-data-notice.py"
+      - "scripts/test-gate-f-local-only.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -45,7 +45,7 @@ on:
       - "scripts/test-roxy-catalog-hints.py"
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
-      - "scripts/test-gate-f-user-data-notice.py"
+      - "scripts/test-gate-f-local-only.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -64,7 +64,7 @@ jobs:
         run: python -m pip install --disable-pip-version-check selenium==4.35.0
       - name: Start static site
         run: |
-          python -m http.server 4173 --bind 127.0.0.1 >/tmp/votonobay-http.log 2>&1 &
+          python -m http.server 4173 --bind 127.0.0.1:4173 >/tmp/votonobay-http.log 2>&1 &
           echo $! >/tmp/votonobay-http.pid
           for i in {1..20}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
@@ -124,10 +124,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-purchase-proof.py
-      - name: Validate Gate F user-data participation UX
+      - name: Validate Gate F closed-beta local-only UX
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
-        run: python scripts/test-gate-f-user-data-notice.py
+        run: python scripts/test-gate-f-local-only.py
       - name: Validate Roxy catalog hint
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
