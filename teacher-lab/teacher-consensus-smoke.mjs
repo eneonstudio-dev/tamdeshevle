@@ -1,16 +1,15 @@
 import assert from 'node:assert/strict';
 import {comparePair,buildConsensusQueue} from './teacher-consensus.mjs';
 
-const candidate=(actions,overrides={})=>({
+const candidate=(actions,targetOverrides={})=>({
   target:{
     intent:'edit_basket',
     hard_constraints:{budget_max:4000,store:{limit:1,mode:'one'}},
     soft_preferences:{price:'balanced',quality:{protein:'higher'}},
     actions,
-    ...(overrides.target||{})
+    ...targetOverrides
   },
-  provenance:{sources:[{corpus_task_id:'payload_case'}]},
-  ...overrides
+  provenance:{sources:[{corpus_task_id:'payload_case'}]}
 });
 
 const a=candidate([
@@ -20,7 +19,10 @@ const a=candidate([
 const same=candidate([
   {type:'optimize_basket',payload:{}},
   {type:'set_constraint',payload:{value:4000,key:'budget'}}
-],{target:{hard_constraints:{store:{mode:'one',limit:1},budget_max:4000},soft_preferences:{quality:{protein:'higher'},price:'balanced'}}});
+],{
+  hard_constraints:{store:{mode:'one',limit:1},budget_max:4000},
+  soft_preferences:{quality:{protein:'higher'},price:'balanced'}
+});
 let result=comparePair(a,same);
 assert.equal(result.pass,true,'deep key order and action order must not create a false conflict');
 
