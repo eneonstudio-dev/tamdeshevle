@@ -1,0 +1,73 @@
+name: Apply closed-beta privacy guards
+on:
+  push:
+    branches: [rouk/gate-f-closed-beta-scope]
+    paths: [.github/workflows/gate-f-beta-scope-patch.yml]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: rouk/gate-f-closed-beta-scope
+      - name: Apply fail-closed release scope
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p=Path(path); text=p.read_text()
+              if text.count(old)!=1:
+                  raise SystemExit(f"{path}: expected one match, got {text.count(old)}")
+              p.write_text(text.replace(old,new,1))
+
+          replace_once('index.html',
+            '<script src="data-layer.js"></script><script src="runtime-bridge.js"></script>',
+            '<script src="data-layer.js"></script><script src="release-scope.js?v=20260915-beta-v1"></script><script src="runtime-bridge.js"></script>')
+
+          replace_once('auth-client.js',
+            '  const config=()=>window.TD_SUPABASE||null;\n  const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));',
+            '  const config=()=>window.TD_SUPABASE||null;\n  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));\n  const emit=(name,detail)=>window.dispatchEvent(new CustomEvent(name,{detail}));')
+          replace_once('auth-client.js',
+            '  function configured(){const c=config();return !!(c&&/^https:\\\/\\\\/.+\\\\.supabase\\\\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}',
+            '  function configured(){if(!releaseEnabled("remoteAccount"))return false;const c=config();return !!(c&&/^https:\\\/\\\\/.+\\\\.supabase\\\\.co$/.test(String(c.url||""))&&String(c.anonKey||"").length>20&&!String(c.url).includes("YOUR_PROJECT"));}')
+          replace_once('auth-client.js',
+            '  async function cloudOperation(action){\n    await init();if(!user())throw new Error("SIGN_IN_REQUIRED");',
+            '  async function cloudOperation(action){\n    if(!releaseEnabled("cloudSync"))throw new Error("RELEASE_SCOPE_DISABLED");\n    await init();if(!user())throw new Error("SIGN_IN_REQUIRED");')
+          replace_once('auth-client.js',
+            '  async function submitReceiptEvidence(input){return cloudOperation(async uid=>{',
+            '  async function submitReceiptEvidence(input){if(!releaseEnabled("receiptUpload"))throw new Error("RELEASE_SCOPE_DISABLED");return cloudOperation(async uid=>{')
+
+          replace_once('account-hub.js',
+            '  const esc=v=>String(v==null?"":v).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\\"":"&quot;","\'":"&#39;"}[c]));',
+            '  const esc=v=>String(v==null?"":v).replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\\"":"&quot;","\'":"&#39;"}[c]));\n  const releaseEnabled=name=>Boolean(window.TDReleaseScope&&window.TDReleaseScope.enabled&&window.TDReleaseScope.enabled(name));')
+          marker='  let previousBodyOverflow="";'
+          guard='''  function applyReleaseScope(root){\n    if(!root)return;\n    if(!releaseEnabled("remoteAccount")){\n      const auth=root.querySelector("[data-auth]");\n      if(auth){auth.removeAttribute("data-auth");auth.disabled=true;auth.textContent="Аккаунт отключён в закрытой бете";}\n    }\n    if(!releaseEnabled("cloudSync")){\n      const actions=root.querySelector(".td-cloud-actions");\n      const card=actions&&actions.closest(".td-account-card");\n      if(actions)actions.remove();\n      const status=card&&card.querySelector(".td-cloud-status");\n      if(status)status.textContent="Закрытая бета: облачная синхронизация отключена. Данные остаются только на этом устройстве.";\n    }\n  }\n'''
+          replace_once('account-hub.js', marker, guard+marker)
+          replace_once('account-hub.js',
+            'document.body.appendChild(root);const pages=',
+            'document.body.appendChild(root);applyReleaseScope(root);const pages=')
+
+          replace_once('receipt-entry-ui.js',
+            '  const FOCUSABLE = \'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])\';',
+            '  const FOCUSABLE = \'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])\';\n  const releaseEnabled = name => Boolean(window.TDReleaseScope && window.TDReleaseScope.enabled && window.TDReleaseScope.enabled(name));')
+          replace_once('receipt-entry-ui.js',
+            '    const previousOverflow = document.body && document.body.style ? document.body.style.overflow : "";\n\n    const overlay = document.createElement("div");',
+            '    const previousOverflow = document.body && document.body.style ? document.body.style.overflow : "";\n    const receiptUploadEnabled = releaseEnabled("receiptUpload");\n\n    const overlay = document.createElement("div");')
+          replace_once('receipt-entry-ui.js',
+            '          <button class="receipt-entry-submit receipt-upload" type="button" disabled>Отправить фото на проверку</button>\n          <div class="receipt-entry-status"',
+            '          <button class="receipt-entry-submit receipt-upload" type="button" disabled${receiptUploadEnabled ? "" : " hidden"}>Отправить фото на проверку</button>\n          ${receiptUploadEnabled ? "" : \'<div class="receipt-entry-note">Закрытая бета: фото никуда не отправляется. Черновик сохраняется только локально на этом устройстве.</div>\'}\n          <div class="receipt-entry-status"')
+          replace_once('receipt-entry-ui.js',
+            '    queueButton.addEventListener("click", async () => {\n      const status = form.querySelector(".receipt-entry-status");',
+            '    queueButton.addEventListener("click", async () => {\n      const status = form.querySelector(".receipt-entry-status");\n      if (!releaseEnabled("receiptUpload")) {\n        queueButton.disabled = true;\n        setStatus(status, "warn", "Закрытая бета: отправка чеков отключена, черновик остаётся локально.");\n        return;\n      }')
+          PY
+      - name: Commit scoped patch and remove helper
+        run: |
+          rm .github/workflows/gate-f-beta-scope-patch.yml
+          git config user.name "eneonstudio-dev"
+          git config user.email "eneonstudio@gmail.com"
+          git add index.html auth-client.js account-hub.js receipt-entry-ui.js .github/workflows/gate-f-beta-scope-patch.yml
+          git commit -m "security: enforce local-only closed beta user-data scope"
+          git push origin HEAD:rouk/gate-f-closed-beta-scope
