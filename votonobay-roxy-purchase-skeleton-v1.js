@@ -28,6 +28,67 @@
     return head;
   }
 
+  const money=value=>`${Math.round(Number(value)||0).toLocaleString("ru-RU")} ₽`;
+  const storeCount=plan=>new Set((plan?.products||[]).map(item=>String(item?.storeId||"").split("_")[0]).filter(Boolean)).size;
+  function trust(plan){
+    const fallback={total:(plan?.products||[]).length,good:(plan?.products||[]).filter(line=>String(line?.quality||"").toUpperCase()==="LIVE").length};
+    try{return window.TDComparisonResultV2?.trustFor?.(plan)||fallback}catch{return fallback}
+  }
+  function decisionFacts(best,other){
+    if(!best)return null;
+    const bestTrust=trust(best),otherTrust=other?trust(other):{good:0,total:0};
+    const bestTotal=Number(best.total),otherTotal=Number(other?.total),bestGoods=Number(best.goods),otherGoods=Number(other?.goods);
+    return{
+      best,other,bestTrust,otherTrust,bestTotal,otherTotal,bestGoods,otherGoods,
+      totalDelta:other&&Number.isFinite(bestTotal)&&Number.isFinite(otherTotal)?Math.round(otherTotal-bestTotal):null,
+      goodsDelta:other&&Number.isFinite(bestGoods)&&Number.isFinite(otherGoods)?Math.round(otherGoods-bestGoods):null,
+      frictionDelta:other?Math.round((Number(best.convenienceCost)||0)-(Number(other.convenienceCost)||0)):null,
+      bestStores:storeCount(best),otherStores:storeCount(other)
+    };
+  }
+  function verdictFromFacts(f){
+    if(!f?.other)return f?.bestStores===1?"Один магазин и одна полная корзина по текущему расчёту.":`План использует ${f?.bestStores||0} магазина. Сравнение альтернатив пока недоступно.`;
+    if(f.totalDelta===0){
+      if((f.bestTrust.good||0)>(f.otherTrust.good||0))return`Итог одинаковый — ${money(f.bestTotal)}. У этого варианта лучше подтверждены цены: ${f.bestTrust.good}/${f.bestTrust.total} против ${f.otherTrust.good}/${f.otherTrust.total}.`;
+      if(f.bestStores<f.otherStores)return`Итог одинаковый — ${money(f.bestTotal)}. Этот вариант проще: ${f.bestStores} магазин вместо ${f.otherStores}.`;
+      return`Итог одинаковый — ${money(f.bestTotal)}. По доступным подтверждённым признакам явного преимущества не вижу.`;
+    }
+    if(f.totalDelta>0){
+      const extra=f.bestStores-f.otherStores;
+      if(extra>0)return`После учёта разбиения этот вариант дешевле на ${money(f.totalDelta)}. За экономию приходится идти в ${f.bestStores} магазина вместо ${f.otherStores}.`;
+      return`Этот вариант дешевле ближайшей альтернативы на ${money(f.totalDelta)} при той же корзине.`;
+    }
+    return`Есть вариант на ${money(Math.abs(f.totalDelta))} дешевле. Не выдаю текущий первый план за более выгодный по цене — сравни альтернативу ниже.`;
+  }
+  function factLines(f){
+    if(!f?.other)return[];
+    const out=[];
+    if(f.goodsDelta!==null&&f.goodsDelta!==0)out.push(f.goodsDelta>0?`На товарах: −${money(f.goodsDelta)} против альтернативы`:`На товарах: +${money(Math.abs(f.goodsDelta))} против альтернативы`);
+    if(f.frictionDelta!==null&&f.frictionDelta!==0)out.push(f.frictionDelta>0?`Разбиение и дополнительные действия: +${money(f.frictionDelta)}`:`Разбиение и дополнительные действия: −${money(Math.abs(f.frictionDelta))}`);
+    if(f.totalDelta===0)out.push(`Итог: одинаковые ${money(f.bestTotal)}`);
+    else if(f.totalDelta>0)out.push(`Итог: этот вариант дешевле на ${money(f.totalDelta)}`);
+    else if(f.totalDelta<0)out.push(`Итог: этот вариант дороже на ${money(Math.abs(f.totalDelta))}`);
+    out.push(`Подтверждённые цены: ${f.bestTrust.good}/${f.bestTrust.total} против ${f.otherTrust.good}/${f.otherTrust.total}`);
+    return out;
+  }
+  function groundDecision(root){
+    const all=window.TDShoppingState?.get?.()?.lastPlans||[],best=all[0],other=all.find(plan=>plan?.id!==best?.id)||null;
+    if(!best)return false;
+    const f=decisionFacts(best,other),verdict=root.querySelector(".td-compare-verdict"),why=root.querySelector(".td-compare-why");
+    if(verdict){verdict.textContent=verdictFromFacts(f);verdict.dataset.mvp030Truth="1"}
+    if(why){
+      why.querySelector(".roxy-mvp030-facts")?.remove();
+      const lines=factLines(f);
+      if(lines.length){
+        const box=document.createElement("div");box.className="td-compare-note roxy-mvp030-facts";box.dataset.mvp030Truth="1";
+        const label=document.createElement("b");label.textContent="Факты решения";box.appendChild(label);
+        lines.forEach(text=>{const p=document.createElement("p");p.textContent=text;box.appendChild(p)});
+        why.querySelector(".td-compare-section-head")?.insertAdjacentElement("afterend",box);
+      }
+    }
+    return true;
+  }
+
   function buildTradeoff(main,hero){
     let section=main.querySelector(".roxy-purchase-tradeoff");
     const verdict=hero.querySelector(".td-compare-verdict")||section?.querySelector(".td-compare-verdict");
@@ -96,12 +157,13 @@
       if(small&&small.textContent!=="ПОЧЕМУ")small.textContent="ПОЧЕМУ";
       if(heading&&heading.textContent!=="Почему я выбрал этот вариант")heading.textContent="Почему я выбрал этот вариант";
     }
+    groundDecision(root);
 
     const tradeoff=buildTradeoff(main,hero);
     const action=buildAction(main,hero);
     const alternatives=main.querySelector(".td-compare-alternatives");
     const trust=main.querySelector(".td-trust");
-    const note=main.querySelector(".td-compare-note");
+    const note=main.querySelector(".td-compare-note:not(.roxy-mvp030-facts)");
 
     if(alternatives){
       const head=alternatives.querySelector(".td-compare-section-head");
@@ -128,5 +190,5 @@
   window.addEventListener("pageshow",schedule);
   schedule();
 
-  window.TDRoxyPurchaseSkeletonV1={decorate,schedule};
+  window.TDRoxyPurchaseSkeletonV1={decorate,schedule,decisionFacts,verdictFromFacts,factLines};
 })();
