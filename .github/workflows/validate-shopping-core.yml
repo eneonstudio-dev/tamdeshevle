@@ -26,6 +26,8 @@ jobs:
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state
         run: node scripts/test-unified-cart-state.mjs
+      - name: Bay multi-store retailer scope
+        run: node scripts/test-bai-multistore-scope.mjs
       - name: First shopping journey
         run: node scripts/test-first-shopping-journey.mjs
       - name: Bay shopping journey
