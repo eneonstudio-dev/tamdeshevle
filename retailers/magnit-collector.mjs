@@ -69,7 +69,6 @@ export function rankMagnitProductUrls(urls, keywords = [], pinned = []) {
     const needle = normalizedKeyword(keyword);
     return needle ? [...remaining].filter(url => normalizedKeyword(url).includes(needle)).sort() : [];
   });
-  // Round-robin keeps a small request budget spread across basket categories.
   while (groups.some(group => group.length)) {
     for (const group of groups) {
       while (group.length && !remaining.has(group[0])) group.shift();
@@ -99,8 +98,6 @@ function productPriceContext(html) {
   const source = String(html || "");
   const h1 = /<h1[^>]*>[\s\S]*?<\/h1>/i.exec(source);
   if (!h1) return "";
-  // Price badges are rendered adjacent to the product heading. Restrict evidence to
-  // this local region so footer promos, reviews and loyalty copy cannot taint the item.
   const start = Math.max(0, h1.index - 3000);
   const end = Math.min(source.length, h1.index + h1[0].length + 1400);
   return stripTags(source.slice(start, end));
@@ -109,13 +106,10 @@ function productPriceContext(html) {
 export function pagePriceTerms(html) {
   const text = productPriceContext(html);
   const markers = [];
-  if (/\bфинальная\s+цена\b/i.test(text)) markers.push("final_price");
-  if (/\+\s*\d+(?:[.,]\d+)?\s*%\s*с\s+(?:магнит\s+)?премиум\b/i.test(text)) markers.push("premium_extra_benefit");
-  if (/\bцена\s+по\s+карте\b/i.test(text)) markers.push("card_price");
-  if (/\b(?:цена|стоимость)\s+(?:с|для)\s+(?:магнит\s+)?премиум\b/i.test(text)) markers.push("premium_price");
-  // "Финальная цена" and "+N% с Премиум" are not enough to prove that the displayed
-  // base price itself requires membership: the latter is rendered as an extra benefit.
-  // Only an explicit card/premium-gated price is treated as conditional and non-rankable.
+  if (/финальная\s+цена/i.test(text)) markers.push("final_price");
+  if (/\+\s*\d+(?:[.,]\d+)?\s*%\s*с\s+(?:магнит\s+)?премиум/i.test(text)) markers.push("premium_extra_benefit");
+  if (/цена\s+по\s+карте/i.test(text)) markers.push("card_price");
+  if (/(?:цена|стоимость)\s+(?:с|для)\s+(?:магнит\s+)?премиум/i.test(text)) markers.push("premium_price");
   const conditional = markers.includes("card_price") || markers.includes("premium_price");
   return {
     status: conditional ? "terms_unverified" : markers.length ? "promotion_context" : "unmarked",
