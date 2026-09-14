@@ -1,7 +1,5 @@
 const DEFAULT_SOURCE_PRIORITY = Object.freeze([
   "canonical",
-  "ru_barcode",
-  "universe_htt",
   "open_food_facts"
 ]);
 
@@ -12,9 +10,24 @@ const DEFAULT_SOURCE_CONFIDENCE = Object.freeze({
   open_food_facts: 0.72
 });
 
+const IDENTITY_SOURCE_POLICY = Object.freeze({
+  canonical: Object.freeze({ enabled: true, identity_only: true, reason: null }),
+  open_food_facts: Object.freeze({ enabled: true, identity_only: true, reason: null }),
+  ru_barcode: Object.freeze({ enabled: false, identity_only: true, reason: "blocked_pending_license_review" }),
+  universe_htt: Object.freeze({ enabled: false, identity_only: true, reason: "source_not_registered" })
+});
+
 function cleanText(value) {
   const text = String(value == null ? "" : value).trim();
   return text || null;
+}
+
+export function identitySourcePolicy(sourceName) {
+  const source = cleanText(sourceName);
+  if (!source) return { source: null, enabled: false, identity_only: true, reason: "missing_source" };
+  const policy = IDENTITY_SOURCE_POLICY[source];
+  if (!policy) return { source, enabled: false, identity_only: true, reason: "source_not_approved_for_identity" };
+  return { source, ...policy };
 }
 
 export function normalizeBarcode(value) {
@@ -81,14 +94,20 @@ export function buildIdentityIndex(records, options = {}) {
 
 function sourceIndexMap(sources, confidenceOverrides) {
   const result = new Map();
+  const ignored = [];
   for (const source of sources || []) {
     const name = cleanText(source && source.name);
     if (!name || result.has(name)) continue;
+    const policy = identitySourcePolicy(name);
+    if (policy.enabled !== true) {
+      ignored.push({ source: name, reason: policy.reason });
+      continue;
+    }
     result.set(name, source.index instanceof Map
       ? source.index
       : buildIdentityIndex(source.records || [], { source: name, source_confidence: confidenceOverrides }));
   }
-  return result;
+  return { index: result, ignored };
 }
 
 export function resolveProductIdentity(barcodeInput, options = {}) {
@@ -96,10 +115,21 @@ export function resolveProductIdentity(barcodeInput, options = {}) {
   if (!barcode) return { matched: false, reason: "missing_barcode", barcode: null, rankable: false };
   if (!isValidGtin(barcode)) return { matched: false, reason: "invalid_gtin", barcode, rankable: false };
 
-  const priority = Array.isArray(options.priority) && options.priority.length
+  const requestedPriority = Array.isArray(options.priority) && options.priority.length
     ? options.priority.map(cleanText).filter(Boolean)
     : [...DEFAULT_SOURCE_PRIORITY];
-  const sourceMap = sourceIndexMap(options.sources || [], options.source_confidence || {});
+  const ignoredPriority = [];
+  const priority = requestedPriority.filter(source => {
+    const policy = identitySourcePolicy(source);
+    if (policy.enabled === true) return true;
+    ignoredPriority.push({ source, reason: policy.reason });
+    return false;
+  });
+  const sourceState = sourceIndexMap(options.sources || [], options.source_confidence || {});
+  const sourceMap = sourceState.index;
+  const ignoredSources = [...new Map(
+    [...sourceState.ignored, ...ignoredPriority].map(item => [item.source, item])
+  ).values()];
   const candidates = [];
 
   for (const source of priority) {
@@ -108,7 +138,14 @@ export function resolveProductIdentity(barcodeInput, options = {}) {
   }
 
   if (!candidates.length) {
-    return { matched: false, reason: "barcode_not_found", barcode, rankable: false, candidates: [] };
+    return {
+      matched: false,
+      reason: "barcode_not_found",
+      barcode,
+      rankable: false,
+      candidates: [],
+      ...(ignoredSources.length ? { ignored_sources: ignoredSources } : {})
+    };
   }
 
   const primary = candidates[0];
@@ -155,6 +192,7 @@ export function resolveProductIdentity(barcodeInput, options = {}) {
     confidence: Number(effectiveConfidence.toFixed(3)),
     conflicts,
     evidence,
+    ...(ignoredSources.length ? { ignored_sources: ignoredSources } : {}),
     rankable: false,
     price_verified: false,
     store_scope_verified: false,
@@ -164,5 +202,6 @@ export function resolveProductIdentity(barcodeInput, options = {}) {
 
 export const PRODUCT_IDENTITY_DEFAULTS = Object.freeze({
   priority: DEFAULT_SOURCE_PRIORITY,
-  confidence: DEFAULT_SOURCE_CONFIDENCE
+  confidence: DEFAULT_SOURCE_CONFIDENCE,
+  source_policy: IDENTITY_SOURCE_POLICY
 });
