@@ -22,6 +22,8 @@ jobs:
         run: node scripts/test-basket-split.mjs
       - name: Split UI and handoff contract
         run: node scripts/test-basket-split-ui.mjs
+      - name: One-store optimizer choice
+        run: node scripts/test-one-store-choice.mjs
       - name: Shopping state consistency
         run: node scripts/test-shopping-state-consistency.mjs
       - name: Unified cart state
