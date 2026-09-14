@@ -22,5 +22,45 @@ export function normalizeMagnitAvailability(value){const text=String(value||"").
 function contextShopCode(context){return context&&context.store_context&&context.store_context.shop_code!=null?String(context.store_context.shop_code):null;}
 function comparisonPrice(raw){const packagePrice=number(raw.price);const unitPrice=number(raw.unit_price??raw.unitPrice);const unit=String(raw.unit_price_unit??raw.unitPriceUnit??"").toLowerCase();if(KG_COMPARISON_PRODUCTS.test(String(raw.name||""))&&unit==="kg"&&unitPrice!=null&&unitPrice>=0)return{value:unitPrice,basis:"per_kg",source_package_price_rub:packagePrice,source_unit_price_rub:unitPrice};return{value:packagePrice,basis:null,source_package_price_rub:null,source_unit_price_rub:null};}
 function safeImage(value){if(!value)return null;try{const url=new URL(String(value));return url.protocol==="https:"?url.toString():null;}catch{return null;}}
-export function adaptMagnitProduct(raw,context={}){if(!raw||!raw.name)throw new Error("Magnit product requires name");const shopCode=contextShopCode(context);if(!shopCode)throw new Error("Magnit snapshot requires store_context.shop_code");if(raw.shop_code!=null&&String(raw.shop_code)!==shopCode)throw new Error(`Magnit row shop_code mismatch: ${raw.shop_code} != ${shopCode}`);const normalizedPrice=comparisonPrice(raw);const price=normalizedPrice.value;if(price==null||price<0)throw new Error(`Invalid price for ${raw.name}`);const oldPrice=number(raw.old_price??raw.oldPrice);const checkedAt=context.checked_at||context.checkedAt||new Date().toISOString();const isUnitNormalized=normalizedPrice.basis==="per_kg";return{schema:"tamdeshevle.retailer-product.v1",retailer:"magnit",retailer_product_id:raw.id!=null?String(raw.id):null,name:String(raw.name).trim(),brand:raw.brand?String(raw.brand).trim():null,pack:resolveMagnitPack(raw),price_rub:price,source_package_price_rub:normalizedPrice.source_package_price_rub,source_unit_price_rub:normalizedPrice.source_unit_price_rub,comparison_price_basis:normalizedPrice.basis,old_price_rub:!isUnitNormalized&&oldPrice!=null&&oldPrice>=price?oldPrice:null,promo:!isUnitNormalized&&oldPrice!=null&&oldPrice>price,availability:normalizeMagnitAvailability(raw.availability),source_url:raw.url||context.source_url||null,image_url:safeImage(raw.image_url??raw.imageUrl),city:context.city||"msk",store_context:{shop_code:shopCode,address:context.store_context.address||null,shop_type:context.store_context.shop_type||null},channel:context.channel||"delivery_catalog",checked_at:checkedAt,source:{site:"magnit.ru",method:context.method||"public_product_pages"}};}
+export function adaptMagnitProduct(raw,context={}){
+  if(!raw||!raw.name)throw new Error("Magnit product requires name");
+  const shopCode=contextShopCode(context);
+  if(!shopCode)throw new Error("Magnit snapshot requires store_context.shop_code");
+  if(raw.shop_code!=null&&String(raw.shop_code)!==shopCode)throw new Error(`Magnit row shop_code mismatch: ${raw.shop_code} != ${shopCode}`);
+  const normalizedPrice=comparisonPrice(raw);
+  const price=normalizedPrice.value;
+  if(price==null||price<0)throw new Error(`Invalid price for ${raw.name}`);
+  const oldPrice=number(raw.old_price??raw.oldPrice);
+  const checkedAt=context.checked_at||context.checkedAt||new Date().toISOString();
+  const isUnitNormalized=normalizedPrice.basis==="per_kg";
+  const promoFromOldPrice=!isUnitNormalized&&oldPrice!=null&&oldPrice>price;
+  const promo=raw.promo===true||promoFromOldPrice;
+  return{
+    schema:"tamdeshevle.retailer-product.v1",
+    retailer:"magnit",
+    retailer_product_id:raw.id!=null?String(raw.id):null,
+    name:String(raw.name).trim(),
+    brand:raw.brand?String(raw.brand).trim():null,
+    pack:resolveMagnitPack(raw),
+    price_rub:price,
+    source_package_price_rub:normalizedPrice.source_package_price_rub,
+    source_unit_price_rub:normalizedPrice.source_unit_price_rub,
+    comparison_price_basis:normalizedPrice.basis,
+    old_price_rub:!isUnitNormalized&&oldPrice!=null&&oldPrice>=price?oldPrice:null,
+    promo,
+    ...(promo?{
+      promo_eligibility_verified:raw.promo_eligibility_verified===true,
+      promo_terms_verified:raw.promo_terms_verified===true
+    }:{}),
+    ...(raw.price_terms&&typeof raw.price_terms==="object"?{price_terms:raw.price_terms}:{}),
+    availability:normalizeMagnitAvailability(raw.availability),
+    source_url:raw.url||context.source_url||null,
+    image_url:safeImage(raw.image_url??raw.imageUrl),
+    city:context.city||"msk",
+    store_context:{shop_code:shopCode,address:context.store_context.address||null,shop_type:context.store_context.shop_type||null},
+    channel:context.channel||"delivery_catalog",
+    checked_at:checkedAt,
+    source:{site:"magnit.ru",method:context.method||"public_product_pages"}
+  };
+}
 export function adaptMagnitCatalog(rows,context={}){if(!Array.isArray(rows))throw new Error("Catalog rows must be an array");const shopCode=contextShopCode(context);if(!shopCode)throw new Error("Magnit snapshot requires store_context.shop_code");return rows.map(row=>adaptMagnitProduct(row,context));}
