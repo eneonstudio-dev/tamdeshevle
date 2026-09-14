@@ -3,6 +3,7 @@
   const quick=["dumplings","eggs","bread","milk","water","banana","apple","noodles","waffles"];
   const normal=["chicken","eggs","bread","milk","water","banana","apple","buck","pasta"];
   const LEGACY={bread:"bread_dark",chicken:"chicken_fil",oil:"oil_sunflower",eggs:"eggs_c1",buck:"buckwheat",sour:"smetana"};
+  const QUALITY_RANK=Object.freeze({UNKNOWN:0,ESTIMATED:1,RECENT:2,LIVE:3});
   const uniq=a=>[...new Set((a||[]).filter(Boolean))];
   const norm=v=>String(v||"").toLowerCase().trim().replace(/,/g,".");
   const grounded=(id,all)=>all.some(p=>p.id===(LEGACY[id]||id))?(LEGACY[id]||id):id;
@@ -61,6 +62,21 @@
     return scoped.length?scoped:all.map(x=>x.id);
   }
   function planMulti(s){const ids=desired(s),storeIds=eligibleStores(s),bestLine=id=>{let best=null;storeIds.forEach(storeId=>{const a=TDStoreAdapters.adapter(storeId),p=a.getProduct(id),q=a.getPrice(id,"shelf");if(p&&!excludedBrand(s,p)&&Number.isFinite(q.value)&&(!best||q.value<best.price))best={id,name:p.name,pack:p.pack,emoji:p.emoji||"•",brand:p.brand||"Без привязки к бренду",quantity:1,storeId,unitPrice:q.value,price:q.value,quality:q.quality,sourceId:(typeof PRODUCTS!=="undefined"&&PRODUCTS.some(x=>x.id===id))?id:null}});return best};let lines=ids.map(bestLine).filter(Boolean);lines=applyTargets(lines,s);lines=fit(lines,s.budget,s.requiredProducts);let used=uniq(lines.map(x=>x.storeId)),cost=Math.max(0,used.length-1)*120;lines=topUp(lines,s,p=>bestLine(p.id),cost);used=uniq(lines.map(x=>x.storeId));cost=Math.max(0,used.length-1)*120;while(s.budget&&lines.reduce((n,x)=>n+x.price*x.quantity,0)+cost>s.budget&&lines.length>1){const removable=[...lines].reverse().find(x=>!x.requestedMinQuantity&&!(s.requiredProducts||[]).includes(x.id));if(!removable)break;lines.splice(lines.indexOf(removable),1)}used=uniq(lines.map(x=>x.storeId));const goods=lines.reduce((n,x)=>n+x.price*x.quantity,0);cost=Math.max(0,used.length-1)*120;return{id:"multi",type:"multi",stores:used,products:lines,goods,convenienceCost:cost,total:goods+cost,quality:lines.length&&lines.every(x=>x.quality==="LIVE")?"LIVE":"ESTIMATED"};}
-  function optimize(s){s.quantityTargets=s.quantityTargets||{};s.stores=Array.isArray(s.stores)?s.stores:[];const allowed=s.stores.length?s.stores:[window.state?.storeId||"pyat"];const one=planOne(s,allowed[0]);if(s.selectionMode==="only"&&s.mode!=="multi")return[one];const multi=planMulti(s);return s.mode==="one"?[one]:[one,multi].sort((a,b)=>a.total-b.total);}
-  window.TDShoppingOptimizer={optimize,planOne,planMulti,eligibleStores,conveniencePerExtraStore:120};
+  function coverageScore(plan,requestedIds){const covered=new Set((plan?.products||[]).map(line=>line.id));return uniq(requestedIds||[]).reduce((n,id)=>n+(covered.has(id)?1:0),0);}
+  function evidenceScore(plan){const lines=plan?.products||[];if(!lines.length)return 0;return lines.reduce((n,line)=>n+(QUALITY_RANK[line?.quality]??0),0)/lines.length;}
+  function comparePlans(a,b,requestedIds=[]){
+    const totalA=Number.isFinite(a?.total)?a.total:Infinity,totalB=Number.isFinite(b?.total)?b.total:Infinity;
+    if(totalA!==totalB)return totalA-totalB;
+    const coverageA=coverageScore(a,requestedIds),coverageB=coverageScore(b,requestedIds);
+    if(coverageA!==coverageB)return coverageB-coverageA;
+    const evidenceA=evidenceScore(a),evidenceB=evidenceScore(b);
+    if(evidenceA!==evidenceB)return evidenceB-evidenceA;
+    const convenienceA=Number.isFinite(a?.convenienceCost)?a.convenienceCost:Infinity,convenienceB=Number.isFinite(b?.convenienceCost)?b.convenienceCost:Infinity;
+    if(convenienceA!==convenienceB)return convenienceA-convenienceB;
+    const storesA=Array.isArray(a?.stores)?a.stores.length:Infinity,storesB=Array.isArray(b?.stores)?b.stores.length:Infinity;
+    if(storesA!==storesB)return storesA-storesB;
+    return String(a?.id||"").localeCompare(String(b?.id||""));
+  }
+  function optimize(s){s.quantityTargets=s.quantityTargets||{};s.stores=Array.isArray(s.stores)?s.stores:[];const requestedIds=desired(s);const allowed=s.stores.length?s.stores:[window.state?.storeId||"pyat"];const one=planOne(s,allowed[0]);if(s.selectionMode==="only"&&s.mode!=="multi")return[one];const multi=planMulti(s);return s.mode==="one"?[one]:[one,multi].sort((a,b)=>comparePlans(a,b,requestedIds));}
+  window.TDShoppingOptimizer={optimize,planOne,planMulti,eligibleStores,comparePlans,conveniencePerExtraStore:120};
 })();
