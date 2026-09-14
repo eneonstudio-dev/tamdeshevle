@@ -42,6 +42,14 @@
     try{target.focus({preventScroll:true})}catch(_){target.focus?.()}
   }
   function focusNextFrame(target){requestAnimationFrame(()=>{if(target?.isConnected)focusWithoutScroll(target)})}
+  function keepFocusInside(card,preferred){
+    requestAnimationFrame(()=>{
+      if(preferred?.isConnected)focusWithoutScroll(preferred);
+      requestAnimationFrame(()=>{
+        if(card?.isConnected&&!card.contains(document.activeElement))focusWithoutScroll(card);
+      });
+    });
+  }
   function makeNotice(surface,title,body,action){
     const note=document.createElement("aside");
     note.className="roxy-return-continuity";
@@ -74,7 +82,7 @@
     button.addEventListener("click",()=>{
       const target=card.querySelector(".td-retailer-row a[href],.td-retailer-row [data-done],.td-retailer-x");
       note.remove();
-      focusNextFrame(target);
+      keepFocusInside(card,target);
     });
     return true;
   }
