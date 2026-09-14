@@ -6,14 +6,15 @@ const here=new URL('../',import.meta.url);
 const readJson=name=>JSON.parse(fs.readFileSync(new URL(name,here),'utf8'));
 const readJsonl=file=>fs.readFileSync(file,'utf8').split(/\r?\n/).filter(Boolean).map(JSON.parse);
 
-export function loadFactoryTasks(file){
-  const rows=readJsonl(file);
-  if(!rows.length)throw Error('factory task file is empty');
+export function validateFactoryTasks(rows){
+  if(!Array.isArray(rows)||!rows.length)throw Error('factory task list is empty');
   const ids=rows.map(x=>String(x?.id||''));
   if(ids.some(x=>!x))throw Error('factory task id missing');
   if(new Set(ids).size!==ids.length)throw Error('duplicate factory task id');
   return rows;
 }
+
+export function loadFactoryTasks(file){return validateFactoryTasks(readJsonl(file));}
 
 export function prepareFactoryReview({runDir,tasksFile,outDir}){
   const registry=readJson('sources.json');
