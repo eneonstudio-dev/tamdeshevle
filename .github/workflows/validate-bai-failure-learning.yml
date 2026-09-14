@@ -8,6 +8,8 @@ on:
       - "teacher-lab/training/export_failure_remediation.mjs"
       - "teacher-lab/training/run_failure_regressions.py"
       - "teacher-lab/training/failure_learning_smoke.py"
+      - "teacher-lab/training/compare_candidate_runs.py"
+      - "teacher-lab/training/candidate_comparison_smoke.py"
       - ".github/workflows/validate-bai-failure-learning.yml"
   push:
     branches:
@@ -18,6 +20,8 @@ on:
       - "teacher-lab/training/export_failure_remediation.mjs"
       - "teacher-lab/training/run_failure_regressions.py"
       - "teacher-lab/training/failure_learning_smoke.py"
+      - "teacher-lab/training/compare_candidate_runs.py"
+      - "teacher-lab/training/candidate_comparison_smoke.py"
       - ".github/workflows/validate-bai-failure-learning.yml"
 
 permissions:
@@ -40,6 +44,10 @@ jobs:
           python -m py_compile teacher-lab/training/prepare_failure_remediation.py
           python -m py_compile teacher-lab/training/run_failure_regressions.py
           python -m py_compile teacher-lab/training/failure_learning_smoke.py
+          python -m py_compile teacher-lab/training/compare_candidate_runs.py
+          python -m py_compile teacher-lab/training/candidate_comparison_smoke.py
           node --check teacher-lab/training/export_failure_remediation.mjs
       - name: Validate failure to reviewed Gold and regression gate
         run: python teacher-lab/training/failure_learning_smoke.py
+      - name: Validate multi-candidate comparison contract
+        run: python teacher-lab/training/candidate_comparison_smoke.py
