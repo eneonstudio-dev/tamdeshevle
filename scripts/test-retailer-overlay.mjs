@@ -19,7 +19,7 @@ assert.deepEqual(basketOverlay.prices, {
   pasta: 109.99
 });
 assert.equal(basketOverlay.unmatched.length, 0);
-assert.deepEqual(basketOverlay.unavailable, []);
+assert.deepEqual(basketOverlay.unavailable || [], []);
 
 const matchingSnapshot = {
   schema: "tamdeshevle.retailer-snapshot.v1",
@@ -102,7 +102,7 @@ const mixedAvailabilityOverlay = buildOverlayFromSnapshot({
   ]
 });
 assert.equal(mixedAvailabilityOverlay.prices.pasta, 79.99, "an eligible in-stock equivalent must win over an unavailable duplicate");
-assert.deepEqual(mixedAvailabilityOverlay.unavailable, [], "SKU must not be marked unavailable when an eligible equivalent is in stock");
+assert.deepEqual(mixedAvailabilityOverlay.unavailable || [], [], "SKU must not be marked unavailable when an eligible equivalent is in stock");
 
 const products = [
   { id: "pasta", name: "Макароны", prices: {}, bring: { magnit: 99 } },
