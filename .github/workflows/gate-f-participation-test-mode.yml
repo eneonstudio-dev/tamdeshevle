@@ -1,0 +1,33 @@
+name: Patch participation test mode
+on:
+  push:
+    branches: [rouk/gate-f-closed-beta-scope-v2]
+    paths: [.github/workflows/gate-f-participation-test-mode.yml]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: rouk/gate-f-closed-beta-scope-v2
+      - name: Enable remote scope only inside participation browser test
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('scripts/test-gate-f-user-data-notice.py')
+          t=p.read_text()
+          old='''    driver=webdriver.Chrome(options=options)\n    driver.set_window_size(width,height)\n    return driver\n'''
+          new='''    driver=webdriver.Chrome(options=options)\n    # Test-only pre-document override. Production release-scope.js remains local-first;\n    # this isolated browser validates the disclosure layer that protects remote mode\n    # when those flows are explicitly enabled in a future reviewed release.\n    driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """\n      Object.defineProperty(window,'TDReleaseScope',{\n        configurable:true,\n        get(){return {mode:'qa-remote-enabled',flags:{closedBeta:false,remoteAccount:true,cloudSync:true,receiptUpload:true},enabled:()=>true};},\n        set(_){}\n      });\n    """})\n    driver.set_window_size(width,height)\n    return driver\n'''
+          if t.count(old)!=1: raise SystemExit(f'participation driver anchor mismatch: {t.count(old)}')
+          p.write_text(t.replace(old,new,1))
+          PY
+      - name: Commit and remove helper
+        run: |
+          rm .github/workflows/gate-f-participation-test-mode.yml
+          git config user.name "eneonstudio-dev"
+          git config user.email "eneonstudio@gmail.com"
+          git add scripts/test-gate-f-user-data-notice.py .github/workflows/gate-f-participation-test-mode.yml
+          git commit -m "test: validate participation UX in explicit remote mode"
+          git push origin HEAD:rouk/gate-f-closed-beta-scope-v2
