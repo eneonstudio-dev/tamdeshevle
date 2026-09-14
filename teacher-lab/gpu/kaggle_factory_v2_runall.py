@@ -1,28 +1,7 @@
 #!/usr/bin/env python3
-import argparse,json,math,shutil,subprocess,sys
-from pathlib import Path
-import kaggle_t4x2_teachers as teachers
+import math
 
-ROOT=Path(__file__).resolve().parents[2]
-PREPARE=ROOT/'teacher-lab/gpu/prepare_factory_review.mjs'
-CONSOLE=ROOT/'teacher-lab/review-console.mjs'
-FACTORY_SCRIPT=ROOT/'teacher-lab/training/data_factory_v2.py'
-WORK=Path('/kaggle/working/bai_factory_v2')
-RUN=WORK/'teacher_run'; REVIEWS=WORK/'reviews'
-FULL_TASKS=WORK/'pilot.jsonl'; CAL_TASKS=WORK/'calibration.jsonl'
-MANIFEST=WORK/'factory-manifest.json'
-SUMMARY=Path('/kaggle/working/bai_factory_v2_summary.json')
 CATEGORIES=('build_fuzzy','edit_fuzzy','constraint_conflict','multi_turn')
-
-def call(cmd):
-    print('+',' '.join(map(str,cmd)),flush=True)
-    subprocess.check_call([str(x) for x in cmd],cwd=ROOT)
-
-def read_jsonl(path):
-    return [json.loads(x) for x in Path(path).read_text(encoding='utf-8').splitlines() if x.strip()]
-
-def write_jsonl(path,rows):
-    Path(path).write_text(''.join(json.dumps(x,ensure_ascii=False)+'\n' for x in rows),encoding='utf-8')
 
 def calibration_tasks(tasks,per_category=10):
     out=[]
@@ -33,18 +12,15 @@ def calibration_tasks(tasks,per_category=10):
     if len({x['id'] for x in out})!=len(out): raise ValueError('duplicate calibration task id')
     return out
 
-def gate(summary,expected,ratio,stage):
+def gate(summary,expected,ratio=0.90,stage='CALIBRATION'):
+    if not 0.5<=ratio<=1: raise ValueError('gate ratio must be 0.5..1')
     floor=math.ceil(expected*ratio)
     values={k:int(summary.get(k,0) or 0) for k in ('left_candidates','right_candidates','compared')}
-    print(stage,values,'floor',floor,flush=True)
-    if min(values.values())<floor: raise SystemExit(f'{stage} rejected: {values}, required >= {floor}')
+    if min(values.values())<floor: raise RuntimeError(f'{stage} rejected: {values}, required >= {floor}')
+    return values
 
-def verify_gpu():
-    import torch
-    if torch.cuda.device_count()<2: raise SystemExit(f'Need Kaggle T4x2: got {torch.cuda.device_count()} GPU(s)')
-    names=[torch.cuda.get_device_name(i) for i in range(2)]
-    if not all('T4' in x.upper() for x in names): raise SystemExit(f'Expected T4x2, got {names}')
+def verify_gpu(torch_module):
+    if torch_module.cuda.device_count()<2: raise RuntimeError(f'Need Kaggle T4x2: got {torch_module.cuda.device_count()} GPU(s)')
+    names=[torch_module.cuda.get_device_name(i) for i in range(2)]
+    if not all('T4' in x.upper() for x in names): raise RuntimeError(f'Expected T4x2, got {names}')
     return names
-
-if __name__=='__main__':
-    print('Bai Data Factory v2 Kaggle orchestration ready for GPU stages')
