@@ -29,6 +29,7 @@ try {
   window.TD_BAI_BRAIN_ALLOWED_ORIGINS = [...new Set([...existing, trainedOrigin])];
 } catch {}
 
+import("./config/bai-brain-release-bound.js?v=20260914-serving-v1").catch(error=>console.warn("[Bai Brain Release] preload failed",error));
 import("./bai-autopilot.js?v=20260912-autopilot-v2").catch(error=>console.warn("[Bai Autopilot] load failed",error));
 import("./bai-session-owner-guard.js?v=20260913-owner-v1")
   .then(()=>import("./bai-shopping-agent-kernel.js?v=20260913-verification-trace-v1"))
