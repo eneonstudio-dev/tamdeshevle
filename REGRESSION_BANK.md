@@ -47,7 +47,7 @@ Add a case when Bay or the shopping system:
 
 | id | severity | scenario | expected | layer | status | test_path | fix_ref |
 |---|---|---|---|---|---|---|---|
-| `REG-001` | P0 | Exact price/store evidence is absent or ambiguous | Result stays unverified/non-rankable; missing value never becomes `0` | truth | OPEN | `scripts/test-data-layer-truth.mjs` + comparison truth tests | pending truth-hardening PR |
+| `REG-001` | P0 | Exact price/store evidence is absent or ambiguous | Result stays unverified/non-rankable; missing value never becomes `0` | truth | GUARDED | `scripts/test-data-layer-truth.mjs` + comparison truth tests | PR #372 |
 | `REG-002` | P1 | User changes one named basket constraint | Preserve unrelated ShoppingIntent/UniversalBasket dimensions | state/action | GUARDED | shopping-agent regression suite | existing main contracts |
 | `REG-003` | P1 | External/trained brain fails, times out, or produces unsafe action | Reject/repair and fall back to safe bounded runtime | runtime/action | GUARDED | Bai runtime bridge tests | existing main contracts |
 | `REG-004` | P1 | Multi-store item prices look cheaper before fees | Compare feasible charged totals and constraints; do not recommend fake savings | optimizer | OPEN | to add with PurchasePlan optimizer | pending |
@@ -55,8 +55,8 @@ Add a case when Bay or the shopping system:
 | `REG-006` | P1 | Kaggle exposes T4 x2 while single-process Trainer loads 4-bit QLoRA | Isolate train/eval model subprocesses to one T4; never DataParallel-replicate bitsandbytes modules | runtime/training | GUARDED | `teacher-lab/training/kaggle_first_run_smoke.py` | PR #353 |
 | `REG-007` | P1 | A model prediction contains non-array `actions` or `retained_constraints` | Score the response as failed/missing; benchmark and promotion gate must not crash or skip the candidate | runtime/eval | GUARDED | `teacher-lab/training/deterministic-seed-smoke.mjs` | PR #354 |
 | `REG-008` | P1 | Teacher-loop output uses `confidence.price/availability/quality = "unknown"` to declare missing dynamic evidence | Treat the explicit confidence sentinel as unknown evidence, not as a fabricated price/stock/quality fact; continue rejecting actual forbidden dynamic claims | truth/eval | GUARDED | `teacher-lab/student-teacher-loop-smoke.mjs` | `fix/bai-unknown-truth-sentinel` |
-| `REG-009` | P1 | Receipt evidence carries an `observed_at` materially in the future | Reject the observation before history/ranking promotion; permit only bounded clock skew | truth | OPEN | `scripts/test-receipt-verification.mjs` | pending truth-hardening PR |
-| `REG-010` | P1 | Regional catalog snapshot is older than TTL or its declared promo period has ended | Suppress the indicative price entirely; never carry an expired estimate forward as current evidence | truth | OPEN | `scripts/test-data-quality.mjs` + `scripts/test-retailer-estimate-freshness.mjs` + `scripts/test-proshoper-collector.mjs` | pending truth-hardening PR |
+| `REG-009` | P1 | Receipt evidence carries an `observed_at` materially in the future | Reject the observation before history/ranking promotion; permit only bounded clock skew | truth | GUARDED | `scripts/test-receipt-verification.mjs` | PR #372 |
+| `REG-010` | P1 | Regional catalog snapshot is older than TTL or its declared promo period has ended | Suppress the indicative price entirely; never carry an expired estimate forward as current evidence | truth | GUARDED | `scripts/test-data-quality.mjs` + `scripts/test-retailer-estimate-freshness.mjs` + `scripts/test-proshoper-collector.mjs` | PR #372 |
 
 ## Lifecycle
 
