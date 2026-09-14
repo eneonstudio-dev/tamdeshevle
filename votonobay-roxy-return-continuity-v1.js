@@ -41,6 +41,7 @@
     if(!target)return;
     try{target.focus({preventScroll:true})}catch(_){target.focus?.()}
   }
+  function focusNextFrame(target){requestAnimationFrame(()=>{if(target?.isConnected)focusWithoutScroll(target)})}
   function makeNotice(surface,title,body,action){
     const note=document.createElement("aside");
     note.className="roxy-return-continuity";
@@ -73,7 +74,7 @@
     button.addEventListener("click",()=>{
       const target=card.querySelector(".td-retailer-row a[href],.td-retailer-row [data-done],.td-retailer-x");
       note.remove();
-      focusWithoutScroll(target);
+      focusNextFrame(target);
     });
     return true;
   }
@@ -96,7 +97,7 @@
     button.addEventListener("click",()=>{
       const area=root.querySelector(".td-ai-compose textarea");
       note.remove();
-      focusWithoutScroll(area);
+      focusNextFrame(area);
     });
     return true;
   }
