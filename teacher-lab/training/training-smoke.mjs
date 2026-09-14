@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {prepareSft,renderSftJsonl} from './prepare-sft.mjs';
+import {SYSTEM,studentInput} from './prepare-sft.mjs';
 import {promotionGate} from './promotion-gate.mjs';
 
 const here=new URL('../',import.meta.url);
@@ -20,6 +21,8 @@ const approved=row('train_001'),candidate=row('train_002','candidate');
 const sft=prepareSft([approved,candidate],registry);
 assert.equal(sft.length,1,'only approved eligible rows may enter SFT');
 assert.equal(JSON.parse(sft[0].messages[2].content).hard_constraints.budget_max,5000);
+assert.match(SYSTEM,/только структурированное shopping-решение в JSON/i);
+assert.deepEqual(studentInput({user_request:'  собери корзину  ',session_context:{budget:5000},guards:{ignored:true}}),{user_request:'собери корзину',session_context:{budget:5000}});
 assert.ok(renderSftJsonl([approved],registry).endsWith('\n'));
 assert.throws(()=>prepareSft([row('blocked_001','approved','yandex_foundation_models_api')],registry));
 
