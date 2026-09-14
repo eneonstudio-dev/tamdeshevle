@@ -1,76 +1,65 @@
 # Votonobay — Security Gate F Evidence
 
-**State:** CLOSED-BETA LOCAL-ONLY REMEDIATION IN REVIEW  
+**State:** PASS — CLOSED-BETA LOCAL-ONLY SCOPE  
 **Date:** 2026-09-15  
-**Release scope:** closed-beta grocery/FMCG path
+**Release scope:** closed-beta grocery/FMCG path with personal account/cloud/receipt-photo processing disabled
 
-This file records evidence for `RELEASE_GATE.md` Gate F. It is fail-closed: Gate F is **not PASS** until the local-only release-scope change is merged and the actual release-head checks are green.
+This file records evidence for `RELEASE_GATE.md` Gate F. The PASS applies only to the tested **closed-beta local-only** scope described below. It does not approve public release or re-enable account/cloud/receipt-photo processing.
 
 ## Closed-beta privacy/legal scope decision
 
 For closed beta, Votonobay takes the conservative path from issue #448: **personal account/cloud/receipt-photo flows are out of release scope until a separate privacy/legal review approves them**.
 
-The browser release therefore fails closed to local-only personal data:
+Merged PR #454 (`5893599c2a6c35a87552d0d2fc6d4da66a06cff5`) enforces that boundary:
 - `TD_RELEASE_SCOPE.personalDataMode` is `local-only`;
 - `TD_SUPABASE` is `null`, so the personal-data Supabase auth/cloud client cannot initialize in the closed-beta browser runtime;
 - exported auth/cloud/receipt functions are locked after `TDAuth` is created;
 - account login, cloud save/restore and receipt-photo upload controls are disabled and visibly explain the local-only scope;
 - local basket/profile/history and local receipt drafts remain available;
-- the newly implemented per-action disclosure UI remains in the repository as a future re-enable safety layer, but it is **not treated as a substitute for privacy/legal review**.
+- the per-action disclosure UI remains in the repository as a future re-enable safety layer, but it is **not treated as a substitute for privacy/legal review**.
 
 Executable evidence: `scripts/test-closed-beta-local-only.mjs` plus real-browser `scripts/test-gate-f-local-only.py`, including an Android-sized viewport.
 
-## Findings and remediations
+## Gate F criteria and evidence
 
-### Third-party analytics / user-data flow
+### Security P0 clear for the tested path
 
-Finding: the previous `yandex-metrika.js` loaded Yandex Metrika immediately and enabled Webvisor without an explicit Votonobay consent gate.
+No unresolved P0/P1 security regression is known on the tested closed-beta path. Repository security checks cover CSP/SRI, DOM escaping, safe retailer URLs, atomic server-side rate limiting, secret-like value scanning and pinned GitHub Actions.
 
-Remediation in merged PR #426:
-- analytics is disabled by default;
-- third-party analytics script is not loaded unless the persisted Votonobay analytics consent is explicitly granted;
-- an explicit browser API exists for grant/revoke;
-- closed beta can operate with analytics completely off.
+### Secrets / private credentials
 
-Evidence:
-- `scripts/test-security-hardening.mjs` guards the persisted consent gate and requires it to execute before third-party script creation;
-- `scripts/test-gate-f-user-data.mjs` additionally guards explicit grant/revoke semantics.
+Client-side release configuration does not expose private provider credentials. Model provider credentials remain server-side. Personal-data Supabase browser configuration is disabled entirely in the closed-beta local-only scope.
 
-### Zero-budget paid inference
+### Provider/source use
 
-Finding: `backend/bai-agent-core.ts` would call the configured external LLM whenever provider URL/key/model existed. There was no independent release kill switch protecting zero-budget mode.
+Active tested-path provider review found no required auth/CAPTCHA/anti-bot/ban bypass. Magnit collection uses public retailer pages and remains bounded by `SOURCE_PROVIDER_REGISTRY.md`; generic AI/search scouts stay discovery-only and cannot become price/store truth.
 
-Remediation in merged PR #426:
-- external LLM inference is fail-closed unless server environment explicitly sets `BAI_LLM_PAID_ENABLED=true`;
-- otherwise Agent Core returns `model_disabled_zero_budget` and falls back to deterministic rules;
-- configured credentials alone are no longer enough to create provider usage.
+### Zero-budget cost control
 
-Evidence: `scripts/test-security-hardening.mjs` requires the paid-provider flag before the provider fetch and requires the explicit disabled error path.
+Merged PR #426 established the explicit `BAI_LLM_PAID_ENABLED=true` server-side kill switch. Configured external LLM credentials alone cannot create paid usage; otherwise Agent Core returns `model_disabled_zero_budget` and falls back to deterministic rules.
 
-### Trained inference
+### User-data participation
 
-`bai-trained-inference` remains fail-closed: it requires a promoted/bound release before resolving a private backend, checks exact release pinning, authenticates users, applies rate limits, requires HTTPS/token configuration and validates the backend response envelope.
+Third-party analytics is opt-in and disabled by default. For closed beta, higher-risk personal account/cloud/receipt-photo processing is removed from release scope altogether and fails closed to device-local behavior. Re-enabling those flows requires a separate privacy/legal review.
 
-### Account/cloud data participation
+## Trained inference
 
-The account/cloud backend remains implemented and regression-tested for future use, including authentication, own-row RLS, explicit save/restore, destructive-restore confirmation and an undo copy.
+`bai-trained-inference` remains fail-closed: it requires a promoted/bound release before resolving a private backend, checks exact release pinning, authenticates users, applies rate limits, requires HTTPS/token configuration and validates the backend response envelope. No trained checkpoint is promoted by this Gate F decision.
 
-For the closed-beta release, however, this personal-data path is **disabled at the browser release boundary**. The personal-data Supabase client does not initialize, login is disabled, and cloud save/restore controls are disabled.
+## Merged-head verification
 
-### Receipt evidence participation and privacy
+PR #454 merged to `main` at `5893599c2a6c35a87552d0d2fc6d4da66a06cff5`. Release-relevant push checks on that exact merged head completed successfully:
 
-Local receipt drafts remain enabled because they stay on the device and do not become rankable price truth merely by being drafted.
+- Continuous security monitoring — run `34900001701` — **success**.
+- Validate UX in real browser — run `34900001694` — **success**; includes the closed-beta local-only desktop + Android-sized browser proof.
+- Validate app runtime resilience — run `34900001755` — **success**.
+- Validate data and scripts — run `34900001805` — **success**.
+- Master governance gate — run `34900001822` — **success**.
+- Validate golden shopping core — run `34900001886` — **success**.
+- Validate Bai assistant — run `34900001696` — **success**.
+- Validate Bai trained serving — run `34900001632` — **success**.
 
-Receipt-photo cloud submission is **disabled for closed beta**. The private bucket, authenticated submission path, RLS and review pipeline remain implemented and regression-tested for future re-enablement, but they are not part of the closed-beta release scope until the privacy/legal review is complete.
-
-## Repository / deployment evidence
-
-- PR #426 is merged at `2e68e958fd1b82a3ec69460b1c00ce966256bbc6` and established the zero-budget/analytics fail-closed controls.
-- PR #447 is merged at `42596d028cd10600f47e17b703cbbe155cedd0c0` and added executable Gate F user-data evidence plus expanded security-monitor coverage.
-- Post-#447 security/runtime/data/governance/golden checks passed on the merged head.
-- Deployed Supabase `bai-agent-core` was manually inspected on 2026-09-14 and contains the same zero-budget fail-closed paid-provider decision as the merged source.
-- Active tested-path provider review found no required auth/CAPTCHA/anti-bot/ban bypass. Magnit collection uses public retailer pages and remains bounded by `SOURCE_PROVIDER_REGISTRY.md`; generic AI/search scouts stay discovery-only and cannot become price/store truth.
-- Repository security checks cover CSP/SRI, DOM escaping, safe retailer URLs, atomic server-side rate limiting, secret-like value scanning and pinned GitHub Actions.
+The local-only boundary therefore survived merged-state security, browser, runtime, data, governance and canonical shopping validation.
 
 ## Security-monitor coverage
 
@@ -80,12 +69,10 @@ The security monitor runs on security-sensitive account/auth/receipt/config/prov
 - `scripts/test-closed-beta-local-only.mjs`;
 - `scripts/test-production-security.mjs`.
 
-Real-browser UX additionally proves that local-only controls stay disabled and understandable on desktop and an Android-sized viewport.
+Real-browser UX additionally proves that local-only controls stay disabled and understandable on desktop and an Android-sized viewport while device-local receipt drafts still work.
 
-## Remaining before PASS
+## Decision
 
-- [ ] Merge the closed-beta local-only personal-data policy after PR CI is green.
-- [ ] Verify the post-merge security/runtime/data/governance/golden/browser checks on the actual merged head.
-- [ ] Record Gate F PASS for the closed-beta **local-only** scope and resolve issue #448 as completed by scope reduction, not by claiming a legal review occurred.
+**Gate F: PASS for the closed-beta local-only scope.**
 
-Public release or any re-enablement of account/cloud/receipt-photo processing remains separately blocked on privacy/legal review. This file is release evidence, not legal advice.
+This PASS is achieved by a release-scope reduction, not by claiming a privacy/legal review occurred. Public release, or any re-enablement of account/cloud/receipt-photo processing, remains separately blocked on privacy/legal review. This file is release evidence, not legal advice.
