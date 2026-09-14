@@ -116,7 +116,7 @@
         else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: value });
         setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, value, match, "retailer"));
         count += 1;
-      } else if (quality.status === "unverified" && book.catalog_context?.price_scope === "regional_catalog") {
+      } else if (quality.status === "unverified" && quality.estimateUsable === true && book.catalog_context?.price_scope === "regional_catalog") {
         setEstimateMeta(product, estimateStoreId, slot, buildMeta(book, quality, estimateStoreId, channel, value, match, "regional_catalog_estimate"));
         estimatedCount += 1;
       }
