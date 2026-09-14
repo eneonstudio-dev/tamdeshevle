@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import vm from "node:vm";
 import assert from "node:assert/strict";
 import { buildOverlayFromSnapshot } from "../retailers/overlay-builder.mjs";
 
@@ -18,6 +19,7 @@ assert.deepEqual(basketOverlay.prices, {
   pasta: 109.99
 });
 assert.equal(basketOverlay.unmatched.length, 0);
+assert.deepEqual(basketOverlay.unavailable, []);
 
 const matchingSnapshot = {
   schema: "tamdeshevle.retailer-snapshot.v1",
@@ -38,4 +40,115 @@ assert.equal(overlay.matched.length, 1);
 assert.equal(overlay.store_id, "perek");
 assert.equal(overlay.channel, "delivery_catalog");
 
-console.log("Retailer overlay builder tests passed with regional trust metadata and live basket matches.");
+const magnitContext = {
+  schema: "tamdeshevle.retailer-snapshot.v1",
+  retailer: "magnit",
+  city: "msk",
+  store_id: "magnit",
+  channel: "delivery_catalog",
+  checked_at: new Date().toISOString(),
+  source_url: "https://magnit.ru/",
+  scope_verified: true,
+  store_context: {
+    shop_code: "770105",
+    address: "г Москва, ул Чертановская, д 47 к 2",
+    shop_type: "1"
+  },
+  catalog_context: {
+    type: "store_scoped_public_catalog",
+    location_verified: true,
+    shop_code: "770105",
+    address: "г Москва, ул Чертановская, д 47 к 2"
+  }
+};
+
+const unavailableOverlay = buildOverlayFromSnapshot({
+  ...magnitContext,
+  rows: [{
+    id: "pasta-out",
+    name: "Макароны рожки 450г",
+    price: 74.99,
+    availability: "Нет в наличии",
+    shop_code: "770105",
+    url: "https://magnit.ru/product/pasta-out?shopCode=770105&shopType=1"
+  }]
+});
+assert.equal(unavailableOverlay.prices.pasta, undefined, "out-of-stock product must not become a comparable price");
+assert.equal(unavailableOverlay.matched.length, 0);
+assert.equal(unavailableOverlay.unavailable.length, 1, "explicit exact-pack out-of-stock evidence must survive overlay building");
+assert.equal(unavailableOverlay.unavailable[0].sku, "pasta");
+assert.equal(unavailableOverlay.unavailable[0].availability, "out_of_stock");
+assert.equal(unavailableOverlay.unavailable[0].comparison_eligible, false);
+
+const mixedAvailabilityOverlay = buildOverlayFromSnapshot({
+  ...magnitContext,
+  rows: [
+    {
+      id: "pasta-out",
+      name: "Макароны рожки 450г",
+      price: 74.99,
+      availability: "Нет в наличии",
+      shop_code: "770105",
+      url: "https://magnit.ru/product/pasta-out?shopCode=770105&shopType=1"
+    },
+    {
+      id: "pasta-in",
+      name: "Макароны спагетти 450г",
+      price: 79.99,
+      availability: "В наличии",
+      shop_code: "770105",
+      url: "https://magnit.ru/product/pasta-in?shopCode=770105&shopType=1"
+    }
+  ]
+});
+assert.equal(mixedAvailabilityOverlay.prices.pasta, 79.99, "an eligible in-stock equivalent must win over an unavailable duplicate");
+assert.deepEqual(mixedAvailabilityOverlay.unavailable, [], "SKU must not be marked unavailable when an eligible equivalent is in stock");
+
+const products = [
+  { id: "pasta", name: "Макароны", prices: {}, bring: { magnit: 99 } },
+  ...Array.from({ length: 9 }, (_, index) => ({ id: `filler_${index}`, name: `Filler ${index}`, prices: {}, bring: {} }))
+];
+const listeners = new Map();
+const sandbox = {
+  console: { warn() {}, error() {}, log() {} },
+  Date,
+  Intl,
+  Number,
+  String,
+  Boolean,
+  Array,
+  Object,
+  Map,
+  Set,
+  Math,
+  PRODUCTS: products,
+  state: { city: "msk" },
+  render() {},
+  CustomEvent: class CustomEvent {
+    constructor(type, init = {}) { this.type = type; this.detail = init.detail; }
+  },
+  fetch: async url => {
+    if (String(url).includes("magnit.overlay.json")) return { ok: true, json: async () => unavailableOverlay };
+    return { ok: false, status: 404, json: async () => ({}) };
+  },
+  setInterval() { return 1; },
+  clearInterval() {},
+  addEventListener(type, handler) { listeners.set(type, handler); },
+  dispatchEvent() {}
+};
+sandbox.window = sandbox;
+vm.createContext(sandbox);
+vm.runInContext(fs.readFileSync("data-quality.js", "utf8"), sandbox, { filename: "data-quality.js" });
+vm.runInContext(fs.readFileSync("retailer-price-sync.js", "utf8"), sandbox, { filename: "retailer-price-sync.js" });
+await new Promise(resolve => setImmediate(resolve));
+
+assert.equal(products[0].bring.magnit, null, "fresh exact-store out-of-stock evidence must suppress an older baseline price");
+const unavailableMeta = sandbox.TDPriceMeta.get("pasta", "magnit", "bring");
+assert.equal(unavailableMeta.availability, "out_of_stock");
+assert.equal(unavailableMeta.price, null);
+assert.equal(unavailableMeta.scopeVerified, true);
+assert.equal(unavailableMeta.comparisonEligible, false);
+const magnitRuntime = sandbox.TDRetailerPriceState.overlays.find(item => item.retailer === "magnit");
+assert.equal(magnitRuntime.unavailableCount, 1);
+
+console.log("Retailer overlay tests passed with regional trust metadata, live matches and fail-closed exact-store unavailability.");
