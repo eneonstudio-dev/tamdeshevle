@@ -97,17 +97,28 @@
   }
 
   function applyOverlay(book, quality) {
-    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return { count: 0, estimatedCount: 0 };
-    if (typeof state === "undefined" || !state || book.city !== state.city) return { count: 0, estimatedCount: 0 };
+    if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return { count: 0, estimatedCount: 0, unavailableCount: 0 };
+    if (typeof state === "undefined" || !state || book.city !== state.city) return { count: 0, estimatedCount: 0, unavailableCount: 0 };
     const verifiedStoreId = book.store_id || book.retailer;
     const estimateStoreId = book.retailer;
     const channel = book.channel || "delivery_catalog";
     const slot = metaSlot(channel);
     const matchedBySku = Object.fromEntries((book.matched || []).map(item => [item.sku, item]));
+    const unavailableBySku = Object.fromEntries((book.unavailable || []).map(item => [item.sku, item]));
     let count = 0;
     let estimatedCount = 0;
+    let unavailableCount = 0;
 
     for (const product of PRODUCTS) {
+      const unavailable = unavailableBySku[product.id] || null;
+      if (quality.usable && unavailable && unavailable.availability === "out_of_stock") {
+        if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [verifiedStoreId]: null });
+        else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: null });
+        setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, null, unavailable, "retailer"));
+        unavailableCount += 1;
+        continue;
+      }
+
       const value = book.prices && book.prices[product.id];
       if (!Number.isFinite(value)) continue;
       const match = matchedBySku[product.id] || {};
@@ -121,7 +132,7 @@
         estimatedCount += 1;
       }
     }
-    return { count, estimatedCount };
+    return { count, estimatedCount, unavailableCount };
   }
 
   function applyOverlays(force) {
@@ -129,7 +140,7 @@
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS) || PRODUCTS.length < 10) return false;
     if (typeof state === "undefined" || !state) return false;
 
-    const signature = books.map(book => [book.retailer, book.city, book.checked_at, book.scope_verified, Object.keys(book.prices || {}).length, qualityFor(book).status].join(":"))
+    const signature = books.map(book => [book.retailer, book.city, book.checked_at, book.scope_verified, Object.keys(book.prices || {}).length, (book.unavailable || []).length, qualityFor(book).status].join(":"))
       .join("|") + ":" + state.city + ":" + PRODUCTS.length + ":" + loadIssues.length;
     if (!force && signature === appliedSignature) return true;
 
@@ -149,7 +160,8 @@
         ageHours: Number.isFinite(quality.ageHours) ? quality.ageHours : null,
         usable: quality.usable,
         count: result.count,
-        estimatedCount: result.estimatedCount
+        estimatedCount: result.estimatedCount,
+        unavailableCount: result.unavailableCount
       };
     });
 
@@ -164,7 +176,7 @@
     };
     window.dispatchEvent(new CustomEvent("td:retailer-prices-applied", { detail: window.TDRetailerPriceState }));
     window.dispatchEvent(new CustomEvent("td:retailer-health", { detail: window.TDRetailerPriceState }));
-    if (applied.some(item => item.count > 0 || item.estimatedCount > 0) && typeof render === "function") render();
+    if (applied.some(item => item.count > 0 || item.estimatedCount > 0 || item.unavailableCount > 0) && typeof render === "function") render();
     return true;
   }
 
