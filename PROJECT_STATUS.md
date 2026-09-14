@@ -1,8 +1,8 @@
 # Votonobay — PROJECT STATUS
 
-**Updated:** 2026-09-14  
+**Updated:** 2026-09-15  
 **Master:** `VOTONOBAI_MASTER_ROADMAP.md`  
-**Phase:** Grocery/FMCG MVP — release-gate proof after canonical acceptance convergence
+**Phase:** Grocery/FMCG MVP — final closed-beta release replay/decision
 
 Fresh-read `main` before trusting commit/PR status because the repository moves quickly.
 
@@ -22,7 +22,7 @@ Prove repeatedly:
 | P1 | Product/data truth for tested path | Tali / data-truth | GUARDED CORE / SOURCE COVERAGE IN PROGRESS | Missing/stale/future evidence fails closed (#372); promo eligibility (#386), exact-store out-of-stock (#384), Magnit loyalty/base-price (#404), pack identity (#398), regional estimate non-rankability and freshness contracts are executable. Magnit remains conditional exact-store evidence; Perekrestok/Proshoper regional catalogs remain non-rankable estimates. |
 | P1 | Honest retailer handoff | Роук / Sara 2 / Tali | VERIFIED FOR TESTED PATH | `RETAILER_CAPABILITIES.md` remains authoritative; repeated real-browser runs including #419/#423 passed explicit Gate D. REDIRECT retailers are not represented as API_CART/API_ORDER. |
 | P1 | Reliability / mobile / return / post-purchase proof | Fixer / Sara 2 / Tali | GUARDED FOR TESTED PATH | Network recovery #374, return continuity #375, post-purchase truth #378/#380, mobile composer #371 and long product names #400 pass repeated real-browser validation. |
-| P0 | Security release gate (Gate F) | Reinhard | REQUIRED BEFORE CLOSED BETA | **Primary remaining closed-beta blocker.** `RELEASE_GATE.md` Gate F requires security P0 clear, dependency/secret/auth/runtime review, provider/source legal review and zero-budget cost verification. Existing security tests are evidence, not a substitute for the explicit Gate F decision. |
+| P0 | Security release gate (Gate F) | Reinhard | **PASS FOR CLOSED-BETA LOCAL-ONLY SCOPE** | PR #454 merged at `5893599c2a6c35a87552d0d2fc6d4da66a06cff5`; merged-head security `34900001701`, browser `34900001694`, runtime `34900001755`, data `34900001805`, governance `34900001822` and golden `34900001886` are green. Personal account/cloud/receipt-photo processing is disabled for closed beta; public/re-enable path still requires privacy/legal review. |
 | P0/P1 | Corrected re-evaluation of first trained Bay candidate | Умняша Бая | IN PROGRESS / EXTERNAL GPU DEPENDENCY | PRs #359/#365/#366 provide the corrected SFT/eval comparison path; returned artifacts are now portable/hash-validated. Re-evaluate the existing adapter before any second training run. This remains parallel to deterministic MVP release safety; no trained release is active. |
 | P1 | Data Factory v2 teacher pilot | Умняша Бая | READY FOR EXTERNAL KAGGLE GPU / REVIEW-ONLY | PRs #410/#412/#413 build a 400-case unique balanced pilot, pinned Qwen3-8B + DeepSeek T4x2 generation, calibration gate and triage. PR #432 adds a portable hash/inventory-guarded Kaggle handoff. No teacher output auto-enters Gold. |
 | P1 | Second Bay training iteration | Умняша Бая | STAGED / BLOCKED UNTIL CORRECTED REEVAL REJECTS + REVIEWED GOLD | PR #433 blocks train/eval semantic leakage even under different IDs. PR #434 keeps the historical frozen eval unchanged, sanitizes future train Gold against it, requires current training-allowed provenance and >=500 clean examples, and only emits `READY_FOR_ITERATION_2` after a validated `REEVAL_REJECTED`. |
@@ -48,26 +48,27 @@ No current matrix gap justifies an architecture rewrite. A future beta failure s
 
 ## Swarm coordination now
 
-- **Роук/Fixer:** acceptance moves to maintenance/watch mode; do not manufacture more parser fixes without a reproduced P0/P1. Support Gate F and final closed-beta decision evidence.
-- **Vi:** may resume architecture ownership when available, but no current acceptance blocker should wait for Vi.
+- **Роук/Fixer:** run the final closed-beta A–F release replay/decision against fresh `main`; do not manufacture more parser fixes without a reproduced P0/P1.
+- **Vi:** may resume architecture ownership when available, but no current deterministic acceptance blocker should wait for Vi.
 - **Тали:** continue useful rankable source/truth coverage and exact-store evidence quality; do not inflate retailer count with non-rankable discovery sources.
 - **Сара 2:** critical mobile/handoff UX is guarded; no redesign unless beta/release evidence finds a blocker.
-- **Рейнхард:** Gate F is now the primary closed-beta critical path.
+- **Рейнхард:** Gate F is PASS for the closed-beta local-only scope; keep security monitoring active and do not re-enable account/cloud/receipt-photo personal-data processing without separate privacy/legal review.
 - **Умняша Бая:** run the corrected existing-candidate external-GPU re-evaluation and the review-only Data Factory teacher pilot when Kaggle GPU is available. Do not run iteration 2 before a validated `REEVAL_REJECTED`; if rejected, use only sanitized >=500 approved Gold with zero frozen-holdout ID/fingerprint overlap.
 - **Карина/Ghost:** prepare beta/outreach around capabilities that actually exist; do not imply retailer partnerships or cart APIs that are not present.
 
 ## Current known repo snapshot
 
-Fresh `main` at this status sync: `1f5e942a8ac6e17868a5d7f0ec493065d36a3377` (merged PR #434).
+Gate F behavior/evidence head verified on `main`: `5893599c2a6c35a87552d0d2fc6d4da66a06cff5` (merged PR #454).
 
 Important current facts:
 - PR #424 adds direct MVP-001 acceptance; canonical 001–030 acceptance remains converged.
 - PR #432 adds a portable, hash/inventory-validated Data Factory teacher handoff; returned review artifacts remain review-only.
 - PR #433 blocks train/eval semantic request/context overlap even when row IDs differ.
 - PR #434 guards iteration-2 readiness: the frozen 60 remain unchanged for corrected same-adapter re-evaluation, colliding future-train rows are removed, and reviewed nonheldout Gold must replenish the clean dataset to the current minimum before retraining.
+- PR #454 resolves the closed-beta Gate F personal-data blocker by **scope reduction**: personal account/cloud/receipt-photo processing fails closed to local-only behavior; this is not a claim that privacy/legal review occurred.
 - `REG-001`…`REG-033` contain no known OPEN P0/P1 entry at this sync.
 - `MVP_ACCEPTANCE_MATRIX.md` maps all 30 canonical scenarios to executable merged evidence.
-- The delivery bottleneck is now **Gate F security/legal/cost review → closed-beta decision**, not more canonical shopping implementation.
+- The delivery bottleneck is now **final A–F closed-beta release replay/decision**, not Gate F remediation or more canonical shopping implementation.
 - Corrected trained-Bay re-evaluation and the Data Factory teacher pilot remain external-GPU dependencies; deterministic runtime remains the release-safe fallback.
 
 ## Bay training evidence
@@ -93,4 +94,4 @@ Important current facts:
 
 ## Immediate definition of success
 
-The MVP is ready for closed-beta consideration when ordinary users can repeatedly complete the golden shopping loop with honest data and correct basket decisions, canonical acceptance evidence remains green, and Gates A–F have evidence with no unresolved P0/P1 release blocker. Canonical acceptance is now converged; Gate F is the primary remaining release decision.
+The MVP is ready for closed-beta consideration when ordinary users can repeatedly complete the golden shopping loop with honest data and correct basket decisions, canonical acceptance evidence remains green, and Gates A–F have evidence with no unresolved P0/P1 release blocker. Gate F now passes for the closed-beta local-only scope; the immediate next step is the final A–F release replay/decision on fresh `main`.
