@@ -24,6 +24,7 @@ jobs:
           node --check comparison-engine.js
           node --check runtime-bridge.js
           node --check price-sync.js
+          node --check retailer-price-sync.js
           node --check store-adapters.js
           node --check data-layer.js
           node --check receipt-observations.js
@@ -79,6 +80,7 @@ jobs:
           node --check scripts/test-bai-brain-runtime.mjs
           node --check scripts/test-price-trust-quality.mjs
           node --check scripts/test-data-layer-truth.mjs
+          node --check scripts/test-retailer-estimate-freshness.mjs
           node --check scripts/test-receipt-verification.mjs
           node --check scripts/test-account-modal-resilience.mjs
           node --check scripts/test-purchase-comparison-resilience.mjs
@@ -143,6 +145,8 @@ jobs:
         run: node scripts/test-price-trust-quality.mjs
       - name: Test data layer truth invariants
         run: node scripts/test-data-layer-truth.mjs
+      - name: Test regional estimate freshness
+        run: node scripts/test-retailer-estimate-freshness.mjs
       - name: Test receipt verification truth
         run: node scripts/test-receipt-verification.mjs
       - name: Test account modal resilience
