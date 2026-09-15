@@ -48,6 +48,21 @@ def shell_metrics(driver: webdriver.Chrome) -> dict:
     )
 
 
+def wait_or_explain(driver: webdriver.Chrome, seconds: int, label: str, predicate) -> None:
+    try:
+        WebDriverWait(driver, seconds).until(predicate)
+    except Exception as exc:
+        raise AssertionError(f"{label} timed out; shell={shell_metrics(driver)}") from exc
+
+
+def compact(metrics: dict) -> bool:
+    return (
+        metrics["expanded"] == "0"
+        and metrics["ariaExpanded"] == "false"
+        and metrics["shellHeight"] <= metrics["viewportHeight"] * 0.55
+    )
+
+
 def main() -> int:
     driver = driver_for()
     failures: list[str] = []
@@ -76,54 +91,36 @@ def main() -> int:
             """
         )
 
-        # The approved sheet intentionally animates height over ~260 ms. Wait for
-        # visual geometry, not only the synchronous data attribute, so the test
-        # measures what the owner actually sees after the interaction settles.
-        WebDriverWait(driver, 5).until(
-            lambda d: (
-                (m := shell_metrics(d))["expanded"] == "0"
-                and m["shellHeight"] <= m["viewportHeight"] * 0.55
-            )
-        )
+        wait_or_explain(driver, 5, "initial collapse", lambda d: compact(shell_metrics(d)))
         collapsed = shell_metrics(driver)
         if not collapsed["handleVisible"]:
             failures.append(f"mobile sheet handle is not visible: {collapsed}")
         if collapsed["handleWidth"] < 70 or collapsed["handleHeight"] < 43.5:
             failures.append(f"mobile sheet handle touch target is too small: {collapsed}")
-        if collapsed["expanded"] != "0" or collapsed["ariaExpanded"] != "false":
-            failures.append(f"collapsed semantics are wrong: {collapsed}")
-        if collapsed["shellHeight"] > collapsed["viewportHeight"] * 0.55:
-            failures.append(f"mini-Bay is still too tall when collapsed: {collapsed}")
+        if not compact(collapsed):
+            failures.append(f"collapsed semantics/geometry are wrong: {collapsed}")
         if collapsed["horizontalOverflow"] > 1:
             failures.append(f"collapsed mini-Bay causes horizontal overflow: {collapsed}")
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
-        WebDriverWait(driver, 5).until(
+        wait_or_explain(
+            driver,
+            5,
+            "expand tap",
             lambda d: (
                 (m := shell_metrics(d))["expanded"] == "1"
                 and m["ariaExpanded"] == "true"
                 and m["shellHeight"] >= collapsed["shellHeight"] + 120
-            )
+            ),
         )
-        expanded = shell_metrics(driver)
-        if expanded["ariaExpanded"] != "true":
-            failures.append(f"expanded semantics are wrong: {expanded}")
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
-        WebDriverWait(driver, 5).until(
-            lambda d: (
-                (m := shell_metrics(d))["expanded"] == "0"
-                and m["ariaExpanded"] == "false"
-                and abs(m["shellHeight"] - collapsed["shellHeight"]) <= 8
-            )
-        )
+        wait_or_explain(driver, 5, "second collapse tap", lambda d: compact(shell_metrics(d)))
         collapsed_again = shell_metrics(driver)
-        if collapsed_again["ariaExpanded"] != "false":
-            failures.append(f"collapse semantics did not restore: {collapsed_again}")
-        if abs(collapsed_again["shellHeight"] - collapsed["shellHeight"]) > 8:
-            failures.append(
-                f"second tap did not restore compact mini-Bay: first={collapsed}, second={collapsed_again}"
-            )
+        if not compact(collapsed_again):
+            failures.append(f"second tap did not restore compact mini-Bay: {collapsed_again}")
+        if collapsed_again["horizontalOverflow"] > 1:
+            failures.append(f"second collapsed state causes horizontal overflow: {collapsed_again}")
 
     except Exception as exc:
         failures.append(str(exc))
