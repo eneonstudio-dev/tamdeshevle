@@ -1,0 +1,42 @@
+name: Validate Bai current runtime Character Probe
+
+on:
+  pull_request:
+    paths:
+      - "bai-brain.js"
+      - "bai-reasoning-guard.js"
+      - "bai-system-prompt-v1.js"
+      - "bai-character.js"
+      - "data/bai-character-runtime-probe-v1.json"
+      - "scripts/bai-character-regression-evaluator.mjs"
+      - "scripts/bai-character-regression-gate.mjs"
+      - "scripts/test-bai-current-runtime-character-probe.mjs"
+      - ".github/workflows/validate-bai-current-runtime-character.yml"
+  push:
+    branches: [main]
+    paths:
+      - "bai-brain.js"
+      - "bai-reasoning-guard.js"
+      - "bai-system-prompt-v1.js"
+      - "bai-character.js"
+      - "data/bai-character-runtime-probe-v1.json"
+      - "scripts/bai-character-regression-evaluator.mjs"
+      - "scripts/bai-character-regression-gate.mjs"
+      - "scripts/test-bai-current-runtime-character-probe.mjs"
+      - ".github/workflows/validate-bai-current-runtime-character.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  eval-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Check runtime Character Probe syntax
+        run: node --check scripts/test-bai-current-runtime-character-probe.mjs
+      - name: Run actual current Bay through Character Gate
+        run: node scripts/test-bai-current-runtime-character-probe.mjs
