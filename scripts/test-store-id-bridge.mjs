@@ -54,6 +54,8 @@ const match = window.TDStoreIdBridge.resolve(point);
 assert(match.verified && match.storeId === "0293", "physical store id must resolve");
 assert(match.priceStoreId === scopedPriceStoreId, "physical point must resolve to its scoped price key, not the generic retailer key");
 
+const conflictingRef = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Дмитровское шоссе, 116 Д", osmTags: { ref: "0294" } });
+assert(conflictingRef.verified === false, "conflicting explicit store ref must fail closed instead of falling back to the address");
 const addressOnly = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Дмитровское шоссе, 116 Д" });
 assert(addressOnly.verified === true && addressOnly.method === "address_match", "same numbered address must remain a valid conservative fallback");
 const adjacentHouse = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Москва, Дмитровское шоссе, 117 Д" });
@@ -102,4 +104,4 @@ assert(badQty.items[0].verified === false && badQty.items[0].subtotal === null, 
 const antipodal = window.TDStoreIdBridge.distance({ lat: 0, lon: 0 }, { lat: 0, lon: 180 });
 assert(Number.isFinite(antipodal) && antipodal > 10000, "distance calculation must stay finite at numeric boundaries");
 
-console.log("Store ID bridge tests passed: exact point, conservative numbered-address fallback, scoped price key, honest empty/partial baskets, malformed input guards and verified savings.");
+console.log("Store ID bridge tests passed: exact point, conflicting-ref rejection, conservative numbered-address fallback, scoped price key, honest empty/partial baskets, malformed input guards and verified savings.");
