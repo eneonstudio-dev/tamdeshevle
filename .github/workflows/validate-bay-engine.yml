@@ -30,6 +30,10 @@ jobs:
       - name: Check Bay Engine syntax
         run: |
           node --check bai-engine-provider.js
+          node --check bai-engine-router.js
           node --check scripts/test-bai-engine-provider.mjs
+          node --check scripts/test-bai-engine-router.mjs
       - name: Test provider adapter contract
         run: node scripts/test-bai-engine-provider.mjs
+      - name: Test router and deterministic fallback
+        run: node scripts/test-bai-engine-router.mjs
