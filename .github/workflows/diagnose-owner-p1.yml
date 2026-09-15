@@ -1,0 +1,27 @@
+name: Diagnose owner shopping state bridge
+
+on:
+  push:
+    branches:
+      - rouk-v3/guard-owner-shopping-loop
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Locate unified cart listeners and intent writers
+        shell: bash
+        run: |
+          echo '=== unified-cart ==='
+          grep -RFn --include='*.js' --exclude-dir=node_modules 'td:unified-cart' . || true
+          echo '=== syncFromCart ==='
+          grep -RFn --include='*.js' --exclude-dir=node_modules 'syncFromCart' . || true
+          echo '=== intent manual ==='
+          grep -RFn --include='*.js' --exclude-dir=node_modules 'intent="manual"' . || true
+          echo '=== SET_INTENT ==='
+          grep -RFn --include='*.js' --exclude-dir=node_modules 'SET_INTENT' . || true
