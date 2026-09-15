@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** living source of project direction  
-**Last updated:** 2026-09-13  
+**Last updated:** 2026-09-15  
 **Current phase:** grocery/FMCG MVP → prove the real end-to-end shopping loop  
 **Repository source of truth:** `main`
 
@@ -152,18 +152,36 @@ Potential layers after product proof: affiliate/order commission, permitted CPA/
 
 No paid ranking.
 
-## 12. Ownership map
+## 12. Ownership map and coordination
 
 | Area | Primary owner role | Boundary |
 |---|---|---|
-| Shopping kernel/state/actions/validator | Vi | Does not redefine price truth or approved UX strategy |
-| Price/data/provenance/sources | Price 2 | Does not redefine Bay UX or neural orchestration |
-| Bay reasoning/planner/critic/evals | Умняша Бая | Cannot bypass deterministic truth/action contracts |
-| Product visual/UX direction | Roxy/design | Does not alter ranking/truth semantics |
-| Security/release risk | Reinhard | May block release on P0 security issues |
-| Master product architecture/strategy | MASTER + owner decisions | Fundamental scope/strategy changes require explicit owner approval |
+| Operational coordination / priorities / assignment / acceptance / merge / release | Роуг | Coordinates all unplanned repository, architecture, roadmap, release-state and cross-role delivery changes |
+| Shopping kernel/state/actions/validator | Vi | Does not redefine price truth or approved UX strategy; executes approved work within role authority |
+| Price/data/provenance/sources | Price 2 | Does not redefine Bay UX or neural orchestration; executes approved work within role authority |
+| Bay reasoning/planner/critic/evals | Умняша Бая | Cannot bypass deterministic truth/action contracts; executes approved work within role authority |
+| Product visual/UX direction | Roxy/design | Does not alter ranking/truth semantics; executes approved work within role authority |
+| Security/release risk | Reinhard | May block release on P0 security issues; remediation delivery is coordinated with Роуг |
+| Technical strategy advice | Арбитр | Researches options/trade-offs and recommends; does not independently start technical tracks or change repository state |
+| Master product architecture/strategy | MASTER + owner decisions | Fundamental scope/strategy changes require explicit owner approval and delivery coordination through Роуг |
 
-Agents may update factual status, tests, blockers and completed work. They must **not silently change foundational product strategy**.
+### Coordination rule
+
+Changes that affect code, architecture, roadmap, release state, priorities, cross-role task allocation, or require a PR/merge pass through **Роуг** for delivery coordination.
+
+Specialized roles may independently research, inspect, reproduce, analyze, compare alternatives, identify risks and prepare recommendations. They do not independently launch a new technical track or mutate repository/project state unless the task is already unambiguously approved in the current plan and that role has explicit execution authority.
+
+Default cross-cutting flow:
+
+`specialist research → options/trade-offs → recommendation → Роуг priority/assignment → implementation → acceptance → merge/release`
+
+Арбитр follows the narrower advisory flow:
+
+`research → options → trade-offs → recommendation → handoff to Роуг`
+
+Once a task is clearly approved and assigned, the owning role may execute safe/reversible implementation details autonomously without requesting approval for every small edit. The coordination boundary exists to prevent duplicate work, conflicting PRs and parallel architecture changes, not to slow down an already-approved workstream.
+
+Agents may update factual observations and recommendations inside their research output, but repository/status/priority changes follow the coordination rule above. They must **not silently change foundational product strategy**.
 
 ## 13. Priority policy
 
@@ -240,11 +258,13 @@ Every substantial workstream should follow this protocol:
 
 1. Fresh-read `main` and this MASTER.
 2. Inspect relevant current implementation and recent PRs; never patch blind.
-3. Take the highest-priority unblocked task within the agent's ownership boundary.
-4. Implement and test it.
-5. Fix discovered P0/P1 defects in scope rather than merely reporting them.
-6. Update factual roadmap/status/decision records when materially changed.
-7. Fundamental changes to scope, architecture, brand strategy, truth policy or monetization invariants require explicit owner approval.
+3. Research/reproduce/analyze inside the role boundary.
+4. If the work changes code, architecture, roadmap, release state, priorities, cross-role allocation, or requires unplanned PR/merge work, hand the recommendation/evidence to Роуг for priority and assignment before starting a new delivery track.
+5. If the task is already clearly approved in the current plan and the role has explicit execution authority, implement/test safe in-scope details autonomously.
+6. Fix discovered P0/P1 defects in an approved active workstream rather than merely reporting them, unless doing so would cross an ownership/architecture/release boundary; in that case escalate to Роуг.
+7. Роуг owns acceptance, merge/release coordination and reconciliation of competing/parallel workstreams.
+8. Update factual roadmap/status/decision records when materially changed through the same coordination boundary.
+9. Fundamental changes to scope, architecture, brand strategy, truth policy or monetization invariants require explicit owner approval.
 
 If the MASTER conflicts with actual merged code, **do not guess**. Record the conflict, inspect the relevant decision/history, and reconcile the document with the approved reality.
 
@@ -260,6 +280,10 @@ Use short durable entries. Do not rewrite history; supersede old decisions expli
 | ADR-004 | 2026-09-13 | Neural reasoning is bounded by deterministic actions, truth rules and verification | ACTIVE |
 | ADR-005 | 2026-09-13 | Partner economics never influence Bay's recommendation ranking | ACTIVE |
 | ADR-006 | 2026-09-13 | MASTER is a living source of direction; agents may update factual status but not silently change foundational strategy | ACTIVE |
+| ADR-007 | 2026-09-14 | Trained Bay checkpoint serving remains fail-closed until promotion proof and explicit release binding | ACTIVE |
+| ADR-008 | 2026-09-15 | Bay Engine owns provider abstraction; LLMs are replaceable engines outside deterministic truth/action authority | ACTIVE |
+| ADR-009 | 2026-09-15 | Bay Character Canon is provider-independent and protected by frozen behavioral regressions | ACTIVE |
+| ADR-010 | 2026-09-15 | Роуг is the delivery coordination boundary; specialist roles advise/research independently but unplanned repository/cross-cutting delivery changes route through Роуг | ACTIVE |
 
 ## 19. Companion operational files
 
