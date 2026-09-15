@@ -78,6 +78,22 @@ const makeProvider=({id,paid=false,generate})=>Provider.create({
 }
 
 {
+  let paidCalls=0;
+  const paid=makeProvider({id:"paid-no-auth",paid:true,generate:async()=>{paidCalls++;return{ok:true,payload:{reply:"paid"}}}});
+  const router=Router.create({primary:paid,deterministic:async()=>({reply:"rules"}),policy:{paid:{enabled:true,monthlyCeilingUsd:5,spentUsd:()=>1}}});
+  const result=await router.route({message:"x"});
+  assert.equal(result.route,"deterministic");assert.equal(paidCalls,0);assert.equal(result.trace[0].reason,"paid_authorizer_missing");
+}
+
+{
+  let paidCalls=0,authCalls=0;
+  const paid=makeProvider({id:"paid-authorized",paid:true,generate:async()=>{paidCalls++;return{ok:true,payload:{reply:"paid"}}}});
+  const router=Router.create({primary:paid,deterministic:async()=>({reply:"rules"}),policy:{paid:{enabled:true,monthlyCeilingUsd:5,spentUsd:()=>1,authorize:ctx=>{authCalls++;return ctx.spentUsd<ctx.monthlyCeilingUsd;}}}});
+  const result=await router.route({message:"x"});
+  assert.equal(result.route,"primary");assert.equal(paidCalls,1);assert.equal(authCalls,1);
+}
+
+{
   let calls=0;
   const primary=makeProvider({id:"breaker-primary",generate:async()=>{calls++;return{ok:false,error:{code:"DOWN",retryable:true}}}});
   const router=Router.create({primary,deterministic:async()=>({reply:"rules"}),policy:{failureThreshold:1,maxAttempts:2,cooldownMs:1000}});
@@ -97,4 +113,4 @@ const makeProvider=({id,paid=false,generate})=>Provider.create({
   assert.deepEqual(plain(result.trace.map(x=>x.role)),["primary","fallback","deterministic"]);
 }
 
-console.log("Bay Engine router passed: primary, bounded retry, timeout fallback, circuit breaker, paid fail-closed, budget ceiling, and deterministic last resort.");
+console.log("Bay Engine router passed: primary, bounded retry, timeout fallback, circuit breaker, paid fail-closed authorization, budget ceiling, and deterministic last resort.");
