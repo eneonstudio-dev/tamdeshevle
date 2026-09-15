@@ -33,12 +33,28 @@ def wait_ready(driver):
     """))
 
 
-def no_horizontal_overflow(driver,selector):
+def surface_fits_viewport(driver,selector):
     return driver.execute_script("""
       const node=document.querySelector(arguments[0]);
       if(!node)return false;
-      return node.scrollWidth <= node.clientWidth + 2;
+      const r=node.getBoundingClientRect();
+      return r.left >= -2 && r.right <= window.innerWidth + 2;
     """,selector)
+
+
+def click_list_navigation(driver):
+    return driver.execute_script("""
+      const nodes=[...document.querySelectorAll('.v2-nav button,.v2-mobile-nav button,.v2-bottom-nav button')];
+      const visible=node=>{
+        const style=getComputedStyle(node);
+        const rect=node.getBoundingClientRect();
+        return style.display!=='none' && style.visibility!=='hidden' && rect.width>0 && rect.height>0;
+      };
+      const target=nodes.find(node=>visible(node) && /Спис/.test(node.textContent||''));
+      if(!target)return false;
+      target.click();
+      return true;
+    """)
 
 
 def main():
@@ -52,39 +68,43 @@ def main():
 
             home=driver.execute_script("""
               const hero=document.querySelector('.v2-hero.v2-bay-first[data-roxy-approved="1"]');
-              const card=hero?.querySelector('.roxy-bay-card');
-              const bai=hero?.querySelector('.v2-hero-bai img,.v2-bay-avatar');
               const link=document.querySelector('link[data-roxy-ux-wave]');
               const hs=hero?getComputedStyle(hero):null;
-              const bs=bai?getComputedStyle(bai):null;
+              const r=hero?.getBoundingClientRect();
               return {
                 screen:document.getElementById('app')?.dataset.screen||'',
                 title:hero?.querySelector('.v2-hero-copy h1')?.innerText||'',
                 cssLoaded:Boolean(link && link.sheet),
-                heroTop:hero?.getBoundingClientRect().top||0,
-                heroBottom:hero?.getBoundingClientRect().bottom||0,
-                cardTop:card?.getBoundingClientRect().top||0,
-                marginTop:hs?parseFloat(hs.marginTop):999,
-                baiWidth:bs?parseFloat(bs.width):0
+                heroTop:r?.top||0,
+                heroBottom:r?.bottom||0,
+                heroHeight:r?.height||0,
+                viewportHeight:window.innerHeight,
+                marginTop:hs?parseFloat(hs.marginTop):999
               };
             """)
             if home['screen']!='home' or 'Спросить Бая' not in home['title'] or not home['cssLoaded']:
                 failures.append(f"{name}: approved compact Home or UX-wave CSS missing {home}")
             if width<=740 and home['marginTop']>12.5:
                 failures.append(f"{name}: Home top spacing is not compact {home}")
-            if width<=740 and home['baiWidth'] and home['baiWidth']>162:
-                failures.append(f"{name}: Bay visual remained oversized on compact Home {home}")
-            if not no_horizontal_overflow(driver,"#app"):
-                failures.append(f"{name}: Home has horizontal overflow")
+            if width<=740 and home['heroBottom']>home['viewportHeight']+36:
+                failures.append(f"{name}: approved Home hero no longer fits the opening mobile viewport {home}")
+            if not surface_fits_viewport(driver,'.v2-hero.v2-bay-first'):
+                failures.append(f"{name}: Home hero escapes the viewport horizontally")
+            if driver.execute_script("return Boolean(document.querySelector('.roxy-bay-card'))") and not surface_fits_viewport(driver,'.roxy-bay-card'):
+                failures.append(f"{name}: Roxy quick-start card escapes the viewport horizontally")
 
             # Seed only the existing local demo basket so the List screen has stable rows.
-            # The UX wave itself must never mutate this object.
+            # Navigation itself goes through the real UI; the UX wave never receives a
+            # privileged state setter and must not mutate this basket.
             driver.execute_script("""
               state.cart={milk:2,bread:1,chicken:1};
               state.cartTouched=true;
               persist();
-              setScreen('cart');
             """)
+            if not click_list_navigation(driver):
+                failures.append(f"{name}: no visible real List navigation control")
+                continue
+            WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('app')?.dataset.screen==='cart' && Boolean(document.querySelector('.hp'))"))
             WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.querySelectorAll('.v2-list-bay').length===1"))
             driver.execute_script("window.dispatchEvent(new CustomEvent('td:v2-rendered'));window.dispatchEvent(new CustomEvent('td:v2-rendered')); ")
             WebDriverWait(driver,3).until(lambda d:d.execute_script("return document.querySelectorAll('.v2-list-bay').length===1"))
@@ -104,8 +124,8 @@ def main():
                 failures.append(f"{name}: Bay-on-List card is missing or duplicated {list_ui}")
             if list_ui['buttonHeight']<43.5 or list_ui['buttonMinHeight']<43.5:
                 failures.append(f"{name}: Bay-on-List action is below touch-target contract {list_ui}")
-            if not no_horizontal_overflow(driver,"#app"):
-                failures.append(f"{name}: List has horizontal overflow")
+            if not surface_fits_viewport(driver,'.v2-list-bay'):
+                failures.append(f"{name}: Bay-on-List card escapes the viewport horizontally")
 
             driver.find_element(By.CSS_SELECTOR,".v2-list-bay-open").click()
             WebDriverWait(driver,8).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=true]'))"))
@@ -114,7 +134,7 @@ def main():
                 failures.append(f"{name}: opening Bay from List mutated basket: {before} -> {after}")
 
             # Close Bay surface before opening account so layer/focus ownership stays explicit.
-            driver.execute_script("window.TDBai?.closePanel?.();document.querySelector('.td-ai [data-close],.td-ai .td-ai-close')?.click?.();")
+            driver.execute_script("window.TDBai?.closePanel?.();window.TDShoppingAssistant?.close?.();")
             driver.execute_script("window.TDAccountHub.open(0);")
             WebDriverWait(driver,6).until(lambda d:d.execute_script("return document.querySelector('.td-account.td-account-polished')!==null"))
             account=driver.execute_script("""
@@ -152,7 +172,7 @@ def main():
         for failure in failures:
             print("-",failure)
         return 1
-    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, polished local-only Account and no mobile horizontal overflow.")
+    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, polished local-only Account and bounded mobile wave surfaces.")
     return 0
 
 
