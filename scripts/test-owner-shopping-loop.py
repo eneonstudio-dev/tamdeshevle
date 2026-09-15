@@ -43,39 +43,31 @@ def visible(driver: webdriver.Chrome, selector: str) -> bool:
     ))
 
 
-def launcher_snapshot(driver: webdriver.Chrome) -> dict:
+def entry_snapshot(driver: webdriver.Chrome) -> dict:
     return driver.execute_script(
         """
-        const host=document.querySelector('#bai-assistant');
-        const button=document.querySelector('.bai-character');
+        const button=document.querySelector('.v2-hero-bai');
         const r=button?.getBoundingClientRect();
         const x=r?r.left+r.width/2:0,y=r?r.top+r.height/2:0;
         const top=r?document.elementFromPoint(x,y):null;
-        const hs=host?getComputedStyle(host):null,bs=button?getComputedStyle(button):null;
-        const overlay=window.TDUILayers?.active||null;
+        const bs=button?getComputedStyle(button):null;
+        const legacy=document.querySelector('#bai-assistant');
+        const ls=legacy?getComputedStyle(legacy):null;
         return {
-          host:Boolean(host),
-          hostState:host?.dataset.state||null,
-          ready:host?.classList.contains('is-ready')||false,
-          parked:host?.dataset.uiParked||null,
-          ariaHidden:host?.getAttribute('aria-hidden')||null,
-          hostOpacity:hs?.opacity||null,
-          hostDisplay:hs?.display||null,
-          hostVisibility:hs?.visibility||null,
-          hostPointer:hs?.pointerEvents||null,
-          buttonOpacity:bs?.opacity||null,
-          buttonDisplay:bs?.display||null,
-          buttonVisibility:bs?.visibility||null,
-          buttonPointer:bs?.pointerEvents||null,
-          buttonVisible:Boolean(button&&r&&r.width>0&&r.height>0&&bs.display!=='none'&&bs.visibility!=='hidden'&&Number(hs?.opacity||0)>0.01),
+          screen:document.body.dataset.votonobayScreen||null,
+          button:Boolean(button),
+          display:bs?.display||null,
+          opacity:bs?.opacity||null,
+          visibility:bs?.visibility||null,
+          pointer:bs?.pointerEvents||null,
           rect:r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null,
           centerTop:top?{tag:top.tagName,id:top.id||'',className:String(top.className||''),insideButton:Boolean(button&&button.contains(top))}:null,
-          onclickType:typeof button?.onclick,
+          askType:typeof window.tdBayFirstAsk,
           assistantOpenType:typeof window.TDShoppingAssistant?.open,
-          capturedClicks:Number(window.__ownerLauncherClicks||0),
+          capturedClicks:Number(window.__ownerEntryClicks||0),
           aiCount:document.querySelectorAll('.td-ai').length,
-          overlayOpen:document.body.dataset.tdOverlayOpen||null,
-          activeOverlay:overlay?{tag:overlay.tagName,id:overlay.id||'',className:String(overlay.className||'')}:null
+          legacyDisplay:ls?.display||null,
+          overlayOpen:document.body.dataset.tdOverlayOpen||null
         };
         """
     )
@@ -137,7 +129,7 @@ def main() -> int:
     driver=driver_for()
     failures: list[str]=[]
     trace: list[dict]=[]
-    launcher_trace: list[dict]=[]
+    entry_trace: list[dict]=[]
     try:
         driver.get(BASE_URL)
         WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
@@ -145,7 +137,7 @@ def main() -> int:
         driver.refresh()
         WebDriverWait(driver, 20).until(
             lambda d: d.execute_script("return document.readyState") == "complete"
-            and d.execute_script("return !!window.TDShoppingAssistant && !!window.TDShoppingState && !!window.TDBai")
+            and d.execute_script("return !!window.TDShoppingAssistant && !!window.TDShoppingState && !!window.TDBai && !!window.tdBayFirstAsk")
         )
         driver.execute_script(
             """
@@ -155,35 +147,30 @@ def main() -> int:
                 speak(utterance){setTimeout(()=>utterance?.onend?.(),0)}
               }});
             } catch (_) {}
-            const launcher=document.querySelector('.bai-character');
-            window.__ownerLauncherClicks=0;
-            launcher?.addEventListener('click',()=>{window.__ownerLauncherClicks+=1},{capture:true});
+            const entry=document.querySelector('.v2-hero-bai');
+            window.__ownerEntryClicks=0;
+            entry?.addEventListener('click',()=>{window.__ownerEntryClicks+=1},{capture:true});
             """
         )
-        launcher_trace.append({'phase':'cold','snapshot':launcher_snapshot(driver)})
+        WebDriverWait(driver, 10).until(lambda d: visible(d, '.v2-hero-bai'))
+        before_entry=entry_snapshot(driver)
+        entry_trace.append({'phase':'before','snapshot':before_entry})
+        if before_entry.get('centerTop') and not before_entry['centerTop'].get('insideButton'):
+            raise AssertionError(f"canonical Home Bay entry center is intercepted before click: {before_entry}")
+        entry=next(el for el in driver.find_elements(By.CSS_SELECTOR, '.v2-hero-bai') if el.is_displayed())
         try:
-            WebDriverWait(driver, 5).until(lambda d: visible(d, '.bai-character') and launcher_snapshot(d)['ready'])
-        except Exception as exc:
-            launcher_trace.append({'phase':'cold-timeout','snapshot':launcher_snapshot(driver)})
-            raise AssertionError(f"Bay launcher is not physically visible/ready after cold start: {launcher_snapshot(driver)}") from exc
-        before_launcher=launcher_snapshot(driver)
-        launcher_trace.append({'phase':'before','snapshot':before_launcher})
-        if before_launcher.get('centerTop') and not before_launcher['centerTop'].get('insideButton'):
-            raise AssertionError(f"Bay launcher center is intercepted before click: {before_launcher}")
-        launcher=next(el for el in driver.find_elements(By.CSS_SELECTOR, '.bai-character') if el.is_displayed())
-        try:
-            launcher.click()
+            entry.click()
         except WebDriverException as exc:
-            raise AssertionError(f"physical Bay launcher click failed: {exc}; launcher={launcher_snapshot(driver)}") from exc
+            raise AssertionError(f"physical canonical Home Bay entry click failed: {exc}; entry={entry_snapshot(driver)}") from exc
         time.sleep(.35)
-        after_launcher=launcher_snapshot(driver)
-        launcher_trace.append({'phase':'after','snapshot':after_launcher})
-        if after_launcher.get('capturedClicks',0) < 1:
-            raise AssertionError(f"physical launcher click never reached the Bay button: before={before_launcher}; after={after_launcher}")
+        after_entry=entry_snapshot(driver)
+        entry_trace.append({'phase':'after','snapshot':after_entry})
+        if after_entry.get('capturedClicks',0) < 1:
+            raise AssertionError(f"physical click never reached canonical Home Bay entry: before={before_entry}; after={after_entry}")
         try:
-            WebDriverWait(driver, 5).until(lambda d: visible(d, '.td-ai-compose textarea') and visible(d, '.td-ai-compose [data-ai-send]'))
+            WebDriverWait(driver, 8).until(lambda d: visible(d, '.td-ai-compose textarea') and visible(d, '.td-ai-compose [data-ai-send]'))
         except Exception as exc:
-            raise AssertionError(f"physical Bay launcher click was received but conversation did not open: before={before_launcher}; after={launcher_snapshot(driver)}") from exc
+            raise AssertionError(f"canonical Home Bay entry was clicked but conversation did not open: before={before_entry}; after={entry_snapshot(driver)}") from exc
 
         dinner=send_turn(driver, 'собери мне еду на ужин на 100 рублей')
         trace.append({'turn':'dinner100','snapshot':dinner})
@@ -239,13 +226,13 @@ def main() -> int:
             failures.append(f"visible honest next-step card is missing after confirmed basket: {final}")
 
     except Exception as exc:
-        failures.append(f"owner shopping loop regression raised: {exc}; launcher={launcher_snapshot(driver)}; snapshot={snapshot(driver)}")
+        failures.append(f"owner shopping loop regression raised: {exc}; entry={entry_snapshot(driver)}; snapshot={snapshot(driver)}")
     finally:
         if failures:
-            print('Launcher diagnostics:')
-            print(json.dumps(launcher_trace, ensure_ascii=False, indent=2)[:16000])
+            print('Bay entry diagnostics:')
+            print(json.dumps(entry_trace, ensure_ascii=False, indent=2)[:12000])
             print('Conversation trace:')
-            print(json.dumps(trace, ensure_ascii=False, indent=2)[:24000])
+            print(json.dumps(trace, ensure_ascii=False, indent=2)[:30000])
             try:
                 logs=driver.get_log('browser')
                 if logs:
@@ -260,7 +247,7 @@ def main() -> int:
         for failure in failures:
             print('-', failure)
         return 1
-    print('Owner Bay shopping loop passes through the physical mobile UI: dinner 100 -> hello -> basket 7000 -> Magnit -> yes, with stable state and honest next step.')
+    print('Owner Bay shopping loop passes through the canonical physical mobile UI: dinner 100 -> hello -> basket 7000 -> Magnit -> yes, with stable state and honest next step.')
     return 0
 
 
