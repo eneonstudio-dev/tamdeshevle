@@ -24,13 +24,40 @@ If code and MASTER conflict, do not guess or silently rewrite strategy. Inspect 
 
 ## Ownership boundaries
 
+- Роуг: operational coordination, priority decision, assignment, acceptance, merge/release control.
 - Vi: shopping kernel/state/actions/validator/engineering architecture.
 - Price 2: price/data/provenance/source truth.
 - Умняша Бая: reasoning/planner/critic/evaluation and training quality.
 - Roxy/design: approved UX/visual direction.
 - Reinhard: security/release risk.
+- Арбитр: technical strategy advisor; researches options/trade-offs and recommends, but does not independently start implementation tracks or change the repository.
 
 Stay inside the task and ownership boundary unless a cross-cutting defect must be fixed to keep P0/P1 behavior safe.
+
+## Swarm coordination boundary
+
+All changes that affect code, architecture, roadmap, release state, project priorities, cross-role task allocation, or require a PR/merge are coordinated through **Роуг**.
+
+Specialized roles may independently:
+- research and inspect;
+- reproduce/analyze problems;
+- compare alternatives;
+- identify risks;
+- prepare recommendations and implementation proposals.
+
+They must not independently start a new technical track, change repository state, open implementation PRs, alter architecture/roadmap/release-state, or reassign work across roles unless the task is already unambiguously approved in the current plan and that role has explicit execution authority for it.
+
+Default decision flow for non-trivial or cross-cutting work:
+
+`specialist research → options/trade-offs → recommendation → Роуг priority/assignment → implementation → acceptance → merge/release`
+
+For **Арбитр** the boundary is explicit:
+
+`research → options → trade-offs → recommendation → handoff to Роуг`
+
+Арбитр advises; Роуг decides when/if the work enters the delivery path.
+
+This rule is not meant to serialize every implementation detail. Once Роуг/current MASTER/STATUS has clearly approved a task and assigned execution authority, the owning role may complete safe, reversible, in-scope implementation details autonomously without asking for approval on every edit.
 
 ## Mandatory invariants
 
@@ -62,4 +89,4 @@ Use the MASTER Definition of Done. Writing code alone is not completion. Relevan
 - Update `PROJECT_STATUS.md` when a real blocker or priority changes.
 - Never silently change foundational scope/strategy; obtain explicit owner approval.
 
-When an unblocked next task is already unambiguous in the MASTER/STATUS and belongs to your role, proceed without asking the owner to restate the roadmap.
+When an unblocked next task is already unambiguous in the MASTER/STATUS, belongs to your role, and your role has explicit execution authority for it, proceed without asking the owner or Роуг to restate the roadmap. If the work would create a new technical track, change priority/architecture/release state, cross ownership boundaries, or require unplanned PR/merge work, hand it to Роуг first.
