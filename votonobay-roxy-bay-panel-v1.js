@@ -31,7 +31,7 @@
     if(!document.querySelector('link[data-roxy-bay-panel-tune="1"]')){
       const tune=document.createElement("link");
       tune.rel="stylesheet";
-      tune.href="votonobay-roxy-bay-panel-tune-v1.css?v=20260913-v1";
+      tune.href="votonobay-roxy-bay-panel-tune-v1.css?v=20260915-v2";
       tune.dataset.roxyBayPanelTune="1";
       document.head.appendChild(tune);
     }
@@ -41,14 +41,17 @@
     return window.matchMedia?.("(max-width:820px), (hover:none) and (pointer:coarse) and (max-width:1100px)")?.matches;
   }
 
+  function syncExpandControls(root,expanded){
+    root?.querySelectorAll(".roxy-bay-sheet-toggle,.roxy-bay-sheet-handle").forEach(control=>{
+      control.setAttribute("aria-expanded",expanded?"true":"false");
+      control.setAttribute("aria-label",expanded?"Свернуть Бая":"Развернуть Бая");
+    });
+  }
+
   function setExpanded(root,expanded){
     if(!root)return;
     root.dataset.roxyBayExpanded=expanded?"1":"0";
-    const toggle=root.querySelector(".roxy-bay-sheet-toggle");
-    if(toggle){
-      toggle.setAttribute("aria-expanded",expanded?"true":"false");
-      toggle.setAttribute("aria-label",expanded?"Свернуть Бая":"Развернуть Бая");
-    }
+    syncExpandControls(root,expanded);
   }
 
   function currentState(){return document.getElementById("bai-assistant")?.dataset.state||"idle";}
@@ -66,6 +69,16 @@
     if(!root)return false;
     root.dataset.roxyBayPanel="1";
     if(!root.dataset.roxyBayExpanded)setExpanded(root,false);
+
+    const shell=root.querySelector(".td-ai-shell");
+    if(shell&&!shell.querySelector(".roxy-bay-sheet-handle")){
+      const handle=document.createElement("button");
+      handle.type="button";
+      handle.className="roxy-bay-sheet-handle";
+      handle.innerHTML='<span aria-hidden="true"></span>';
+      handle.addEventListener("click",()=>setExpanded(root,root.dataset.roxyBayExpanded!=="1"));
+      shell.prepend(handle);
+    }
 
     const head=root.querySelector(".td-ai-head");
     if(head){
@@ -87,12 +100,12 @@
         const toggle=document.createElement("button");
         toggle.type="button";
         toggle.className="roxy-bay-sheet-toggle";
-        toggle.setAttribute("aria-expanded","false");
-        toggle.setAttribute("aria-label","Развернуть Бая");
         toggle.addEventListener("click",()=>setExpanded(root,root.dataset.roxyBayExpanded!=="1"));
         identity?.after(toggle);
       }
     }
+
+    syncExpandControls(root,root.dataset.roxyBayExpanded==="1");
 
     const textarea=root.querySelector(".td-ai-compose textarea");
     if(textarea&&!textarea.dataset.roxyBayBound){

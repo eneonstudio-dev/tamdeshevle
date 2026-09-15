@@ -15,6 +15,7 @@ on:
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-bay-sheet-collapse.py"
       - "scripts/test-roxy-network-recovery.py"
       - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-purchase-proof.py"
@@ -39,6 +40,7 @@ on:
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-bay-sheet-collapse.py"
       - "scripts/test-roxy-network-recovery.py"
       - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-purchase-proof.py"
@@ -112,6 +114,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-mobile-compose.py
+      - name: Validate mini-Bay collapse handle
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-bay-sheet-collapse.py
       - name: Validate Roxy network recovery
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
