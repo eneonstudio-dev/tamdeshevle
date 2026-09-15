@@ -17,6 +17,7 @@
     const paidEnabled=paidPolicy.enabled===true;
     const monthlyCeilingUsd=amount(paidPolicy.monthlyCeilingUsd);
     const spentUsd=typeof paidPolicy.spentUsd==="function"?paidPolicy.spentUsd:()=>0;
+    const authorizePaid=typeof paidPolicy.authorize==="function"?paidPolicy.authorize:null;
     const breakers=new Map();
 
     const stateFor=provider=>{
@@ -25,13 +26,18 @@
       return breakers.get(key);
     };
     const capabilities=provider=>{try{return provider?.capabilities?.()||{}}catch{return{}}};
-    const eligible=provider=>{
+    const eligible=(provider,request,options)=>{
       if(!provider||typeof provider.generate!=="function")return{ok:false,reason:"missing"};
       const caps=capabilities(provider);
       if(caps.paid===true){
         if(!paidEnabled)return{ok:false,reason:"paid_disabled"};
         if(monthlyCeilingUsd<=0)return{ok:false,reason:"budget_ceiling_missing"};
-        if(amount(spentUsd())>=monthlyCeilingUsd)return{ok:false,reason:"budget_exhausted"};
+        const spent=amount(spentUsd());
+        if(spent>=monthlyCeilingUsd)return{ok:false,reason:"budget_exhausted"};
+        if(!authorizePaid)return{ok:false,reason:"paid_authorizer_missing"};
+        let authorized=false;
+        try{authorized=authorizePaid({provider:provider.id,spentUsd:spent,monthlyCeilingUsd,request:clone(request),options:clone(options)})===true}catch{authorized=false}
+        if(!authorized)return{ok:false,reason:"paid_not_authorized"};
       }
       const breaker=stateFor(provider);
       if(Number(breaker.openUntil||0)>Date.now())return{ok:false,reason:"circuit_open"};
@@ -51,7 +57,7 @@
     }
 
     async function attemptProvider(provider,role,request,options,trace){
-      const gate=eligible(provider);
+      const gate=eligible(provider,request,options);
       if(!gate.ok){trace.push({role,provider:provider?.id||null,status:"skipped",reason:gate.reason});return null;}
       for(let attempt=1;attempt<=maxAttempts;attempt++){
         const result=await timedGenerate(provider,request,options);
@@ -82,8 +88,8 @@
 
     function status(){
       const snapshot={};
-      for(const provider of [primary,fallback])if(provider){const state=stateFor(provider);snapshot[provider.id]={failures:state.failures,openUntil:state.openUntil,eligible:eligible(provider)};}
-      return{version:VERSION,timeoutMs,maxAttempts,failureThreshold,cooldownMs,paid:{enabled:paidEnabled,monthlyCeilingUsd,spentUsd:amount(spentUsd())},breakers:snapshot};
+      for(const provider of [primary,fallback])if(provider){const state=stateFor(provider);snapshot[provider.id]={failures:state.failures,openUntil:state.openUntil,paid:capabilities(provider).paid===true};}
+      return{version:VERSION,timeoutMs,maxAttempts,failureThreshold,cooldownMs,paid:{enabled:paidEnabled,monthlyCeilingUsd,spentUsd:amount(spentUsd()),authorizerConfigured:Boolean(authorizePaid)},breakers:snapshot};
     }
     function resetBreaker(providerId){const state=breakers.get(providerId);if(state){state.failures=0;state.openUntil=0;}return status();}
 
