@@ -6,6 +6,7 @@
   const BLOCKING_SELECTOR=".td-map-sheet,.td-point-detail,.td-one-tap,.td-account,.td-ai,.bai-panel,.td-pickup-backdrop,.td-courier-backdrop,.td-continue-stores,.td-retailer-handoff";
   const HISTORY_OVERLAYS=[
     {id:"bai",selector:".td-ai",close:"[data-ai-close]"},
+    {id:"account",selector:".td-account",close:".td-account-close"},
     {id:"pickup",selector:".td-pickup-backdrop",close:".td-pickup-x"},
     {id:"courier",selector:".td-courier-backdrop",close:".td-courier-x"},
     {id:"continue-stores",selector:".td-continue-stores",close:".td-continue-stores-x"},
@@ -98,9 +99,12 @@
     const def=historyOverlay();
     if(def){
       if(historyOverlayId===def.id)return;
+      const replacing=Boolean(historyOverlayId&&history.state?.tdOverlay===historyOverlayId);
       historyOverlayId=def.id;
       if(history.state?.tdOverlay!==def.id){
-        history.pushState({...history.state,tdScreen:window.state?.screen||history.state?.tdScreen||"home",tdOverlay:def.id},"");
+        const next={...history.state,tdScreen:window.state?.screen||history.state?.tdScreen||"home",tdOverlay:def.id};
+        if(replacing&&window.history?.replaceState)history.replaceState(next,"");
+        else history.pushState(next,"");
       }
       return;
     }
@@ -264,7 +268,7 @@
       const result=baseSetQty.apply(this,arguments);
       if(catalogQuery)window.state.q=catalogQuery;
       if(result===false)return result;
-      const qty=Math.max(0,Number(window.state?.cart?.[id])||0);
+      const qty=Math.max(0,Number(window.state?.cart?.[id])||0;
       const name=window.TDData?.byProduct?.(id)?.name||"Товар";
       announce(qty?`${name}: количество ${qty}`:`${name}: удалено из корзины`);
       requestAnimationFrame(()=>{
