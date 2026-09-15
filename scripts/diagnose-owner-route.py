@@ -6,6 +6,25 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
 BASE=os.environ.get('TD_UX_BASE_URL','http://127.0.0.1:4173/')
+
+def source_context(path, needles, radius=700):
+    try:
+        text=open(path, encoding='utf-8').read()
+    except OSError:
+        return
+    for needle in needles:
+        start=0
+        while True:
+            i=text.find(needle,start)
+            if i<0: break
+            lo=max(0,i-radius); hi=min(len(text),i+len(needle)+radius)
+            print(f'=== {path} :: {needle} @ {i} ===')
+            print(text[lo:hi])
+            start=i+len(needle)
+
+source_context('bai-brain.js',['generatedOperations','journey','operations:dedupeOps'])
+source_context('ai-shopping-assistant.js',['generatedOperations','generated_operations','journey'])
+
 o=Options()
 for arg in ('--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--window-size=412,915','--user-agent=Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/124.0 Mobile Safari/537.36'): o.add_argument(arg)
 d=webdriver.Chrome(options=o); d.set_window_size(412,915)
@@ -15,7 +34,8 @@ try:
     WebDriverWait(d,20).until(lambda x:x.execute_script("return !!window.TDShoppingAssistant&&!!window.TDShoppingState&&!!window.TDBaiShoppingAgentKernel&&!!window.TDShoppingConversation"))
     d.execute_script("""
       window.__ownerTrace=[];
-      const snap=()=>JSON.parse(JSON.stringify(window.TDShoppingState?.snapshot?.()||null));
+      const compact=s=>s?({budget:s.budget,intent:s.intent,selectionMode:s.selectionMode,stores:s.stores,requiredProducts:s.requiredProducts,onlyProducts:s.onlyProducts,products:(s.products||[]).map(x=>({id:x.id,sourceId:x.sourceId,storeId:x.storeId,quantity:x.quantity,price:x.price})),lastPlans:(s.lastPlans||[]).map(p=>({id:p.id,stores:p.stores,total:p.total}))}):null;
+      const snap=()=>compact(window.TDShoppingState?.snapshot?.()||null);
       const record=(event,extra={})=>window.__ownerTrace.push({event,state:snap(),...extra});
       const k=window.TDBaiShoppingAgentKernel, originalRun=k.run.bind(k); window.__routeCalls=[];
       k.run=async args=>{window.__routeCalls.push(JSON.parse(JSON.stringify(args))); record('kernel.run.before',{args:JSON.parse(JSON.stringify(args))}); const out=await originalRun(args); record('kernel.run.after',{result:{ok:out?.ok,status:out?.status,error:out?.error||null,verification:out?.verification||null}}); return out};
@@ -30,9 +50,12 @@ try:
     """)
     d.find_element(By.CSS_SELECTOR,'.v2-hero-bai').click()
     WebDriverWait(d,10).until(lambda x:any(e.is_displayed() for e in x.find_elements(By.CSS_SELECTOR,'.td-ai-compose textarea')))
-    a=next(e for e in d.find_elements(By.CSS_SELECTOR,'.td-ai-compose textarea') if e.is_displayed()); a.send_keys('собери мне еду на ужин на 100 рублей')
-    next(e for e in d.find_elements(By.CSS_SELECTOR,'.td-ai-compose [data-ai-send]') if e.is_displayed()).click()
-    WebDriverWait(d,20).until(lambda x:x.execute_script("return document.querySelector('.td-ai')?.getAttribute('aria-busy')==='false' && window.__routeCalls.length>0"))
-    print(json.dumps(d.execute_script("return {calls:window.__routeCalls,trace:window.__ownerTrace,state:window.TDShoppingState.snapshot(),agent:window.TDBaiShoppingAgentKernel.state.get(),brain:window.TDBaiBrain?.status?.()||null,messages:[...document.querySelectorAll('.td-ai-msg')].map(x=>x.textContent.trim())}"),ensure_ascii=False,indent=2))
+    def send(text):
+        a=next(e for e in d.find_elements(By.CSS_SELECTOR,'.td-ai-compose textarea') if e.is_displayed()); a.send_keys(text)
+        next(e for e in d.find_elements(By.CSS_SELECTOR,'.td-ai-compose [data-ai-send]') if e.is_displayed()).click()
+        WebDriverWait(d,20).until(lambda x:x.execute_script("return document.querySelector('.td-ai')?.getAttribute('aria-busy')==='false'"))
+    for text in ['собери мне еду на ужин на 100 рублей','привет','собери мне корзину на 7000 рублей','Магнитом']:
+        send(text)
+    print(json.dumps(d.execute_script("return {calls:window.__routeCalls,trace:window.__ownerTrace,state:window.TDShoppingState.snapshot(),brain:window.TDBaiBrain?.status?.()||null,messages:[...document.querySelectorAll('.td-ai-msg')].map(x=>x.textContent.trim())}"),ensure_ascii=False,indent=2))
 finally:
     d.quit()
