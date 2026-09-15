@@ -32,6 +32,46 @@ try:
       const r=button.getBoundingClientRect();
       const top=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
       const ae=document.activeElement;
+      const matchedRules=[];
+      const visit=(rules,href,conditions=[])=>{
+        for(const rule of Array.from(rules||[])){
+          if(rule.cssRules){
+            const condition=rule.conditionText||'';
+            let applies=true;
+            if(condition && rule.constructor?.name==='CSSMediaRule'){
+              try{applies=window.matchMedia(condition).matches}catch(_){applies=false}
+            }
+            visit(rule.cssRules,href,conditions.concat([{condition,applies,type:rule.constructor?.name||''}]));
+            continue;
+          }
+          if(!rule.selectorText) continue;
+          let matches=false;
+          try{matches=host.matches(rule.selectorText)}catch(_){}
+          if(!matches) continue;
+          const style=rule.style;
+          const relevant=Boolean(style?.display||style?.opacity||style?.pointerEvents||style?.visibility||style?.transform);
+          if(!relevant) continue;
+          matchedRules.push({
+            href:href||'inline',
+            selector:rule.selectorText,
+            display:style.display||'',
+            displayPriority:style.getPropertyPriority('display')||'',
+            opacity:style.opacity||'',
+            opacityPriority:style.getPropertyPriority('opacity')||'',
+            pointerEvents:style.pointerEvents||'',
+            pointerPriority:style.getPropertyPriority('pointer-events')||'',
+            visibility:style.visibility||'',
+            transform:style.transform||'',
+            conditions,
+            allConditionsApply:conditions.every(item=>item.applies!==false)
+          });
+        }
+      };
+      for(const sheet of Array.from(document.styleSheets)){
+        try{visit(sheet.cssRules,sheet.href||'inline')}catch(error){
+          matchedRules.push({href:sheet.href||'inline',error:String(error)});
+        }
+      }
       return {
         bodyClass:body.className,
         screen:body.dataset.votonobayScreen||null,
@@ -45,13 +85,15 @@ try:
         hostDisplay:hs.display,
         hostOpacity:hs.opacity,
         hostPointer:hs.pointerEvents,
+        hostVisibility:hs.visibility,
         buttonDisplay:bs.display,
         buttonOpacity:bs.opacity,
         buttonPointer:bs.pointerEvents,
         rect:{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height},
         centerTop:top?{tag:top.tagName,id:top.id||'',className:String(top.className||''),insideButton:button.contains(top)}:null,
         uiParked:host.dataset.uiParked||null,
-        overlayOpen:body.dataset.tdOverlayOpen||null
+        overlayOpen:body.dataset.tdOverlayOpen||null,
+        matchedRules
       };
     """)
     print(json.dumps(state,ensure_ascii=False,indent=2))
