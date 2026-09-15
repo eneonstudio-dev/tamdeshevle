@@ -1,5 +1,6 @@
 (()=>{
   "use strict";
+  // Closed-beta A-F replay trigger: 2026-09-16 fresh main after PR #491.
   const CONSENT_KEY="td:analytics-consent";
   const src="https://mc.yandex.ru/metrika/tag.js?id=112427683";
 
