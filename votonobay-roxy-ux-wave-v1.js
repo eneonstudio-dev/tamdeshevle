@@ -26,8 +26,8 @@
   function decorateList(){
     if(currentScreen()!=="cart")return false;
     const app=document.getElementById("app");
-    const hero=app?.querySelector(".hp");
-    if(!app||!hero)return false;
+    const host=app?.querySelector(".wrap");
+    if(!app||!host)return false;
     if(app.querySelector(".v2-list-bay"))return true;
 
     const card=document.createElement("aside");
@@ -41,7 +41,7 @@
       </div>
       <button class="v2-list-bay-open" type="button">Спросить Бая</button>`;
     card.querySelector(".v2-list-bay-open")?.addEventListener("click",openBai);
-    hero.insertAdjacentElement("afterend",card);
+    host.insertBefore(card,host.firstChild);
     return true;
   }
 
