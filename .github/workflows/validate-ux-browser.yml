@@ -15,6 +15,7 @@ on:
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-roxy-ux-wave.py"
       - "scripts/test-bay-sheet-collapse.py"
       - "scripts/test-legacy-phantom-cart.py"
       - "scripts/test-roxy-network-recovery.py"
@@ -41,6 +42,7 @@ on:
       - "scripts/test-roxy-long-basket.py"
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
+      - "scripts/test-roxy-ux-wave.py"
       - "scripts/test-bay-sheet-collapse.py"
       - "scripts/test-legacy-phantom-cart.py"
       - "scripts/test-roxy-network-recovery.py"
@@ -120,6 +122,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-roxy-mobile-compose.py
+      - name: Validate Sara 2 UX wave
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-roxy-ux-wave.py
       - name: Validate mini-Bay collapse handle
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
