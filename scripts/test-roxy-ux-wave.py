@@ -108,7 +108,7 @@ def main():
                 failures.append(f"{name}: List has horizontal overflow")
 
             driver.find_element(By.CSS_SELECTOR,".v2-list-bay-open").click()
-            WebDriverWait(driver,8).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=""true""]'))"))
+            WebDriverWait(driver,8).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=true]'))"))
             after=driver.execute_script("return JSON.stringify(state.cart)")
             if before!=after:
                 failures.append(f"{name}: opening Bay from List mutated basket: {before} -> {after}")
