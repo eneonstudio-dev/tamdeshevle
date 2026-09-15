@@ -3,6 +3,7 @@
   const MAX_ADDRESS_DISTANCE_KM=.35;
   const normalize=v=>String(v||"").toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]+/g," ").trim();
   const tokens=v=>new Set(normalize(v).split(" ").filter(x=>x.length>1));
+  const addressNumbers=v=>(String(v||"").match(/\d+/g)||[]).filter(x=>x.length<5);
 
   function addressScore(a,b){
     const A=tokens(a),B=tokens(b);
@@ -10,6 +11,12 @@
     let hit=0;
     A.forEach(x=>{if(B.has(x))hit++});
     return hit/Math.max(A.size,B.size);
+  }
+
+  function addressNumbersMatch(a,b){
+    const A=addressNumbers(a),B=addressNumbers(b);
+    if(!A.length||!B.length||A.length!==B.length)return false;
+    return A.every((value,index)=>value===B[index]);
   }
 
   function distance(a,b){
@@ -47,11 +54,11 @@
     for(const c of list){if(exactTag&&String(exactTag)===String(c.storeId))return resolved(c,"osm_store_ref",1);}
     let best=null;
     for(const c of list){
-      const score=addressScore(point.address,c.address),km=distance(point,c.ctx),geoOk=km!=null&&km<=MAX_ADDRESS_DISTANCE_KM;
+      const score=addressScore(point.address,c.address),numbersMatch=addressNumbersMatch(point.address,c.address),km=distance(point,c.ctx),geoOk=km!=null&&km<=MAX_ADDRESS_DISTANCE_KM;
       const combined=score+(geoOk?.35:0);
-      if(!best||combined>best.combined)best={c,score,km,combined};
+      if(!best||combined>best.combined)best={c,score,numbersMatch,km,combined};
     }
-    if(best&&best.score>=.66&&(best.km==null||best.km<=MAX_ADDRESS_DISTANCE_KM))return resolved(best.c,"address_match",Number(Math.min(.99,.75+best.score*.2).toFixed(2)));
+    if(best&&best.score>=.66&&best.numbersMatch&&(best.km==null||best.km<=MAX_ADDRESS_DISTANCE_KM))return resolved(best.c,"address_match",Number(Math.min(.99,.75+best.score*.2).toFixed(2)));
     return unresolved();
   }
 
@@ -119,6 +126,6 @@
     return result;
   }
 
-  window.TDStoreIdBridge={resolve,quote,basket,addressScore,distance};
+  window.TDStoreIdBridge={resolve,quote,basket,addressScore,addressNumbersMatch,distance};
   window.dispatchEvent(new CustomEvent("td:store-id-bridge-ready"));
 })();
