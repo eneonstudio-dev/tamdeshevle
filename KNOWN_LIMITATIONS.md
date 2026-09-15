@@ -13,7 +13,7 @@ This file prevents agents and UI copy from inventing capabilities that the curre
 
 ## Basket / optimizer
 
-- UniversalBasket → StoreBasket mapping and deterministic Multi-Store PurchasePlan optimization remain critical MVP work until verified end to end.
+- UniversalBasket → StoreBasket mapping and deterministic PurchasePlan behavior are verified for the canonical closed-beta scenarios, not for every retailer/source/fulfillment combination; new combinations still require executable evidence before release use.
 - Multi-store should default to at most 2 stores; broader combinatorial splitting is not an MVP promise.
 - Unknown/nonlinear delivery/service fees can make a plan incomplete; Bay must disclose uncertainty rather than invent totals.
 
@@ -34,6 +34,13 @@ This file prevents agents and UI copy from inventing capabilities that the curre
 - External providers may change terms, quotas, availability and pricing.
 - Zero-budget mode means exhaustion/failure should degrade/fallback rather than silently spend money.
 - Ordinary consumer AI interfaces are not assumed to be commercial backend APIs.
+
+## Closed-beta personal data
+
+- The current closed-beta release scope is local-only for personal account/cloud/receipt-photo data. Remote login, cloud sync and receipt-photo upload are disabled at the browser release boundary.
+- Local basket/profile/history and local receipt drafts remain available.
+- Re-enabling those personal-data flows requires separate privacy/legal review; the existing per-action disclosure UI is a technical safety layer, not legal approval.
+- Third-party analytics remains opt-in and disabled until explicit consent.
 
 ## Brand / launch
 
