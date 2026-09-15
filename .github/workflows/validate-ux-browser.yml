@@ -22,6 +22,7 @@ on:
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
       - "scripts/test-gate-f-local-only.py"
+      - "scripts/test-bai-chat-quality-browser.py"
       - ".github/workflows/validate-ux-browser.yml"
   push:
     branches:
@@ -46,6 +47,7 @@ on:
       - "scripts/test-cold-start-home.py"
       - "scripts/test-mvp030-decision-explanation.py"
       - "scripts/test-gate-f-local-only.py"
+      - "scripts/test-bai-chat-quality-browser.py"
       - ".github/workflows/validate-ux-browser.yml"
 
 permissions:
@@ -80,6 +82,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-ux-browser.py
+      - name: Validate Bay chat-quality debug flow
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-bai-chat-quality-browser.py
       - name: Validate cold-start Home
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
