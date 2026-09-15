@@ -1,19 +1,20 @@
 (()=>{
   "use strict";
-  if(window.TDBaiObservability)return;
+  if(window.TDBaiObservability?.version>=2)return;
 
-  const VERSION=1,MAX_EVENTS=100,events=[];
+  const VERSION=2,MAX_EVENTS=100,MAX_FAILURES=50;
+  const FAILURE_KEY="td_bai_regression_candidates_v1",DEBUG_KEY="td_bai_debug";
+  const events=[];
   const clone=value=>JSON.parse(JSON.stringify(value));
-  const text=(value,max=64)=>String(value==null?"":value).replace(/\s+/g," ").trim().slice(0,max);
+  const text=(value,max=64)=>String(value==null?"":value).replace(/[\u0000-\u001f<>]/g," ").replace(/\s+/g," ").trim().slice(0,max);
   const number=value=>Number.isFinite(Number(value))?Math.max(0,Math.round(Number(value))):undefined;
   const boolean=value=>typeof value==="boolean"?value:undefined;
+  const ids=(raw,max=16)=>[...new Set((Array.isArray(raw)?raw:[]).map(value=>text(value,64)).filter(Boolean))].slice(0,max);
 
   function sanitize(detail={}){
     const input=detail&&typeof detail==="object"&&!Array.isArray(detail)?detail:{};
     const out={};
-    for(const key of ["stage","provider","action","code","status","reason","source"]){
-      const value=text(input[key]);if(value)out[key]=value;
-    }
+    for(const key of ["stage","provider","action","code","status","reason","source"]){const value=text(input[key]);if(value)out[key]=value;}
     for(const key of ["duration_ms","failures","operation_count"]){const value=number(input[key]);if(value!==undefined)out[key]=value;}
     for(const key of ["recoverable","breaker_open","used","attempted"]){const value=boolean(input[key]);if(value!==undefined)out[key]=value;}
     if(Array.isArray(input.actions))out.actions=input.actions.map(value=>text(value,48)).filter(Boolean).slice(0,12);
@@ -29,11 +30,7 @@
 
   function kernelOutcome(stage,result,startedAt,actions=[]){
     const error=result?.error||{};
-    return emit("kernel",{
-      stage,status:result?.status||(result?.ok===false?"ERROR":"OK"),code:error.code||result?.gate?.code||"",recoverable:error.recoverable,
-      duration_ms:Date.now()-startedAt,operation_count:Array.isArray(actions)?actions.length:0,
-      actions:(Array.isArray(actions)?actions:result?.actions||[]).map(item=>typeof item==="string"?item:item?.type)
-    });
+    return emit("kernel",{stage,status:result?.status||(result?.ok===false?"ERROR":"OK"),code:error.code||result?.gate?.code||"",recoverable:error.recoverable,duration_ms:Date.now()-startedAt,operation_count:Array.isArray(actions)?actions.length:0,actions:(Array.isArray(actions)?actions:result?.actions||[]).map(item=>typeof item==="string"?item:item?.type)});
   }
 
   function wrapKernel(){
@@ -57,27 +54,62 @@
     const original=brain.route.bind(brain);
     brain.route=async function(...args){
       const started=Date.now();
-      try{
-        const result=await original(...args),status=window.TDBaiAgentClient?.status?.()||{};
-        emit("provider_route",{stage:"route",status:result?.status||(result?.ok===false?"ERROR":"OK"),code:result?.agentError?.code||result?.error?.code||"",duration_ms:Date.now()-started,...providerDetail(status)});
-        return result;
-      }catch(error){
-        const status=window.TDBaiAgentClient?.status?.()||{};
-        emit("provider_route",{stage:"route",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,...providerDetail(status)});throw error;
-      }
+      try{const result=await original(...args),status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:result?.status||(result?.ok===false?"ERROR":"OK"),code:result?.agentError?.code||result?.error?.code||"",duration_ms:Date.now()-started,...providerDetail(status)});return result}
+      catch(error){const status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,...providerDetail(status)});throw error;}
     };
     try{Object.defineProperty(brain,"__tdObservabilityWrapped",{value:true,configurable:true});}catch{brain.__tdObservabilityWrapped=true;}
     return true;
   }
 
-  function summary(){
-    const byType={},byCode={},byProvider={};
-    for(const event of events){byType[event.type]=(byType[event.type]||0)+1;if(event.code)byCode[event.code]=(byCode[event.code]||0)+1;if(event.provider)byProvider[event.provider]=(byProvider[event.provider]||0)+1;}
-    return{version:VERSION,count:events.length,byType,byCode,byProvider,last:events.length?clone(events[events.length-1]):null};
+  function safeState(raw={}){
+    const s=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};
+    const out={};
+    const budget=number(s.budget);if(budget!==undefined)out.budget=budget;
+    const people=number(s.peopleCount);if(people!==undefined)out.people=people;
+    const days=number(s.duration);if(days!==undefined)out.days=days;
+    const mode=text(s.mode,16);if(mode)out.mode=mode;
+    const cooking=text(s.cookingPreference,32);if(cooking)out.cooking=cooking;
+    const stores=ids(s.stores||s.store_ids,12);if(stores.length)out.stores=stores;
+    const preferences=ids(s.preferences,16);if(preferences.length)out.preferences=preferences;
+    if(Array.isArray(s.products))out.products=s.products.slice(0,30).map(item=>({id:text(item?.id,64),quantity:number(item?.quantity)??0})).filter(item=>item.id);
+    return out;
   }
+
+  function failureList(){
+    try{const parsed=JSON.parse(localStorage.getItem(FAILURE_KEY)||"[]");return Array.isArray(parsed)?parsed.slice(-MAX_FAILURES):[]}catch{return[]}
+  }
+  function writeFailures(list){try{localStorage.setItem(FAILURE_KEY,JSON.stringify(list.slice(-MAX_FAILURES)));return true}catch{return false}}
+  function captureFailure(raw={}){
+    const provider=text(raw.provider||window.TDBaiAgentClient?.status?.().provider||"rules",48)||"rules";
+    const operationTypes=(Array.isArray(raw.operations)?raw.operations:[]).map(item=>text(typeof item==="string"?item:item?.type,48)).filter(Boolean).slice(0,20);
+    const item={version:1,id:`bai-reg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`,at:new Date().toISOString(),source:"chat_feedback",request:text(raw.request,500),reply:text(raw.reply,800),provider,reason:text(raw.reason,80),operation_types:operationTypes,state:safeState(raw.state)};
+    if(!item.request&&!item.reply)return null;
+    const list=failureList();list.push(item);if(!writeFailures(list))return null;
+    emit("regression_candidate",{provider,reason:item.reason,operation_count:operationTypes.length,actions:operationTypes});
+    return clone(item);
+  }
+  function listFailures(){return clone(failureList())}
+  function clearFailures(){try{localStorage.removeItem(FAILURE_KEY)}catch{}return[]}
+  function exportFailures(){return JSON.stringify({schema:"votonobay-bai-regression-candidates-v1",exported_at:new Date().toISOString(),cases:failureList()},null,2)}
+
+  function debugEnabled(){
+    try{if(new URLSearchParams(window.location?.search||"").get("bai_debug")==="1")return true}catch{}
+    try{return localStorage.getItem(DEBUG_KEY)==="1"}catch{return false}
+  }
+  function setDebug(enabled){try{if(enabled)localStorage.setItem(DEBUG_KEY,"1");else localStorage.removeItem(DEBUG_KEY)}catch{}return debugEnabled()}
+  function providerLabel(provider){
+    const p=text(provider||"rules",48).toLowerCase();
+    if(p.includes("trained"))return"TRAINED";
+    if(p==="bai-agent-core"||p.includes("server"))return"SERVER";
+    if(p==="gemma-browser"||p.includes("local"))return"LOCAL";
+    if(p==="domain-gate")return"DOMAIN";
+    return"RULES";
+  }
+
+  function summary(){const byType={},byCode={},byProvider={};for(const event of events){byType[event.type]=(byType[event.type]||0)+1;if(event.code)byCode[event.code]=(byCode[event.code]||0)+1;if(event.provider)byProvider[event.provider]=(byProvider[event.provider]||0)+1;}return{version:VERSION,count:events.length,byType,byCode,byProvider,regressionCandidates:failureList().length,last:events.length?clone(events[events.length-1]):null};}
   function clear(){events.splice(0,events.length);}
   function install(){return{kernel:wrapKernel(),brain:wrapBrain()};}
 
-  window.TDBaiObservability={version:VERSION,emit,events:()=>clone(events),summary,clear,install};
+  window.TDBaiObservability={version:VERSION,emit,events:()=>clone(events),summary,clear,install,captureFailure,listFailures,clearFailures,exportFailures,debugEnabled,setDebug,providerLabel,safeState};
   install();
 })();
