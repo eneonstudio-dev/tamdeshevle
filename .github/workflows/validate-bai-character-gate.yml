@@ -1,0 +1,37 @@
+name: Validate Bai Character Gate
+
+on:
+  pull_request:
+    paths:
+      - "BAI_CHARACTER_CANON.md"
+      - "data/bai-character-regression-*.json"
+      - "scripts/bai-character-regression-*.mjs"
+      - "scripts/test-bai-character-regression-gate.mjs"
+      - ".github/workflows/validate-bai-character-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "BAI_CHARACTER_CANON.md"
+      - "data/bai-character-regression-*.json"
+      - "scripts/bai-character-regression-*.mjs"
+      - "scripts/test-bai-character-regression-gate.mjs"
+      - ".github/workflows/validate-bai-character-gate.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  eval-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Check eval-only gate syntax
+        run: |
+          node --check scripts/bai-character-regression-gate.mjs
+          node --check scripts/bai-character-regression-runner.mjs
+          node --check scripts/test-bai-character-regression-gate.mjs
+      - name: Run frozen + supplemental Character Gate
+        run: node scripts/test-bai-character-regression-gate.mjs
