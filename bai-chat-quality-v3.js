@@ -5,6 +5,11 @@
   let obsLoad=null,observer=null,lastRoute=null,lastKernel=null,annotating=false;
   const text=(value,max=800)=>String(value==null?"":value).replace(/\s+/g," ").trim().slice(0,max);
 
+  function ensureStyles(){
+    if(document.querySelector('link[data-bai-chat-quality-v3]'))return;
+    const link=document.createElement("link");link.rel="stylesheet";link.href="bai-chat-quality-v3.css?v=20260915-v1";link.dataset.baiChatQualityV3="1";document.head.appendChild(link);
+  }
+
   async function observability(){
     if(window.TDBaiObservability?.version>=2)return window.TDBaiObservability;
     obsLoad=obsLoad||import("./bai-observability.js?v=20260915-chat-quality-v2").catch(error=>{console.warn("[Bai Chat Quality] observability load failed",error);return null});
@@ -44,6 +49,7 @@
     if(annotating)return;annotating=true;
     try{
       const api=await observability();if(!api?.debugEnabled?.())return;
+      ensureStyles();
       const container=document.querySelector(".td-ai-messages");if(!container)return;
       const exchange=latestExchange(container);if(!exchange||exchange.assistant.querySelector("[data-bai-quality-meta]"))return;
       exchange.assistant.dataset.baiRawReply=exchange.reply;
@@ -79,12 +85,12 @@
   window.TDBaiChatQualityV3={
     version:"v3-observability-1",
     refresh:schedule,
-    enableDebug:async()=>{const api=await observability();const enabled=api?.setDebug?.(true);window.dispatchEvent(new CustomEvent("td:bai-debug-change"));return enabled;},
+    enableDebug:async()=>{const api=await observability();const enabled=api?.setDebug?.(true);ensureStyles();window.dispatchEvent(new CustomEvent("td:bai-debug-change"));return enabled;},
     disableDebug:async()=>{const api=await observability();const enabled=api?.setDebug?.(false);document.querySelectorAll("[data-bai-quality-meta]").forEach(node=>node.remove());return enabled;},
     exportFailures:async()=>{const api=await observability();return api?.exportFailures?.()||"";},
     failures:async()=>{const api=await observability();return api?.listFailures?.()||[];}
   };
 
   installObserver();
-  void observability().then(api=>{api?.install?.();schedule()});
+  void observability().then(api=>{api?.install?.();if(api?.debugEnabled?.())ensureStyles();schedule()});
 })();
