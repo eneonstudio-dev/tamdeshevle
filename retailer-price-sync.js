@@ -137,7 +137,8 @@
       const value = book.prices && book.prices[product.id];
       if (!Number.isFinite(value)) continue;
       const match = matchedBySku[product.id] || {};
-      if (quality.usable && verifiedStoreId && match.comparison_eligible === true && match.availability === "in_stock") {
+      if (quality.usable && book.scope_verified === true && !verifiedStoreId) continue;
+      if (quality.usable && match.comparison_eligible === true && match.availability === "in_stock") {
         if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [verifiedStoreId]: value });
         else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: value });
         setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, value, match, "retailer"));
