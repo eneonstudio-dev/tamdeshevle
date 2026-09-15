@@ -10,6 +10,7 @@
   let boundRoot=null;
   let viewportCleanup=null;
   let queued=false;
+  let settleSequence=0;
 
   function ensureStyle(){
     if(document.querySelector('link[data-roxy-mobile-compose]'))return;
@@ -42,8 +43,9 @@
 
   function settleScroll(main,state){
     if(!main||!state)return;
+    const sequence=++settleSequence;
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      if(!document.contains(main))return;
+      if(sequence!==settleSequence||!document.contains(main))return;
       if(state.nearBottom){
         main.scrollTop=main.scrollHeight;
         return;
