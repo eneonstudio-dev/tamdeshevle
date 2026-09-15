@@ -55,11 +55,14 @@
 
   function applyViewport(root,metrics,state){
     if(!root)return {keyboard:false,height:0,top:0,covered:0};
-    const h=Math.max(320,Math.round(Number(metrics?.height)||window.innerHeight||320));
-    const top=Math.max(0,Math.round(Number(metrics?.offsetTop)||0));
-    const inner=Math.max(h,Math.round(Number(metrics?.innerHeight)||window.innerHeight||h));
-    const covered=Math.max(0,inner-h-top);
-    const keyboard=matchMedia(MOBILE_QUERY).matches&&covered>KEYBOARD_THRESHOLD;
+    const mobile=matchMedia(MOBILE_QUERY).matches;
+    const metricHeight=Math.round(Number(metrics?.height)||window.innerHeight||320);
+    const h=Math.max(320,mobile?metricHeight:(window.innerHeight||metricHeight));
+    const top=mobile?Math.max(0,Math.round(Number(metrics?.offsetTop)||0)):0;
+    const metricInner=Math.round(Number(metrics?.innerHeight)||window.innerHeight||h);
+    const inner=Math.max(h,mobile?metricInner:(window.innerHeight||metricInner));
+    const covered=mobile?Math.max(0,inner-h-top):0;
+    const keyboard=mobile&&covered>KEYBOARD_THRESHOLD;
     root.style.setProperty("--td-ai-vvh",h+"px");
     root.style.setProperty("--td-ai-vvtop",top+"px");
     root.toggleAttribute("data-keyboard-open",keyboard);
