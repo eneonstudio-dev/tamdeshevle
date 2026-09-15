@@ -1,0 +1,36 @@
+name: Validate Bay chat quality
+
+on:
+  pull_request:
+    paths:
+      - "bai-observability.js"
+      - "bai-chat-quality-v3.js"
+      - "bai-chat-quality-v3.css"
+      - "scripts/test-bai-chat-quality-observability.mjs"
+      - ".github/workflows/validate-bai-chat-quality.yml"
+  push:
+    branches: [main]
+    paths:
+      - "bai-observability.js"
+      - "bai-chat-quality-v3.js"
+      - "bai-chat-quality-v3.css"
+      - "scripts/test-bai-chat-quality-observability.mjs"
+      - ".github/workflows/validate-bai-chat-quality.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  chat-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+      - name: Check chat-quality scripts
+        run: |
+          node --check bai-observability.js
+          node --check bai-chat-quality-v3.js
+      - name: Guard local regression capture privacy
+        run: node scripts/test-bai-chat-quality-observability.mjs
