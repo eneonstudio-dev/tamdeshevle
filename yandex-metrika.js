@@ -1,3 +1,4 @@
+// Closed-beta A–F replay marker only; no runtime behavior change.
 (()=>{
   "use strict";
   const CONSENT_KEY="td:analytics-consent";
