@@ -5,6 +5,9 @@
 
   const root=document.documentElement;
   const storageKey="td";
+  const cartMigrationKey="td:cart-migration:legacy-seed-v1";
+  const legacyCartBackupKey="td:legacy-seeded-cart-backup:v1";
+  const legacySeedIds=new Set(["milk","bread","chicken","banana","oil","eggs"]);
   const navigation=performance.getEntriesByType?.("navigation")?.[0];
   const navigationType=navigation?.type||"navigate";
   const HOME_COPY="Спросить Бая";
@@ -16,6 +19,42 @@
   let stalledTimer=0;
   let cssReady=false;
   let lastV2Screen="";
+
+  function migrateLegacySeededCart(){
+    try{
+      if(localStorage.getItem(cartMigrationKey)==="done")return false;
+      const saved=JSON.parse(localStorage.getItem(storageKey)||"null");
+      if(saved&&typeof saved==="object"&&!Array.isArray(saved)&&saved.cartTouched===true&&saved.cart&&typeof saved.cart==="object"&&!Array.isArray(saved.cart)){
+        const entries=Object.entries(saved.cart).filter(([,qty])=>Number(qty)>0);
+        const looksLikeLegacySeed=entries.length>=4&&entries.length<=6&&entries.every(([id,qty])=>legacySeedIds.has(id)&&Number(qty)===1);
+        if(looksLikeLegacySeed){
+          if(!localStorage.getItem(legacyCartBackupKey)){
+            localStorage.setItem(legacyCartBackupKey,JSON.stringify({
+              migratedAt:new Date().toISOString(),
+              reason:"legacy-seeded-cart-residue",
+              cart:Object.fromEntries(entries),
+              screen:typeof saved.screen==="string"?saved.screen:null
+            }));
+          }
+          saved.cart={};
+          saved.cartTouched=false;
+          localStorage.setItem(storageKey,JSON.stringify(saved));
+          root.dataset.votonobayCartMigration="cleared-legacy-seed";
+        }else{
+          root.dataset.votonobayCartMigration="preserved-explicit-cart";
+        }
+      }else{
+        root.dataset.votonobayCartMigration="no-legacy-cart";
+      }
+      localStorage.setItem(cartMigrationKey,"done");
+      return root.dataset.votonobayCartMigration==="cleared-legacy-seed";
+    }catch(error){
+      console.warn("[Votonobay] legacy cart migration skipped",error);
+      return false;
+    }
+  }
+
+  migrateLegacySeededCart();
 
   const style=document.createElement("style");
   style.dataset.votonobayColdStartV1="1";
@@ -156,5 +195,5 @@
     root.dataset.votonobayBoot="stalled";
   },20000);
 
-  window.TDVotonobayColdStartV1={release,tryRelease,canonicalHomeReady,restoredScreenReady,ensureRoxyAssets,navigationType};
+  window.TDVotonobayColdStartV1={release,tryRelease,canonicalHomeReady,restoredScreenReady,ensureRoxyAssets,navigationType,migrateLegacySeededCart};
 })();
