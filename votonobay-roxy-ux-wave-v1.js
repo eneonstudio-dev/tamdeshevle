@@ -23,17 +23,6 @@
     requestAnimationFrame(()=>document.getElementById("aiq")?.focus?.({preventScroll:false}));
   }
 
-  function closeBaiSurface(){
-    window.TDBai?.closePanel?.();
-    const assistant=document.querySelector(".td-ai");
-    if(!assistant)return true;
-    const close=assistant.querySelector("[data-ai-close]");
-    if(typeof close?.onclick==="function")close.onclick.call(close);
-    else if(typeof close?.click==="function")close.click();
-    else return false;
-    return !document.querySelector(".td-ai");
-  }
-
   function decorateList(){
     if(currentScreen()!=="cart")return false;
     const app=document.getElementById("app");
@@ -87,12 +76,9 @@
   }
 
   window.addEventListener?.("td:v2-rendered",queue);
-  window.addEventListener?.("td:account-opened",()=>{
-    closeBaiSurface();
-    decorateAccount();
-  });
+  window.addEventListener?.("td:account-opened",()=>decorateAccount());
   window.addEventListener?.("pageshow",queue);
-  window.TDRoxyUxWave={decorate,decorateList,decorateAccount,openBai,closeBaiSurface};
+  window.TDRoxyUxWave={decorate,decorateList,decorateAccount,openBai};
 
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
   else boot();
