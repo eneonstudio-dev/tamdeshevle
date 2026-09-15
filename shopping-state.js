@@ -118,7 +118,7 @@
   }
   function syncCart(){
     if(!window.state)return false;
-    const cart=Object.fromEntries(state.products.filter(x=>x&&x.sourceId).map(x=>[x.sourceId,Math.min(99,Math.max(1,Number(x.quantity)||1))]));
+    const cart=Object.fromEntries(state.products.filter(x=>x&&(x.sourceId||x.id)).map(x=>[x.sourceId||x.id,Math.min(99,Math.max(1,Number(x.quantity)||1))]));
     state.cart={...cart};
     window.state.cart={...cart};
     window.state.cartTouched=true;
