@@ -54,6 +54,15 @@ const match = window.TDStoreIdBridge.resolve(point);
 assert(match.verified && match.storeId === "0293", "physical store id must resolve");
 assert(match.priceStoreId === scopedPriceStoreId, "physical point must resolve to its scoped price key, not the generic retailer key");
 
+const addressOnly = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Дмитровское шоссе, 116 Д" });
+assert(addressOnly.verified === true && addressOnly.method === "address_match", "same numbered address must remain a valid conservative fallback");
+const adjacentHouse = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Москва, Дмитровское шоссе, 117 Д" });
+assert(adjacentHouse.verified === false, "adjacent house on the same street must never inherit exact-store evidence");
+const missingHouse = window.TDStoreIdBridge.resolve({ chainId: "lenta", address: "Москва, Дмитровское шоссе" });
+assert(missingHouse.verified === false, "address-only fallback without a house number must fail closed");
+assert(window.TDStoreIdBridge.addressNumbersMatch("г Москва, ул Чертановская, д 47 к 2", "Чертановская 47 корп 2") === true, "equivalent house/corpus numbers must match");
+assert(window.TDStoreIdBridge.addressNumbersMatch("г Москва, ул Чертановская, д 47 к 2", "Чертановская 47 корп 1") === false, "different corpus numbers must fail exact-store address matching");
+
 const basket = window.TDStoreIdBridge.basket(point, { products, cart, stores, referenceStoreId: "origin" });
 assert(basket.verified === true, "fully retailer-backed point basket must be verified");
 assert(basket.total === 180, "point basket total must use only the physical-store scoped prices");
@@ -93,4 +102,4 @@ assert(badQty.items[0].verified === false && badQty.items[0].subtotal === null, 
 const antipodal = window.TDStoreIdBridge.distance({ lat: 0, lon: 0 }, { lat: 0, lon: 180 });
 assert(Number.isFinite(antipodal) && antipodal > 10000, "distance calculation must stay finite at numeric boundaries");
 
-console.log("Store ID bridge tests passed: exact point, scoped price key, honest empty/partial baskets, malformed input guards and verified savings.");
+console.log("Store ID bridge tests passed: exact point, conservative numbered-address fallback, scoped price key, honest empty/partial baskets, malformed input guards and verified savings.");
