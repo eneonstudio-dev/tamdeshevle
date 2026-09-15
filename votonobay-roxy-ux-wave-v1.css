@@ -7,7 +7,16 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-home{
   padding-top:max(48px,calc(env(safe-area-inset-top) + 36px))!important;
 }
 html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
   margin-top:clamp(18px,5.8vh,64px)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-bay-actions,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-self-search{
+  min-width:0;
+  max-width:100%;
 }
 html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy p{
   margin-top:14px!important;
@@ -17,7 +26,17 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{
   margin-top:18px!important;
 }
 html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-card{
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box;
   box-shadow:0 20px 70px rgba(0,0,0,.22);
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-card-head,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-quicks,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-prompt{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
 }
 
 /* ---- Bay on List ------------------------------------------------------- */
@@ -28,6 +47,9 @@ html body.td-votonobay .v2-list-bay{
   grid-template-columns:minmax(0,1fr) auto;
   gap:12px;
   align-items:center;
+  min-width:0;
+  max-width:calc(100% - 32px);
+  box-sizing:border-box;
   border:1px solid rgba(101,233,162,.2);
   border-radius:18px;
   background:linear-gradient(135deg,rgba(15,123,74,.11),rgba(255,255,255,.88));
@@ -199,14 +221,12 @@ html body .td-account.td-account-polished .td-cloud-status{
     line-height:1.45!important;
   }
   html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
-    min-height:180px!important;
+    min-height:174px!important;
     margin-top:4px!important;
   }
-  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img,
-  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-bay-avatar{
-    width:158px!important;
-    height:158px!important;
-    max-width:48vw!important;
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+    max-width:min(49vw,198px)!important;
+    height:auto!important;
   }
   html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{
     margin-top:12px!important;
@@ -218,6 +238,7 @@ html body .td-account.td-account-polished .td-cloud-status{
 
   html body.td-votonobay .v2-list-bay{
     margin:0 12px 11px;
+    max-width:calc(100% - 24px);
     padding:12px;
     grid-template-columns:minmax(0,1fr) auto;
     gap:9px;
@@ -295,12 +316,11 @@ html body .td-account.td-account-polished .td-cloud-status{
     padding:19px 15px 18px!important;
   }
   html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
-    min-height:154px!important;
+    min-height:152px!important;
   }
-  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img,
-  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-bay-avatar{
-    width:138px!important;
-    height:138px!important;
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+    max-width:min(51vw,174px)!important;
+    height:auto!important;
   }
   html body.td-votonobay .v2-list-bay{
     grid-template-columns:1fr;
