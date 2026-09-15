@@ -14,7 +14,7 @@ const Safety=window.TDBaiProviderContract;
 assert.equal(Engine.version,1);
 assert.equal(Safety.version,1);
 
-assert.throws(()=>Engine.create({id:"x",capabilities:{},healthCheck:async()=>true}),/generate/);
+assert.throws(()=>Engine.create({id:"xx",capabilities:{},healthCheck:async()=>true}),/generate/);
 assert.throws(()=>Engine.create({id:"bad id",capabilities:{},generate:async()=>({}),healthCheck:async()=>true}),/id/);
 assert.throws(()=>Engine.create({id:"streamer",capabilities:{streaming:true},generate:async()=>({}),healthCheck:async()=>true}),/stream/);
 
