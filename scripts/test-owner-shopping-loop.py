@@ -36,7 +36,7 @@ def visible(driver: webdriver.Chrome, selector: str) -> bool:
         """
         return [...document.querySelectorAll(arguments[0])].some(el=>{
           const r=el.getBoundingClientRect(),s=getComputedStyle(el);
-          return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden';
+          return r.width>0&&r.height>0&&s.display!=='none'&&s.visibility!=='hidden'&&Number(s.opacity)>0.01;
         });
         """,
         selector,
@@ -52,6 +52,7 @@ def launcher_snapshot(driver: webdriver.Chrome) -> dict:
         const x=r?r.left+r.width/2:0,y=r?r.top+r.height/2:0;
         const top=r?document.elementFromPoint(x,y):null;
         const hs=host?getComputedStyle(host):null,bs=button?getComputedStyle(button):null;
+        const overlay=window.TDUILayers?.active||null;
         return {
           host:Boolean(host),
           hostState:host?.dataset.state||null,
@@ -59,16 +60,22 @@ def launcher_snapshot(driver: webdriver.Chrome) -> dict:
           parked:host?.dataset.uiParked||null,
           ariaHidden:host?.getAttribute('aria-hidden')||null,
           hostOpacity:hs?.opacity||null,
+          hostDisplay:hs?.display||null,
+          hostVisibility:hs?.visibility||null,
           hostPointer:hs?.pointerEvents||null,
+          buttonOpacity:bs?.opacity||null,
+          buttonDisplay:bs?.display||null,
+          buttonVisibility:bs?.visibility||null,
           buttonPointer:bs?.pointerEvents||null,
-          buttonVisible:Boolean(button&&r&&r.width>0&&r.height>0&&bs.display!=='none'&&bs.visibility!=='hidden'),
+          buttonVisible:Boolean(button&&r&&r.width>0&&r.height>0&&bs.display!=='none'&&bs.visibility!=='hidden'&&Number(hs?.opacity||0)>0.01),
           rect:r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null,
           centerTop:top?{tag:top.tagName,id:top.id||'',className:String(top.className||''),insideButton:Boolean(button&&button.contains(top))}:null,
           onclickType:typeof button?.onclick,
           assistantOpenType:typeof window.TDShoppingAssistant?.open,
           capturedClicks:Number(window.__ownerLauncherClicks||0),
           aiCount:document.querySelectorAll('.td-ai').length,
-          overlayOpen:document.body.dataset.tdOverlayOpen||null
+          overlayOpen:document.body.dataset.tdOverlayOpen||null,
+          activeOverlay:overlay?{tag:overlay.tagName,id:overlay.id||'',className:String(overlay.className||'')}:null
         };
         """
     )
@@ -140,8 +147,6 @@ def main() -> int:
             lambda d: d.execute_script("return document.readyState") == "complete"
             and d.execute_script("return !!window.TDShoppingAssistant && !!window.TDShoppingState && !!window.TDBai")
         )
-        # Voice output is not part of this regression. Make speech completion deterministic in headless Chrome
-        # so the physical text UI can be tested without an audio device.
         driver.execute_script(
             """
             try {
@@ -155,8 +160,12 @@ def main() -> int:
             launcher?.addEventListener('click',()=>{window.__ownerLauncherClicks+=1},{capture:true});
             """
         )
-        WebDriverWait(driver, 20).until(lambda d: visible(d, '.bai-character'))
-        WebDriverWait(driver, 5).until(lambda d: launcher_snapshot(d)['ready'])
+        launcher_trace.append({'phase':'cold','snapshot':launcher_snapshot(driver)})
+        try:
+            WebDriverWait(driver, 5).until(lambda d: visible(d, '.bai-character') and launcher_snapshot(d)['ready'])
+        except Exception as exc:
+            launcher_trace.append({'phase':'cold-timeout','snapshot':launcher_snapshot(driver)})
+            raise AssertionError(f"Bay launcher is not physically visible/ready after cold start: {launcher_snapshot(driver)}") from exc
         before_launcher=launcher_snapshot(driver)
         launcher_trace.append({'phase':'before','snapshot':before_launcher})
         if before_launcher.get('centerTop') and not before_launcher['centerTop'].get('insideButton'):
@@ -230,11 +239,11 @@ def main() -> int:
             failures.append(f"visible honest next-step card is missing after confirmed basket: {final}")
 
     except Exception as exc:
-        failures.append(f"owner shopping loop regression raised: {exc}; snapshot={snapshot(driver)}")
+        failures.append(f"owner shopping loop regression raised: {exc}; launcher={launcher_snapshot(driver)}; snapshot={snapshot(driver)}")
     finally:
         if failures:
             print('Launcher diagnostics:')
-            print(json.dumps(launcher_trace, ensure_ascii=False, indent=2)[:12000])
+            print(json.dumps(launcher_trace, ensure_ascii=False, indent=2)[:16000])
             print('Conversation trace:')
             print(json.dumps(trace, ensure_ascii=False, indent=2)[:24000])
             try:
