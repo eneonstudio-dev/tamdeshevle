@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options
@@ -24,6 +25,7 @@ def driver_for() -> webdriver.Chrome:
         "--user-agent=Mozilla/5.0 (Linux; Android 13; SM-N986N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36",
     ):
         options.add_argument(arg)
+    options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     driver = webdriver.Chrome(options=options)
     driver.set_window_size(412, 915)
     return driver
@@ -39,6 +41,37 @@ def visible(driver: webdriver.Chrome, selector: str) -> bool:
         """,
         selector,
     ))
+
+
+def launcher_snapshot(driver: webdriver.Chrome) -> dict:
+    return driver.execute_script(
+        """
+        const host=document.querySelector('#bai-assistant');
+        const button=document.querySelector('.bai-character');
+        const r=button?.getBoundingClientRect();
+        const x=r?r.left+r.width/2:0,y=r?r.top+r.height/2:0;
+        const top=r?document.elementFromPoint(x,y):null;
+        const hs=host?getComputedStyle(host):null,bs=button?getComputedStyle(button):null;
+        return {
+          host:Boolean(host),
+          hostState:host?.dataset.state||null,
+          ready:host?.classList.contains('is-ready')||false,
+          parked:host?.dataset.uiParked||null,
+          ariaHidden:host?.getAttribute('aria-hidden')||null,
+          hostOpacity:hs?.opacity||null,
+          hostPointer:hs?.pointerEvents||null,
+          buttonPointer:bs?.pointerEvents||null,
+          buttonVisible:Boolean(button&&r&&r.width>0&&r.height>0&&bs.display!=='none'&&bs.visibility!=='hidden'),
+          rect:r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null,
+          centerTop:top?{tag:top.tagName,id:top.id||'',className:String(top.className||''),insideButton:Boolean(button&&button.contains(top))}:null,
+          onclickType:typeof button?.onclick,
+          assistantOpenType:typeof window.TDShoppingAssistant?.open,
+          capturedClicks:Number(window.__ownerLauncherClicks||0),
+          aiCount:document.querySelectorAll('.td-ai').length,
+          overlayOpen:document.body.dataset.tdOverlayOpen||null
+        };
+        """
+    )
 
 
 def snapshot(driver: webdriver.Chrome) -> dict:
@@ -97,6 +130,7 @@ def main() -> int:
     driver=driver_for()
     failures: list[str]=[]
     trace: list[dict]=[]
+    launcher_trace: list[dict]=[]
     try:
         driver.get(BASE_URL)
         WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
@@ -116,12 +150,31 @@ def main() -> int:
                 speak(utterance){setTimeout(()=>utterance?.onend?.(),0)}
               }});
             } catch (_) {}
+            const launcher=document.querySelector('.bai-character');
+            window.__ownerLauncherClicks=0;
+            launcher?.addEventListener('click',()=>{window.__ownerLauncherClicks+=1},{capture:true});
             """
         )
         WebDriverWait(driver, 20).until(lambda d: visible(d, '.bai-character'))
+        WebDriverWait(driver, 5).until(lambda d: launcher_snapshot(d)['ready'])
+        before_launcher=launcher_snapshot(driver)
+        launcher_trace.append({'phase':'before','snapshot':before_launcher})
+        if before_launcher.get('centerTop') and not before_launcher['centerTop'].get('insideButton'):
+            raise AssertionError(f"Bay launcher center is intercepted before click: {before_launcher}")
         launcher=next(el for el in driver.find_elements(By.CSS_SELECTOR, '.bai-character') if el.is_displayed())
-        launcher.click()
-        WebDriverWait(driver, 20).until(lambda d: visible(d, '.td-ai-compose textarea') and visible(d, '.td-ai-compose [data-ai-send]'))
+        try:
+            launcher.click()
+        except WebDriverException as exc:
+            raise AssertionError(f"physical Bay launcher click failed: {exc}; launcher={launcher_snapshot(driver)}") from exc
+        time.sleep(.35)
+        after_launcher=launcher_snapshot(driver)
+        launcher_trace.append({'phase':'after','snapshot':after_launcher})
+        if after_launcher.get('capturedClicks',0) < 1:
+            raise AssertionError(f"physical launcher click never reached the Bay button: before={before_launcher}; after={after_launcher}")
+        try:
+            WebDriverWait(driver, 5).until(lambda d: visible(d, '.td-ai-compose textarea') and visible(d, '.td-ai-compose [data-ai-send]'))
+        except Exception as exc:
+            raise AssertionError(f"physical Bay launcher click was received but conversation did not open: before={before_launcher}; after={launcher_snapshot(driver)}") from exc
 
         dinner=send_turn(driver, 'собери мне еду на ужин на 100 рублей')
         trace.append({'turn':'dinner100','snapshot':dinner})
@@ -180,7 +233,17 @@ def main() -> int:
         failures.append(f"owner shopping loop regression raised: {exc}; snapshot={snapshot(driver)}")
     finally:
         if failures:
+            print('Launcher diagnostics:')
+            print(json.dumps(launcher_trace, ensure_ascii=False, indent=2)[:12000])
+            print('Conversation trace:')
             print(json.dumps(trace, ensure_ascii=False, indent=2)[:24000])
+            try:
+                logs=driver.get_log('browser')
+                if logs:
+                    print('Browser console:')
+                    print(json.dumps(logs[-80:], ensure_ascii=False, indent=2)[:16000])
+            except Exception:
+                pass
         driver.quit()
 
     if failures:
