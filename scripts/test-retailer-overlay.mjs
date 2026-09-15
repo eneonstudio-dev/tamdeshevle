@@ -40,6 +40,9 @@ assert.equal(overlay.matched.length, 1);
 assert.equal(overlay.store_id, "perek");
 assert.equal(overlay.channel, "delivery_catalog");
 
+// Keep the legacy generic store_id deliberately: runtime must derive the
+// physical price key from verified store_context and must not trust a generic
+// chain key for exact-store evidence.
 const magnitContext = {
   schema: "tamdeshevle.retailer-snapshot.v1",
   retailer: "magnit",
@@ -104,9 +107,34 @@ const mixedAvailabilityOverlay = buildOverlayFromSnapshot({
 assert.equal(mixedAvailabilityOverlay.prices.pasta, 79.99, "an eligible in-stock equivalent must win over an unavailable duplicate");
 assert.deepEqual(mixedAvailabilityOverlay.unavailable || [], [], "SKU must not be marked unavailable when an eligible equivalent is in stock");
 
+const scopedRuntimeOverlay = buildOverlayFromSnapshot({
+  ...magnitContext,
+  rows: [
+    {
+      id: "pasta-out",
+      name: "Макароны рожки 450г",
+      price: 74.99,
+      availability: "Нет в наличии",
+      shop_code: "770105",
+      url: "https://magnit.ru/product/pasta-out?shopCode=770105&shopType=1"
+    },
+    {
+      id: "milk-in",
+      name: "Молоко Калория ультрапастеризованное 2.5% 1000мл",
+      price: 109.99,
+      availability: "В наличии",
+      shop_code: "770105",
+      url: "https://magnit.ru/product/milk-in?shopCode=770105&shopType=1"
+    }
+  ]
+});
+assert.equal(scopedRuntimeOverlay.prices.milk, 109.99, "exact-store in-stock evidence must survive overlay building");
+assert.equal(scopedRuntimeOverlay.unavailable[0].sku, "pasta");
+
 const products = [
   { id: "pasta", name: "Макароны", prices: {}, bring: { magnit: 99 } },
-  ...Array.from({ length: 9 }, (_, index) => ({ id: `filler_${index}`, name: `Filler ${index}`, prices: {}, bring: {} }))
+  { id: "milk", name: "Молоко 2,5%", prices: {}, bring: { magnit: 95 } },
+  ...Array.from({ length: 8 }, (_, index) => ({ id: `filler_${index}`, name: `Filler ${index}`, prices: {}, bring: {} }))
 ];
 const listeners = new Map();
 const sandbox = {
@@ -128,7 +156,7 @@ const sandbox = {
     constructor(type, init = {}) { this.type = type; this.detail = init.detail; }
   },
   fetch: async url => {
-    if (String(url).includes("magnit.overlay.json")) return { ok: true, json: async () => unavailableOverlay };
+    if (String(url).includes("magnit.overlay.json")) return { ok: true, json: async () => scopedRuntimeOverlay };
     return { ok: false, status: 404, json: async () => ({}) };
   },
   setInterval() { return 1; },
@@ -142,13 +170,26 @@ vm.runInContext(fs.readFileSync("data-quality.js", "utf8"), sandbox, { filename:
 vm.runInContext(fs.readFileSync("retailer-price-sync.js", "utf8"), sandbox, { filename: "retailer-price-sync.js" });
 await new Promise(resolve => setImmediate(resolve));
 
-assert.equal(products[0].bring.magnit, null, "fresh exact-store out-of-stock evidence must suppress an older baseline price");
-const unavailableMeta = sandbox.TDPriceMeta.get("pasta", "magnit", "bring");
+const scopedMagnitId = "magnit:770105";
+assert.equal(products[0].bring.magnit, 99, "exact-store out-of-stock evidence must not suppress the generic Magnit baseline");
+assert.equal(products[0].bring[scopedMagnitId], null, "exact-store out-of-stock evidence must suppress only the matching physical-store price key");
+assert.equal(products[1].bring.magnit, 95, "exact-store in-stock evidence must not overwrite the generic Magnit baseline");
+assert.equal(products[1].bring[scopedMagnitId], 109.99, "exact-store in-stock evidence must be stored only under the physical-store price key");
+assert.equal(sandbox.TDPriceMeta.get("pasta", "magnit", "bring"), null, "generic Magnit must not inherit exact-store provenance");
+assert.equal(sandbox.TDPriceMeta.get("milk", "magnit", "bring"), null, "generic Magnit must not inherit exact-store price metadata");
+const unavailableMeta = sandbox.TDPriceMeta.get("pasta", scopedMagnitId, "bring");
 assert.equal(unavailableMeta.availability, "out_of_stock");
 assert.equal(unavailableMeta.price, null);
 assert.equal(unavailableMeta.scopeVerified, true);
 assert.equal(unavailableMeta.comparisonEligible, false);
+const milkMeta = sandbox.TDPriceMeta.get("milk", scopedMagnitId, "bring");
+assert.equal(milkMeta.price, 109.99);
+assert.equal(milkMeta.availability, "in_stock");
+assert.equal(milkMeta.storeId, scopedMagnitId);
 const magnitRuntime = sandbox.TDRetailerPriceState.overlays.find(item => item.retailer === "magnit");
+assert.equal(magnitRuntime.storeId, "770105", "runtime must publish the physical store identifier for point binding");
+assert.equal(magnitRuntime.priceStoreId, scopedMagnitId, "runtime must publish the scoped price key consumed by the store-id bridge");
+assert.equal(magnitRuntime.count, 1);
 assert.equal(magnitRuntime.unavailableCount, 1);
 
-console.log("Retailer overlay tests passed with regional trust metadata, live matches and fail-closed exact-store unavailability.");
+console.log("Retailer overlay tests passed with regional trust metadata, exact-store scoped price keys and fail-closed unavailability.");
