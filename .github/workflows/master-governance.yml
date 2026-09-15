@@ -27,6 +27,7 @@ jobs:
             "REGRESSION_BANK.md"
             "DECISIONS/README.md"
             "RELEASE_GATE.md"
+            "CLOSED_BETA_RELEASE_EVIDENCE.md"
             "RETAILER_CAPABILITIES.md"
             "MVP_SCENARIOS.md"
             "KNOWN_LIMITATIONS.md"
@@ -55,6 +56,9 @@ jobs:
           grep -Fq "Public launch" RELEASE_GATE.md
           grep -Fq "legacy `tamdeshevle`" KNOWN_LIMITATIONS.md
 
+      - name: Validate closed-beta A-F release contract
+        run: node scripts/test-closed-beta-release-gate.mjs
+
       - name: Validate project status freshness metadata
         shell: bash
         run: |
@@ -68,7 +72,6 @@ jobs:
           age = (date.today() - stamp).days
           if age < -1:
               raise SystemExit(f"PROJECT_STATUS.md update date is in the future: {stamp}")
-          # Warn after 14 days; do not block solely on age because quiet periods are legitimate.
           if age > 14:
               print(f"::warning::PROJECT_STATUS.md is {age} days old; fresh-read main and refresh it if project state changed.")
           else:
@@ -87,4 +90,4 @@ jobs:
           fi
 
       - name: Governance summary
-        run: echo "Votonobay MASTER governance contract is present."
+        run: echo "Votonobay MASTER governance and closed-beta A-F release contracts are present."
