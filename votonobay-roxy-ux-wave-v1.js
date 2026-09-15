@@ -28,8 +28,9 @@
     const assistant=document.querySelector(".td-ai");
     if(!assistant)return true;
     const close=assistant.querySelector("[data-ai-close]");
-    if(typeof close?.click!=="function")return false;
-    close.click();
+    if(typeof close?.onclick==="function")close.onclick.call(close);
+    else if(typeof close?.click==="function")close.click();
+    else return false;
     return !document.querySelector(".td-ai");
   }
 
