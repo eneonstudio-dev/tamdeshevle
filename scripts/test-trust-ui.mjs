@@ -24,7 +24,7 @@ assert.match(retailerSync,/regional_catalog_estimate/,'regional catalog estimate
 assert.match(retailerSync,/freshness: quality\.status/,'retailer price metadata must preserve freshness status into the provenance layer');
 assert.match(retailerSync,/quality\.status === "unverified" && quality\.estimateUsable === true && book\.catalog_context\?\.price_scope === "regional_catalog"/,'only fresh, in-period regional unverified catalogs may enter the estimate side channel');
 assert.match(retailerSync,/if \(quality\.usable && match\.comparison_eligible === true && match\.availability === "in_stock"\) \{[\s\S]*product\.prices/,'only usable verified overlays may mutate comparison prices');
-assert.match(dataQuality,/status: "stale", rank: TRUST\.VERIFIED, verified: true, usable: true/,'stale exact-store observations intentionally remain usable until expiry and therefore require explicit disclosure');
+assert.match(dataQuality,/if \(ageHours <= Number\(policy\.staleHours\)\) return \{ status: "stale", usable: true/,'stale exact-store observations intentionally remain usable until expiry and therefore require explicit disclosure');
 assert.match(provenanceUi,/meta\.freshness === "stale"/,'stale exact-store evidence must have an explicit UI branch');
 assert.match(provenanceUi,/△ наблюдение устарело/,'stale item prices must not look like fresh store prices');
 assert.match(provenanceUi,/ценовых наблюдений устарели — перепроверь цену перед покупкой/,'a rankable plan containing stale prices must disclose that those observations need re-checking');
