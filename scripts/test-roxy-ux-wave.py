@@ -139,15 +139,17 @@ def main():
             stage="open Bay from List"
             driver.find_element(By.CSS_SELECTOR,".v2-list-bay-open").click()
             WebDriverWait(driver,8).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=true]'))"))
+            WebDriverWait(driver,4).until(lambda d:d.execute_script("return history.state?.tdOverlay==='bai'"))
             after=driver.execute_script("return JSON.stringify(state.cart)")
             if before!=after:
                 failures.append(f"{name}: opening Bay from List mutated basket: {before} -> {after}")
 
             stage="Account layer handoff"
             # Account must take exclusive layer ownership itself. Leave the Bay conversation
-            # open on purpose: opening Account has to close it through Bay's own close action,
-            # without changing the current List or basket.
+            # open on purpose: opening Account has to replace Bay's history ownership instead
+            # of unwinding the current List or mutating the basket.
             driver.execute_script("window.TDAccountHub.open(0);")
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-account.td-account-polished')) && history.state?.tdOverlay==='account'"))
             account=driver.execute_script("""
               const raw=document.querySelector('.td-account');
               const root=document.querySelector('.td-account.td-account-polished');
@@ -170,12 +172,15 @@ def main():
                 cloudEnabled:[...root?.querySelectorAll('[data-cloud-save],[data-cloud-restore]')||[]].some(x=>!x.disabled),
                 bayOverlayCount:document.querySelectorAll('.td-ai,.bai-panel,[data-bai-panel=true]').length,
                 bayOverlayVisible:[...document.querySelectorAll('.td-ai,.bai-panel,[data-bai-panel=true]')].some(visible),
+                historyOverlay:history.state?.tdOverlay||null,
                 screen:document.getElementById('app')?.dataset.screen||'',
                 cart:JSON.stringify(state.cart)
               };
             """)
             if not account['exists'] or not account['polished']:
                 failures.append(f"{name}: Account did not become the polished active layer {account}")
+            if account['historyOverlay']!='account':
+                failures.append(f"{name}: Account did not take history overlay ownership {account}")
             if account['local']!='Локальный режим':
                 failures.append(f"{name}: Account local-only presentation badge missing {account}")
             if account['closeHeight']<43.5:
@@ -192,6 +197,20 @@ def main():
                 failures.append(f"{name}: Account layer handoff changed List/basket state {account}")
 
             driver.save_screenshot(str(ARTIFACTS/f"roxy-ux-wave-{name}.png"))
+
+            stage="Account browser-back close"
+            driver.execute_script("history.back();")
+            WebDriverWait(driver,5).until(lambda d:d.execute_script("return !document.querySelector('.td-account')"))
+            back_state=driver.execute_script("""
+              return {
+                screen:document.getElementById('app')?.dataset.screen||'',
+                cart:JSON.stringify(state.cart),
+                historyOverlay:history.state?.tdOverlay||null,
+                bayVisible:Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=true]'))
+              };
+            """)
+            if back_state['screen']!='cart' or back_state['cart']!=before or back_state['bayVisible']:
+                failures.append(f"{name}: browser Back from Account did not return cleanly to List {back_state}")
         except Exception as exc:
             failures.append(f"{name} [{stage}]: {type(exc).__name__}: {exc}")
         finally:
@@ -202,7 +221,7 @@ def main():
         for failure in failures:
             print("-",failure)
         return 1
-    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, exclusive polished local-only Account layer and bounded mobile wave surfaces.")
+    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, Bay→Account history ownership, clean browser Back, polished local-only Account and bounded mobile surfaces.")
     return 0
 
 
