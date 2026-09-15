@@ -42,6 +42,17 @@
     try{target.focus({preventScroll:true})}catch(_){target.focus?.()}
   }
   function focusNextFrame(target){requestAnimationFrame(()=>{if(target?.isConnected)focusWithoutScroll(target)})}
+  function focusBayComposer(root){
+    const focus=()=>{
+      const area=root?.querySelector(".td-ai-compose textarea");
+      if(area?.isConnected)focusWithoutScroll(area);
+    };
+    focus();
+    requestAnimationFrame(()=>{
+      focus();
+      requestAnimationFrame(focus);
+    });
+  }
   function keepFocusInside(card,preferred){
     requestAnimationFrame(()=>{
       if(preferred?.isConnected)focusWithoutScroll(preferred);
@@ -103,9 +114,8 @@
     else shell.prepend(note);
     if(main)requestAnimationFrame(()=>{if(main.isConnected)main.scrollTop=scrollTop});
     button.addEventListener("click",()=>{
-      const area=root.querySelector(".td-ai-compose textarea");
       note.remove();
-      focusNextFrame(area);
+      focusBayComposer(root);
     });
     return true;
   }
