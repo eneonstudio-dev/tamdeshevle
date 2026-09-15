@@ -1,12 +1,13 @@
 {
   "schema": "tamdeshevle.retailer-price-overlay.v1",
   "retailer": "magnit",
-  "store_id": "magnit",
+  "store_id": "magnit:770105",
   "city": "msk",
-  "checked_at": "2026-09-15T07:46:41.879Z",
+  "checked_at": "2026-09-15T22:32:50.535Z",
   "prices": {
     "banana": 149.99,
     "buckwheat": 59.99,
+    "carrot": 69.99,
     "eggs_c1": 79.99,
     "milk": 109.99,
     "oil_sunflower": 169.99,
@@ -56,6 +57,28 @@
       },
       "requested_pack": {
         "value": 800,
+        "unit": "g"
+      },
+      "availability": "in_stock"
+    },
+    {
+      "sku": "carrot",
+      "name": "Морковь мытая 1кг",
+      "retailer_product_id": "1445100176",
+      "price_rub": 69.99,
+      "old_price_rub": null,
+      "promo": false,
+      "source_url": "https://magnit.ru/product/1445100176-morkov_mytaya_fasovannaya_1upak?shopCode=770105&shopType=1",
+      "image_url": "https://images-foodtech.magnit.ru/DGSUfh55R3hvZmmsngJKcRbl_7xR56hb3tJfupZon6Q/rs:fit:1600:1600/plain/s3://img-dostavka/catalog/pim/goods/1445100176/image/f83c01f2e0fa842f247f5d1bae2b493e.jpeg@webp",
+      "confidence": 0.9,
+      "method": "conservative_rule",
+      "comparison_eligible": true,
+      "source_pack": {
+        "value": 1000,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
         "unit": "g"
       },
       "availability": "in_stock"
@@ -262,8 +285,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Blueberry Nights 25пак",
-      "retailer_product_id": "1000098747",
+      "name": "Чай черный Greenfield Golden Ceylon 200г",
+      "retailer_product_id": "1000096355",
       "reason": "no_rule_match"
     },
     {
@@ -277,23 +300,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Тостовый половинка нарезанный 280г",
-      "retailer_product_id": "1000059771",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 1.4кг",
-      "retailer_product_id": "1000132964",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Сметана Ключевское 20% 180г",
-      "retailer_product_id": "1000544222",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Хлеб Бородинский ржаной нарезанный 330г",
       "retailer_product_id": "1000076773",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Blueberry Nights 25пак",
+      "retailer_product_id": "1000098747",
       "reason": "no_rule_match"
     },
     {
@@ -302,13 +315,23 @@
       "reason": "no_rule_match"
     },
     {
+      "name": "Сметана Ключевское 20% 180г",
+      "retailer_product_id": "1000544222",
+      "reason": "no_rule_match"
+    },
+    {
       "name": "Хлеб Подовый белый нарезанный Краснодарский хлебозавод №6 550г",
       "retailer_product_id": "1000088181",
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Ahmad Tea Персик-Маракуйя 25пак",
-      "retailer_product_id": "1000389628",
+      "name": "Хлеб Бородинский нарезанный ржано-пшеничный Краснодарский хлебозавод №6 450г",
+      "retailer_product_id": "1000134831",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
+      "retailer_product_id": "1000172831",
       "reason": "no_rule_match"
     },
     {
@@ -322,43 +345,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Кубанский молочник пастеризованное 2.5% 720г",
-      "retailer_product_id": "1000172831",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Лапша гречневая соба Sonoko 300г",
-      "retailer_product_id": "8000114265",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб Городской формовой Краснодарский хлебозавод №6 500г",
-      "retailer_product_id": "1000178961",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Ahmad Tea Blackcurrant Burst смородина 25пак",
-      "retailer_product_id": "1000451703",
-      "reason": "no_rule_match"
-    },
-    {
       "name": "Молоко сгущенное Рогачевъ Вареное с сахаром 8.5% 360г",
       "retailer_product_id": "1000244512",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Хлеб тостовый премиум суперсемечковый нарезанный 330г",
-      "retailer_product_id": "1000210710",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Akbar Limited Edition крупнолистовой 200г",
-      "retailer_product_id": "1000475806",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
-      "retailer_product_id": "1000304495",
       "reason": "no_rule_match"
     },
     {
@@ -367,23 +355,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Краснодарский Гост Ручной сбор Чабрец 25пак",
-      "retailer_product_id": "1000551003",
+      "name": "Чай черный Ahmad Tea Blackcurrant Burst смородина 25пак",
+      "retailer_product_id": "1000451703",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Чиабатта зерновая 300г",
-      "retailer_product_id": "1000253543",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Чай черный Greenfield Earl Grey Fantasy с бергамотом 100г",
-      "retailer_product_id": "1032420004",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
-      "retailer_product_id": "1000427388",
+      "name": "Молоко Платье в Горошек пастеризованное 3.5-5.4% 900мл",
+      "retailer_product_id": "1000304495",
       "reason": "no_rule_match"
     },
     {
@@ -392,13 +370,8 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
-      "retailer_product_id": "1039990273",
-      "reason": "no_rule_match"
-    },
-    {
-      "name": "Молоко Агрокомплекс пастеризованное 2.5% 1.4л",
-      "retailer_product_id": "1000450019",
+      "name": "Чай черный Краснодарский Гост Ручной сбор Чабрец 25пак",
+      "retailer_product_id": "1000551003",
       "reason": "no_rule_match"
     },
     {
@@ -407,13 +380,13 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Golden Ceylon 25пак",
-      "retailer_product_id": "1524200012",
+      "name": "Чай черный Краснодарский Гост Ручной сбор бандероль 40г",
+      "retailer_product_id": "1000551010",
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
-      "retailer_product_id": "1000456509",
+      "name": "Молоко Джубгский фермер пастеризованное 3.2% 1л",
+      "retailer_product_id": "1000427388",
       "reason": "no_rule_match"
     },
     {
@@ -422,18 +395,63 @@
       "reason": "no_rule_match"
     },
     {
-      "name": "Чай черный Greenfield Spring Melody 25пак",
-      "retailer_product_id": "1524200089",
+      "name": "Чай черный Greenfield Earl Grey Fantasy с бергамотом 100г",
+      "retailer_product_id": "1032420004",
       "reason": "no_rule_match"
     },
     {
-      "name": "Молоко Коровка Из Кореновки пастеризованное 2.7% 1.4л",
-      "retailer_product_id": "1000456510",
+      "name": "Молоко Коровка Из Кореновки отборное пастеризованное 3.4%-6.0% 1.4л",
+      "retailer_product_id": "1000456509",
       "reason": "no_rule_match"
     },
     {
-      "name": "Хлеб Ремесленный на закваске нарезанный Аютинский хлеб 550г",
-      "retailer_product_id": "1000310437",
+      "name": "Хлеб Казачий ржано-пшеничный Краснодарский хлебозавод №6 400г",
+      "retailer_product_id": "1000307542",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Barberry Garden 25пак",
+      "retailer_product_id": "1032420027",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Павловское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000495985",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Хлеб Добрынинский ржано-пшеничный нарезанный Грiдневъ 250г",
+      "retailer_product_id": "1000324612",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Tess Pleasure с шиповником и яблоком 25пак*1.5г 37.5г",
+      "retailer_product_id": "1039990273",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко Ключевское пастеризованное 2.5% 900г",
+      "retailer_product_id": "1000516518",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Батон Летний дар нарезанный Краснодарский хлебозавод №6 170г",
+      "retailer_product_id": "1000335181",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Чай черный Greenfield Golden Ceylon 25пак",
+      "retailer_product_id": "1524200012",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Молоко ультрапастеризованное безлактозное Домик в Деревне 1.8% 950г",
+      "retailer_product_id": "1000568396",
+      "reason": "no_rule_match"
+    },
+    {
+      "name": "Лаваш ремесленный цельнозерновой Аютинский хлеб 240г",
+      "retailer_product_id": "1000387665",
       "reason": "no_rule_match"
     },
     {
@@ -480,88 +498,11 @@
       "reason": "availability_unconfirmed"
     },
     {
-      "sku": "carrot",
-      "name": "Морковь мытая 1кг",
-      "retailer_product_id": "1445100176",
-      "source_url": "https://magnit.ru/product/1445100176-morkov_mytaya_fasovannaya_1upak?shopCode=770105&shopType=1",
-      "price_rub": 69.99,
-      "eligible": false,
-      "reason": "availability_unconfirmed"
-    },
-    {
       "sku": "pasta",
       "name": "Макароны Спагетти Магнит 500г в ассортименте",
       "retailer_product_id": "1000166929",
       "source_url": "https://magnit.ru/product/1000166929-makarony_magnit_spagetti_500g?shopCode=770105&shopType=1",
       "price_rub": 38.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 500,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 450,
-        "unit": "g"
-      }
-    },
-    {
-      "sku": "potato",
-      "name": "Пирожок жареный с картофельной начинкой 100г",
-      "retailer_product_id": "1000142375",
-      "source_url": "https://magnit.ru/product/1000142375-pirozhok_zharenyy_s_kartofelnoy_nachinkoy_100g_kulinariya?shopCode=770105&shopType=1",
-      "price_rub": 49.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 100,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
-      }
-    },
-    {
-      "sku": "onion",
-      "name": "Лук репчатый",
-      "retailer_product_id": "9072651204",
-      "source_url": "https://magnit.ru/product/9072651204-luk_repchatyy?shopCode=770105&shopType=1",
-      "price_rub": 34.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 700,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
-      }
-    },
-    {
-      "sku": "carrot",
-      "name": "Морковь",
-      "retailer_product_id": "9072651201",
-      "source_url": "https://magnit.ru/product/9072651201-morkov?shopCode=770105&shopType=1",
-      "price_rub": 25.05,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 700,
-        "unit": "g"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "g"
-      }
-    },
-    {
-      "sku": "pasta",
-      "name": "Макароны Makfa Длинные 500г",
-      "retailer_product_id": "1000167334",
-      "source_url": "https://magnit.ru/product/1000167334-makarony_makfa_dlinnye_500g?shopCode=770105&shopType=1",
-      "price_rub": 64.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
@@ -591,20 +532,54 @@
       }
     },
     {
-      "sku": "milk",
-      "name": "Молоко пастеризованное Домик в деревне 2.5% 930мл",
-      "retailer_product_id": "1000035016",
-      "source_url": "https://magnit.ru/product/1000035016-moloko_domik_v_derevne_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1",
-      "price_rub": 84.99,
+      "sku": "onion",
+      "name": "Лук репчатый",
+      "retailer_product_id": "9072651204",
+      "source_url": "https://magnit.ru/product/9072651204-luk_repchatyy?shopCode=770105&shopType=1",
+      "price_rub": 34.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 930,
-        "unit": "ml"
+        "value": 700,
+        "unit": "g"
       },
       "requested_pack": {
         "value": 1000,
-        "unit": "ml"
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "carrot",
+      "name": "Хлеб Злаковый с морковью ржано-пшеничный Краснодарский хлебозавод №6 250г",
+      "retailer_product_id": "1000207769",
+      "source_url": "https://magnit.ru/product/1000207769-khleb_zlakovyy_s_morkovyu_rzhan_pshen_250g_p_up_krasnodarkhz_6?shopCode=770105&shopType=1",
+      "price_rub": 81.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 250,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "pasta",
+      "name": "Макароны Makfa Длинные 500г",
+      "retailer_product_id": "1000167334",
+      "source_url": "https://magnit.ru/product/1000167334-makarony_makfa_dlinnye_500g?shopCode=770105&shopType=1",
+      "price_rub": 64.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
       }
     },
     {
@@ -625,15 +600,49 @@
       }
     },
     {
-      "sku": "pasta",
-      "name": "Спагетти Makfa шпинатные 500г",
-      "retailer_product_id": "1000373532",
-      "source_url": "https://magnit.ru/product/1000373532-makfa_makaronnye_izdeliya_spagetti_shpinatnye_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
-      "price_rub": 69.99,
+      "sku": "carrot",
+      "name": "Морковь",
+      "retailer_product_id": "9072651201",
+      "source_url": "https://magnit.ru/product/9072651201-morkov?shopCode=770105&shopType=1",
+      "price_rub": 25.05,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
-        "value": 500,
+        "value": 700,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "g"
+      }
+    },
+    {
+      "sku": "milk",
+      "name": "Молоко пастеризованное Домик в деревне 2.5% 930мл",
+      "retailer_product_id": "1000035016",
+      "source_url": "https://magnit.ru/product/1000035016-moloko_domik_v_derevne_pasterizovannoe_2_5_930ml?shopCode=770105&shopType=1",
+      "price_rub": 84.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 930,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
+      "sku": "pasta",
+      "name": "Макароны Barilla Букатини 400г",
+      "retailer_product_id": "1000199773",
+      "source_url": "https://magnit.ru/product/1000199773-barilla_bukatini_makaron_izd_v_s_400g_k_up_barilla_24?shopCode=770105&shopType=1",
+      "price_rub": 99.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 400,
         "unit": "g"
       },
       "requested_pack": {
@@ -642,10 +651,27 @@
       }
     },
     {
+      "sku": "milk",
+      "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000166913",
+      "source_url": "https://magnit.ru/product/1000166913-zdorove_iz_predgorya_moloko_past_2_5_900ml_pl_but_abinsk_6?shopCode=770105&shopType=1",
+      "price_rub": 89.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 900,
+        "unit": "ml"
+      },
+      "requested_pack": {
+        "value": 1000,
+        "unit": "ml"
+      }
+    },
+    {
       "sku": "pasta",
-      "name": "Спагетти Makfa томатные 500г",
-      "retailer_product_id": "1000373535",
-      "source_url": "https://magnit.ru/product/1000373535-makfa_makaronnye_izdeliya_spagetti_tomatnaya_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
+      "name": "Спагетти Makfa шпинатные 500г",
+      "retailer_product_id": "1000373532",
+      "source_url": "https://magnit.ru/product/1000373532-makfa_makaronnye_izdeliya_spagetti_shpinatnye_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
       "price_rub": 69.99,
       "eligible": false,
       "reason": "different_pack",
@@ -676,11 +702,28 @@
       }
     },
     {
+      "sku": "pasta",
+      "name": "Спагетти Makfa томатные 500г",
+      "retailer_product_id": "1000373535",
+      "source_url": "https://magnit.ru/product/1000373535-makfa_makaronnye_izdeliya_spagetti_tomatnaya_500g_polietilenovaya_upakovka_ao_makfa_20?shopCode=770105&shopType=1",
+      "price_rub": 69.99,
+      "eligible": false,
+      "reason": "different_pack",
+      "source_pack": {
+        "value": 500,
+        "unit": "g"
+      },
+      "requested_pack": {
+        "value": 450,
+        "unit": "g"
+      }
+    },
+    {
       "sku": "milk",
-      "name": "Молоко Здоровье из Предгорья пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000166913",
-      "source_url": "https://magnit.ru/product/1000166913-zdorove_iz_predgorya_moloko_past_2_5_900ml_pl_but_abinsk_6?shopCode=770105&shopType=1",
-      "price_rub": 89.99,
+      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
+      "retailer_product_id": "1000304501",
+      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
+      "price_rub": 79.99,
       "eligible": false,
       "reason": "different_pack",
       "source_pack": {
@@ -707,23 +750,6 @@
       "requested_pack": {
         "value": 450,
         "unit": "g"
-      }
-    },
-    {
-      "sku": "milk",
-      "name": "Молоко Платье в Горошек пастеризованное 2.5% 900мл",
-      "retailer_product_id": "1000304501",
-      "source_url": "https://magnit.ru/product/1000304501-plate_v_goroshek_moloko_pitevoe_moloko_pasterizatsiya_2_5_31450_2013_900g_plastikovaya_butylka_ooo_n?shopCode=770105&shopType=1",
-      "price_rub": 79.99,
-      "eligible": false,
-      "reason": "different_pack",
-      "source_pack": {
-        "value": 900,
-        "unit": "ml"
-      },
-      "requested_pack": {
-        "value": 1000,
-        "unit": "ml"
       }
     }
   ],
