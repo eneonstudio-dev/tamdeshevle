@@ -68,16 +68,18 @@ def main():
 
             home=driver.execute_script("""
               const hero=document.querySelector('.v2-hero.v2-bay-first[data-roxy-approved="1"]');
+              const bai=hero?.querySelector('.v2-hero-bai');
               const link=document.querySelector('link[data-roxy-ux-wave]');
               const hs=hero?getComputedStyle(hero):null;
               const r=hero?.getBoundingClientRect();
+              const br=bai?.getBoundingClientRect();
               return {
                 screen:document.getElementById('app')?.dataset.screen||'',
                 title:hero?.querySelector('.v2-hero-copy h1')?.innerText||'',
                 cssLoaded:Boolean(link && link.sheet),
                 heroTop:r?.top||0,
-                heroBottom:r?.bottom||0,
                 heroHeight:r?.height||0,
+                baiTop:br?.top||0,
                 viewportHeight:window.innerHeight,
                 marginTop:hs?parseFloat(hs.marginTop):999
               };
@@ -86,8 +88,10 @@ def main():
                 failures.append(f"{name}: approved compact Home or UX-wave CSS missing {home}")
             if width<=740 and home['marginTop']>12.5:
                 failures.append(f"{name}: Home top spacing is not compact {home}")
-            if width<=740 and home['heroBottom']>home['viewportHeight']+36:
-                failures.append(f"{name}: approved Home hero no longer fits the opening mobile viewport {home}")
+            if width<=740 and home['heroTop']>104:
+                failures.append(f"{name}: approved Home starts too low for compact mobile composition {home}")
+            if width<=740 and (home['baiTop']<=0 or home['baiTop']>=home['viewportHeight']):
+                failures.append(f"{name}: primary Bay visual is not present in the opening mobile viewport {home}")
             if not surface_fits_viewport(driver,'.v2-hero.v2-bay-first'):
                 failures.append(f"{name}: Home hero escapes the viewport horizontally")
             if driver.execute_script("return Boolean(document.querySelector('.roxy-bay-card'))") and not surface_fits_viewport(driver,'.roxy-bay-card'):
@@ -104,24 +108,26 @@ def main():
             if not click_list_navigation(driver):
                 failures.append(f"{name}: no visible real List navigation control")
                 continue
-            WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('app')?.dataset.screen==='cart' && Boolean(document.querySelector('.hp'))"))
+            WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.getElementById('app')?.dataset.screen==='cart' && Boolean(document.querySelector('#app .wrap'))"))
             WebDriverWait(driver,8).until(lambda d:d.execute_script("return document.querySelectorAll('.v2-list-bay').length===1"))
             driver.execute_script("window.dispatchEvent(new CustomEvent('td:v2-rendered'));window.dispatchEvent(new CustomEvent('td:v2-rendered')); ")
             WebDriverWait(driver,3).until(lambda d:d.execute_script("return document.querySelectorAll('.v2-list-bay').length===1"))
             before=driver.execute_script("return JSON.stringify(state.cart)")
             list_ui=driver.execute_script("""
               const card=document.querySelector('.v2-list-bay');
+              const host=document.querySelector('#app .wrap');
               const button=card?.querySelector('.v2-list-bay-open');
               const cs=button?getComputedStyle(button):null;
               return {
                 count:document.querySelectorAll('.v2-list-bay').length,
+                isFirst:Boolean(card && host && host.firstElementChild===card),
                 text:card?.innerText||'',
                 buttonHeight:button?.getBoundingClientRect().height||0,
                 buttonMinHeight:cs?parseFloat(cs.minHeight):0
               };
             """)
-            if list_ui['count']!=1 or 'Хочешь поменять список словами?' not in list_ui['text']:
-                failures.append(f"{name}: Bay-on-List card is missing or duplicated {list_ui}")
+            if list_ui['count']!=1 or not list_ui['isFirst'] or 'Хочешь поменять список словами?' not in list_ui['text']:
+                failures.append(f"{name}: Bay-on-List card is missing, misplaced or duplicated {list_ui}")
             if list_ui['buttonHeight']<43.5 or list_ui['buttonMinHeight']<43.5:
                 failures.append(f"{name}: Bay-on-List action is below touch-target contract {list_ui}")
             if not surface_fits_viewport(driver,'.v2-list-bay'):
