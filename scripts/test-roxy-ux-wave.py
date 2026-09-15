@@ -142,8 +142,9 @@ def main():
             if before!=after:
                 failures.append(f"{name}: opening Bay from List mutated basket: {before} -> {after}")
 
-            # Close Bay surface before opening account so layer/focus ownership stays explicit.
-            driver.execute_script("window.TDBai?.closePanel?.();window.TDShoppingAssistant?.close?.();")
+            # Account must take exclusive layer ownership itself. Leave the Bay conversation
+            # open on purpose: opening Account has to close it through Bay's own close action,
+            # without changing the current List or basket.
             driver.execute_script("window.TDAccountHub.open(0);")
             WebDriverWait(driver,6).until(lambda d:d.execute_script("return document.querySelector('.td-account.td-account-polished')!==null"))
             account=driver.execute_script("""
@@ -151,12 +152,20 @@ def main():
               const close=root?.querySelector('.td-account-close');
               const tab=root?.querySelector('.td-account-tab');
               const local=root?.querySelector('.td-account-local-badge');
+              const visible=node=>{
+                if(!node||!node.isConnected||node.hidden||node.getAttribute('aria-hidden')==='true')return false;
+                const style=getComputedStyle(node),rect=node.getBoundingClientRect();
+                return style.display!=='none' && style.visibility!=='hidden' && rect.width>0 && rect.height>0;
+              };
               return {
                 local:local?.innerText||'',
                 closeHeight:close?.getBoundingClientRect().height||0,
                 tabHeight:tab?.getBoundingClientRect().height||0,
                 overflow:root ? root.scrollWidth-root.clientWidth : 999,
-                cloudEnabled:[...root?.querySelectorAll('[data-cloud-save],[data-cloud-restore]')||[]].some(x=>!x.disabled)
+                cloudEnabled:[...root?.querySelectorAll('[data-cloud-save],[data-cloud-restore]')||[]].some(x=>!x.disabled),
+                bayOverlayVisible:[...document.querySelectorAll('.td-ai,.bai-panel,[data-bai-panel=true]')].some(visible),
+                screen:document.getElementById('app')?.dataset.screen||'',
+                cart:JSON.stringify(state.cart)
               };
             """)
             if account['local']!='Локальный режим':
@@ -169,6 +178,10 @@ def main():
                 failures.append(f"{name}: Account has horizontal overflow {account}")
             if account['cloudEnabled']:
                 failures.append(f"{name}: UX polish accidentally enabled local-only cloud controls {account}")
+            if account['bayOverlayVisible']:
+                failures.append(f"{name}: Bay conversation remains visible behind Account {account}")
+            if account['screen']!='cart' or account['cart']!=before:
+                failures.append(f"{name}: Account layer handoff changed List/basket state {account}")
 
             driver.save_screenshot(str(ARTIFACTS/f"roxy-ux-wave-{name}.png"))
         except Exception as exc:
@@ -181,7 +194,7 @@ def main():
         for failure in failures:
             print("-",failure)
         return 1
-    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, polished local-only Account and bounded mobile wave surfaces.")
+    print("Roxy UX-wave browser QA passed: compact approved Home, one non-mutating Bay-on-List entry, exclusive polished local-only Account layer and bounded mobile wave surfaces.")
     return 0
 
 
