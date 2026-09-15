@@ -41,14 +41,14 @@ html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-prompt{
 
 /* ---- Bay on List ------------------------------------------------------- */
 html body.td-votonobay .v2-list-bay{
-  margin:0 16px 14px;
+  margin:0 0 14px;
   padding:14px 14px 14px 15px;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   gap:12px;
   align-items:center;
   min-width:0;
-  max-width:calc(100% - 32px);
+  max-width:100%;
   box-sizing:border-box;
   border:1px solid rgba(101,233,162,.2);
   border-radius:18px;
@@ -237,8 +237,8 @@ html body .td-account.td-account-polished .td-cloud-status{
   }
 
   html body.td-votonobay .v2-list-bay{
-    margin:0 12px 11px;
-    max-width:calc(100% - 24px);
+    margin:0 0 11px;
+    max-width:100%;
     padding:12px;
     grid-template-columns:minmax(0,1fr) auto;
     gap:9px;
