@@ -20,7 +20,8 @@ export function evaluateCharacterGateCase(scenario,candidate){
   const base=evaluateCharacterCandidate(scenario,candidate),errors=[...base.errors];
   if(!scenario||!candidate)return base;
   const expected=scenario.expected||{},reply=String(candidate.reply||''),clarification=String(candidate.clarification||'');
-  const replyQuestions=(reply.match(/\?/g)||[]).length,totalQuestions=replyQuestions+(clarification.match(/\?/g)||[]).length;
+  const replyQuestions=(reply.match(/\?/g)||[]).length,clarificationQuestions=(clarification.match(/\?/g)||[]).length;
+  const totalQuestions=Math.max(replyQuestions,clarificationQuestions);
   if(expected.clarification==='none'&&replyQuestions)errors.push('question_in_reply_without_clarification');
   if(expected.max_questions!=null&&totalQuestions>Number(expected.max_questions))errors.push('too_many_questions_total');
   if(expected.initiative==='none'&&EMPTY_INITIATIVE.test(reply))errors.push('empty_initiative');
