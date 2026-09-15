@@ -27,6 +27,21 @@
   }
 
   function metaSlot(channel) { return channel === "shelf_catalog" || channel === "regional_catalog" ? "shelf" : "bring"; }
+  function exactStoreCode(book) {
+    const context = book && book.store_context;
+    if (!context || typeof context !== "object") return null;
+    const value = context.shop_code ?? context.sap_code ?? context.store_code ?? context.storeId ?? context.store_id;
+    return value == null || String(value).trim() === "" ? null : String(value).trim();
+  }
+  function verifiedPriceStoreId(book) {
+    const retailer = String(book?.retailer || "").trim();
+    const configured = String(book?.store_id || "").trim();
+    if (book?.scope_verified !== true) return configured || retailer || null;
+    const code = exactStoreCode(book);
+    if (retailer && code) return `${retailer}:${code}`;
+    if (configured && configured !== retailer) return configured;
+    return null;
+  }
   function productById(productId) {
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return null;
     return PRODUCTS.find(item => item.id === productId) || null;
@@ -99,7 +114,7 @@
   function applyOverlay(book, quality) {
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS)) return { count: 0, estimatedCount: 0, unavailableCount: 0 };
     if (typeof state === "undefined" || !state || book.city !== state.city) return { count: 0, estimatedCount: 0, unavailableCount: 0 };
-    const verifiedStoreId = book.store_id || book.retailer;
+    const verifiedStoreId = verifiedPriceStoreId(book);
     const estimateStoreId = book.retailer;
     const channel = book.channel || "delivery_catalog";
     const slot = metaSlot(channel);
@@ -111,7 +126,7 @@
 
     for (const product of PRODUCTS) {
       const unavailable = unavailableBySku[product.id] || null;
-      if (quality.usable && unavailable && unavailable.availability === "out_of_stock") {
+      if (quality.usable && verifiedStoreId && unavailable && unavailable.availability === "out_of_stock") {
         if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [verifiedStoreId]: null });
         else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: null });
         setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, null, unavailable, "retailer"));
@@ -122,7 +137,7 @@
       const value = book.prices && book.prices[product.id];
       if (!Number.isFinite(value)) continue;
       const match = matchedBySku[product.id] || {};
-      if (quality.usable && match.comparison_eligible === true && match.availability === "in_stock") {
+      if (quality.usable && verifiedStoreId && match.comparison_eligible === true && match.availability === "in_stock") {
         if (slot === "shelf") product.prices = Object.assign({}, product.prices || {}, { [verifiedStoreId]: value });
         else product.bring = Object.assign({}, product.bring || {}, { [verifiedStoreId]: value });
         setPriceMeta(product, verifiedStoreId, slot, buildMeta(book, quality, verifiedStoreId, channel, value, match, "retailer"));
@@ -140,25 +155,29 @@
     if (typeof PRODUCTS === "undefined" || !Array.isArray(PRODUCTS) || PRODUCTS.length < 10) return false;
     if (typeof state === "undefined" || !state) return false;
 
-    const signature = books.map(book => [book.retailer, book.city, book.checked_at, book.scope_verified, Object.keys(book.prices || {}).length, (book.unavailable || []).length, qualityFor(book).status].join(":"))
+    const signature = books.map(book => [book.retailer, book.city, book.store_id, exactStoreCode(book), book.checked_at, book.scope_verified, Object.keys(book.prices || {}).length, (book.unavailable || []).length, qualityFor(book).status].join(":"))
       .join("|") + ":" + state.city + ":" + PRODUCTS.length + ":" + loadIssues.length;
     if (!force && signature === appliedSignature) return true;
 
     const applied = books.map(book => {
       const quality = qualityFor(book);
+      const priceStoreId = verifiedPriceStoreId(book);
+      const scopeUsable = book.scope_verified !== true || Boolean(priceStoreId);
       const result = applyOverlay(book, quality);
       return {
         retailer: book.retailer,
         city: book.city,
         channel: book.channel || "delivery_catalog",
         checkedAt: book.checked_at || null,
+        storeId: exactStoreCode(book) || book.store_id || null,
+        priceStoreId,
         storeContext: book.store_context || null,
         catalogContext: book.catalog_context || null,
         scopeVerified: book.scope_verified === true,
         freshness: quality.status,
-        freshnessReason: quality.reason || null,
+        freshnessReason: scopeUsable ? (quality.reason || null) : "exact_store_identity_missing",
         ageHours: Number.isFinite(quality.ageHours) ? quality.ageHours : null,
-        usable: quality.usable,
+        usable: quality.usable && scopeUsable,
         count: result.count,
         estimatedCount: result.estimatedCount,
         unavailableCount: result.unavailableCount
