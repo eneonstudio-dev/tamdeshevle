@@ -1,3 +1,4 @@
+# Closed-beta A–F replay marker only; workflow behavior is unchanged.
 name: Validate owner Bay shopping loop
 
 on:
