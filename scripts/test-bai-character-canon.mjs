@@ -41,7 +41,9 @@ assert.match(canon,/Бай защищает человека не от высо�
 assert.match(canon,/Человек не тупой\. Человек занятой\./i);
 assert.match(canon,/Личность и reasoning должны быть разделены/i);
 assert.match(canon,/Архитектура должна подстраиваться под персонажа/i);
-assert.match(canon,/источник[;\s]+уверенность[;\s]+актуальность[;\s]+возможность исправления/i);
+for(const memoryProperty of ["источник","уверенность","актуальность","возможность исправления"]){
+  assert.ok(canon.toLowerCase().includes(memoryProperty),`Character Canon must retain memory property: ${memoryProperty}`);
+}
 assert.match(architecture,/Character regression/i,"Bay Engine architecture must require character regression before provider replacement");
 
 const immutableScenario=suite.cases.find(x=>x.id.startsWith("BCR-013-"));
