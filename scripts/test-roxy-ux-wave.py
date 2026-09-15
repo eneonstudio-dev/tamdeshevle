@@ -116,17 +116,20 @@ def main():
             list_ui=driver.execute_script("""
               const card=document.querySelector('.v2-list-bay');
               const host=document.querySelector('#app .wrap');
+              const firstItem=host?.querySelector('.item');
               const button=card?.querySelector('.v2-list-bay-open');
               const cs=button?getComputedStyle(button):null;
+              const beforeItems=Boolean(card && (!firstItem || (card.compareDocumentPosition(firstItem)&Node.DOCUMENT_POSITION_FOLLOWING)));
               return {
                 count:document.querySelectorAll('.v2-list-bay').length,
-                isFirst:Boolean(card && host && host.firstElementChild===card),
+                inList:Boolean(card && host && card.parentElement===host),
+                beforeItems,
                 text:card?.innerText||'',
                 buttonHeight:button?.getBoundingClientRect().height||0,
                 buttonMinHeight:cs?parseFloat(cs.minHeight):0
               };
             """)
-            if list_ui['count']!=1 or not list_ui['isFirst'] or 'Хочешь поменять список словами?' not in list_ui['text']:
+            if list_ui['count']!=1 or not list_ui['inList'] or not list_ui['beforeItems'] or 'Хочешь поменять список словами?' not in list_ui['text']:
                 failures.append(f"{name}: Bay-on-List card is missing, misplaced or duplicated {list_ui}")
             if list_ui['buttonHeight']<43.5 or list_ui['buttonMinHeight']<43.5:
                 failures.append(f"{name}: Bay-on-List action is below touch-target contract {list_ui}")
