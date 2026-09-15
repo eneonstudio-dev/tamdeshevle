@@ -52,6 +52,7 @@
     if(!list.length)return unresolved();
     const exactTag=point.osmTags&&(point.osmTags.ref||point.osmTags["ref:store"]||point.osmTags["brand:ref"]);
     for(const c of list){if(exactTag&&String(exactTag)===String(c.storeId))return resolved(c,"osm_store_ref",1);}
+    if(exactTag)return unresolved();
     let best=null;
     for(const c of list){
       const score=addressScore(point.address,c.address),numbersMatch=addressNumbersMatch(point.address,c.address),km=distance(point,c.ctx),geoOk=km!=null&&km<=MAX_ADDRESS_DISTANCE_KM;
