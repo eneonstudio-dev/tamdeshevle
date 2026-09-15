@@ -35,36 +35,38 @@ try:
       const matchedRules=[];
       const visit=(rules,href,conditions=[])=>{
         for(const rule of Array.from(rules||[])){
-          if(rule.cssRules){
+          if(rule.selectorText){
+            let matches=false;
+            try{matches=host.matches(rule.selectorText)}catch(_){}
+            if(matches){
+              const style=rule.style;
+              const relevant=Boolean(style?.display||style?.opacity||style?.pointerEvents||style?.visibility||style?.transform);
+              if(relevant){
+                matchedRules.push({
+                  href:href||'inline',
+                  selector:rule.selectorText,
+                  display:style.display||'',
+                  displayPriority:style.getPropertyPriority('display')||'',
+                  opacity:style.opacity||'',
+                  opacityPriority:style.getPropertyPriority('opacity')||'',
+                  pointerEvents:style.pointerEvents||'',
+                  pointerPriority:style.getPropertyPriority('pointer-events')||'',
+                  visibility:style.visibility||'',
+                  transform:style.transform||'',
+                  conditions,
+                  allConditionsApply:conditions.every(item=>item.applies!==false)
+                });
+              }
+            }
+          }
+          if(rule.cssRules && rule.cssRules.length){
             const condition=rule.conditionText||'';
             let applies=true;
             if(condition && rule.constructor?.name==='CSSMediaRule'){
               try{applies=window.matchMedia(condition).matches}catch(_){applies=false}
             }
             visit(rule.cssRules,href,conditions.concat([{condition,applies,type:rule.constructor?.name||''}]));
-            continue;
           }
-          if(!rule.selectorText) continue;
-          let matches=false;
-          try{matches=host.matches(rule.selectorText)}catch(_){}
-          if(!matches) continue;
-          const style=rule.style;
-          const relevant=Boolean(style?.display||style?.opacity||style?.pointerEvents||style?.visibility||style?.transform);
-          if(!relevant) continue;
-          matchedRules.push({
-            href:href||'inline',
-            selector:rule.selectorText,
-            display:style.display||'',
-            displayPriority:style.getPropertyPriority('display')||'',
-            opacity:style.opacity||'',
-            opacityPriority:style.getPropertyPriority('opacity')||'',
-            pointerEvents:style.pointerEvents||'',
-            pointerPriority:style.getPropertyPriority('pointer-events')||'',
-            visibility:style.visibility||'',
-            transform:style.transform||'',
-            conditions,
-            allConditionsApply:conditions.every(item=>item.applies!==false)
-          });
         }
       };
       for(const sheet of Array.from(document.styleSheets)){
