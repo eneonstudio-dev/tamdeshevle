@@ -268,7 +268,7 @@
       const result=baseSetQty.apply(this,arguments);
       if(catalogQuery)window.state.q=catalogQuery;
       if(result===false)return result;
-      const qty=Math.max(0,Number(window.state?.cart?.[id])||0;
+      const qty=Math.max(0,Number(window.state?.cart?.[id])||0);
       const name=window.TDData?.byProduct?.(id)?.name||"Товар";
       announce(qty?`${name}: количество ${qty}`:`${name}: удалено из корзины`);
       requestAnimationFrame(()=>{
