@@ -11,6 +11,9 @@ on:
       - "shopping-conversation.js"
       - "shopping-optimizer.js"
       - "bai-checkout.js"
+      - "android-viewport-fix.css"
+      - "touch-layout-fix.css"
+      - "scripts/test-bay-launcher-cold-start.py"
       - "scripts/test-owner-shopping-loop.py"
       - ".github/workflows/validate-owner-shopping-loop.yml"
   push:
@@ -25,6 +28,9 @@ on:
       - "shopping-conversation.js"
       - "shopping-optimizer.js"
       - "bai-checkout.js"
+      - "android-viewport-fix.css"
+      - "touch-layout-fix.css"
+      - "scripts/test-bay-launcher-cold-start.py"
       - "scripts/test-owner-shopping-loop.py"
       - ".github/workflows/validate-owner-shopping-loop.yml"
 
@@ -51,6 +57,10 @@ jobs:
           done
           cat /tmp/votonobay-http.log
           exit 1
+      - name: Verify Bay launcher on mobile cold start
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-bay-launcher-cold-start.py
       - name: Replay exact owner conversation through physical Bay UI
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
