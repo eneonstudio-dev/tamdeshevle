@@ -62,10 +62,12 @@ def main():
     cases=(("android",412,915),("narrow",320,760),("desktop",1440,1000))
     for name,width,height in cases:
         driver=driver_for(width,height)
+        stage="startup"
         try:
             driver.get(BASE_URL)
             wait_ready(driver)
 
+            stage="home"
             home=driver.execute_script("""
               const hero=document.querySelector('.v2-hero.v2-bay-first[data-roxy-approved="1"]');
               const bai=hero?.querySelector('.v2-hero-bai');
@@ -97,9 +99,7 @@ def main():
             if driver.execute_script("return Boolean(document.querySelector('.roxy-bay-card'))") and not surface_fits_viewport(driver,'.roxy-bay-card'):
                 failures.append(f"{name}: Roxy quick-start card escapes the viewport horizontally")
 
-            # Seed only the existing local demo basket so the List screen has stable rows.
-            # Navigation itself goes through the real UI; the UX wave never receives a
-            # privileged state setter and must not mutate this basket.
+            stage="list navigation"
             driver.execute_script("""
               state.cart={milk:2,bread:1,chicken:1};
               state.cartTouched=true;
@@ -136,18 +136,20 @@ def main():
             if not surface_fits_viewport(driver,'.v2-list-bay'):
                 failures.append(f"{name}: Bay-on-List card escapes the viewport horizontally")
 
+            stage="open Bay from List"
             driver.find_element(By.CSS_SELECTOR,".v2-list-bay-open").click()
             WebDriverWait(driver,8).until(lambda d:d.execute_script("return Boolean(document.querySelector('.td-ai,.bai-panel,[data-bai-panel=true]'))"))
             after=driver.execute_script("return JSON.stringify(state.cart)")
             if before!=after:
                 failures.append(f"{name}: opening Bay from List mutated basket: {before} -> {after}")
 
+            stage="Account layer handoff"
             # Account must take exclusive layer ownership itself. Leave the Bay conversation
             # open on purpose: opening Account has to close it through Bay's own close action,
             # without changing the current List or basket.
             driver.execute_script("window.TDAccountHub.open(0);")
-            WebDriverWait(driver,6).until(lambda d:d.execute_script("return document.querySelector('.td-account.td-account-polished')!==null"))
             account=driver.execute_script("""
+              const raw=document.querySelector('.td-account');
               const root=document.querySelector('.td-account.td-account-polished');
               const close=root?.querySelector('.td-account-close');
               const tab=root?.querySelector('.td-account-tab');
@@ -158,16 +160,22 @@ def main():
                 return style.display!=='none' && style.visibility!=='hidden' && rect.width>0 && rect.height>0;
               };
               return {
+                exists:Boolean(raw),
+                polished:Boolean(root),
+                classes:raw?.className||'',
                 local:local?.innerText||'',
                 closeHeight:close?.getBoundingClientRect().height||0,
                 tabHeight:tab?.getBoundingClientRect().height||0,
                 overflow:root ? root.scrollWidth-root.clientWidth : 999,
                 cloudEnabled:[...root?.querySelectorAll('[data-cloud-save],[data-cloud-restore]')||[]].some(x=>!x.disabled),
+                bayOverlayCount:document.querySelectorAll('.td-ai,.bai-panel,[data-bai-panel=true]').length,
                 bayOverlayVisible:[...document.querySelectorAll('.td-ai,.bai-panel,[data-bai-panel=true]')].some(visible),
                 screen:document.getElementById('app')?.dataset.screen||'',
                 cart:JSON.stringify(state.cart)
               };
             """)
+            if not account['exists'] or not account['polished']:
+                failures.append(f"{name}: Account did not become the polished active layer {account}")
             if account['local']!='Локальный режим':
                 failures.append(f"{name}: Account local-only presentation badge missing {account}")
             if account['closeHeight']<43.5:
@@ -185,7 +193,7 @@ def main():
 
             driver.save_screenshot(str(ARTIFACTS/f"roxy-ux-wave-{name}.png"))
         except Exception as exc:
-            failures.append(f"{name}: {exc}")
+            failures.append(f"{name} [{stage}]: {type(exc).__name__}: {exc}")
         finally:
             driver.quit()
 
