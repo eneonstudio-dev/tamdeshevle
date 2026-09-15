@@ -16,6 +16,7 @@ on:
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
       - "scripts/test-bay-sheet-collapse.py"
+      - "scripts/test-legacy-phantom-cart.py"
       - "scripts/test-roxy-network-recovery.py"
       - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-purchase-proof.py"
@@ -41,6 +42,7 @@ on:
       - "scripts/test-roxy-long-product-names.py"
       - "scripts/test-roxy-mobile-compose.py"
       - "scripts/test-bay-sheet-collapse.py"
+      - "scripts/test-legacy-phantom-cart.py"
       - "scripts/test-roxy-network-recovery.py"
       - "scripts/test-roxy-return-continuity.py"
       - "scripts/test-roxy-purchase-proof.py"
@@ -86,6 +88,10 @@ jobs:
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
         run: python scripts/test-cold-start-home.py
+      - name: Validate legacy phantom-cart migration
+        env:
+          TD_UX_BASE_URL: http://127.0.0.1:4173/
+        run: python scripts/test-legacy-phantom-cart.py
       - name: Validate Roxy decision hierarchy
         env:
           TD_UX_BASE_URL: http://127.0.0.1:4173/
