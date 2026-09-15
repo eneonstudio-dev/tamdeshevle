@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 
+const plain=value=>JSON.parse(JSON.stringify(value));
 const window={};
 const context=vm.createContext({window,console,setTimeout,clearTimeout,Date,JSON,Math,Number,String,Boolean,Object,Array,Set,Map,Promise,TypeError});
 for(const file of ["../bai-engine-provider.js","../bai-provider-contract.js"]){
@@ -40,7 +41,7 @@ const provider=Engine.create({
   estimateCost(){return{usd:0};}
 });
 
-assert.deepEqual(provider.capabilities(),{streaming:false,tools:true,structuredOutput:true,local:false,paid:false});
+assert.deepEqual(plain(provider.capabilities()),{streaming:false,tools:true,structuredOutput:true,local:false,paid:false});
 const request={message:"молоко",context:{session:"bounded"}};
 const result=await provider.generate(request);
 assert.equal(result.ok,true);
@@ -49,11 +50,11 @@ assert.equal(result.model,"test-model");
 assert.equal(result.usage.totalTokens,150);
 assert.equal(result.usage.costUsd,0);
 assert.notEqual(result.payload,request,"provider payload must not alias the request");
-assert.deepEqual(seenRequest,request);
+assert.deepEqual(plain(seenRequest),request);
 
 const safe=Safety.normalize(result.payload,{catalog:[{id:"milk"}]});
 assert.equal(safe.ok,true);
-assert.deepEqual(safe.operations,[{type:"ADD_PRODUCT",value:"milk"}]);
+assert.deepEqual(plain(safe.operations),[{type:"ADD_PRODUCT",value:"milk"}]);
 assert.equal(safe.reply,"Добавил молоко.");
 assert.equal(Object.hasOwn(safe,"price"),false,"truth-critical provider fields must not escape normalization");
 assert.equal(Object.hasOwn(safe,"availability"),false,"availability must not escape normalization");
@@ -61,7 +62,7 @@ assert.equal(Object.hasOwn(safe,"availability"),false,"availability must not esc
 const health=await provider.healthCheck();
 assert.equal(health.ok,true);
 assert.equal(health.provider,"test-provider");
-assert.deepEqual(provider.estimateCost({inputTokens:100}),{usd:0});
+assert.deepEqual(plain(provider.estimateCost({inputTokens:100})),{usd:0});
 
 const throws=Engine.create({
   id:"throws",
