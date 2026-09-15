@@ -214,6 +214,6 @@ import("./bai-session-owner-guard.js?v=20260913-owner-v1")
   .then(()=>import("./bai-speech-lifecycle.js?v=20260912-speech-v1"))
   .then(()=>import("./bai-character.js?v=20260912-character-v2"))
   .then(()=>import("./bai-execution-contract.js?v=20260912-contract-v2"))
-  .then(()=>import("./bai-observability.js?v=20260913-observability-v1"))
+  .then(()=>import("./bai-observability.js?v=20260915-chat-quality-v2"))
   .then(()=>import("./bai-idempotency-guard.js?v=20260913-operation-origin-v1"))
   .catch(error=>console.warn("[Bai Agent/Decision/Journey/SystemPrompt/Literal/Speech/Character/Observability/Idempotency] client load failed",error));
