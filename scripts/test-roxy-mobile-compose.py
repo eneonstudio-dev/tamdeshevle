@@ -57,10 +57,26 @@ def main():
                   viewportKeyboard:viewport.keyboard,
                   horizontalOverflow:root.scrollWidth-root.clientWidth
                 };
-                main.scrollTop=main.scrollHeight;
-                const bottomState=TDRoxyMobileComposeV1.snapshot(main);
-                TDRoxyMobileComposeV1.applyViewport(root,fake,bottomState);
-                setTimeout(()=>done({...first,bottomGap:main.scrollHeight-main.scrollTop-main.clientHeight}),80);
+
+                // Reproduce two viewport states that overlap across nested RAFs:
+                // an older reader position is still scheduled when a newer
+                // near-bottom state arrives. The newer state must win without
+                // a one-frame jump back to stale content.
+                main.scrollTop=200;
+                const staleState=TDRoxyMobileComposeV1.snapshot(main);
+                TDRoxyMobileComposeV1.applyViewport(root,fake,staleState);
+                requestAnimationFrame(()=>{
+                  main.scrollTop=main.scrollHeight;
+                  const latestState=TDRoxyMobileComposeV1.snapshot(main);
+                  TDRoxyMobileComposeV1.applyViewport(root,fake,latestState);
+                  requestAnimationFrame(()=>{
+                    const staleSettleGap=main.scrollHeight-main.scrollTop-main.clientHeight;
+                    requestAnimationFrame(()=>{
+                      const bottomGap=main.scrollHeight-main.scrollTop-main.clientHeight;
+                      done({...first,staleSettleGap,bottomGap});
+                    });
+                  });
+                });
               },100);
             """)
             if metrics['decorated']!='1': failures.append(f"{name}: composer layer not decorated {metrics}")
@@ -68,6 +84,7 @@ def main():
             if metrics['areaScroll']!='1': failures.append(f"{name}: long textarea did not become internally scrollable {metrics}")
             if metrics['sendHeight']<43.5 or metrics['micHeight']<43.5: failures.append(f"{name}: composer touch target too short {metrics}")
             if abs(metrics['scrollTop']-200)>3: failures.append(f"{name}: keyboard viewport yanked reader from old content {metrics}")
+            if metrics['staleSettleGap']>3: failures.append(f"{name}: stale viewport settle briefly overrode latest content {metrics}")
             if metrics['bottomGap']>3: failures.append(f"{name}: near-bottom conversation did not stay at latest content {metrics}")
             if metrics['horizontalOverflow']>1: failures.append(f"{name}: horizontal overflow {metrics}")
             if mobile:
@@ -83,7 +100,7 @@ def main():
         print('Roxy mobile composer QA failed:')
         for failure in failures: print('-',failure)
         return 1
-    print('Roxy mobile composer QA passed on desktop and Android-sized viewports.')
+    print('Roxy mobile composer QA passed on desktop and Android-sized viewports, including stale-settle ordering.')
     return 0
 
 if __name__=='__main__':
