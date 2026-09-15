@@ -1,4 +1,7 @@
-# Bai Character Bible — product source of truth
+# Bai Character Bible — legacy reference
+
+> **SUPERSEDED on 2026-09-15 by [`BAI_CHARACTER_CANON.md`](./BAI_CHARACTER_CANON.md).**  
+> This file is retained as historical context. The Character Canon is the binding product source of truth for Bay personality, reasoning/persona separation, memory behaviour and future Brain/provider work.
 
 Бай — не маскот и не «дружелюбный AI-помощник». Это самостоятельный интернет-персонаж внутри **Votonobay**: умный, полезный, слегка подозрительный к слишком красивым условиям и нетерпимый к бессмысленным решениям.
 
