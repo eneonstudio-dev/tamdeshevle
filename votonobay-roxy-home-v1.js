@@ -15,6 +15,23 @@
     document.head.appendChild(link);
   }
 
+  function ensureUxWave(){
+    if(!document.querySelector('link[data-roxy-ux-wave]')){
+      const link=document.createElement("link");
+      link.rel="stylesheet";
+      link.href="votonobay-roxy-ux-wave-v1.css?v=20260915-v1";
+      link.dataset.roxyUxWave="1";
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('script[data-roxy-ux-wave]')){
+      const script=document.createElement("script");
+      script.src="votonobay-roxy-ux-wave-v1.js?v=20260915-v1";
+      script.defer=true;
+      script.dataset.roxyUxWave="1";
+      document.head.appendChild(script);
+    }
+  }
+
   function makePreview(hero){
     if(hero.querySelector(".roxy-bay-card"))return;
     const panel=document.createElement("div");
@@ -91,6 +108,11 @@
       observer.observe(document.body,{childList:true,subtree:true});
     }
   }
+
+  // UX-wave assets are presentation-only and are intentionally not part of
+  // the canonical cold-start readiness contract. Load them early so density
+  // settles quickly without delaying td:roxy-home-ready.
+  ensureUxWave();
 
   // Register lifecycle listeners as soon as this preload evaluates. The V2 shell
   // can render before DOMContentLoaded on mobile; waiting until boot() used to

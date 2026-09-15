@@ -1,0 +1,346 @@
+/* Sara 2 UX wave: presentation only.
+   Home density, Bay presence on List, Account polish and compact mobile composition.
+   No shopping intent/state/price/ranking/provider semantics live here. */
+
+/* ---- Home density ------------------------------------------------------- */
+html body.td-votonobay:not(.td-votonobay-inner) .v2-home{
+  padding-top:max(48px,calc(env(safe-area-inset-top) + 36px))!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  margin-top:clamp(18px,5.8vh,64px)!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-bay-actions,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-self-search{
+  min-width:0;
+  max-width:100%;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy p{
+  margin-top:14px!important;
+  max-width:620px;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{
+  margin-top:18px!important;
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-card{
+  min-width:0!important;
+  max-width:100%!important;
+  box-sizing:border-box;
+  box-shadow:0 20px 70px rgba(0,0,0,.22);
+}
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-card-head,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-quicks,
+html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-prompt{
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+/* ---- Bay on List ------------------------------------------------------- */
+html body.td-votonobay .v2-list-bay{
+  margin:0 0 14px;
+  padding:14px 14px 14px 15px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:12px;
+  align-items:center;
+  min-width:0;
+  max-width:100%;
+  box-sizing:border-box;
+  border:1px solid rgba(101,233,162,.2);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(15,123,74,.11),rgba(255,255,255,.88));
+  box-shadow:0 12px 34px rgba(22,20,16,.06);
+}
+html body.td-votonobay .v2-list-bay-copy{min-width:0}
+html body.td-votonobay .v2-list-bay-kicker{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-bottom:4px;
+  color:#0f7b4a;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+html body.td-votonobay .v2-list-bay-kicker:before{
+  content:"";
+  width:7px;
+  height:7px;
+  flex:0 0 auto;
+  border-radius:50%;
+  background:#65e9a2;
+  box-shadow:0 0 0 4px rgba(101,233,162,.13);
+}
+html body.td-votonobay .v2-list-bay strong{
+  display:block;
+  color:#161410;
+  font-size:14px;
+  line-height:1.18;
+  letter-spacing:-.025em;
+}
+html body.td-votonobay .v2-list-bay p{
+  margin:4px 0 0;
+  color:#6b6458;
+  font-size:10px;
+  font-weight:650;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+html body.td-votonobay .v2-list-bay-open{
+  min-width:112px;
+  min-height:44px;
+  border:0;
+  border-radius:13px;
+  padding:0 14px;
+  background:#123c2a;
+  color:#fff;
+  font:850 11px Manrope,sans-serif;
+  cursor:pointer;
+  box-shadow:0 8px 22px rgba(18,60,42,.18);
+}
+html body.td-votonobay .v2-list-bay-open:focus-visible{
+  outline:3px solid rgba(15,123,74,.24);
+  outline-offset:2px;
+}
+
+/* ---- Account polish ---------------------------------------------------- */
+html body .td-account.td-account-polished{
+  background:
+    radial-gradient(circle at 75% 5%,rgba(101,233,162,.11),transparent 25%),
+    #f4f1ea;
+}
+html body .td-account.td-account-polished .td-account-head{
+  min-height:68px;
+  padding:12px 16px 8px;
+  border-bottom:1px solid rgba(22,20,16,.045);
+}
+html body .td-account.td-account-polished .td-account-close{
+  min-width:44px;
+  width:44px;
+  min-height:44px;
+  height:44px;
+  border:1px solid rgba(22,20,16,.055);
+  box-shadow:0 8px 20px rgba(22,20,16,.05);
+  cursor:pointer;
+}
+html body .td-account.td-account-polished .td-account-title{
+  font-size:19px;
+  line-height:1.05;
+}
+html body .td-account.td-account-polished .td-account-sub{
+  margin-top:3px;
+  font-size:10px;
+}
+html body .td-account.td-account-polished .td-account-local-badge{
+  display:inline-flex;
+  align-items:center;
+  min-height:22px;
+  margin-top:5px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#e7f6ec;
+  color:#0f7b4a;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+html body .td-account.td-account-polished .td-account-tabs{
+  gap:6px;
+  padding:7px 16px 9px;
+}
+html body .td-account.td-account-polished .td-account-tab{
+  min-height:40px;
+  padding:0 13px;
+  border:1px solid rgba(22,20,16,.045);
+  font-size:11px;
+  cursor:pointer;
+}
+html body .td-account.td-account-polished .td-account-tab.on{
+  border-color:#161410;
+  box-shadow:0 8px 20px rgba(22,20,16,.08);
+}
+html body .td-account.td-account-polished .td-account-page{
+  padding-top:8px;
+}
+html body .td-account.td-account-polished .td-account-hero{
+  padding:17px;
+  border-radius:22px;
+  box-shadow:0 18px 46px rgba(22,20,16,.12);
+}
+html body .td-account.td-account-polished .td-account-card,
+html body .td-account.td-account-polished .td-account-stat{
+  border:1px solid rgba(22,20,16,.045);
+  box-shadow:0 9px 24px rgba(22,20,16,.035);
+}
+html body .td-account.td-account-polished .td-account-card{
+  padding:14px 15px;
+}
+html body .td-account.td-account-polished .td-account-row{
+  align-items:flex-start;
+  line-height:1.35;
+}
+html body .td-account.td-account-polished .td-account-row>*{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+html body .td-account.td-account-polished .td-account-login,
+html body .td-account.td-account-polished .td-cloud-actions button{
+  min-height:44px;
+  cursor:pointer;
+}
+html body .td-account.td-account-polished button:disabled{
+  cursor:not-allowed;
+  filter:saturate(.55);
+  opacity:.52;
+}
+html body .td-account.td-account-polished .td-cloud-status{
+  padding:9px 10px;
+  border-radius:12px;
+  background:rgba(15,123,74,.055);
+}
+
+/* ---- Mobile compactness ------------------------------------------------ */
+@media(max-width:740px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-home{
+    padding-top:max(40px,calc(env(safe-area-inset-top) + 30px))!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+    margin-top:10px!important;
+    padding:23px 19px 22px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy h1{
+    line-height:.98!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-copy p{
+    margin-top:10px!important;
+    line-height:1.45!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
+    min-height:174px!important;
+    margin-top:4px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+    max-width:min(49vw,198px)!important;
+    height:auto!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-proof{
+    margin-top:12px!important;
+    gap:5px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .roxy-bay-card{
+    margin-top:12px!important;
+  }
+
+  html body.td-votonobay .v2-list-bay{
+    margin:0 0 11px;
+    max-width:100%;
+    padding:12px;
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:9px;
+    border-radius:16px;
+  }
+  html body.td-votonobay .v2-list-bay strong{font-size:13px}
+  html body.td-votonobay .v2-list-bay p{font-size:9.5px}
+  html body.td-votonobay .v2-list-bay-open{
+    min-width:96px;
+    padding-inline:11px;
+  }
+
+  html body .td-account.td-account-polished .td-account-head{
+    min-height:62px;
+    padding:9px 12px 6px;
+  }
+  html body .td-account.td-account-polished .td-account-close{
+    min-width:44px;
+    width:44px;
+    min-height:44px;
+    height:44px;
+  }
+  html body .td-account.td-account-polished .td-account-title{font-size:17px}
+  html body .td-account.td-account-polished .td-account-sub{font-size:9px}
+  html body .td-account.td-account-polished .td-account-local-badge{
+    min-height:20px;
+    margin-top:3px;
+    padding-inline:7px;
+    font-size:8px;
+  }
+  html body .td-account.td-account-polished .td-account-tabs{
+    padding:5px 12px 7px;
+  }
+  html body .td-account.td-account-polished .td-account-tab{
+    min-height:44px;
+    padding-inline:12px;
+  }
+  html body .td-account.td-account-polished .td-account-page{
+    padding:5px 12px calc(22px + env(safe-area-inset-bottom));
+  }
+  html body .td-account.td-account-polished .td-account-hero{
+    padding:15px;
+    border-radius:20px;
+  }
+  html body .td-account.td-account-polished .td-account-avatar{
+    width:46px;
+    height:46px;
+    margin-bottom:9px;
+  }
+  html body .td-account.td-account-polished .td-account-name{font-size:22px}
+  html body .td-account.td-account-polished .td-account-card{
+    margin-top:8px;
+    padding:12px;
+    border-radius:16px;
+  }
+  html body .td-account.td-account-polished .td-account-grid{
+    gap:7px;
+  }
+  html body .td-account.td-account-polished .td-account-stat{
+    padding:10px;
+    border-radius:14px;
+  }
+  html body .td-account.td-account-polished .td-account-stat b{font-size:18px}
+  html body .td-account.td-account-polished .td-account-placeholder{
+    padding:15px 0;
+  }
+}
+
+@media(max-width:360px){
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-home{
+    padding-top:max(36px,calc(env(safe-area-inset-top) + 26px))!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-hero.v2-bay-first{
+    margin-top:6px!important;
+    padding:19px 15px 18px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai{
+    min-height:152px!important;
+  }
+  html body.td-votonobay:not(.td-votonobay-inner) .v2-bay-first .v2-hero-bai img{
+    max-width:min(51vw,174px)!important;
+    height:auto!important;
+  }
+  html body.td-votonobay .v2-list-bay{
+    grid-template-columns:1fr;
+  }
+  html body.td-votonobay .v2-list-bay-open{
+    width:100%;
+  }
+  html body .td-account.td-account-polished .td-account-grid{
+    gap:6px;
+  }
+  html body .td-account.td-account-polished .td-account-stat{
+    padding:9px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  html body.td-votonobay .v2-list-bay,
+  html body .td-account.td-account-polished *{
+    scroll-behavior:auto!important;
+    transition:none!important;
+    animation:none!important;
+  }
+}

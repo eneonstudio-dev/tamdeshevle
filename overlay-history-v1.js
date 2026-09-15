@@ -2,6 +2,7 @@
   "use strict";
   const layers=[
     {key:"bai",selector:".td-ai",close:node=>node.querySelector("[data-ai-close]")?.click()},
+    {key:"account",selector:".td-account",close:node=>node.querySelector(".td-account-close")?.click()},
     {key:"pickup",selector:".td-pickup-backdrop",close:()=>window.TDPickupFlowV1?.close?.()},
     {key:"courier",selector:".td-courier-backdrop",close:()=>window.TDCourierHandoffV1?.close?.()},
     {key:"continue-stores",selector:".td-continue-stores",close:()=>window.TDContinueInStoresV1?.close?.()},
@@ -11,9 +12,14 @@
   const findLayer=node=>layers.find(x=>node?.matches?.(x.selector));
   function push(layer,node){
     if(!layer||!node||active?.node===node)return;
+    const previous=active;
     active={...layer,node};
     if(history.state?.tdOverlay===layer.key)return;
-    try{history.pushState({...history.state,tdOverlay:layer.key},"")}catch{}
+    try{
+      const replacing=layer.key==="account"&&previous&&history.state?.tdOverlay===previous.key;
+      if(replacing)history.replaceState({...history.state,tdOverlay:layer.key},"");
+      else history.pushState({...history.state,tdOverlay:layer.key},"");
+    }catch{}
   }
   function handleAdded(node){
     if(!(node instanceof Element))return;
@@ -27,7 +33,12 @@
     if(closingFromPop){closingFromPop=false;return}
     if(history.state?.tdOverlay===old.key){manualBackPending=true;try{history.back()}catch{manualBackPending=false}}
   }
-  const observer=new MutationObserver(records=>{for(const record of records){record.addedNodes.forEach(handleAdded);record.removedNodes.forEach(handleRemoved)}});
+  const observer=new MutationObserver(records=>{
+    // Resolve additions first so an exclusive surface mounted in the same task can
+    // take ownership before the previous overlay's removal tries to unwind history.
+    for(const record of records)record.addedNodes.forEach(handleAdded);
+    for(const record of records)record.removedNodes.forEach(handleRemoved);
+  });
   observer.observe(document.documentElement,{childList:true,subtree:true});
   window.addEventListener("popstate",event=>{
     if(manualBackPending){manualBackPending=false;return}
