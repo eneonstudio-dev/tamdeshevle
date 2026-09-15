@@ -7,20 +7,42 @@ const window = { dispatchEvent() {} };
 const context = vm.createContext({ window, CustomEvent: class CustomEvent { constructor(type, init) { this.type = type; this.detail = init && init.detail; } } });
 vm.runInContext(comparison, context, { filename: "comparison-engine.js" });
 
+const scopedPriceStoreId = "lenta:0293";
 window.TDRetailerPriceState = {
   overlays: [{
     retailer: "lenta",
     channel: "delivery_catalog",
     usable: true,
     count: 2,
+    storeId: "0293",
+    priceStoreId: scopedPriceStoreId,
     storeContext: { store_code: "0293", address: "Москва, Дмитровское шоссе, 116 Д" }
   }]
 };
 vm.runInContext(bridge, context, { filename: "store-id-bridge.js" });
 
 const products = [
-  { id: "milk", name: "Молоко", pack: "1 л", bring: { lenta: 80, origin: 100 }, priceMeta: { lenta: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z", sourceUrl: "https://example.test/milk", retailerName: "Молоко Лента" } }, origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } } } },
-  { id: "bread", name: "Хлеб", pack: "650 г", bring: { lenta: 50 }, prices: { origin: 70 }, priceMeta: { lenta: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z" } }, origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } } } }
+  {
+    id: "milk",
+    name: "Молоко",
+    pack: "1 л",
+    bring: { lenta: 999, [scopedPriceStoreId]: 80, origin: 100 },
+    priceMeta: {
+      [scopedPriceStoreId]: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z", sourceUrl: "https://example.test/milk", retailerName: "Молоко Лента" } },
+      origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } }
+    }
+  },
+  {
+    id: "bread",
+    name: "Хлеб",
+    pack: "650 г",
+    bring: { lenta: 999, [scopedPriceStoreId]: 50 },
+    prices: { origin: 70 },
+    priceMeta: {
+      [scopedPriceStoreId]: { bring: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh", checkedAt: "2026-09-10T00:00:00Z" } },
+      origin: { shelf: { kind: "retailer", scopeVerified: true, comparisonEligible: true, availability: "in_stock", freshness: "fresh" } }
+    }
+  }
 ];
 products[0].prices = { origin: 100 };
 const cart = { milk: 1, bread: 2 };
@@ -30,19 +52,20 @@ const stores = [{ id: "origin", kind: "shop" }];
 function assert(condition, message) { if (!condition) throw new Error(message); }
 const match = window.TDStoreIdBridge.resolve(point);
 assert(match.verified && match.storeId === "0293", "physical store id must resolve");
-assert(match.priceStoreId === "lenta", "price key must stay separate from physical store id");
+assert(match.priceStoreId === scopedPriceStoreId, "physical point must resolve to its scoped price key, not the generic retailer key");
 
 const basket = window.TDStoreIdBridge.basket(point, { products, cart, stores, referenceStoreId: "origin" });
 assert(basket.verified === true, "fully retailer-backed point basket must be verified");
-assert(basket.total === 180, "point basket total failed");
+assert(basket.total === 180, "point basket total must use only the physical-store scoped prices");
 assert(basket.coveredItems === 2 && basket.totalItems === 2, "SKU coverage failed");
 assert(basket.coverage === 1 && basket.reason === null, "complete basket coverage/reason failed");
 assert(basket.savings === 60, "verified savings failed");
 assert(basket.items.length === 2 && basket.items[0].name === "Молоко", "basket must expose SKU detail rows");
 assert(basket.items[0].subtotal === 80 && basket.items[1].subtotal === 100, "SKU subtotals failed");
 assert(basket.items[0].meta.sourceUrl === "https://example.test/milk", "SKU provenance must be preserved");
+assert(basket.total !== 2997, "generic chain fallback prices must never leak into an exact-point basket");
 
-const partialProducts = products.map((p, i) => i ? { ...p, bring: { lenta: 1 }, priceMeta: { ...p.priceMeta, lenta: undefined } } : p);
+const partialProducts = products.map((p, i) => i ? { ...p, bring: { lenta: 1, [scopedPriceStoreId]: 1 }, priceMeta: { ...p.priceMeta, [scopedPriceStoreId]: undefined } } : p);
 const partial = window.TDStoreIdBridge.basket(point, { products: partialProducts, cart });
 assert(partial.verified === false && partial.coveredItems === 1 && partial.totalItems === 2, "partial point basket must not be called complete");
 assert(partial.total === null && partial.partialTotal === 80, "unverified educational/network price must not leak into point subtotal");
@@ -70,4 +93,4 @@ assert(badQty.items[0].verified === false && badQty.items[0].subtotal === null, 
 const antipodal = window.TDStoreIdBridge.distance({ lat: 0, lon: 0 }, { lat: 0, lon: 180 });
 assert(Number.isFinite(antipodal) && antipodal > 10000, "distance calculation must stay finite at numeric boundaries");
 
-console.log("Store ID bridge tests passed: exact point, safe price key, honest empty/partial baskets, malformed input guards and verified savings.");
+console.log("Store ID bridge tests passed: exact point, scoped price key, honest empty/partial baskets, malformed input guards and verified savings.");
