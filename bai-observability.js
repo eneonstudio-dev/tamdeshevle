@@ -7,109 +7,33 @@
   const events=[];
   const clone=value=>JSON.parse(JSON.stringify(value));
   const text=(value,max=64)=>String(value==null?"":value).replace(/[\u0000-\u001f<>]/g," ").replace(/\s+/g," ").trim().slice(0,max);
+  const chatText=(value,max)=>text(value,max).replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,"[email]").replace(/(?:\+?\d[\d\s().-]{7,}\d)/g,"[phone]").replace(/(?:bearer\s+|token[=:]\s*)[A-Za-z0-9._~-]{12,}/gi,"[secret]");
   const number=value=>Number.isFinite(Number(value))?Math.max(0,Math.round(Number(value))):undefined;
   const boolean=value=>typeof value==="boolean"?value:undefined;
   const ids=(raw,max=16)=>[...new Set((Array.isArray(raw)?raw:[]).map(value=>text(value,64)).filter(Boolean))].slice(0,max);
 
-  function sanitize(detail={}){
-    const input=detail&&typeof detail==="object"&&!Array.isArray(detail)?detail:{};
-    const out={};
-    for(const key of ["stage","provider","action","code","status","reason","source"]){const value=text(input[key]);if(value)out[key]=value;}
-    for(const key of ["duration_ms","failures","operation_count"]){const value=number(input[key]);if(value!==undefined)out[key]=value;}
-    for(const key of ["recoverable","breaker_open","used","attempted"]){const value=boolean(input[key]);if(value!==undefined)out[key]=value;}
-    if(Array.isArray(input.actions))out.actions=input.actions.map(value=>text(value,48)).filter(Boolean).slice(0,12);
-    return out;
-  }
+  function sanitize(detail={}){const input=detail&&typeof detail==="object"&&!Array.isArray(detail)?detail:{},out={};for(const key of ["stage","provider","action","code","status","reason","source"]){const value=text(input[key]);if(value)out[key]=value;}for(const key of ["duration_ms","failures","operation_count"]){const value=number(input[key]);if(value!==undefined)out[key]=value;}for(const key of ["recoverable","breaker_open","used","attempted"]){const value=boolean(input[key]);if(value!==undefined)out[key]=value;}if(Array.isArray(input.actions))out.actions=input.actions.map(value=>text(value,48)).filter(Boolean).slice(0,12);return out;}
+  function emit(type,detail={}){const event={version:VERSION,type:text(type,48)||"unknown",at:new Date().toISOString(),...sanitize(detail)};events.push(event);if(events.length>MAX_EVENTS)events.splice(0,events.length-MAX_EVENTS);try{window.dispatchEvent(new CustomEvent("td:bai-telemetry",{detail:clone(event)}));}catch{}return clone(event);}
+  function kernelOutcome(stage,result,startedAt,actions=[]){const error=result?.error||{};return emit("kernel",{stage,status:result?.status||(result?.ok===false?"ERROR":"OK"),code:error.code||result?.gate?.code||"",recoverable:error.recoverable,duration_ms:Date.now()-startedAt,operation_count:Array.isArray(actions)?actions.length:0,actions:(Array.isArray(actions)?actions:result?.actions||[]).map(item=>typeof item==="string"?item:item?.type)});}
+  function wrapKernel(){const kernel=window.TDBaiShoppingAgentKernel;if(!kernel||kernel.__tdObservabilityWrapped)return false;const originalRun=typeof kernel.run==="function"?kernel.run.bind(kernel):null,originalExecute=typeof kernel.execute==="function"?kernel.execute.bind(kernel):null;if(originalRun)kernel.run=async function(input){const started=Date.now();try{const result=await originalRun(input);kernelOutcome("run",result,started,result?.actions);return result}catch(error){emit("kernel",{stage:"run",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started});throw error}};if(originalExecute)kernel.execute=function(actions,options){const started=Date.now();try{const result=originalExecute(actions,options);kernelOutcome("execute",result,started,actions);return result}catch(error){emit("kernel",{stage:"execute",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,operation_count:Array.isArray(actions)?actions.length:0,actions:(actions||[]).map(item=>item?.type)});throw error}};try{Object.defineProperty(kernel,"__tdObservabilityWrapped",{value:true,configurable:true});}catch{kernel.__tdObservabilityWrapped=true;}return true;}
+  function providerDetail(status={}){const remote=status?.breakers?.remote||{},local=status?.breakers?.local||{},provider=text(status?.provider||"rules"),breaker=provider==="gemma-browser"?local:remote;return{provider,reason:status?.reason,attempted:status?.attempted,used:status?.used,failures:breaker?.failures,breaker_open:Number(breaker?.openUntil||0)>Date.now()};}
+  function wrapBrain(){const brain=window.TDBaiBrain;if(!brain?.route||brain.__tdObservabilityWrapped)return false;const original=brain.route.bind(brain);brain.route=async function(...args){const started=Date.now();try{const result=await original(...args),status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:result?.status||(result?.ok===false?"ERROR":"OK"),code:result?.agentError?.code||result?.error?.code||"",duration_ms:Date.now()-started,...providerDetail(status)});return result}catch(error){const status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,...providerDetail(status)});throw error;}};try{Object.defineProperty(brain,"__tdObservabilityWrapped",{value:true,configurable:true});}catch{brain.__tdObservabilityWrapped=true;}return true;}
 
-  function emit(type,detail={}){
-    const event={version:VERSION,type:text(type,48)||"unknown",at:new Date().toISOString(),...sanitize(detail)};
-    events.push(event);if(events.length>MAX_EVENTS)events.splice(0,events.length-MAX_EVENTS);
-    try{window.dispatchEvent(new CustomEvent("td:bai-telemetry",{detail:clone(event)}));}catch{}
-    return clone(event);
-  }
-
-  function kernelOutcome(stage,result,startedAt,actions=[]){
-    const error=result?.error||{};
-    return emit("kernel",{stage,status:result?.status||(result?.ok===false?"ERROR":"OK"),code:error.code||result?.gate?.code||"",recoverable:error.recoverable,duration_ms:Date.now()-startedAt,operation_count:Array.isArray(actions)?actions.length:0,actions:(Array.isArray(actions)?actions:result?.actions||[]).map(item=>typeof item==="string"?item:item?.type)});
-  }
-
-  function wrapKernel(){
-    const kernel=window.TDBaiShoppingAgentKernel;if(!kernel||kernel.__tdObservabilityWrapped)return false;
-    const originalRun=typeof kernel.run==="function"?kernel.run.bind(kernel):null;
-    const originalExecute=typeof kernel.execute==="function"?kernel.execute.bind(kernel):null;
-    if(originalRun)kernel.run=async function(input){const started=Date.now();try{const result=await originalRun(input);kernelOutcome("run",result,started,result?.actions);return result}catch(error){emit("kernel",{stage:"run",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started});throw error}};
-    if(originalExecute)kernel.execute=function(actions,options){const started=Date.now();try{const result=originalExecute(actions,options);kernelOutcome("execute",result,started,actions);return result}catch(error){emit("kernel",{stage:"execute",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,operation_count:Array.isArray(actions)?actions.length:0,actions:(actions||[]).map(item=>item?.type)});throw error}};
-    try{Object.defineProperty(kernel,"__tdObservabilityWrapped",{value:true,configurable:true});}catch{kernel.__tdObservabilityWrapped=true;}
-    return true;
-  }
-
-  function providerDetail(status={}){
-    const remote=status?.breakers?.remote||{},local=status?.breakers?.local||{},provider=text(status?.provider||"rules");
-    const breaker=provider==="gemma-browser"?local:remote;
-    return{provider,reason:status?.reason,attempted:status?.attempted,used:status?.used,failures:breaker?.failures,breaker_open:Number(breaker?.openUntil||0)>Date.now()};
-  }
-
-  function wrapBrain(){
-    const brain=window.TDBaiBrain;if(!brain?.route||brain.__tdObservabilityWrapped)return false;
-    const original=brain.route.bind(brain);
-    brain.route=async function(...args){
-      const started=Date.now();
-      try{const result=await original(...args),status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:result?.status||(result?.ok===false?"ERROR":"OK"),code:result?.agentError?.code||result?.error?.code||"",duration_ms:Date.now()-started,...providerDetail(status)});return result}
-      catch(error){const status=window.TDBaiAgentClient?.status?.()||{};emit("provider_route",{stage:"route",status:"THREW",code:text(error?.name)||"ERROR",duration_ms:Date.now()-started,...providerDetail(status)});throw error;}
-    };
-    try{Object.defineProperty(brain,"__tdObservabilityWrapped",{value:true,configurable:true});}catch{brain.__tdObservabilityWrapped=true;}
-    return true;
-  }
-
-  function safeState(raw={}){
-    const s=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{};
-    const out={};
-    const budget=number(s.budget);if(budget!==undefined)out.budget=budget;
-    const people=number(s.peopleCount);if(people!==undefined)out.people=people;
-    const days=number(s.duration);if(days!==undefined)out.days=days;
-    const mode=text(s.mode,16);if(mode)out.mode=mode;
-    const cooking=text(s.cookingPreference,32);if(cooking)out.cooking=cooking;
-    const stores=ids(s.stores||s.store_ids,12);if(stores.length)out.stores=stores;
-    const preferences=ids(s.preferences,16);if(preferences.length)out.preferences=preferences;
-    if(Array.isArray(s.products))out.products=s.products.slice(0,30).map(item=>({id:text(item?.id,64),quantity:number(item?.quantity)??0})).filter(item=>item.id);
-    return out;
-  }
-
-  function failureList(){
-    try{const parsed=JSON.parse(localStorage.getItem(FAILURE_KEY)||"[]");return Array.isArray(parsed)?parsed.slice(-MAX_FAILURES):[]}catch{return[]}
-  }
+  function safeState(raw={}){const s=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw:{},out={};const budget=number(s.budget);if(budget!==undefined)out.budget=budget;const people=number(s.peopleCount);if(people!==undefined)out.people=people;const days=number(s.duration);if(days!==undefined)out.days=days;const mode=text(s.mode,16);if(mode)out.mode=mode;const cooking=text(s.cookingPreference,32);if(cooking)out.cooking=cooking;const stores=ids(s.stores||s.store_ids,12);if(stores.length)out.stores=stores;const preferences=ids(s.preferences,16);if(preferences.length)out.preferences=preferences;if(Array.isArray(s.products))out.products=s.products.slice(0,30).map(item=>({id:text(item?.id,64),quantity:number(item?.quantity)??0})).filter(item=>item.id);return out;}
+  function failureList(){try{const parsed=JSON.parse(localStorage.getItem(FAILURE_KEY)||"[]");return Array.isArray(parsed)?parsed.slice(-MAX_FAILURES):[]}catch{return[]}}
   function writeFailures(list){try{localStorage.setItem(FAILURE_KEY,JSON.stringify(list.slice(-MAX_FAILURES)));return true}catch{return false}}
-  function captureFailure(raw={}){
-    const provider=text(raw.provider||window.TDBaiAgentClient?.status?.().provider||"rules",48)||"rules";
-    const operationTypes=(Array.isArray(raw.operations)?raw.operations:[]).map(item=>text(typeof item==="string"?item:item?.type,48)).filter(Boolean).slice(0,20);
-    const item={version:1,id:`bai-reg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`,at:new Date().toISOString(),source:"chat_feedback",request:text(raw.request,500),reply:text(raw.reply,800),provider,reason:text(raw.reason,80),operation_types:operationTypes,state:safeState(raw.state)};
-    if(!item.request&&!item.reply)return null;
-    const list=failureList();list.push(item);if(!writeFailures(list))return null;
-    emit("regression_candidate",{provider,reason:item.reason,operation_count:operationTypes.length,actions:operationTypes});
-    return clone(item);
-  }
+  function captureFailure(raw={}){const provider=text(raw.provider||window.TDBaiAgentClient?.status?.().provider||"rules",48)||"rules",operationTypes=(Array.isArray(raw.operations)?raw.operations:[]).map(item=>text(typeof item==="string"?item:item?.type,48)).filter(Boolean).slice(0,20),item={version:1,id:`bai-reg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`,at:new Date().toISOString(),source:"chat_feedback",request:chatText(raw.request,500),reply:chatText(raw.reply,800),provider,reason:text(raw.reason,80),operation_types:operationTypes,state:safeState(raw.state)};if(!item.request&&!item.reply)return null;const list=failureList();list.push(item);if(!writeFailures(list))return null;emit("regression_candidate",{provider,reason:item.reason,operation_count:operationTypes.length,actions:operationTypes});return clone(item);}
   function listFailures(){return clone(failureList())}
   function clearFailures(){try{localStorage.removeItem(FAILURE_KEY)}catch{}return[]}
   function exportFailures(){return JSON.stringify({schema:"votonobay-bai-regression-candidates-v1",exported_at:new Date().toISOString(),cases:failureList()},null,2)}
-
-  function debugEnabled(){
-    try{if(new URLSearchParams(window.location?.search||"").get("bai_debug")==="1")return true}catch{}
-    try{return localStorage.getItem(DEBUG_KEY)==="1"}catch{return false}
-  }
+  function debugEnabled(){try{if(new URLSearchParams(window.location?.search||"").get("bai_debug")==="1")return true}catch{}try{return localStorage.getItem(DEBUG_KEY)==="1"}catch{return false}}
   function setDebug(enabled){try{if(enabled)localStorage.setItem(DEBUG_KEY,"1");else localStorage.removeItem(DEBUG_KEY)}catch{}return debugEnabled()}
-  function providerLabel(provider){
-    const p=text(provider||"rules",48).toLowerCase();
-    if(p.includes("trained"))return"TRAINED";
-    if(p==="bai-agent-core"||p.includes("server"))return"SERVER";
-    if(p==="gemma-browser"||p.includes("local"))return"LOCAL";
-    if(p==="domain-gate")return"DOMAIN";
-    return"RULES";
-  }
-
+  function providerLabel(provider){const p=text(provider||"rules",48).toLowerCase();if(p.includes("trained"))return"TRAINED";if(p==="bai-agent-core"||p.includes("server"))return"SERVER";if(p==="gemma-browser"||p.includes("local"))return"LOCAL";if(p==="domain-gate")return"DOMAIN";return"RULES";}
   function summary(){const byType={},byCode={},byProvider={};for(const event of events){byType[event.type]=(byType[event.type]||0)+1;if(event.code)byCode[event.code]=(byCode[event.code]||0)+1;if(event.provider)byProvider[event.provider]=(byProvider[event.provider]||0)+1;}return{version:VERSION,count:events.length,byType,byCode,byProvider,regressionCandidates:failureList().length,last:events.length?clone(events[events.length-1]):null};}
   function clear(){events.splice(0,events.length);}
   function install(){return{kernel:wrapKernel(),brain:wrapBrain()};}
 
   window.TDBaiObservability={version:VERSION,emit,events:()=>clone(events),summary,clear,install,captureFailure,listFailures,clearFailures,exportFailures,debugEnabled,setDebug,providerLabel,safeState};
   install();
+  import("./bai-chat-quality-v3.js?v=20260915-v1").catch(error=>console.warn("[Bai Chat Quality] load failed",error));
 })();
