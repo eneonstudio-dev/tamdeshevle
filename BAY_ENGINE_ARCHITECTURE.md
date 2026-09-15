@@ -3,6 +3,7 @@
 **Status:** approved architecture track
 **Owner:** Rouk V3 (operational sequencing)
 **Technical strategy:** Arbiter
+**Character authority:** `BAI_CHARACTER_CANON.md`
 **Related:** #468
 
 ## Goal
@@ -10,6 +11,8 @@
 Bay is a Votonobay product system, not a wrapper around one LLM. Models are replaceable reasoning engines behind a stable orchestration boundary. Votonobay continues to own shopping state, memory, truth, validation, persona, actions, fallback and release policy.
 
 Closed-beta default is **zero-budget first**. Paid model access must remain disabled unless explicitly enabled under a separately capped budget policy.
+
+The Bay Engine exists to make the **existing Bay** more intelligent, independent and useful. It is not permission to invent a new assistant personality. `BAI_CHARACTER_CANON.md` is binding across model/provider/framework changes.
 
 ## Current AI contour on main
 
@@ -23,6 +26,7 @@ This track is consolidation, not greenfield work. Current main already contains 
 | Runtime fallback | `runtime-bridge.js` + planner/execution contracts | Falls back to deterministic planning/execution and verifies effects |
 | Shopping authority | `bai-shopping-agent-kernel.js` + execution/state contracts | Owns deterministic shopping actions and state mutations |
 | Persona | `bai-character.js` + canonical system prompt | Owns Bay tone/behaviour independently of a specific model |
+| Character product canon | `BAI_CHARACTER_CANON.md` | Binding identity/decision philosophy for all future Brain/provider work |
 | Memory/context | `bai-memory.js`, `bai-goal-memory.js`, shopping state | Votonobay-owned context, not provider-owned conversation state |
 | Observability | `bai-observability.js` | Kernel/provider outcome telemetry and latency |
 | Remote agent | `backend/bai-agent-core.ts` | Bounded shopping agent with safe tools and rate limits |
@@ -58,12 +62,14 @@ Shopping Kernel + Truth Layer + Action Validation
     ↓
 Verified Result / PurchasePlan / safe state mutation
     ↓
-Bay Response Composer (persona; immutable facts stay immutable)
+Bay Response Composer (Character Canon; immutable facts stay immutable)
     ↓
 Text / Voice TTS
 ```
 
 **Rule:** the model proposes; Votonobay decides.
+
+**Character rule:** Bay first reaches and verifies a decision, then expresses it in character. Persona never substitutes for reasoning and never authors facts.
 
 ## Ownership boundaries
 
@@ -77,7 +83,7 @@ Text / Voice TTS
 - retailer capability and handoff authority;
 - memory/context selection;
 - action validation and execution;
-- Bay persona and response-policy rules;
+- Bay persona, Character Canon and response-policy rules;
 - provider routing policy, budget policy and fallback;
 - telemetry and release gates.
 
@@ -86,8 +92,8 @@ Text / Voice TTS
 - interpret natural-language shopping requests;
 - classify intent within the allowed domain;
 - propose bounded tool/action calls;
-- identify when a clarification is necessary;
-- explain an already verified result;
+- identify when a clarification is truly necessary;
+- compare or explain already-verified alternatives using bounded Votonobay context;
 - produce wording compatible with Bay persona constraints.
 
 ### Model may never author as truth
@@ -149,13 +155,34 @@ First implementation milestone = **two provider adapters + deterministic fallbac
 
 More granular cheap/strong routing is a later optimization and must be justified by measured cost/quality data.
 
+## Character Canon contract
+
+`BAI_CHARACTER_CANON.md` is the product authority for who Bay is. `BAI_CHARACTER_BIBLE.md` is legacy historical context only.
+
+The engine must preserve these decision behaviours across providers:
+
+- useful skepticism rather than blind acceptance of discounts/claims;
+- dry care expressed through better outcomes, not empathy boilerplate;
+- autonomy: safe reversible assumptions before unnecessary questions;
+- real-value optimization, not lowest-price worship;
+- willingness to choose a more expensive option when time/effort/risk make it better;
+- willingness to disagree, say «не брать», or recommend a competitor when warranted;
+- uncertainty proportional to evidence quality;
+- serious mode without humour for payments, safety, health, personal data, major loss/error or visible distress;
+- rare, non-mechanical humour/catchphrases;
+- user sovereignty after a clear warning.
+
+A model/provider migration that materially breaks these behaviours is a product regression even if raw benchmark/task accuracy improves.
+
 ## Persona contract
 
 Persona does not belong to a provider.
 
-Canonical Bay persona remains defined by Votonobay-owned rules/prompts/examples, including tone, vocabulary, humour limits, seriousness mode, uncertainty behaviour and response length.
+Canonical Bay persona remains defined by Votonobay-owned rules/prompts/examples and the Character Canon, including tone, vocabulary, humour limits, seriousness mode, uncertainty behaviour and response length.
 
 Persona composition must never alter validated facts. In particular, a post-validation wording step may not recalculate or invent prices, totals, savings, store scope, availability or provenance. Verified values are immutable inputs to the response composer.
+
+Reasoning/decision construction and response styling are separate stages. Character is how Bay expresses a good decision, not a substitute for reaching one.
 
 ## Memory contract
 
@@ -169,7 +196,32 @@ For each request the Context Builder selects only the context needed for that tu
 - no provider-side state assumption;
 - reproducible request construction where practical.
 
+In addition, durable behavioural memory must be correctable and must carry enough metadata to avoid turning one event into a permanent preference. Target semantics from the Character Canon are:
+
+- source;
+- confidence;
+- freshness/relevance;
+- correction path.
+
 This permits provider switching without losing Bay identity or product state.
+
+## Decision-value contract
+
+Bay does not optimize price alone. The decision layer must be able to represent, estimate or explicitly mark unknown the factors that can materially change a recommendation, including:
+
+- money;
+- travel/time;
+- delivery;
+- effort/number of stores;
+- quality/fit where supported;
+- probability of success / risk of missing stock;
+- avoidable cooking or handling burden;
+- waste risk;
+- user preferences and past confirmed behaviour.
+
+The exact scoring formula is not frozen here. What is frozen is the product rule: a slightly more expensive option may be the correct recommendation when the incremental savings do not justify the extra cost/effort/risk.
+
+Any numeric decision must still be derived from verified/explicit inputs, not invented by the model.
 
 ## Zero-budget / cost policy
 
@@ -217,7 +269,7 @@ Voice is transport, not a separate brain:
 STT → text → Bay Engine → text → TTS
 ```
 
-Closed beta may use system/free STT/TTS. A branded paid voice is explicitly later work. Text and voice must reach the same orchestration/truth/action boundaries.
+Closed beta may use system/free STT/TTS. A branded paid voice is explicitly later work. Text and voice must reach the same orchestration/truth/action/Character Canon boundaries.
 
 ## Minimal rollout plan
 
@@ -225,7 +277,8 @@ Closed beta may use system/free STT/TTS. A branded paid voice is explicitly late
 
 - map current AI contour;
 - adopt this canonical ownership boundary;
-- add ADR;
+- bind the Character Canon;
+- add ADRs;
 - no live provider/runtime behaviour change.
 
 ### PR 1 — provider adapter contract
@@ -255,7 +308,7 @@ Prefer zero-cost candidates for the proof. Reuse an existing local/open-weight p
 
 ### PR 5 — provider-switch acceptance
 
-Run the same frozen shopping scenarios through both adapters and deterministic fallback. Verify persona stability, action equivalence where expected, truth rejection and graceful failure.
+Run the same frozen shopping scenarios through both adapters and deterministic fallback. Verify persona stability, action equivalence where expected, truth rejection, decision-value behaviour, character regression and graceful failure.
 
 Voice implementation and sophisticated task-to-model routing remain later tracks unless a release blocker proves otherwise.
 
@@ -264,7 +317,7 @@ Voice implementation and sophisticated task-to-model routing remain later tracks
 Bay Engine v1 is accepted when all are true:
 
 1. Two independent provider adapters can be selected without modifying shopping kernel/product logic.
-2. The same canonical Bay persona policy applies across both.
+2. The same canonical Bay persona policy and Character Canon apply across both.
 3. Provider output cannot create or promote truth-critical prices/store/savings/availability/coverage/provenance.
 4. Provider-proposed mutations pass existing deterministic validation/execution contracts.
 5. Primary timeout/outage leads to fallback or a graceful deterministic response.
@@ -273,6 +326,10 @@ Bay Engine v1 is accepted when all are true:
 8. Paid routing remains off by default and obeys a hard budget ceiling when enabled.
 9. Existing golden shopping, truth, security and browser release suites remain green.
 10. No large rewrite is required to adopt the engine.
+11. Frozen character scenarios show that a provider change does not turn Bay into a generic assistant, comedian, salesperson, lowest-price optimizer or over-questioning interviewer.
+12. Frozen decision scenarios include at least one case where a slightly more expensive option is correctly preferred because verified time/effort/risk outweigh the saving.
+13. Memory behaviour does not promote a single observation into an unjustifiably permanent preference.
+14. Serious-mode scenarios reliably suppress humour and casual character flourishes.
 
 ## Non-goals
 
@@ -284,7 +341,8 @@ Not part of Bay Engine v1:
 - fine-tuning without measured need;
 - a generic AI platform or marketplace of models;
 - allowing an LLM to own truth, shopping state or retailer actions;
-- changing the binding trained-model promotion/re-evaluation rules.
+- changing the binding trained-model promotion/re-evaluation rules;
+- redesigning Bay personality as part of a provider migration.
 
 ## Provider selection work still required
 
@@ -294,10 +352,11 @@ Selection criteria, in order:
 
 1. safety/contract compliance;
 2. shopping-task quality and Russian quality;
-3. deterministic structured/tool behaviour;
-4. zero/low cost;
-5. latency and availability;
-6. privacy/data-policy fit;
-7. vendor lock-in risk.
+3. Character Canon / decision-behaviour stability;
+4. deterministic structured/tool behaviour;
+5. zero/low cost;
+6. latency and availability;
+7. privacy/data-policy fit;
+8. vendor lock-in risk.
 
 A famous model name is not acceptance evidence.
