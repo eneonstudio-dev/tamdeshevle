@@ -76,6 +76,15 @@ def main() -> int:
             """
         )
 
+        # The approved sheet intentionally animates height over ~260 ms. Wait for
+        # visual geometry, not only the synchronous data attribute, so the test
+        # measures what the owner actually sees after the interaction settles.
+        WebDriverWait(driver, 5).until(
+            lambda d: (
+                (m := shell_metrics(d))["expanded"] == "0"
+                and m["shellHeight"] <= m["viewportHeight"] * 0.55
+            )
+        )
         collapsed = shell_metrics(driver)
         if not collapsed["handleVisible"]:
             failures.append(f"mobile sheet handle is not visible: {collapsed}")
@@ -90,23 +99,23 @@ def main() -> int:
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
         WebDriverWait(driver, 5).until(
-            lambda d: d.execute_script(
-                "return document.querySelector('body > .td-ai')?.dataset.roxyBayExpanded"
-            ) == "1"
+            lambda d: (
+                (m := shell_metrics(d))["expanded"] == "1"
+                and m["ariaExpanded"] == "true"
+                and m["shellHeight"] >= collapsed["shellHeight"] + 120
+            )
         )
         expanded = shell_metrics(driver)
         if expanded["ariaExpanded"] != "true":
             failures.append(f"expanded semantics are wrong: {expanded}")
-        if expanded["shellHeight"] < collapsed["shellHeight"] + 120:
-            failures.append(
-                f"tapping the oval handle did not materially expand Bay: collapsed={collapsed}, expanded={expanded}"
-            )
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
         WebDriverWait(driver, 5).until(
-            lambda d: d.execute_script(
-                "return document.querySelector('body > .td-ai')?.dataset.roxyBayExpanded"
-            ) == "0"
+            lambda d: (
+                (m := shell_metrics(d))["expanded"] == "0"
+                and m["ariaExpanded"] == "false"
+                and abs(m["shellHeight"] - collapsed["shellHeight"]) <= 8
+            )
         )
         collapsed_again = shell_metrics(driver)
         if collapsed_again["ariaExpanded"] != "false":
