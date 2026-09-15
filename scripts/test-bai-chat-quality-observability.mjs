@@ -7,6 +7,9 @@ import {fileURLToPath} from "node:url";
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 let source=fs.readFileSync(path.join(root,"bai-observability.js"),"utf8");
 source=source.replace(/\n\s*import\("\.\/bai-chat-quality-v3\.js[^\n]+\n/,'\n');
+const releaseConfig=fs.readFileSync(path.join(root,"supabase-config.js"),"utf8");
+assert.match(releaseConfig,/\.\/bai-observability\.js\?v=20260915-chat-quality-v2/,"release must bust the old Bai observability cache key");
+assert.doesNotMatch(releaseConfig,/\.\/bai-observability\.js\?v=20260913-observability-v1/,"release must not retain the stale observability v1 cache key");
 
 const store=new Map();
 const localStorage={
