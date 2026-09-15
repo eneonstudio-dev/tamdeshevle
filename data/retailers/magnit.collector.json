@@ -2,7 +2,7 @@
   "schema": "tamdeshevle.retailer-collector-config.v1",
   "retailer": "magnit",
   "city": "msk",
-  "store_id": "magnit",
+  "store_id": "magnit:770105",
   "channel": "delivery_catalog",
   "source_url": "https://magnit.ru/",
   "delay_ms": 100,
