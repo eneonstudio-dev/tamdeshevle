@@ -48,6 +48,14 @@ def shell_metrics(driver: webdriver.Chrome) -> dict:
     )
 
 
+def wait_or_explain(driver: webdriver.Chrome, seconds: int, label: str, predicate) -> None:
+    try:
+        WebDriverWait(driver, seconds).until(predicate)
+    except Exception as exc:
+        metrics = shell_metrics(driver)
+        raise AssertionError(f"{label} timed out; shell={metrics}") from exc
+
+
 def main() -> int:
     driver = driver_for()
     failures: list[str] = []
@@ -79,11 +87,14 @@ def main() -> int:
         # The approved sheet intentionally animates height over ~260 ms. Wait for
         # visual geometry, not only the synchronous data attribute, so the test
         # measures what the owner actually sees after the interaction settles.
-        WebDriverWait(driver, 5).until(
+        wait_or_explain(
+            driver,
+            5,
+            "initial collapse",
             lambda d: (
                 (m := shell_metrics(d))["expanded"] == "0"
                 and m["shellHeight"] <= m["viewportHeight"] * 0.55
-            )
+            ),
         )
         collapsed = shell_metrics(driver)
         if not collapsed["handleVisible"]:
@@ -98,24 +109,30 @@ def main() -> int:
             failures.append(f"collapsed mini-Bay causes horizontal overflow: {collapsed}")
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
-        WebDriverWait(driver, 5).until(
+        wait_or_explain(
+            driver,
+            5,
+            "expand tap",
             lambda d: (
                 (m := shell_metrics(d))["expanded"] == "1"
                 and m["ariaExpanded"] == "true"
                 and m["shellHeight"] >= collapsed["shellHeight"] + 120
-            )
+            ),
         )
         expanded = shell_metrics(driver)
         if expanded["ariaExpanded"] != "true":
             failures.append(f"expanded semantics are wrong: {expanded}")
 
         driver.find_element(By.CSS_SELECTOR, ".roxy-bay-sheet-handle").click()
-        WebDriverWait(driver, 5).until(
+        wait_or_explain(
+            driver,
+            5,
+            "second collapse tap",
             lambda d: (
                 (m := shell_metrics(d))["expanded"] == "0"
                 and m["ariaExpanded"] == "false"
                 and abs(m["shellHeight"] - collapsed["shellHeight"]) <= 8
-            )
+            ),
         )
         collapsed_again = shell_metrics(driver)
         if collapsed_again["ariaExpanded"] != "false":
