@@ -14,6 +14,7 @@ FORBIDDEN_TRUTH_KEYS = {
     'discount','discount_pct','saving','savings','promo','promotion',
     'quality','composition','ingredients'
 }
+TRUTH_NAMESPACES = {'claims','facts','evidence','observations','verified_facts','truth'}
 UNKNOWN_CONFIDENCE_KEYS = {'price','availability','quality'}
 
 
@@ -29,23 +30,36 @@ def read_jsonl(path):
     return rows
 
 
-def walk_truth(value,path=''):
+def walk_claims(value,path):
     violations=[]
     if isinstance(value,dict):
         for key,item in value.items():
-            key_s=str(key)
-            child=f'{path}.{key_s}' if path else key_s
-            low=key_s.lower()
-            if low in FORBIDDEN_TRUTH_KEYS:
-                if path == 'confidence' and low in UNKNOWN_CONFIDENCE_KEYS:
-                    if item not in (None,'unknown'):
-                        violations.append(f'unsupported_confidence:{child}={item!r}')
-                elif item not in (None,'unknown',[],{}):
-                    violations.append(f'unverified_truth_field:{child}')
-            violations.extend(walk_truth(item,child))
+            child=f'{path}.{key}'
+            if str(key).lower() in FORBIDDEN_TRUTH_KEYS and item not in (None,'unknown',[],{}):
+                violations.append(f'unverified_truth_field:{child}')
+            violations.extend(walk_claims(item,child))
     elif isinstance(value,list):
         for index,item in enumerate(value):
-            violations.extend(walk_truth(item,f'{path}[{index}]'))
+            violations.extend(walk_claims(item,f'{path}[{index}]'))
+    return violations
+
+
+def truth_violations(row):
+    violations=[]
+    # Top-level dynamic fact fields are never part of the planner target contract.
+    for key,item in row.items():
+        low=str(key).lower()
+        if low in FORBIDDEN_TRUTH_KEYS and item not in (None,'unknown',[],{}):
+            violations.append(f'unverified_truth_field:{key}')
+    # Explicit claim/evidence namespaces are factual assertions, unlike hard/soft user constraints.
+    for namespace in TRUTH_NAMESPACES:
+        if namespace in row:
+            violations.extend(walk_claims(row[namespace],namespace))
+    confidence=row.get('confidence')
+    if isinstance(confidence,dict):
+        for key in UNKNOWN_CONFIDENCE_KEYS:
+            if key in confidence and confidence[key] not in (None,'unknown'):
+                violations.append(f'unsupported_confidence:confidence.{key}={confidence[key]!r}')
     return violations
 
 
@@ -107,7 +121,7 @@ def audit(eval_rows,prediction_rows):
                     if 'value' in action:
                         action_contract_violations+=1
                         case_errors.append(f'action_{index}_legacy_value_field')
-            truth_errors=walk_truth({k:v for k,v in row.items() if k not in {'id','parse_error'}})
+            truth_errors=truth_violations(row)
             truth_boundary_violations+=len(truth_errors)
             case_errors.extend(truth_errors)
         cases.append({'id':rid,'ok':not case_errors,'errors':case_errors})
