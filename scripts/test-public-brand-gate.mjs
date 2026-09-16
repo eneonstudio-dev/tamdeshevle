@@ -1,7 +1,8 @@
 import fs from "node:fs";
 
 const entry = "index.html";
-const required = [entry, "app.js", "manifest.json"];
+const brandRuntimeFile = "brand-votonobay-v1.js";
+const required = [entry, "app.js", "manifest.json", brandRuntimeFile];
 for (const file of required) {
   if (!fs.existsSync(file)) throw new Error(`Missing public brand surface: ${file}`);
 }
@@ -15,8 +16,17 @@ if (/Votonobay|Там\s*Дешевле|Тамдешевле/u.test(JSON.stringif
   manifestErrors.push("manifest.json contains a superseded public brand token");
 }
 
+const runtime = fs.readFileSync(brandRuntimeFile, "utf8");
+const runtimeErrors = [];
+if (!/const BRAND="VOTONOBAI"/.test(runtime)) runtimeErrors.push("runtime brand constant must be VOTONOBAI");
+if (!/VOTONO<b>BAI<\/b>/.test(runtime)) runtimeErrors.push("runtime wordmark must spell VOTONOBAI");
+if (!/document\.title=TITLE/.test(runtime)) runtimeErrors.push("runtime must normalize document title");
+if (!/description\.content=DESCRIPTION/.test(runtime)) runtimeErrors.push("runtime must normalize document description");
+if (!/tuneExactLegacyTokens/.test(runtime) || !/canonicalText/.test(runtime)) runtimeErrors.push("runtime must normalize exact legacy brand tokens after renders");
+if (!/VOTONOBAI — на главную/.test(runtime)) runtimeErrors.push("runtime accessible home label must use VOTONOBAI");
+
 const index = fs.readFileSync(entry, "utf8");
-const publicFiles = new Set(required);
+const publicFiles = new Set([entry, "app.js", "manifest.json"]);
 for (const match of index.matchAll(/<script[^>]+src=["']([^"']+)["']/gi)) {
   const src = match[1].split("?")[0].split("#")[0];
   if (!src || /^(?:https?:)?\/\//i.test(src) || src.startsWith("/") || src.includes("..")) continue;
@@ -72,6 +82,12 @@ if (manifestErrors.length) {
   process.exit(1);
 }
 
+if (runtimeErrors.length) {
+  console.error("Runtime brand layer violates BRAND_CANON.md:");
+  for (const violation of runtimeErrors) console.error(`- ${violation}`);
+  process.exit(1);
+}
+
 if (violations.length) {
   console.error("Public copy may imply an official retailer partnership:");
   for (const violation of violations) console.error(`- ${violation}`);
@@ -79,5 +95,6 @@ if (violations.length) {
 }
 
 console.log("PASS: PWA manifest uses canonical VOTONOBAI branding.");
+console.log("PASS: runtime brand layer canonicalizes VOTONOBAI metadata, wordmark and exact legacy public tokens.");
 console.log("PASS: no positive official-retailer partnership claim detected on browser-loaded public surfaces.");
-console.log("NOTE: legacy brand-token inventory outside manifest remains migration evidence until browser normalization is complete.");
+console.log("NOTE: source-level legacy token inventory remains migration evidence until direct source cleanup is complete.");

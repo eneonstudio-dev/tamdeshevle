@@ -1,14 +1,22 @@
 (()=>{
   "use strict";
 
-  import("./votonobay-roxy-home-v1.js?v=20260913-v1").catch(error=>console.warn("[Votonobay Home] load failed",error));
+  import("./votonobay-roxy-home-v1.js?v=20260913-v1").catch(error=>console.warn("[VOTONOBAI Home] load failed",error));
 
-  const BRAND="Votonobay";
+  const BRAND="VOTONOBAI";
   const TAGLINE="Скажи, что нужно — поможем решить, как лучше";
-  const TITLE="Votonobay — покупки, как лучше";
+  const TITLE="VOTONOBAI — покупки, как лучше";
+  const DESCRIPTION="VOTONOBAI помогает решить, как лучше купить: учитывает цену, удобство, время и контекст — а выбор остаётся за тобой.";
   const THEME="#04100b";
+  const LEGACY_EXACT=[/\bVotonobay\b/g,/Тамдешевле/g,/Там Дешевле/g];
   let raf=0;
   let observer=null;
+
+  function canonicalText(value){
+    let next=String(value==null?"":value);
+    for(const pattern of LEGACY_EXACT){pattern.lastIndex=0;next=next.replace(pattern,BRAND);}
+    return next;
+  }
 
   function ensureCss(){
     if(document.querySelector('link[data-votonobay-brand]'))return;
@@ -30,14 +38,14 @@
     if(theme)theme.setAttribute("content",THEME);
     let description=document.querySelector('meta[name="description"]');
     if(!description){description=document.createElement("meta");description.name="description";document.head.appendChild(description);}
-    description.content="Votonobay помогает решить, как лучше купить: учитывает цену, удобство, время и контекст — а выбор остаётся за тобой.";
+    description.content=DESCRIPTION;
   }
 
   function tuneV2Brand(){
     document.querySelectorAll(".v2-brand").forEach(button=>{
-      button.setAttribute("aria-label","Votonobay — на главную");
+      button.setAttribute("aria-label","VOTONOBAI — на главную");
       const span=button.querySelector("span");
-      const wordmark="VOTONO<b>BAY</b>";
+      const wordmark="VOTONO<b>BAI</b>";
       if(span&&span.innerHTML!==wordmark)span.innerHTML=wordmark;
       if(button.closest(".v2-header")&&!button.querySelector(".voto-brand-tagline")){
         const small=document.createElement("small");
@@ -55,25 +63,45 @@
       const sub=header.querySelector(".sub");
       if(title&&title.textContent.trim()===BRAND&&sub)sub.textContent=TAGLINE;
       const home=header.querySelector(".brand-home");
-      if(home){home.setAttribute("aria-label","Votonobay — на главную");home.dataset.votonobayBrand="1";}
+      if(home){home.setAttribute("aria-label","VOTONOBAI — на главную");home.dataset.votonobayBrand="1";}
     });
   }
 
   function tuneAccountBrand(){
     document.querySelectorAll(".td-account-card h3").forEach(title=>{
-      if(/^Там дешевле сэкономил$/i.test(title.textContent.trim()))title.textContent="Сэкономлено с Votonobay";
+      if(/^Там дешевле сэкономил$/i.test(title.textContent.trim()))title.textContent="Сэкономлено с VOTONOBAI";
     });
     document.querySelectorAll(".td-account-row span").forEach(label=>{
-      if(/^Подписка Там Дешевле Plus$/i.test(label.textContent.trim()))label.textContent="Подписка Votonobay Plus";
+      if(/^Подписка Там Дешевле Plus$/i.test(label.textContent.trim()))label.textContent="Подписка VOTONOBAI Plus";
     });
   }
 
   function tuneLegacyCopy(){
     document.querySelectorAll(".sale-title").forEach(node=>{
-      if(/Там Дешевле/i.test(node.textContent))node.textContent="Votonobay продаётся";
+      if(/Там Дешевле/i.test(node.textContent))node.textContent="VOTONOBAI продаётся";
     });
     document.querySelectorAll(".hint").forEach(node=>{
-      if(/Тамдешевле сам ничего не везёт/i.test(node.textContent))node.textContent=node.textContent.replace(/Тамдешевле/gi,"Votonobay");
+      if(/Тамдешевле сам ничего не везёт/i.test(node.textContent))node.textContent=node.textContent.replace(/Тамдешевле/gi,"VOTONOBAI");
+    });
+  }
+
+  function tuneExactLegacyTokens(){
+    const root=document.body;
+    if(!root)return;
+    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+    const nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes){
+      const next=canonicalText(node.nodeValue);
+      if(next!==node.nodeValue)node.nodeValue=next;
+    }
+    document.querySelectorAll("[aria-label],[alt],[title]").forEach(node=>{
+      for(const attr of ["aria-label","alt","title"]){
+        if(!node.hasAttribute(attr))continue;
+        const current=node.getAttribute(attr)||"";
+        const next=canonicalText(current);
+        if(next!==current)node.setAttribute(attr,next);
+      }
     });
   }
 
@@ -81,7 +109,7 @@
     if(typeof document==="undefined")return false;
     ensureCss();removeLegacyBrand();tuneMetadata();
     document.body?.classList.add("td-votonobay");
-    tuneV2Brand();tuneInnerBrand();tuneAccountBrand();tuneLegacyCopy();
+    tuneV2Brand();tuneInnerBrand();tuneAccountBrand();tuneLegacyCopy();tuneExactLegacyTokens();
     try{localStorage.setItem("td:brand","votonobay");}catch{}
     return true;
   }
@@ -105,5 +133,5 @@
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
   else boot();
 
-  window.TDBrand={name:BRAND,tagline:TAGLINE,decorate};
+  window.TDBrand={name:BRAND,tagline:TAGLINE,decorate,canonicalText};
 })();

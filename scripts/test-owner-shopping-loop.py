@@ -52,7 +52,7 @@ def entry_snapshot(driver: webdriver.Chrome) -> dict:
         const top=r?document.elementFromPoint(x,y):null;
         const bs=button?getComputedStyle(button):null;
         return {
-          screen:document.body.dataset.votonobayScreen||null,
+          screen:document.body?.dataset?.votonobayScreen||null,
           button:Boolean(button),
           display:bs?.display||null,
           opacity:bs?.opacity||null,
@@ -64,17 +64,21 @@ def entry_snapshot(driver: webdriver.Chrome) -> dict:
           assistantOpenType:typeof window.TDShoppingAssistant?.open,
           capturedClicks:Number(window.__ownerEntryClicks||0),
           aiCount:document.querySelectorAll('.td-ai').length,
-          overlayOpen:document.body.dataset.tdOverlayOpen||null
+          overlayOpen:document.body?.dataset?.tdOverlayOpen||null
         };
         """
     )
 
 
 def snapshot(driver: webdriver.Chrome) -> dict:
-    return driver.execute_script(
+    result = driver.execute_script(
         """
-        const state=window.TDShoppingState?.snapshot?.()||null;
-        const brain=window.TDBaiBrain?.status?.()||null;
+        const runtimeErrors=[];
+        let state=null,brain=null;
+        try { state=window.TDShoppingState?.snapshot?.()||null; }
+        catch(error){ runtimeErrors.push({source:'TDShoppingState.snapshot',message:String(error?.message||error),stack:String(error?.stack||'')}); }
+        try { brain=window.TDBaiBrain?.status?.()||null; }
+        catch(error){ runtimeErrors.push({source:'TDBaiBrain.status',message:String(error?.message||error),stack:String(error?.stack||'')}); }
         const messages=[...document.querySelectorAll('.td-ai-msg')].map(el=>({
           role:el.classList.contains('user')?'user':'assistant',
           text:(el.textContent||'').trim()
@@ -84,6 +88,7 @@ def snapshot(driver: webdriver.Chrome) -> dict:
         return {
           state,
           brain,
+          runtimeErrors,
           messages,
           summary:(summary?.textContent||'').trim(),
           checkoutVisible:Boolean(checkout&&checkout.getBoundingClientRect().width&&checkout.getBoundingClientRect().height),
@@ -91,6 +96,10 @@ def snapshot(driver: webdriver.Chrome) -> dict:
         };
         """
     )
+    runtime_errors=result.get('runtimeErrors') or []
+    if runtime_errors:
+        raise AssertionError(f"owner-loop runtime snapshot failed: {runtime_errors}")
+    return result
 
 
 def product_signature(state: dict | None) -> list[tuple[str, int, str]]:
@@ -126,11 +135,14 @@ def main() -> int:
     driver=driver_for()
     failures: list[str]=[]
     trace: list[dict]=[]
+    stage="boot"
     try:
         driver.get(BASE_URL)
+        stage="document-ready"
         WebDriverWait(driver, 20).until(lambda d: d.execute_script("return document.readyState") == "complete")
         driver.execute_script("localStorage.clear()")
         driver.refresh()
+        stage="runtime-ready"
         WebDriverWait(driver, 20).until(
             lambda d: d.execute_script("return document.readyState") == "complete"
             and d.execute_script("return !!window.TDShoppingAssistant && !!window.TDShoppingState && !!window.TDBai && !!window.tdBayFirstAsk")
@@ -148,11 +160,13 @@ def main() -> int:
             entry?.addEventListener('click',()=>{window.__ownerEntryClicks+=1},{capture:true});
             """
         )
+        stage="home-entry-visible"
         WebDriverWait(driver, 10).until(lambda d: visible(d, '.v2-hero-bai'))
         before_entry=entry_snapshot(driver)
         if before_entry.get('centerTop') and not before_entry['centerTop'].get('insideButton'):
             raise AssertionError(f"canonical Home Bay entry center is intercepted before click: {before_entry}")
         entry=next(el for el in driver.find_elements(By.CSS_SELECTOR, '.v2-hero-bai') if el.is_displayed())
+        stage="home-entry-click"
         try:
             entry.click()
         except WebDriverException as exc:
@@ -160,8 +174,10 @@ def main() -> int:
         time.sleep(.35)
         if entry_snapshot(driver).get('capturedClicks',0) < 1:
             raise AssertionError("physical click never reached canonical Home Bay entry")
+        stage="assistant-compose-visible"
         WebDriverWait(driver, 8).until(lambda d: visible(d, '.td-ai-compose textarea') and visible(d, '.td-ai-compose [data-ai-send]'))
 
+        stage="turn-dinner100"
         dinner=send_turn(driver, 'собери мне еду на ужин на 100 рублей')
         trace.append({'turn':'dinner100','snapshot':dinner})
         if dinner['state'].get('budget') != 100:
@@ -174,6 +190,7 @@ def main() -> int:
             failures.append(f"dinner intent was not retained: {dinner}")
         before_hello=(dinner['state'].get('budget'), product_signature(dinner['state']), list(dinner['state'].get('stores') or []))
 
+        stage="turn-hello"
         hello=send_turn(driver, 'привет')
         trace.append({'turn':'hello','snapshot':hello})
         after_hello=(hello['state'].get('budget'), product_signature(hello['state']), list(hello['state'].get('stores') or []))
@@ -182,6 +199,7 @@ def main() -> int:
         if 'не понял' in hello['messages'][-1]['text'].lower():
             failures.append(f"ordinary greeting is rejected as an unknown shopping edit: {hello['messages'][-1]}")
 
+        stage="turn-basket7000"
         budget=send_turn(driver, 'собери мне корзину на 7000 рублей')
         trace.append({'turn':'basket7000','snapshot':budget})
         if budget['state'].get('budget') != 7000:
@@ -191,6 +209,7 @@ def main() -> int:
         if float(budget['state'].get('currentTotal') or 0) > 7000.01:
             failures.append(f"7000-ruble basket exceeds budget: {budget}")
 
+        stage="turn-magnit"
         magnit=send_turn(driver, 'Магнитом')
         trace.append({'turn':'magnit','snapshot':magnit})
         stores=list(magnit['state'].get('stores') or [])
@@ -202,6 +221,7 @@ def main() -> int:
             failures.append(f"Magnit projection still mixes store lines: stores={plan_stores}; snapshot={magnit}")
         before_yes=(magnit['state'].get('budget'), product_signature(magnit['state']), list(magnit['state'].get('stores') or []))
 
+        stage="turn-yes"
         yes=send_turn(driver, 'да')
         trace.append({'turn':'yes','snapshot':yes})
         after_yes=(yes['state'].get('budget'), product_signature(yes['state']), list(yes['state'].get('stores') or []))
@@ -212,6 +232,7 @@ def main() -> int:
             failures.append(f"confirmation after a valid Magnit projection is rejected: {yes['messages'][-1]}")
         if any(word in final_reply for word in ('оформил заказ','заказ оформлен','оплатил','купил за тебя')):
             failures.append(f"Bay overclaims retailer/order capability after confirmation: {yes['messages'][-1]}")
+        stage="checkout-visible"
         WebDriverWait(driver, 10).until(lambda d: snapshot(d)['checkoutVisible'])
         final=snapshot(driver)
         if not final['summary'] or 'магнит' not in final['summary'].lower():
@@ -220,7 +241,15 @@ def main() -> int:
             failures.append(f"visible honest next-step card is missing after confirmed basket: {final}")
 
     except Exception as exc:
-        failures.append(f"owner shopping loop regression raised: {exc}; entry={entry_snapshot(driver)}; snapshot={snapshot(driver)}")
+        try:
+            entry=entry_snapshot(driver)
+        except Exception as diag_exc:
+            entry={'diagnosticError':str(diag_exc)}
+        try:
+            snap=snapshot(driver)
+        except Exception as diag_exc:
+            snap={'diagnosticError':str(diag_exc)}
+        failures.append(f"owner shopping loop regression raised at stage={stage}: {exc}; entry={entry}; snapshot={snap}")
     finally:
         if failures:
             print('Conversation trace:')
