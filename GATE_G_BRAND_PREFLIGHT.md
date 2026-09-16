@@ -1,16 +1,29 @@
 # Gate G — Public Brand / Launch Preflight
 
 **Status:** OPEN  
-**Snapshot base:** `b44f25f5ce2e89eb55c2c396cb82b2ee336f453b`  
-**Purpose:** separate repository facts from owner/legal/domain decisions before public launch.
+**Canonical brand contract:** `BRAND_CANON.md`  
+**Purpose:** separate proven repository facts from trademark/domain/launch decisions before public launch.
 
-This document is evidence for `RELEASE_GATE.md`. It is deliberately fail-closed: an unresolved item stays unresolved rather than being guessed from search results or project history.
+This document is evidence for `RELEASE_GATE.md`. It is deliberately fail-closed: an unresolved item stays unresolved rather than being guessed from search results.
+
+## Owner brand lock — RESOLVED
+
+The owner decision predates this Gate G pass and is now recorded canonically in `BRAND_CANON.md`:
+
+- primary Latin brand: **VOTONOBAI**;
+- canonical Russian rendering: **Вотонобай**;
+- assistant / character: **Бай**;
+- `Votonobay` is a superseded spelling;
+- former «Там дешевле / Там Дешевле / Тамдешевле» identity is not the product name and may survive only as ordinary descriptive/advertising language where semantically appropriate;
+- the product promise is broader than “cheapest”: VOTONOBAI helps find the best option for the user's conditions.
+
+This resolves the owner-choice part of Gate G. It does **not** automatically normalize legacy browser strings and does not prove trademark/domain/social availability.
 
 ## Proven from current public surfaces
 
-### Public naming is not yet canonical
+### Legacy public naming debt still exists
 
-The browser-visible release currently contains multiple product/brand forms:
+The browser-visible release still contains legacy forms that now conflict with the locked canon:
 
 - `index.html` title: **Votonobay — как лучше собрать корзину**;
 - `index.html` description starts with **Votonobay**;
@@ -18,11 +31,17 @@ The browser-visible release currently contains multiple product/brand forms:
 - `app.js` Home header: **Тамдешевле**;
 - `app.js` sale easter egg: **Там Дешевле продаётся**.
 
-This is evidence of an unresolved public-brand lock, not permission for an agent to choose one spelling automatically.
+PR #497 automated the broader inventory across browser-loaded files. Its guard scanned 66 browser-loaded public files and found:
+
+- `Votonobay` in 11 browser surfaces;
+- `Тамдешевле` in 3;
+- `Там Дешевле` in `app.js`.
+
+These are migration debt, not alternate approved brands. Public-launch consistency remains incomplete until the browser surfaces are normalized and manually replayed against `BRAND_CANON.md`.
 
 ### Retailer-partnership claim
 
-Current inspected public surfaces do not contain a positive claim that Votonobay / «Там Дешевле» is an official retailer partner.
+Current inspected public surfaces do not contain a positive claim that VOTONOBAI is an official retailer partner.
 
 Permanent guard:
 
@@ -32,7 +51,7 @@ node scripts/test-public-brand-gate.mjs
 
 The guard follows local browser `<script src>` files from `index.html`, scans those browser-loaded surfaces plus `index.html`, `app.js` and `manifest.json`, and fails on positive official-partnership wording. It also prints the public brand-token inventory.
 
-The guard does **not** prove a commercial/legal relationship and does **not** choose a canonical brand spelling.
+The guard does **not** prove a commercial/legal relationship.
 
 ### Current hosting boundary
 
@@ -48,23 +67,17 @@ Do not infer domain ownership or availability from this repository state.
 
 ## Still unresolved — required before public launch
 
-### 1. Owner brand lock
+### 1. Public-surface normalization
 
-Owner must explicitly approve the canonical public relationship among:
+Normalize browser-visible legacy brand tokens to the owner-approved canon through reviewed changes with regression coverage. Do not blind-replace descriptive uses of “там дешевле” where the words are ordinary language rather than a product identity.
 
-- **Votonobay**;
-- **VOTONOBAI**;
-- **Там Дешевле / Тамдешевле**.
-
-The decision should answer whether «Там Дешевле» is the product name, descriptor/tagline, legacy name, or a separate consumer-facing layer under Votonobay.
-
-Until then, agents must not mass-rename public files merely to make spelling consistent.
+Acceptance requires a fresh-main browser/manual replay showing metadata/PWA name and visible product identity are consistent with `BRAND_CANON.md`.
 
 ### 2. Trademark / existing-brand clearance
 
 A preliminary web search is not legal clearance.
 
-Before public brand lock, record evidence from the relevant authoritative trademark registries / professional review appropriate to launch jurisdictions. Similar marks, transliterations and relevant Nice classes matter; exact-string search alone is insufficient.
+Before public launch, record evidence from the relevant authoritative trademark registries / professional review appropriate to launch jurisdictions. Similar marks, transliterations and relevant Nice classes matter; exact-string search alone is insufficient.
 
 ### 3. Domain and social handles
 
@@ -77,18 +90,18 @@ The repository is still named `tamdeshevle`. Decide explicitly whether the GitHu
 - closed-beta-only and intentionally temporary; or
 - replaced/redirected before public launch.
 
-No agent should silently treat repository naming as the final public brand architecture.
+Repository naming is not the final public brand architecture.
 
 ## Gate G acceptance evidence
 
 Gate G can be marked PASS only when all of the following are recorded:
 
-- owner-approved canonical public spelling / brand relationship;
+- owner-approved canonical public spelling / brand relationship — **DONE via `BRAND_CANON.md`**;
+- public browser surfaces normalized and manually verified against the canon;
 - authoritative trademark/existing-brand preflight evidence for intended launch scope;
 - verified control/availability of the selected public domain and required social handles;
 - intentional decision for the legacy `tamdeshevle` URL;
-- public partnership-claim guard green on fresh `main`;
-- public copy/manual walkthrough consistent with the locked brand decision.
+- public partnership-claim guard green on fresh `main`.
 
 ## Non-goals
 
