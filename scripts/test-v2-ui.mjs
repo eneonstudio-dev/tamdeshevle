@@ -14,6 +14,7 @@ const roxyMotionJs=fs.readFileSync("votonobay-roxy-motion-polish-v1.js","utf8"),
 new Function(ui);new Function(bai);new Function(decisionHandoff);new Function(roxyBayJs);new Function(roxyCatalogJs);new Function(roxyRuntimeJs);new Function(roxyMotionJs);
 assert.match(html,/v2-shell\.css\?v=/);assert.match(html,/v2-shell\.js\?v=/);
 assert.match(html,/v2-cinematic\.css\?v=/);assert.match(html,/v2-polish\.js\?v=/);
+assert.match(html,/<title>VOTONOBAI — как лучше собрать корзину<\/title>/);assert.match(html,/meta name="description" content="VOTONOBAI /);
 for(const component of ["Header","HeroSearch","StoreStrip","ProductGrid","ProductCard","ShoppingList","Footer","MobileDock"])assert.match(ui,new RegExp(`function ${component}\\(`));
 for(const action of ["tdBayFirstAsk","tdBayFirstSelfSearch","tdV2Search","tdV2Quick","tdV2Menu","tdV2About"])assert.match(ui,new RegExp(`window\\.${action}`));
 assert.match(css,/@media\(max-width:700px\)/);assert.match(css,/grid-template-columns:minmax\(0,1fr\) 310px/);
@@ -26,10 +27,10 @@ assert.match(mobileDock,/document\.querySelectorAll\("\.v2-bottom-nav"\)/);asser
 assert.match(mobileDock,/aria-current/);assert.match(mobileDock,/type="button"/);
 assert.doesNotMatch(mobileDock,/MutationObserver/);
 assert.match(ui,/≈ — ориентир, подтверждённые цены отмечаем отдельно/);assert.match(ui,/Помогаем решить, как лучше купить/);
-assert.match(ui,/Votonobay — на главную/);assert.match(ui,/Покупки\. <em>Как лучше\.<\/em>/);assert.match(ui,/Спросить Бая/);assert.match(ui,/Искать самому/);assert.match(ui,/Что лучше выбрать\?/);assert.match(ui,/Сравнить варианты/);
+assert.match(ui,/function Brand\(/);assert.match(ui,/Покупки\. <em>Как лучше\.<\/em>/);assert.match(ui,/Спросить Бая/);assert.match(ui,/Искать самому/);assert.match(ui,/Что лучше выбрать\?/);assert.match(ui,/Сравнить варианты/);
 assert.match(ui,/window\.TDShoppingAssistant\?\.open/);assert.match(ui,/Что хочешь решить\?/);assert.match(ui,/цене, удобству и времени|Цена, удобство и время|цены, удобству и времени/);
 assert.match(touchCss,/votonobay-bay-first\.css/);assert.match(bayFirstCss,/\.v2-hero\.v2-bay-first/);assert.match(bayFirstCss,/\.v2-bay-primary/);assert.match(bayFirstCss,/@media\(min-width:821px\)\{\.td-ai/);
-assert.match(brand,/const BRAND="Votonobay"/);assert.match(brand,/помога(ет|ем) решить, как лучше/i);assert.match(brandCss,/body\.td-votonobay/);assert.doesNotMatch(brand,/td-ai-|TDBai|bai-/);
+assert.match(brand,/const BRAND="VOTONOBAI"/);assert.match(brand,/VOTONO<b>BAI<\/b>/);assert.match(brand,/document\.title=TITLE/);assert.match(brand,/description\.content=DESCRIPTION/);assert.match(brand,/tuneExactLegacyTokens/);assert.match(brand,/помога(ет|ем) решить, как лучше/i);assert.match(brandCss,/body\.td-votonobay/);assert.doesNotMatch(brand,/td-ai-|TDBai|bai-/);
 for(const state of ["idle","greeting","peek","curious","checking","thinking","suspicious","happy","excited","big-saving","confused","scared","playful","sleepy","sleeping","hidden","goodbye"])assert.match(bai,new RegExp(`["']?${state}["']?\\s*:`));
 assert.doesNotMatch(bai,/MutationObserver/);assert.match(bai,/Уложить Бая спать/);assert.match(bai,/bai-tail-peek\.webp/);assert.match(bai,/window\.TDShoppingAssistant\?\.open/);assert.doesNotMatch(bai,/Я Бай\. Чую, где дешевле/);assert.doesNotMatch(bai,/Где корзина дешевле\?/);
 
@@ -101,4 +102,4 @@ assert.match(app,/function comparisonLead\(/);assert.match(app,/Победите
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
 assert.equal(manifest.name,"VOTONOBAI");assert.equal(manifest.short_name,"VOTONOBAI");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.background_color,"#050A07");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
 assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
-console.log("V2 UI contract passed: native Bay-first shell, approved Roxy Bay side panel/mobile sheet, living runtime states, restrained motion polish, subtle catalog hint, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and canonical VOTONOBAI PWA identity are wired.");
+console.log("V2 UI contract passed: native Bay-first shell, approved Roxy Bay side panel/mobile sheet, living runtime states, restrained motion polish, subtle catalog hint, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and canonical VOTONOBAI public identity are wired.");
