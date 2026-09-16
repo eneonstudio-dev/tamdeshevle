@@ -1,298 +1,305 @@
-# Votonobay — MASTER ROADMAP
+# VOTONOBAI — MASTER ROADMAP
 
-**Version:** 1.0  
-**Status:** living source of project direction  
-**Last updated:** 2026-09-15  
-**Current phase:** grocery/FMCG MVP → prove the real end-to-end shopping loop  
+**Version:** 1.1  
+**Status:** living product constitution  
+**Last updated:** 2026-09-16  
+**Current phase:** Grocery/FMCG — controlled closed beta  
 **Repository source of truth:** `main`
 
-> This document is the operational constitution of Votonobay. Before substantial work: fresh-read `main`, read this roadmap, inspect relevant current files and recent PRs, then work from the actual repository state. Do not work from stale chat memory.
+This file contains durable product direction and invariants. Operational detail belongs in `PROJECT_STATUS.md`, `SWARM_PROTOCOL_V2.md`, `RELEASE_GATE.md`, issue `#474`, ADRs, registries and regression suites.
+
+Before substantial work follow `AGENTS.md` + `SWARM_PROTOCOL_V2.md`. Do not reread this whole file for a small in-scope fix unless the task changes architecture, roadmap, scope, release state or sources conflict.
 
 ## 1. Product thesis
 
-Votonobay is an **independent AI shopper on the user's side**.
+**VOTONOBAI is an independent AI shopper on the user's side.**
 
-Stores sell. Marketplaces deliver. **Votonobay chooses for the user.**
+Stores sell. Marketplaces deliver. **VOTONOBAI helps the user choose how to buy better.**
 
-Bay must optimize for what the person actually wants, not blindly for the lowest sticker price. Intent can include price, quality, healthy/PP choices, speed, convenience, brands, one store, multiple stores, delivery/offline fulfillment, or combinations such as “good meat, save on everything else.”
+Bay optimizes for the user's actual conditions, not blindly for the lowest sticker price. Relevant intent may include price, quality, health preferences, time, convenience, brands, one store, multiple stores and delivery/offline fulfillment.
 
-Partner revenue must never determine Bay's recommendation.
+Business invariant:
 
-## 2. Current MVP scope
+> **Money comes after Bay's decision and never determines Bay's decision.**
 
-### IN
+No paid ranking.
+
+## 2. Canonical brand
+
+Binding brand contract: `BRAND_CANON.md`.
+
+- Latin product brand: **VOTONOBAI**.
+- Russian rendering: **Вотонобай**.
+- Assistant / character: **Бай**.
+- `Votonobay` is a superseded spelling for new public copy.
+- Former «Там дешевле / Там Дешевле / Тамдешевле» identity is not the product name; those words may appear only as ordinary descriptive language where semantically appropriate.
+
+Bay is the snow-leopard shopping agent and the main visible assistant identity. Approved Bay-first / Roxy visual direction should not be reinvented casually.
+
+Public brand consistency is still a release concern: browser-visible migration, trademark/domain/social evidence and the legacy `tamdeshevle` public URL are governed by Gate G.
+
+## 3. Current product scope
+
+### IN now
 - Grocery / FMCG.
-- Online grocery / delivery.
 - Natural-language shopping requests.
-- Persistent basket operations: add, remove, replace, rebuild, constraints.
+- Persistent basket operations: add, remove, replace, rebuild and constraints.
 - Real product identity and price/store evidence.
 - Whole-basket comparison.
-- One-store and bounded multi-store purchase strategies.
-- Honest handoff to retailer channels that are actually supported.
+- One-store and bounded multi-store strategies.
+- Honest retailer handoff limited to capabilities actually supported.
+- Controlled closed-beta observation and regression hardening.
 
-### OUT FOR NOW
-- Electronics, furniture, fashion, auto, travel and other verticals.
-- General-purpose assistant behavior such as coding, essays or unrelated knowledge tasks.
+### OUT for now
+- General-purpose assistant behavior unrelated to shopping.
+- Electronics/furniture/fashion/auto/travel vertical expansion.
 - Paid ranking.
-- Pretending that unverified price, stock, store identity or cart transfer is verified.
-- Unauthorized private API use, protection bypass, anti-bot evasion or ban evasion.
+- Fabricated price, stock, exact-store identity, savings or cart/order transfer.
+- Unauthorized private API use, auth/protection bypass, anti-bot evasion or ban evasion.
+- Public-launch claims not supported by Gate G evidence.
 
-## 3. Golden user loop
+## 4. Golden user loop
 
-`User intent → Bay understands constraints → UniversalBasket → candidate real products → verified price/store evidence → StoreBasket(s) → PurchasePlan → Bay verdict/explanation → purchase handoff`
+`natural request → ShoppingIntent → UniversalBasket → real candidate products → verified evidence → StoreBasket(s) → PurchasePlan → Bay verdict/explanation → honest handoff`
 
-Primary MVP proof:
+The user-facing mental model should stay simpler:
 
-> A person naturally says what they need. Bay understands it, builds a real basket, chooses a good purchase strategy, explains the decision, uses honest current evidence, and lets the user continue toward purchase.
+> **что купить → где купить → сколько стоит → сколько экономит / какой компромисс → что делать дальше**
 
-## 4. Core architecture
+Product law:
+
+> **Сложность — наша проблема, а не проблема пользователя.**
+
+Internal concepts such as SKU, provenance, confidence, rankability and exact-store scope stay behind the interface unless translated into a human-readable caveat needed for an honest decision.
+
+## 5. Core shopping architecture
 
 ### ShoppingIntent
-What the user wants: budget, quality, health, brands, timing, fulfillment and hard/soft constraints.
+The user's goals and constraints: budget, quality, health preferences, brands, timing, fulfillment and hard/soft requirements.
 
 ### UniversalBasket
-Canonical basket owned by Votonobay and independent of any retailer.
+Canonical retailer-independent basket owned by VOTONOBAI.
 
 ### StoreBasket
-Projection of the UniversalBasket into a particular retailer/store/channel with retailer SKU, availability, evidence and costs.
+Projection of the UniversalBasket into a particular retailer/store/channel with retailer SKU, evidence, availability semantics and costs.
 
 ### PurchasePlan
-A complete executable strategy made from one or more StoreBaskets.
+Executable purchase strategy containing one or bounded multiple StoreBaskets.
 
-PurchasePlan should account for item totals, delivery/service fees, minimum-order feasibility, coverage, evidence confidence, store/fulfillment count, substitutions and user preferences. Savings are compared against the best feasible single-store plan for the same basket and constraints.
+PurchasePlan may account for item totals, known delivery/service fees, minimum-order feasibility, coverage, evidence quality, store count, substitutions and user preferences.
 
-Default multi-store behavior: consider at most 2 stores. Three or more only when explicitly allowed or later justified by an approved product rule.
+Default multi-store behavior: at most **2 stores** unless an explicitly approved later rule says otherwise.
 
-## 5. Bay intelligence contract
+Savings must compare the same basket and constraints. Hard constraints dominate soft preferences.
 
-Bay is the main orchestrator and the only assistant identity the user needs to see.
+Do not introduce a competing second state model for a local bug.
+
+## 6. Bay intelligence contract
+
+Bay is the orchestrator; deterministic code remains authority for truth-critical execution.
 
 Principle:
 
-**Neural model understands/plans → deterministic code validates → code executes → result is verified → neural layer repairs/explains when needed.**
+> **Neural model understands/plans → deterministic code validates → code executes → result is verified → neural layer repairs/explains when needed.**
 
-The model may reason about fuzzy intent, semantic substitutions and trade-offs. Deterministic code owns action validation, arithmetic, hard constraints, truth/rankability rules and execution contracts.
+The model may reason about fuzzy intent, semantic substitutions, trade-offs and explanation. Deterministic code owns:
+- action validation;
+- arithmetic;
+- hard constraints;
+- truth/rankability rules;
+- store/channel scope;
+- capability limits;
+- execution contracts.
 
-Bay is shopping-only. A Domain Gate must reject unrelated capabilities before expensive model/provider work. Tool/action capabilities must be allowlisted rather than protected only by prompting.
+**Model proposes; VOTONOBAI decides.**
 
-Failures become regression cases. No uncontrolled online self-learning from raw user behavior.
+Bay is shopping-only. Domain Gate and allowlisted actions must reject unsupported domains/actions before expensive or unsafe provider work.
 
-## 6. Data / matching / trust
+Failures become regression/eval cases. No uncontrolled online self-learning from raw user behavior.
 
-The critical risk triangle is:
+## 7. Data, matching and truth
 
-**DATA → MATCHING → TRUST**
+Critical chain:
 
-A rankable observation should be able to answer, where applicable:
+`DATA → MATCHING → TRUST`
 
-`product identity → exact retailer/store/channel → observed price → availability → timestamp → source/proof → confidence → rankability`
+A rankable observation should answer, where applicable:
 
-Product identity evidence does not automatically prove price, stock or exact store. Receipt QR metadata does not automatically prove parsed line items. Search/AI discoveries are candidates, not final price truth.
+`product identity → retailer/store/channel → observed price → availability semantics → timestamp → source/proof → confidence → rankability`
 
-Missing data must never be silently treated as zero. Non-equivalent substitutions must not win merely because they are cheaper.
+Rules:
+- discovery is not proof;
+- regional is not exact store;
+- unknown is not zero;
+- AI output is not verified retailer truth;
+- product identity evidence does not automatically prove price/stock/store;
+- do not mix prices from different physical stores as one exact-store fact;
+- non-equivalent substitutions cannot win only because they are cheaper;
+- stale-but-usable evidence must be visibly disclosed according to truth policy;
+- when evidence is insufficient, fail closed rather than invent breadth.
 
-## 7. External providers
+Tali / Price 2 owns the truth/source boundary. `SOURCE_PROVIDER_REGISTRY.md`, `REGRESSION_BANK.md` and retailer capability contracts carry operational detail.
 
-Bay may use replaceable narrow scouts/checkers for discovery or reasoning. No external provider is the product's source of truth by itself.
+## 8. External provider / Bay Engine contract
 
 Architecture:
 
 `Bay → Provider Router → permitted provider(s) → evidence/truth layer → deterministic validation`
 
+LLMs/providers are replaceable engines; none owns price truth or shopping authority.
+
 Provider Guard requirements:
-- per-provider allowed-use registry;
-- zero-budget mode / no automatic paid upgrade;
-- rate limits and queues;
-- cache and deduplication;
-- exponential backoff;
-- stop on authorization/rate-limit failures rather than retry storms;
-- circuit breaker and kill switch;
+- allowed-use registry;
+- zero-budget default / no silent paid upgrade;
+- rate limits/queues;
+- cache/deduplication;
+- bounded retry/backoff;
+- stop on auth/rate-limit failures rather than retry storms;
+- circuit breaker / kill switch;
 - provenance logging;
-- fallback when a provider disappears.
+- deterministic fallback.
 
-No single external service should be able to kill Votonobay.
+New provider/engine work must be justified by measured need or an approved bake-off. Do not build an engine zoo.
 
-## 8. Retailer integration ladder
+## 9. Retailer capability ladder
 
-A retailer can independently sit at one of these capabilities:
+A retailer may independently sit at:
 
 `COMPARE_ONLY → REDIRECT → DEEP_LINK → PARTNER → API_CART → API_ORDER`
 
-Do not imply deeper integration than actually exists. Votonobay's UniversalBasket survives even when a retailer only supports comparison or redirect.
+Never imply deeper integration than `RETAILER_CAPABILITIES.md` proves. UniversalBasket must survive even when a retailer supports only comparison or redirect.
 
-## 9. UX / brand contract
+No retailer partnership claim without a real partnership.
 
-Master brand: **Votonobay** (working brand; final legal/domain clearance still required before public launch).
-
-Bay is the snow-leopard shopping agent and the primary product interface. Approved Bay-first/Roxy visual direction should not be reinvented casually.
+## 10. UX contract
 
 Decision hierarchy should remain conclusion-first:
 
-`Bay verdict → why → compromise/trade-off → primary action → quieter alternatives → basket details`
+`Bay verdict → why → trade-off / uncertainty → primary action → quieter alternatives → basket details`
 
-Loading, empty, error, offline, mobile and reduced-motion states are product states, not afterthoughts.
+Loading, empty, offline, error, mobile, browser-back/return and reduced-motion are product states.
 
-Public URL still contains legacy `tamdeshevle`; final brand spelling, trademark/domain/social checks and public-domain migration are a pre-release requirement.
+Default UX question:
 
-## 10. Security and legality
+> **Можно ли сделать это на один шаг проще?**
 
-- Never bypass authentication, CAPTCHA, anti-bot protections or access controls.
-- Never rotate accounts/keys to evade provider enforcement.
+Prefer removing unnecessary steps/controls over adding configuration. During beta, fix reproduced completion-blocking UX first; batch taste-only polish.
+
+## 11. Security, privacy and legality
+
+- Never bypass authentication, CAPTCHA, anti-bot protection or access controls.
+- Never rotate identities/keys to evade provider enforcement.
 - Public availability does not automatically grant unrestricted reuse rights.
-- Separate discovery from verified evidence.
-- Minimize secrets and sensitive data in client/browser code.
-- Security review is a release gate.
-- User-provided receipts, QR codes, photos and account/session-side data require explicit lawful user participation appropriate to the mechanism.
+- Minimize secrets and sensitive data in browser/client code.
+- Zero-budget mode cannot silently create paid usage.
+- User receipts/photos/account/cloud/session data require explicit lawful participation and a separately reviewed scope.
+- Closed-beta Gate F approval currently applies only to the tested **local-only** scope.
 
-## 11. Business invariant
+Reinhard may block release on a reproduced P0 security/privacy/cost boundary failure.
 
-**Money comes after Bay's decision and never determines Bay's decision.**
+## 12. Ownership and coordination
 
-Potential layers after product proof: affiliate/order commission, permitted CPA/referral, Bay+ subscription, transaction infrastructure, privacy-preserving aggregate B2B insights and later API/white-label.
-
-No paid ranking.
-
-## 12. Ownership map and coordination
-
-| Area | Primary owner role | Boundary |
+| Area | Primary role | Boundary |
 |---|---|---|
-| Operational coordination / priorities / assignment / acceptance / merge / release | Роуг | Coordinates all unplanned repository, architecture, roadmap, release-state and cross-role delivery changes |
-| Shopping kernel/state/actions/validator | Vi | Does not redefine price truth or approved UX strategy; executes approved work within role authority |
-| Price/data/provenance/sources | Price 2 | Does not redefine Bay UX or neural orchestration; executes approved work within role authority |
-| Bay reasoning/planner/critic/evals | Умняша Бая | Cannot bypass deterministic truth/action contracts; executes approved work within role authority |
-| Product visual/UX direction | Roxy/design | Does not alter ranking/truth semantics; executes approved work within role authority |
-| Security/release risk | Reinhard | May block release on P0 security issues; remediation delivery is coordinated with Роуг |
-| Technical strategy advice | Арбитр | Researches options/trade-offs and recommends; does not independently start technical tracks or change repository state |
-| Master product architecture/strategy | MASTER + owner decisions | Fundamental scope/strategy changes require explicit owner approval and delivery coordination through Роуг |
+| priorities / assignments / acceptance / merge / release | **Роуг** | owns delivery sequencing and release state |
+| shopping kernel/state/actions/validator | **Vi** | does not redefine truth or approved UX strategy |
+| price/data/provenance/sources | **Tali / Price 2** | does not redefine Bay UX/neural orchestration |
+| reasoning/planner/critic/eval/training quality | **Умняша Бая** | cannot bypass deterministic truth/action contracts |
+| UX/visual direction | **Sara 2 / Roxy** | does not alter ranking/truth/kernel semantics |
+| security/release risk | **Reinhard** | may block on reproduced P0 security risk |
+| architecture/options research | **Арбитр** | research/recommendation only unless Rogue approves implementation |
+| beta growth/communication | **Карина / Ghost** | markets only proven capabilities |
 
-### Coordination rule
+Canonical live coordination surface: **#474 — ROGUE INBOX**.
 
-Changes that affect code, architecture, roadmap, release state, priorities, cross-role task allocation, or require a PR/merge pass through **Роуг** for delivery coordination.
-
-Specialized roles may independently research, inspect, reproduce, analyze, compare alternatives, identify risks and prepare recommendations. They do not independently launch a new technical track or mutate repository/project state unless the task is already unambiguously approved in the current plan and that role has explicit execution authority.
-
-Default cross-cutting flow:
-
-`specialist research → options/trade-offs → recommendation → Роуг priority/assignment → implementation → acceptance → merge/release`
-
-Арбитр follows the narrower advisory flow:
-
-`research → options → trade-offs → recommendation → handoff to Роуг`
-
-Once a task is clearly approved and assigned, the owning role may execute safe/reversible implementation details autonomously without requesting approval for every small edit. The coordination boundary exists to prevent duplicate work, conflicting PRs and parallel architecture changes, not to slow down an already-approved workstream.
-
-Agents may update factual observations and recommendations inside their research output, but repository/status/priority changes follow the coordination rule above. They must **not silently change foundational product strategy**.
+Execution mechanics are defined by `SWARM_PROTOCOL_V2.md`: tiered fresh-read, Task Envelope, WIP limit, red-CI ownership, delta-only handoffs and Fast Done.
 
 ## 13. Priority policy
 
-- **P0:** site breaks/hangs, shopping flow unusable, data lies, critical security/truth failure → fix immediately.
-- **P1:** wrong Bay/basket/store/price/multi-store/mobile behavior → fix during current audit/workstream.
-- **P2:** UX/text/animation/minor visual defect → batch after critical flow.
-- **P3:** cosmetic/nice-to-have → defer while MVP blockers remain.
+- **P0:** site unusable/hanging, data lie, critical security/truth failure → interrupt and fix.
+- **P1:** wrong Bay/basket/store/price/multi-store/mobile behavior or completion-blocking UX → fix current workstream.
+- **P2:** non-blocking UX/text/animation/quality issue → batch unless explicitly promoted.
+- **P3:** cosmetic/nice-to-have → defer.
 
-Audit loop:
-
-`fresh main → reproduce → root cause → fix → tests → verify adjacent behavior → PR/merge → update status → next`
+Controlled beta rule: no speculative parser/UX/architecture/provider rewrite without a reproduced problem or approved experiment.
 
 ## 14. Definition of Done
 
-A task is not DONE merely because code was written. For applicable work, DONE means:
+For implementation, DONE normally requires:
+- smallest intended problem resolved;
+- relevant automated contracts green;
+- intended scenario verified;
+- adjacent critical behavior not knowingly broken;
+- truth/security/capability boundaries intact;
+- merged into fresh `main` when repository change is required;
+- material regression/source/status docs updated only when needed;
+- one final delta handoff in #474;
+- no hidden P0/P1 caused by the change.
 
-- implementation is in `main`;
-- relevant automated tests/contracts pass;
-- intended user scenario is verified;
-- adjacent critical behavior is not knowingly broken;
-- truth/security boundaries remain intact;
-- documentation/status is updated when the change materially affects the roadmap;
-- no known P0/P1 regression caused by the change remains hidden.
+Writing code or posting a report is not DONE by itself.
 
-## 15. MVP release gate
+## 15. Release model
 
-Public/closed-test readiness requires the critical path to work end to end:
+### Controlled closed beta
+**PASS for the tested local-only scope.**
 
-- Bay understands natural grocery intent and follow-up changes;
-- persistent UniversalBasket behavior is correct;
-- real products are mapped with acceptable identity confidence;
-- price/store/channel evidence is honest and sufficiently fresh;
-- best feasible single-store plan works;
-- bounded multi-store PurchasePlan works and includes real fees/constraints where known;
-- Bay explains trade-offs without fabricating certainty;
-- retailer handoff is honest and usable;
-- mobile and network/error recovery are usable;
-- regression suite passes;
-- security release review passes.
+Gates A–F are supported by merged acceptance/regression evidence. This does not authorize public launch, cloud/account/receipt-photo personal-data processing, unsupported ordering, or broader retailer claims.
 
-## 16. Current status — v1.0 snapshot
+During beta:
+1. run real users through the golden loop;
+2. preserve their real wording;
+3. turn material failures into reproducible evidence;
+4. fix P0/P1 by root cause + permanent regression;
+5. do not destabilize guarded behavior for speculative improvements.
 
-### DONE / materially established
-- Votonobay master brand is present in the current product UI/docs.
-- Bay-first product direction and approved Roxy visual hierarchy are materially implemented.
-- Shopping-agent engineering has deterministic action/truth boundaries and runtime fallback work in place.
-- Product identity and receipt provenance foundations exist.
-- Offline training/eval/promotion infrastructure and guarded trained-runtime bridge exist.
-- Real Kaggle GPU training execution has begun; training pipeline has encountered and is being hardened against real T4 runtime failures.
+### Public launch
+**NOT APPROVED.**
 
-### NOW — MVP blockers
-1. Finish and prove the first successful trained Bay checkpoint through held-out eval and promotion gate; do not claim deployment before proof.
-2. Complete/verify UniversalBasket → StoreBasket mapping as a first-class product contract.
-3. Implement/verify deterministic Multi-Store PurchasePlan optimizer.
-4. Establish a small number of useful real grocery sources with trustworthy evidence rather than chasing broad retailer count.
-5. Run real end-to-end shopping scenarios and convert failures into regressions.
+Requires Gate G plus continued A–F health. Gate G currently includes:
+- browser-visible brand normalization to `BRAND_CANON.md`;
+- trademark/existing-brand evidence appropriate to launch scope;
+- verified domain/social control or availability decisions;
+- intentional resolution of the legacy `tamdeshevle` public URL;
+- no false retailer partnership/capability claims.
 
-### NEXT
-- 50 manually checked real shopping requests across the MVP loop.
-- Honest retailer-specific handoff capability matrix.
-- Provider Router/Guard expansion only where it improves measured coverage/quality.
-- Closed test with a small group of ordinary shoppers.
-- Security/release audit.
+## 16. Current strategic priorities
 
-### LATER
-- Additional shopping verticals.
-- Deeper partner/API ordering integrations.
-- Broader monetization layers.
-- Large retailer/provider expansion after the core loop is proven.
+1. **Controlled beta evidence** — ordinary users complete the golden loop without explanation.
+2. **Truth coverage quality** — maintain exact-store/freshness/provenance integrity and expand only with defensible evidence.
+3. **Gate G** — finish public brand/domain/trademark/social/legacy-URL hygiene without blocking beta learning.
+4. **Bay quality in parallel** — corrected same-adapter re-evaluation and measured provider/engine research; no unproven trained/provider path may silently replace the release-safe deterministic path.
+5. **Simplicity** — reduce unnecessary steps/jargon before adding features.
 
-## 17. Living-document protocol
+The phase transition is triggered by real beta evidence and Gates A–G, not by feature count.
 
-Every substantial workstream should follow this protocol:
-
-1. Fresh-read `main` and this MASTER.
-2. Inspect relevant current implementation and recent PRs; never patch blind.
-3. Research/reproduce/analyze inside the role boundary.
-4. If the work changes code, architecture, roadmap, release state, priorities, cross-role allocation, or requires unplanned PR/merge work, hand the recommendation/evidence to Роуг for priority and assignment before starting a new delivery track.
-5. If the task is already clearly approved in the current plan and the role has explicit execution authority, implement/test safe in-scope details autonomously.
-6. Fix discovered P0/P1 defects in an approved active workstream rather than merely reporting them, unless doing so would cross an ownership/architecture/release boundary; in that case escalate to Роуг.
-7. Роуг owns acceptance, merge/release coordination and reconciliation of competing/parallel workstreams.
-8. Update factual roadmap/status/decision records when materially changed through the same coordination boundary.
-9. Fundamental changes to scope, architecture, brand strategy, truth policy or monetization invariants require explicit owner approval.
-
-If the MASTER conflicts with actual merged code, **do not guess**. Record the conflict, inspect the relevant decision/history, and reconcile the document with the approved reality.
-
-## 18. Decision log
-
-Use short durable entries. Do not rewrite history; supersede old decisions explicitly.
+## 17. Decision log
 
 | ID | Date | Decision | Status |
 |---|---|---|---|
-| ADR-001 | 2026-09-13 | Votonobay is an independent AI shopper, not merely a cheapest-price aggregator | ACTIVE |
-| ADR-002 | 2026-09-13 | Current MVP scope is Grocery/FMCG + online grocery/delivery | ACTIVE |
-| ADR-003 | 2026-09-13 | UniversalBasket is retailer-independent; StoreBasket is a projection; PurchasePlan is the execution strategy | ACTIVE |
-| ADR-004 | 2026-09-13 | Neural reasoning is bounded by deterministic actions, truth rules and verification | ACTIVE |
-| ADR-005 | 2026-09-13 | Partner economics never influence Bay's recommendation ranking | ACTIVE |
-| ADR-006 | 2026-09-13 | MASTER is a living source of direction; agents may update factual status but not silently change foundational strategy | ACTIVE |
-| ADR-007 | 2026-09-14 | Trained Bay checkpoint serving remains fail-closed until promotion proof and explicit release binding | ACTIVE |
-| ADR-008 | 2026-09-15 | Bay Engine owns provider abstraction; LLMs are replaceable engines outside deterministic truth/action authority | ACTIVE |
-| ADR-009 | 2026-09-15 | Bay Character Canon is provider-independent and protected by frozen behavioral regressions | ACTIVE |
-| ADR-010 | 2026-09-15 | Роуг is the delivery coordination boundary; specialist roles advise/research independently but unplanned repository/cross-cutting delivery changes route through Роуг | ACTIVE |
+| ADR-001 | 2026-09-13 | Product is an independent AI shopper, not merely a cheapest-price aggregator | ACTIVE |
+| ADR-002 | 2026-09-13 | Current product scope is Grocery/FMCG | ACTIVE |
+| ADR-003 | 2026-09-13 | UniversalBasket is retailer-independent; StoreBasket is a projection; PurchasePlan is execution strategy | ACTIVE |
+| ADR-004 | 2026-09-13 | Neural reasoning is bounded by deterministic action/truth validation | ACTIVE |
+| ADR-005 | 2026-09-13 | Partner economics never influence recommendation ranking | ACTIVE |
+| ADR-006 | 2026-09-13 | MASTER is living direction; foundational strategy cannot change silently | ACTIVE |
+| ADR-007 | 2026-09-14 | Trained checkpoint remains fail-closed until promotion evidence and explicit release binding | ACTIVE |
+| ADR-008 | 2026-09-15 | Bay Engine owns provider abstraction; LLMs are replaceable outside truth/action authority | ACTIVE |
+| ADR-009 | 2026-09-15 | Bay Character Canon is provider-independent and regression-protected | ACTIVE |
+| ADR-010 | 2026-09-15 | Rogue is the delivery coordination boundary | ACTIVE |
+| BRAND-CANON | 2026-09-16 | Canonical brand = VOTONOBAI / Вотонобай; assistant = Бай | ACTIVE |
+| SWARM-V2 | 2026-09-16 | Tiered fresh-read + Task Envelope + WIP/red-CI/delta-handoff execution protocol | ACTIVE |
 
-## 19. Companion operational files
+## 18. Companion operational files
 
-The MASTER should stay readable. Detailed operational state should progressively live in companion artifacts:
+- `AGENTS.md` — mandatory agent operating contract.
+- `SWARM_PROTOCOL_V2.md` — execution-speed protocol.
+- `PROJECT_STATUS.md` — current dashboard, not durable strategy.
+- `RELEASE_GATE.md` — release evidence / A–G decision.
+- `BRAND_CANON.md` + `GATE_G_BRAND_PREFLIGHT.md` — public-brand contract and Gate G evidence.
+- `DECISIONS/` — detailed ADRs.
+- `REGRESSION_BANK.md` / executable suites — important failures become permanent guards.
+- `SOURCE_PROVIDER_REGISTRY.md` — source/provider permissions, provenance, freshness and rankability.
+- `RETAILER_CAPABILITIES.md` — handoff capability truth.
+- `#474` — live assignments, blockers and handoffs.
 
-- `PROJECT_STATUS.md` — short current-state dashboard.
-- `DECISIONS/` — detailed ADRs when a decision needs more than the table above.
-- regression suites / regression bank — every important Bay failure becomes a permanent test.
-- source/provider registry — permissions, provenance, freshness, ranking eligibility, limits and fallbacks.
-- CI/release gates — automate what should not depend on agent memory.
-
-Until a companion file exists, this MASTER remains the higher-level source of approved direction.
+If current merged code, this MASTER and a durable decision appear to conflict, do not guess. Inspect the decision/history and reconcile explicitly through Rogue/owner as required.
