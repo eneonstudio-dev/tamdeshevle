@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "suite_id": "bai-character-runtime-probe-v1",
+  "canon": "BAI_CHARACTER_CANON.md",
+  "purpose": "Eval-only probe of the current deterministic Bay runtime plus production character filter. This suite is not training data and does not replace frozen BCR-v1.",
+  "training_allowed": false,
+  "cases": [
+    {
+      "id": "BRP-001-remove-water-no-interview",
+      "user": "Убери воду из корзины.",
+      "initial_products": ["water"],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 180},
+      "runtime_expect": {"operations": [{"type": "REMOVE_PRODUCT", "value": "water"}], "expects_answer": false}
+    },
+    {
+      "id": "BRP-002-mixed-edit-stays-direct",
+      "user": "Не добавляй молоко, добавь хлеб.",
+      "initial_products": ["milk"],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 220},
+      "runtime_expect": {"operations": [{"type": "REMOVE_PRODUCT", "value": "milk"}, {"type": "ADD_PRODUCT", "value": "bread"}], "expects_answer": false}
+    },
+    {
+      "id": "BRP-003-replacement-stays-direct",
+      "user": "Замени молоко на хлеб.",
+      "initial_products": ["milk"],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 180},
+      "runtime_expect": {"operations": [{"type": "REPLACE_PRODUCT", "value": {"from": "milk", "to": "bread"}}], "expects_answer": false}
+    },
+    {
+      "id": "BRP-004-ambiguous-replacement-one-question",
+      "user": "Замени молоко на воду или хлеб.",
+      "initial_products": ["milk"],
+      "expected": {"decision": "ask_clarification", "clarification": "required", "max_questions": 1, "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 240},
+      "runtime_expect": {"operations": [], "expects_answer": true}
+    },
+    {
+      "id": "BRP-005-out-of-range-ordinal-one-question",
+      "user": "Убери второй.",
+      "initial_products": ["milk"],
+      "expected": {"decision": "ask_clarification", "clarification": "required", "max_questions": 1, "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 240},
+      "runtime_expect": {"operations": [], "expects_answer": true}
+    },
+    {
+      "id": "BRP-006-clean-add-no-generic-voice",
+      "user": "Добавь хлеб.",
+      "initial_products": [],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 180},
+      "runtime_expect": {"operations": [{"type": "ADD_PRODUCT", "value": "bread"}], "expects_answer": false}
+    },
+    {
+      "id": "BRP-007-one-off-remove-no-memory-claim",
+      "user": "Убери бананы сегодня.",
+      "initial_products": ["banana"],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 180},
+      "runtime_expect": {"operations": [{"type": "REMOVE_PRODUCT", "value": "banana"}], "expects_answer": false}
+    },
+    {
+      "id": "BRP-008-scoped-exclusion-no-extra-question",
+      "user": "Без сахара добавь молоко.",
+      "initial_products": ["sugar"],
+      "expected": {"decision": "execute", "clarification": "none", "serious": false, "memory_policy": "none", "allow_profanity": false, "max_reply_chars": 220},
+      "runtime_expect": {"operations": [{"type": "REMOVE_PRODUCT", "value": "sugar"}, {"type": "ADD_PRODUCT", "value": "milk"}], "expects_answer": false}
+    }
+  ]
+}
