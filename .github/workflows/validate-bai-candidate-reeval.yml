@@ -5,6 +5,10 @@ on:
     paths:
       - "teacher-lab/training/reevaluate_candidate.py"
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
+      - "teacher-lab/training/candidate_contract_audit.py"
+      - "teacher-lab/training/candidate_contract_audit_smoke.py"
+      - "teacher-lab/training/reeval_decision.py"
+      - "teacher-lab/training/reeval_decision_smoke.py"
       - "teacher-lab/training/package_reeval_artifact.py"
       - "teacher-lab/training/package_reeval_artifact_smoke.py"
       - "teacher-lab/training/intake_reeval_handoff.py"
@@ -19,6 +23,10 @@ on:
     paths:
       - "teacher-lab/training/reevaluate_candidate.py"
       - "teacher-lab/training/reevaluate_candidate_smoke.py"
+      - "teacher-lab/training/candidate_contract_audit.py"
+      - "teacher-lab/training/candidate_contract_audit_smoke.py"
+      - "teacher-lab/training/reeval_decision.py"
+      - "teacher-lab/training/reeval_decision_smoke.py"
       - "teacher-lab/training/package_reeval_artifact.py"
       - "teacher-lab/training/package_reeval_artifact_smoke.py"
       - "teacher-lab/training/intake_reeval_handoff.py"
@@ -46,6 +54,10 @@ jobs:
         run: |
           python -m py_compile teacher-lab/training/reevaluate_candidate.py
           python -m py_compile teacher-lab/training/reevaluate_candidate_smoke.py
+          python -m py_compile teacher-lab/training/candidate_contract_audit.py
+          python -m py_compile teacher-lab/training/candidate_contract_audit_smoke.py
+          python -m py_compile teacher-lab/training/reeval_decision.py
+          python -m py_compile teacher-lab/training/reeval_decision_smoke.py
           python -m py_compile teacher-lab/training/package_reeval_artifact.py
           python -m py_compile teacher-lab/training/package_reeval_artifact_smoke.py
           python -m py_compile teacher-lab/training/intake_reeval_handoff.py
@@ -55,12 +67,22 @@ jobs:
           python -m json.tool teacher-lab/training/bai_candidate_kaggle_reeval.ipynb >/dev/null
           grep -q "notebook07f42bd563/versions/1" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "reevaluate_candidate.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
-          grep -q "analyze_candidate_failures.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "candidate_contract_audit.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "reeval_decision.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "test-bai-current-runtime-character-probe.mjs" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "compare_candidate_runs.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "corrected-candidate" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
           grep -q "package_reeval_artifact.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "reeval-decision-summary.json" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "4852330384c374dc733607eb8c72904ba2ae06d9" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          grep -q "3c581006e85071bacfcdc0ed25e63041ded1eb35" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
+          ! grep -q "train_student.py" teacher-lab/training/bai_candidate_kaggle_reeval.ipynb
       - name: Validate existing candidate re-evaluation contract
         run: python teacher-lab/training/reevaluate_candidate_smoke.py
+      - name: Validate candidate action and truth-boundary audit
+        run: python teacher-lab/training/candidate_contract_audit_smoke.py
+      - name: Validate corrected re-evaluation routing
+        run: python teacher-lab/training/reeval_decision_smoke.py
       - name: Validate portable re-eval handoff intake
         run: python teacher-lab/training/intake_reeval_handoff_smoke.py
       - name: Validate candidate failure clustering contract
