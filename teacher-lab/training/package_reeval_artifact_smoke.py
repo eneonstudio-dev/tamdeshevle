@@ -10,7 +10,12 @@ def write(path,text='{}\n'):
     path=Path(path); path.parent.mkdir(parents=True,exist_ok=True); path.write_text(text,encoding='utf-8')
 
 
-def fixture(root,status):
+def next_step(status,contract_ok):
+    if status=='REEVAL_REJECTED': return 'failure_review_then_iteration_2'
+    return 'staged_release_review' if contract_ok else 'contract_failure_review'
+
+
+def fixture(root,status,contract_ok=True):
     adapter=root/'adapter'; adapter.mkdir(); write(adapter/'adapter_config.json','{"test":true}\n')
     eval_gold=root/'eval-gold.jsonl'; write(eval_gold,'{"id":"eval_1"}\n')
     config=root/'config.json'; write(config,'{"config":true}\n')
@@ -20,6 +25,17 @@ def fixture(root,status):
     promotion={'pass':status=='REEVAL_PASS'}
     write(out/'metrics/promotion.json',json.dumps(promotion)+'\n')
     write(out/'comparison/candidate-comparison.json'); write(out/'comparison/candidate-comparison.md','# comparison\n')
+    write(out/'contract-audit/baseline.json',json.dumps({'ok':True})+'\n')
+    write(out/'contract-audit/candidate.json',json.dumps({'ok':contract_ok})+'\n')
+    write(out/'deterministic-character-baseline.json',json.dumps({'ok':True,'training_started':False,'training_allowed':False})+'\n')
+    decision={
+        'schema_version':'1.0','kind':'bai_corrected_reeval_decision','promotion_status':status,
+        'promotion_pass':status=='REEVAL_PASS','baseline_contract_ok':True,'candidate_contract_ok':contract_ok,
+        'deterministic_character_ok':True,'candidate_character_scope':'planner_only_not_persona_stage',
+        'requires_served_character_gate_before_release':True,'training_started':False,'training_allowed':False,
+        'release_created':False,'next_step':next_step(status,contract_ok)
+    }
+    write(out/'reeval-decision-summary.json',json.dumps(decision)+'\n')
     if status=='REEVAL_REJECTED':
         write(out/'failure-analysis/failure-summary.json'); write(out/'failure-analysis/failure-cases.jsonl'); write(out/'failure-analysis/review-candidates.jsonl')
     manifest={
@@ -33,18 +49,23 @@ def fixture(root,status):
 
 with tempfile.TemporaryDirectory() as td:
     base=Path(td)
-    for status in ('REEVAL_PASS','REEVAL_REJECTED'):
-        root=base/status; root.mkdir()
-        out,eval_gold,adapter=fixture(root,status)
+    for status,contract_ok in (('REEVAL_PASS',True),('REEVAL_PASS',False),('REEVAL_REJECTED',False)):
+        root=base/f'{status}-{contract_ok}'; root.mkdir()
+        out,eval_gold,adapter=fixture(root,status,contract_ok)
         prefix=root/'handoff'
         result=package(out,eval_gold,adapter,prefix,'test/notebook/versions/1')
         assert Path(result['evidence_zip']).is_file() and Path(result['adapter_zip']).is_file()
         assert result['status']==status and result['release_created'] is False
-        assert result['next_step']==('staged_release_review' if status=='REEVAL_PASS' else 'failure_review_then_iteration_2')
+        assert result['training_started'] is False and result['training_allowed'] is False
+        assert result['candidate_contract_ok'] is contract_ok
+        assert result['deterministic_character_ok'] is True
+        assert result['next_step']==next_step(status,contract_ok)
         with zipfile.ZipFile(result['evidence_zip']) as z:
-            names=set(z.namelist()); assert {'evidence-manifest.json','eval-gold.jsonl','student-config.json'}<=names
+            names=set(z.namelist())
+            assert {'evidence-manifest.json','eval-gold.jsonl','student-config.json','reeval/reeval-decision-summary.json','reeval/contract-audit/candidate.json','reeval/deterministic-character-baseline.json'}<=names
             evidence=json.loads(z.read('evidence-manifest.json'))
             assert evidence['candidate_adapter_sha256']==sha256_tree(adapter)
+            assert evidence['candidate_contract_ok'] is contract_ok
             assert all(x['path']!='evidence-manifest.json' for x in evidence['files'])
         write(adapter/'tampered.txt','tampered\n')
         try: package(out,eval_gold,adapter,root/'tampered')
@@ -63,4 +84,10 @@ with tempfile.TemporaryDirectory() as td:
     except SystemExit as exc: assert 'promotion file does not match' in str(exc)
     else: raise AssertionError('tampered promotion evidence must fail')
 
-print('Portable Bai re-eval handoff bundle passed for PASS/REJECTED and tamper guards.')
+    root=base/'wrong-character'; root.mkdir(); out,eval_gold,adapter=fixture(root,'REEVAL_PASS')
+    write(out/'deterministic-character-baseline.json','{"ok":false,"training_started":false,"training_allowed":false}\n')
+    try: package(out,eval_gold,adapter,root/'bad-character')
+    except SystemExit as exc: assert 'deterministic Character baseline must pass' in str(exc)
+    else: raise AssertionError('failed deterministic Character baseline must fail packaging')
+
+print('Portable Bai corrected re-eval handoff passed for PASS/contract-fail/REJECTED with eval-only and tamper guards.')

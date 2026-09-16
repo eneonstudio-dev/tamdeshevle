@@ -8,23 +8,61 @@ FINAL={'REEVAL_PASS','REEVAL_REJECTED'}
 REQUIRED=(
     'reeval-manifest.json','baseline-predictions.jsonl','candidate-predictions.jsonl',
     'metrics/baseline.json','metrics/candidate.json','metrics/promotion.json',
-    'comparison/candidate-comparison.json','comparison/candidate-comparison.md'
+    'comparison/candidate-comparison.json','comparison/candidate-comparison.md',
+    'contract-audit/baseline.json','contract-audit/candidate.json',
+    'deterministic-character-baseline.json','reeval-decision-summary.json'
 )
 REJECTED_REQUIRED=(
     'failure-analysis/failure-summary.json','failure-analysis/failure-cases.jsonl',
     'failure-analysis/review-candidates.jsonl'
 )
 
+
 def file_inventory(root,exclude=()):
     root=Path(root); excluded=set(exclude)
     return [{'path':p.relative_to(root).as_posix(),'sha256':sha256_file(p),'bytes':p.stat().st_size}
             for p in sorted(root.rglob('*')) if p.is_file() and p.relative_to(root).as_posix() not in excluded]
 
+
+def read_json(path):
+    value=json.loads(Path(path).read_text(encoding='utf-8'))
+    if not isinstance(value,dict): raise SystemExit(f'JSON object required: {path}')
+    return value
+
+
+def expected_next(status,candidate_contract_ok):
+    if status=='REEVAL_REJECTED': return 'failure_review_then_iteration_2'
+    return 'staged_release_review' if candidate_contract_ok else 'contract_failure_review'
+
+
+def validate_decision(reeval_dir,manifest):
+    reeval_dir=Path(reeval_dir)
+    status=manifest['status']
+    baseline=read_json(reeval_dir/'contract-audit/baseline.json')
+    candidate=read_json(reeval_dir/'contract-audit/candidate.json')
+    character=read_json(reeval_dir/'deterministic-character-baseline.json')
+    decision=read_json(reeval_dir/'reeval-decision-summary.json')
+    if decision.get('kind')!='bai_corrected_reeval_decision': raise SystemExit('unexpected re-eval decision kind')
+    if decision.get('promotion_status')!=status: raise SystemExit('decision promotion status mismatch')
+    if bool(decision.get('promotion_pass'))!=(status=='REEVAL_PASS'): raise SystemExit('decision promotion pass mismatch')
+    if decision.get('baseline_contract_ok')!=(baseline.get('ok') is True): raise SystemExit('baseline contract audit mismatch')
+    if decision.get('candidate_contract_ok')!=(candidate.get('ok') is True): raise SystemExit('candidate contract audit mismatch')
+    if decision.get('deterministic_character_ok') is not True or character.get('ok') is not True: raise SystemExit('deterministic Character baseline must pass')
+    if character.get('training_started') is not False or character.get('training_allowed') is not False: raise SystemExit('deterministic Character baseline must remain eval-only')
+    if decision.get('candidate_character_scope')!='planner_only_not_persona_stage': raise SystemExit('candidate Character scope must remain planner-only')
+    if decision.get('requires_served_character_gate_before_release') is not True: raise SystemExit('served Character gate requirement missing')
+    if decision.get('training_started') is not False or decision.get('training_allowed') is not False: raise SystemExit('re-eval decision must remain eval-only')
+    if decision.get('release_created') is not False: raise SystemExit('re-eval decision must not create a release')
+    route=expected_next(status,decision['candidate_contract_ok'])
+    if decision.get('next_step')!=route: raise SystemExit('unsafe corrected re-eval routing state')
+    return decision
+
+
 def validate(reeval_dir,eval_gold,adapter):
     reeval_dir=Path(reeval_dir).resolve(); eval_gold=Path(eval_gold).resolve(); adapter=Path(adapter).resolve()
     manifest_path=reeval_dir/'reeval-manifest.json'
     if not manifest_path.is_file(): raise SystemExit('reeval-manifest.json missing')
-    manifest=json.loads(manifest_path.read_text(encoding='utf-8'))
+    manifest=read_json(manifest_path)
     if manifest.get('mode')!='existing_candidate_reevaluation': raise SystemExit('unexpected re-eval mode')
     status=manifest.get('status')
     if status not in FINAL: raise SystemExit(f're-evaluation is not final: {status}')
@@ -36,33 +74,42 @@ def validate(reeval_dir,eval_gold,adapter):
     required=list(REQUIRED)+(list(REJECTED_REQUIRED) if status=='REEVAL_REJECTED' else [])
     missing=[x for x in required if not (reeval_dir/x).is_file()]
     if missing: raise SystemExit(f're-eval evidence missing: {missing}')
-    promotion_file=json.loads((reeval_dir/'metrics/promotion.json').read_text(encoding='utf-8'))
+    promotion_file=read_json(reeval_dir/'metrics/promotion.json')
     if promotion_file!=promotion: raise SystemExit('promotion file does not match re-eval manifest')
     config=Path(str(manifest.get('config') or '')).resolve()
     if not config.is_file() or sha256_file(config)!=manifest.get('config_sha256'): raise SystemExit('config hash mismatch')
-    return manifest,config
+    decision=validate_decision(reeval_dir,manifest)
+    return manifest,config,decision
+
 
 def package(reeval_dir,eval_gold,adapter,out_prefix,source_ref=''):
     reeval_dir=Path(reeval_dir).resolve(); eval_gold=Path(eval_gold).resolve(); adapter=Path(adapter).resolve(); prefix=Path(out_prefix).resolve()
-    manifest,config=validate(reeval_dir,eval_gold,adapter)
+    manifest,config,decision=validate(reeval_dir,eval_gold,adapter)
     work=prefix.parent/(prefix.name+'-evidence')
     shutil.rmtree(work,ignore_errors=True); work.mkdir(parents=True)
     shutil.copytree(reeval_dir,work/'reeval')
     shutil.copy2(eval_gold,work/'eval-gold.jsonl')
     shutil.copy2(config,work/'student-config.json')
     evidence_manifest={
-        'schema_version':'1.0','kind':'bai_existing_candidate_reeval_handoff','status':manifest['status'],
+        'schema_version':'1.1','kind':'bai_existing_candidate_reeval_handoff','status':manifest['status'],
         'source_ref':source_ref or None,'candidate_adapter_sha256':manifest['candidate_adapter_sha256'],
         'eval_gold_sha256':manifest['eval_gold_sha256'],'config_sha256':manifest['config_sha256'],
         'promotion_pass':bool((manifest.get('promotion') or {}).get('pass')),
-        'release_created':False,'next_step':'staged_release_review' if manifest['status']=='REEVAL_PASS' else 'failure_review_then_iteration_2',
+        'baseline_contract_ok':decision['baseline_contract_ok'],'candidate_contract_ok':decision['candidate_contract_ok'],
+        'deterministic_character_ok':decision['deterministic_character_ok'],
+        'candidate_character_scope':decision['candidate_character_scope'],
+        'requires_served_character_gate_before_release':True,
+        'training_started':False,'training_allowed':False,'release_created':False,'next_step':decision['next_step'],
     }
     evidence_manifest['files']=file_inventory(work,exclude={'evidence-manifest.json'})
     (work/'evidence-manifest.json').write_text(json.dumps(evidence_manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     evidence_zip=Path(shutil.make_archive(str(prefix)+'-evidence','zip',root_dir=work))
     adapter_zip=Path(shutil.make_archive(str(prefix)+'-adapter','zip',root_dir=adapter.parent,base_dir=adapter.name))
     handoff={
-        **{k:evidence_manifest[k] for k in ('schema_version','kind','status','source_ref','candidate_adapter_sha256','eval_gold_sha256','config_sha256','promotion_pass','release_created','next_step')},
+        **{k:evidence_manifest[k] for k in (
+            'schema_version','kind','status','source_ref','candidate_adapter_sha256','eval_gold_sha256','config_sha256',
+            'promotion_pass','baseline_contract_ok','candidate_contract_ok','deterministic_character_ok','candidate_character_scope',
+            'requires_served_character_gate_before_release','training_started','training_allowed','release_created','next_step')},
         'evidence_zip':str(evidence_zip),'evidence_zip_sha256':sha256_file(evidence_zip),
         'adapter_zip':str(adapter_zip),'adapter_zip_sha256':sha256_file(adapter_zip)
     }
@@ -71,8 +118,10 @@ def package(reeval_dir,eval_gold,adapter,out_prefix,source_ref=''):
     shutil.rmtree(work,ignore_errors=True)
     return handoff
 
+
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('--reeval-dir',required=True); ap.add_argument('--eval-gold',required=True); ap.add_argument('--candidate-adapter',required=True); ap.add_argument('--out-prefix',required=True); ap.add_argument('--source-ref',default=''); args=ap.parse_args()
     print(json.dumps(package(args.reeval_dir,args.eval_gold,args.candidate_adapter,args.out_prefix,args.source_ref),ensure_ascii=False,indent=2))
+
 
 if __name__=='__main__': main()
