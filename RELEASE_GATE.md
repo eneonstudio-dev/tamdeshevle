@@ -1,6 +1,6 @@
-# Votonobay — Release Gate
+# VOTONOBAI — Release Gate
 
-Use this as a fail-closed checklist for closed beta and public release. A checked box requires evidence (test, PR, run, or manual verification), not confidence.
+Use this as a fail-closed checklist for closed beta and public release. A checked box requires evidence (test, PR, run, owner decision recorded in repo, or manual verification), not confidence.
 
 ## Gate A — Core shopping loop
 - [x] Natural grocery request becomes correct ShoppingIntent.
@@ -45,12 +45,13 @@ Use this as a fail-closed checklist for closed beta and public release. A checke
 - [x] User-data flows used by release have explicit lawful participation/consent where required.
 
 ## Gate G — Brand / launch hygiene
-- [ ] Final Votonobay/VOTONOBAI/«Там Дешевле» public brand relationship and spelling approved by owner.
-- [ ] Trademark/existing-brand/domain/social checks completed before public brand lock.
+- [x] Canonical public brand relationship/spelling approved by owner and recorded in `BRAND_CANON.md`: **VOTONOBAI / Вотонобай**, assistant **Бай**; old «Там дешевле» identity is not the product name.
+- [ ] Browser-visible legacy naming normalized and manually verified against `BRAND_CANON.md`.
+- [ ] Trademark/existing-brand/domain/social checks completed before public launch.
 - [ ] Legacy `tamdeshevle` public URL replaced or intentionally accepted for closed testing only.
 - [x] Public copy does not imply official retailer partnership without one — guarded by `scripts/test-public-brand-gate.mjs` / `Validate public brand gate`; evidence and remaining unknowns are recorded in `GATE_G_BRAND_PREFLIGHT.md`.
 
-Gate G remains **OPEN**. The current public surfaces are intentionally not auto-normalized: `index.html` / `manifest.json` use **Votonobay**, while `app.js` contains **Тамдешевле** and **Там Дешевле**. This inventory is evidence that owner brand lock is still required, not permission for an agent to pick a winner. Domain/trademark/social availability must not be inferred from search-engine absence.
+Gate G remains **OPEN**. Current browser surfaces still contain migration debt (`Votonobay`, `Тамдешевле`, `Там Дешевле`) and must be normalized through reviewed changes rather than treated as alternate approved brands. Domain/trademark/social availability must not be inferred from search-engine absence.
 
 ## Decision
 
