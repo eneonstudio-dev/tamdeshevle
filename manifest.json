@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Votonobay",
-  "short_name": "Votonobay",
-  "description": "Votonobay помогает решить, как лучше купить: учитывает цену, удобство, время и контекст.",
+  "name": "VOTONOBAI",
+  "short_name": "VOTONOBAI",
+  "description": "VOTONOBAI помогает решить, как лучше купить: учитывает цену, удобство, время и контекст.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -99,6 +99,6 @@ assert.match(decisionHandoff,/TDShoppingState\?\.get/);assert.match(decisionHand
 assert.match(historyUi,/tdHistorySignature/);assert.match(substitutions,/dataset\.signature/);
 assert.match(app,/function comparisonLead\(/);assert.match(app,/Победителя пока нет/);assert.match(app,/ЛУЧШИЙ ПОДТВЕРЖДЁННЫЙ ВАРИАНТ/);
 assert.match(app,/class="brand-home" onclick="go\('home'\)"/);
-assert.equal(manifest.name,"Votonobay");assert.equal(manifest.short_name,"Votonobay");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.background_color,"#050A07");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
+assert.equal(manifest.name,"VOTONOBAI");assert.equal(manifest.short_name,"VOTONOBAI");assert.equal(manifest.theme_color,"#102018");assert.equal(manifest.background_color,"#050A07");assert.equal(manifest.lang,"ru");assert.equal(manifest.scope,"./");
 assert.match(cards,/\.sku-plate img\{[^}]*object-fit:contain/);assert.match(cards,/\.thumb img,\.product-packaging img\{[^}]*object-fit:contain/);
-console.log("V2 UI contract passed: native Bay-first shell, approved Roxy Bay side panel/mobile sheet, living runtime states, restrained motion polish, subtle catalog hint, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and PWA identity are wired.");
+console.log("V2 UI contract passed: native Bay-first shell, approved Roxy Bay side panel/mobile sheet, living runtime states, restrained motion polish, subtle catalog hint, decision-to-purchase handoff, self-service fallback, dark responsive styling, honest data labels and canonical VOTONOBAI PWA identity are wired.");
