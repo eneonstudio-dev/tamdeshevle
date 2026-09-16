@@ -45,10 +45,12 @@ Use this as a fail-closed checklist for closed beta and public release. A checke
 - [x] User-data flows used by release have explicit lawful participation/consent where required.
 
 ## Gate G — Brand / launch hygiene
-- [ ] Final Votonobay/VOTONOBAI spelling approved.
+- [ ] Final Votonobay/VOTONOBAI/«Там Дешевле» public brand relationship and spelling approved by owner.
 - [ ] Trademark/existing-brand/domain/social checks completed before public brand lock.
 - [ ] Legacy `tamdeshevle` public URL replaced or intentionally accepted for closed testing only.
-- [ ] Public copy does not imply official retailer partnership without one.
+- [x] Public copy does not imply official retailer partnership without one — guarded by `scripts/test-public-brand-gate.mjs` / `Validate public brand gate`; evidence and remaining unknowns are recorded in `GATE_G_BRAND_PREFLIGHT.md`.
+
+Gate G remains **OPEN**. The current public surfaces are intentionally not auto-normalized: `index.html` / `manifest.json` use **Votonobay**, while `app.js` contains **Тамдешевле** and **Там Дешевле**. This inventory is evidence that owner brand lock is still required, not permission for an agent to pick a winner. Domain/trademark/social availability must not be inferred from search-engine absence.
 
 ## Decision
 
